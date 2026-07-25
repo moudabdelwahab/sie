@@ -2,16 +2,28 @@
  * observability-read-port.supabase.js
  * ------------------------------------------------------------
  * Real, thin implementation of the observability read port, reading a
- * stored conversation's customer messages back out of chat_messages
- * (the same table the Action Layer writes bot messages into — this is
- * the one module allowed to READ it back for historical replay; see
- * observability-read-port.js for why this lives here and not in
- * action/).
+ * stored conversation's customer messages back out of chat_messages.
  *
- * NEVER INVOKED BY ANY TEST in this project — only
- * tests/helpers/fake-read-port.js is exercised. This file exists so the
- * real wiring is written and reviewable now; connecting it to live
- * traffic is a separate, explicit future integration step.
+ * CORRECTED (verified against the live schema via Supabase MCP, not
+ * assumed). The previous version of this file queried
+ * `.select('turn, text').eq('sender', 'customer')` — none of `turn`,
+ * `text`, or `sender` exist as columns on the live chat_messages table,
+ * so this would have failed with a Postgres "column does not exist"
+ * error on first real use. The live columns are:
+ *
+ *   id, session_id, sender_id, message_text, is_bot_reply,
+ *   is_admin_reply, created_at, image_url
+ *
+ * Two consequences for this file specifically:
+ *   1. "Customer message" is not a single sender enum value — it's the
+ *      row where BOTH is_bot_reply and is_admin_reply are false.
+ *   2. There is no stored `turn` number at all (confirmed by reading
+ *      persist_bot_turn's own function body: it accepts p_turn but never
+ *      writes it anywhere). Turn numbers for replay purposes are
+ *      therefore derived here, client-side, as the 1-based position of
+ *      each customer message within the session when ordered by
+ *      created_at — matching this port's documented contract ("turns
+ *      ordered ascending by turn") without requiring any new column.
  */
 import { createObservabilityReadPort } from './observability-read-port.js';
 
@@ -23,10 +35,11 @@ export function createObservabilityReadSupabasePort(supabaseClient) {
     return createObservabilityReadPort(async (sessionId) => {
         const { data, error } = await supabaseClient
             .from('chat_messages')
-            .select('turn, text')
+            .select('message_text, created_at')
             .eq('session_id', sessionId)
-            .eq('sender', 'customer')
-            .order('turn', { ascending: true });
+            .eq('is_bot_reply', false)
+            .eq('is_admin_reply', false)
+            .order('created_at', { ascending: true });
 
         if (error) {
             throw new Error(`Failed to load conversation from Supabase: ${error.message}`);
@@ -35,7 +48,7 @@ export function createObservabilityReadSupabasePort(supabaseClient) {
 
         return {
             sessionId,
-            turns: data.map((row) => ({ turn: row.turn, rawText: row.text }))
+            turns: data.map((row, index) => ({ turn: index + 1, rawText: row.message_text ?? '' }))
         };
     });
 }
