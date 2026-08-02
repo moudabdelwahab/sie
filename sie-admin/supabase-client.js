@@ -32,7 +32,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = 'https://srnelrdpqkcntbgudyto.supabase.co'; // TODO: confirm this is your project's URL
-const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY_HERE'; // TODO: fill in
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNybmVscmRwcWtjbnRiZ3VkeXRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNDYwNDcsImV4cCI6MjA3ODcyMjA0N30.Ox7wWQPu7GjYnjpx1w3gNYnDIykfANN4ott6narxdZI'; // TODO: fill in
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
