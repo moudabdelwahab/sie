@@ -3,182 +3,380 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مدعوم | منصة الدعم المتكاملة</title>
-<meta name="description" content="بورتفوليو منصة مدعوم — نظام التذاكر، الواتساب، ومحرك الدعم الذكي SIE. ثلاث أجزاء بتشتغل مع بعض عشان فريق الدعم يشوف كل حاجة في مكان واحد.">
+<title>مدعوم | منظومة الدعم — بورتفوليو</title>
+<meta name="description" content="بورتفوليو منصة مدعوم بتصميم ثلاثي الأبعاد — نظام التذاكر، الواتساب، ومحرك الدعم الذكي SIE.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234DA3FF'/%3E%3Cstop offset='1' stop-color='%230077CC'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='%23071023'/%3E%3Ccircle cx='50' cy='46' r='26' fill='url(%23g)'/%3E%3Ccircle cx='50' cy='18' r='5' fill='url(%23g)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============ Tokens — نفس منظومة ألوان الموقع الرئيسي (index.html) ============ */
+/* ==================================================================
+   Tokens — نفس منظومة ألوان مدعوم، مع طبقة عمق ثلاثية الأبعاد
+   ================================================================== */
 :root{
-  --bg-void:#060B14;
-  --bg-surface:#0D1622;
-  --bg-elevated:#121F30;
+  --bg-void:#050A12;
+  --bg-deep:#070D18;
   --glass:rgba(255,255,255,.045);
-  --glass-strong:rgba(255,255,255,.07);
-  --glass-border:rgba(255,255,255,.09);
+  --glass-border:rgba(255,255,255,.10);
   --primary:#0077CC;
   --primary-deep:#00234A;
   --accent:#4DA3FF;
   --accent-soft:#8FC7FF;
-  --success:#22C58B;
-  --whatsapp:#25D366;
-  --amber:#F5A524;
   --text-1:#F3F6FB;
   --text-2:#94A6C2;
-  --text-3:#5A6A82;
-  --radius-lg:1.5rem;
-  --radius-md:1rem;
-  --radius-sm:.6rem;
-  --shadow-lg:0 30px 80px -25px rgba(0,8,25,.7);
+  --text-3:#55647C;
   --font-display:'Cairo',sans-serif;
   --font-body:'IBM Plex Sans Arabic',sans-serif;
   --font-data:'Space Grotesk',sans-serif;
-  --container:1160px;
+  --container:1180px;
   --pad:clamp(1.25rem,4vw,3rem);
-  --scrim:rgba(6,11,20,.72);
-  --scrim-strong:rgba(6,11,20,.92);
-  --btn-outline-bg:rgba(255,255,255,.03);
   --ease-snap:cubic-bezier(.2,.8,.2,1);
-  --dur-fast:.18s;--dur-med:.35s;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  /* عمق المشهد — كل بطاقة بتاخد قيمها من هنا */
+  --lift:0px;
+  --rx:0deg;
+  --ry:0deg;
+  --mx:50%;
+  --my:50%;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto;}
-  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{
+  font-family:var(--font-body);background:var(--bg-void);color:var(--text-1);
+  line-height:1.8;font-size:15.5px;overflow-x:hidden;position:relative;
 }
-body{font-family:var(--font-body);background:var(--bg-void);color:var(--text-1);line-height:1.8;overflow-x:hidden;position:relative;font-size:15.5px;}
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:
-    radial-gradient(60rem 40rem at 85% -10%, rgba(0,119,204,.22), transparent 60%),
-    radial-gradient(50rem 35rem at -10% 25%, rgba(77,163,255,.12), transparent 55%),
-    var(--bg-void);}
-body::after{content:"";position:fixed;inset:0;z-index:-1;background-image:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);background-size:34px 34px;mask-image:radial-gradient(60rem 60rem at 60% 0%, black, transparent 70%);opacity:.5;}
+/* ضباب لوني عميق في الخلفية */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-3;
+  background:
+    radial-gradient(70rem 45rem at 78% -12%, rgba(0,119,204,.26), transparent 62%),
+    radial-gradient(55rem 38rem at -8% 22%, rgba(77,163,255,.13), transparent 58%),
+    radial-gradient(45rem 30rem at 50% 108%, rgba(0,119,204,.16), transparent 60%),
+    var(--bg-void);
+}
 a{color:inherit;text-decoration:none;}
-img,svg{display:block;}
+svg{display:block;}
 ul{list-style:none;}
 button{font-family:inherit;}
-h1,h2,h3,h4{font-family:var(--font-display);font-weight:800;line-height:1.3;letter-spacing:-.01em;}
+h1,h2,h3{font-family:var(--font-display);font-weight:900;line-height:1.25;letter-spacing:-.015em;}
 ::selection{background:var(--primary);color:#fff;}
-:focus-visible{outline:2px solid var(--accent-soft);outline-offset:3px;border-radius:4px;}
-.container{max-width:var(--container);margin:0 auto;padding-inline:var(--pad);}
-.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;color:var(--accent-soft);background:rgba(0,119,204,.12);border:1px solid rgba(77,163,255,.25);padding:.4rem 1rem;border-radius:99px;margin-bottom:1.25rem;}
-.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
-.section{padding:clamp(3.5rem,8vw,6rem) 0;}
-.section-head{max-width:640px;margin:0 auto 3rem;text-align:center;}
-.section-head h2{font-size:clamp(1.6rem,3.4vw,2.35rem);margin-bottom:.9rem;}
-.section-head p{color:var(--text-2);font-size:1.02rem;}
-.gradient-text{background:linear-gradient(90deg,var(--accent-soft),var(--accent),#B9DCFF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.glass{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem 1.6rem;border-radius:.8rem;font-weight:700;font-size:.92rem;cursor:pointer;border:1px solid transparent;transition:transform var(--dur-fast) var(--ease-snap), box-shadow var(--dur-med) var(--ease-snap), background var(--dur-fast) ease, border-color var(--dur-fast) ease;white-space:nowrap;position:relative;overflow:hidden;}
-.btn:active{transform:translateY(1px) scale(.97);}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;box-shadow:0 12px 30px -10px rgba(0,119,204,.55);}
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 40px -10px rgba(0,119,204,.75);}
-.btn-outline{background:var(--btn-outline-bg);border-color:var(--glass-border);color:var(--text-1);}
-.btn-outline:hover{border-color:var(--accent-soft);background:rgba(77,163,255,.08);transform:translateY(-2px);}
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease;}
-.reveal.in{opacity:1;transform:translateY(0);}
+:focus-visible{outline:2px solid var(--accent-soft);outline-offset:4px;border-radius:6px;}
+.container{max-width:var(--container);margin:0 auto;padding-inline:var(--pad);position:relative;}
 
-/* ============ Navbar ============ */
-.navbar{position:fixed;top:0;inset-inline:0;z-index:200;padding:1rem 0;transition:background .3s ease, border-color .3s ease, padding .3s ease;}
-.navbar.scrolled{background:var(--scrim);backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border);padding:.65rem 0;}
+/* ==================================================================
+   أرضية المنظور — شبكة ثلاثية الأبعاد بتغور ناحية الأفق
+   ================================================================== */
+.world{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;perspective:520px;perspective-origin:50% 50%;}
+.floor{
+  position:absolute;left:-60%;right:-60%;bottom:-32vh;height:110vh;
+  transform:rotateX(78deg);transform-origin:50% 100%;
+  background-image:
+    linear-gradient(to right, rgba(77,163,255,.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(77,163,255,.16) 1px, transparent 1px);
+  background-size:80px 80px;
+  mask-image:linear-gradient(to top, #000 0%, rgba(0,0,0,.35) 38%, transparent 72%);
+  -webkit-mask-image:linear-gradient(to top, #000 0%, rgba(0,0,0,.35) 38%, transparent 72%);
+  animation:floorDrift 24s linear infinite;
+}
+@keyframes floorDrift{from{background-position:0 0;}to{background-position:0 80px;}}
+/* كرات ضوء عائمة بعمق مختلف */
+.orb{position:absolute;border-radius:50%;filter:blur(46px);opacity:.5;will-change:transform;}
+.orb.a{width:26rem;height:26rem;top:-6rem;left:-5rem;background:radial-gradient(circle,rgba(0,119,204,.55),transparent 68%);}
+.orb.b{width:20rem;height:20rem;top:38%;right:-6rem;background:radial-gradient(circle,rgba(77,163,255,.42),transparent 68%);}
+.orb.c{width:24rem;height:24rem;bottom:-8rem;left:22%;background:radial-gradient(circle,rgba(0,119,204,.35),transparent 70%);}
+
+/* ==================================================================
+   Navbar
+   ================================================================== */
+.navbar{position:fixed;top:0;inset-inline:0;z-index:300;padding:1rem 0;transition:background .3s ease,border-color .3s ease,padding .3s ease;}
+.navbar.scrolled{background:rgba(5,10,18,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--glass-border);padding:.6rem 0;}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;}
 .brand{display:flex;align-items:center;gap:.65rem;}
-.brand-mark{width:42px;height:42px;border-radius:.8rem;background:linear-gradient(135deg,var(--accent),var(--primary-deep));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 20px -6px rgba(0,119,204,.6);flex-shrink:0;}
-.brand-mark svg{width:24px;height:24px;}
+/* علامة الهوية بعمق حقيقي — مكعب صغير بيلف */
+.brand-mark{width:42px;height:42px;perspective:200px;flex-shrink:0;}
+.brand-cube{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:cubeSpin 9s linear infinite;}
+.brand-cube span{position:absolute;inset:0;border-radius:.7rem;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,var(--accent),var(--primary-deep));box-shadow:0 8px 22px -8px rgba(0,119,204,.75);}
+.brand-cube span:nth-child(1){transform:translateZ(21px);}
+.brand-cube span:nth-child(2){transform:rotateY(90deg) translateZ(21px);background:linear-gradient(135deg,var(--primary),#001A38);}
+.brand-cube span svg{width:22px;height:22px;}
+@keyframes cubeSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
 .brand-text{display:flex;flex-direction:column;line-height:1.15;}
-.brand-text strong{font-family:var(--font-display);font-weight:800;font-size:1.05rem;}
+.brand-text strong{font-family:var(--font-display);font-weight:900;font-size:1.05rem;}
 .brand-text small{font-size:.62rem;color:var(--text-2);font-weight:500;}
 .nav-links{display:flex;align-items:center;gap:1.9rem;}
-.nav-links a{position:relative;font-size:.9rem;color:var(--text-2);font-weight:500;transition:color var(--dur-fast) ease;padding-bottom:.2rem;}
-.nav-links a::after{content:"";position:absolute;right:0;bottom:0;width:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-soft));border-radius:2px;transition:width var(--dur-med) var(--ease-snap);}
+.nav-links a{position:relative;font-size:.9rem;color:var(--text-2);font-weight:500;transition:color .18s ease;padding-bottom:.2rem;}
+.nav-links a::after{content:"";position:absolute;right:0;bottom:0;width:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-soft));border-radius:2px;transition:width .35s var(--ease-snap);}
 .nav-links a:hover{color:var(--text-1);}
 .nav-links a:hover::after{width:100%;}
-.nav-cta{display:flex;align-items:center;gap:.75rem;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem 1.6rem;border-radius:.85rem;font-weight:700;font-size:.92rem;cursor:pointer;border:1px solid transparent;white-space:nowrap;transition:transform .18s var(--ease-snap),box-shadow .35s var(--ease-snap),border-color .18s ease,background .18s ease;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;box-shadow:0 12px 30px -10px rgba(0,119,204,.6),inset 0 1px 0 rgba(255,255,255,.28);}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 22px 42px -12px rgba(0,119,204,.8),inset 0 1px 0 rgba(255,255,255,.3);}
+.btn-ghost{background:rgba(255,255,255,.03);border-color:var(--glass-border);color:var(--text-1);}
+.btn-ghost:hover{border-color:var(--accent-soft);background:rgba(77,163,255,.09);transform:translateY(-2px);}
+.btn:active{transform:translateY(1px) scale(.98);}
 .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:.4rem;}
 .hamburger span{width:22px;height:2px;background:var(--text-1);border-radius:2px;}
 .mobile-menu{display:none;}
-@media (max-width:860px){
-  .nav-links{display:none;} .hamburger{display:flex;} .nav-cta{display:none;}
-  .mobile-menu{position:fixed;inset:0;background:var(--scrim-strong);backdrop-filter:blur(10px);z-index:250;display:flex;flex-direction:column;padding:2rem var(--pad);transform:translateY(-100%);transition:transform .35s ease;}
+@media (max-width:900px){
+  .nav-links{display:none;} .nav-cta{display:none;} .hamburger{display:flex;}
+  .mobile-menu{position:fixed;inset:0;background:rgba(5,10,18,.94);backdrop-filter:blur(12px);z-index:400;display:flex;flex-direction:column;padding:2rem var(--pad);transform:translateY(-100%);transition:transform .4s var(--ease-out);}
   .mobile-menu.open{transform:translateY(0);}
   .mobile-menu-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;}
-  .mobile-menu a{display:block;padding:1rem 0;font-size:1.1rem;font-weight:600;border-bottom:1px solid var(--glass-border);}
+  .mobile-menu a{display:block;padding:1rem 0;font-size:1.12rem;font-weight:600;border-bottom:1px solid var(--glass-border);}
   .mobile-menu .btn{margin-top:1.5rem;}
   .close-btn{background:none;border:none;color:var(--text-1);font-size:1.6rem;cursor:pointer;}
 }
 
-/* ============ Hero ============ */
-.hero{padding:clamp(7.5rem,13vw,9.5rem) 0 1rem;text-align:center;}
-.hero h1{font-size:clamp(2rem,4.6vw,3.1rem);margin-bottom:1.1rem;}
-.hero .lede{color:var(--text-2);font-size:1.06rem;max-width:56ch;margin:0 auto 2rem;}
-.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;}
+/* ==================================================================
+   Hero — عنوان بعمق محفور + منظومة ثلاثية الأبعاد بتلف
+   ================================================================== */
+.hero{padding:clamp(8rem,14vw,10.5rem) 0 clamp(3rem,7vw,5rem);}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(2rem,5vw,4rem);align-items:center;}
+@media (max-width:1000px){.hero-grid{grid-template-columns:1fr;text-align:center;}}
+.eyebrow{display:inline-flex;align-items:center;gap:.55rem;font-size:.76rem;font-weight:700;color:var(--accent-soft);background:rgba(0,119,204,.13);border:1px solid rgba(77,163,255,.28);padding:.42rem 1.05rem;border-radius:99px;margin-bottom:1.4rem;box-shadow:0 6px 18px -8px rgba(0,119,204,.6);}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 9px var(--accent);animation:pulse 2.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(.75);}}
+/* العنوان محفور بطبقات ظل — إحساس إنه بارز من السطح */
+.hero h1{font-size:clamp(2.1rem,5.2vw,3.5rem);margin-bottom:1.15rem;}
+.hero h1 .carve{
+  display:inline-block;color:var(--text-1);
+  text-shadow:0 1px 0 rgba(255,255,255,.14), 0 2px 0 rgba(0,0,0,.28), 0 4px 8px rgba(0,0,0,.5), 0 12px 28px rgba(0,20,50,.6);
+}
+.hero h1 .glow{
+  display:inline-block;
+  background:linear-gradient(100deg,var(--accent-soft),var(--accent) 45%,#C6E2FF);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 8px 26px rgba(77,163,255,.45));
+}
+.hero .lede{color:var(--text-2);font-size:1.05rem;max-width:54ch;margin-bottom:1.9rem;}
+@media (max-width:1000px){.hero .lede{margin-inline:auto;}}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;}
+@media (max-width:1000px){.hero-actions{justify-content:center;}}
 
-/* ============ Portfolio cards ============ */
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;align-items:stretch;}
-@media (max-width:980px){.cards{grid-template-columns:1fr;max-width:560px;margin-inline:auto;}}
-.card{position:relative;display:flex;flex-direction:column;border-radius:var(--radius-lg);padding:1.75rem;overflow:hidden;box-shadow:var(--shadow-lg);transition:transform var(--dur-med) var(--ease-snap), border-color var(--dur-fast) ease;}
-.card::before{content:"";position:absolute;inset:0;background:radial-gradient(24rem 14rem at 80% -10%, var(--tint), transparent 65%);opacity:.55;pointer-events:none;transition:opacity var(--dur-med) ease;}
-.card:hover{transform:translateY(-6px);border-color:var(--ring);}
-.card:hover::before{opacity:1;}
-.card > *{position:relative;}
-.card-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.1rem;}
-.card-icon{width:52px;height:52px;border-radius:.9rem;display:flex;align-items:center;justify-content:center;background:var(--tint);border:1px solid var(--ring);color:var(--ink);flex-shrink:0;}
-.card-icon svg{width:26px;height:26px;}
-.card-badge{font-family:var(--font-data);direction:ltr;font-size:.66rem;font-weight:600;letter-spacing:.04em;color:var(--ink);background:var(--tint);border:1px solid var(--ring);padding:.28rem .6rem;border-radius:99px;}
-.card h3{font-size:1.22rem;margin-bottom:.5rem;}
-.card > p{color:var(--text-2);font-size:.9rem;margin-bottom:1.15rem;}
-.card-list{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem;}
-.card-list li{display:flex;align-items:flex-start;gap:.55rem;color:var(--text-2);font-size:.85rem;}
-.card-list svg{width:15px;height:15px;flex-shrink:0;margin-top:.35rem;color:var(--ink);}
-.card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding-top:1.1rem;border-top:1px solid var(--glass-border);}
-.card-domain{font-family:var(--font-data);direction:ltr;font-size:.78rem;font-weight:600;color:var(--text-3);}
-.card-go{display:inline-flex;align-items:center;gap:.45rem;font-weight:700;font-size:.86rem;color:var(--ink);}
-.card-go svg{width:15px;height:15px;transition:transform var(--dur-fast) var(--ease-snap);}
-.card:hover .card-go svg{transform:translateX(-4px);}
-/* اللينك بيغطي البطاقة كلها عشان تبقى قابلة للضغط من أي مكان */
-.card-link{position:absolute;inset:0;z-index:2;border-radius:inherit;}
-.card-link:focus-visible{outline-offset:-4px;}
+/* ---- المنظومة: ٣ ألواح زجاجية معلّقة في فراغ ثلاثي الأبعاد ---- */
+.rig{perspective:1200px;perspective-origin:50% 45%;display:flex;align-items:center;justify-content:center;min-height:clamp(19rem,34vw,25rem);}
+.rig-inner{position:relative;width:min(23rem,80vw);height:min(23rem,80vw);transform-style:preserve-3d;animation:rigSway 14s ease-in-out infinite;}
+/* تمايل هادي بدل لفّة كاملة — التلات ألواح فاضلة ظاهرة طول الوقت */
+@keyframes rigSway{
+  0%,100%{transform:rotateX(-12deg) rotateY(-13deg);}
+  50%{transform:rotateX(-6deg) rotateY(13deg);}
+}
+.pane{
+  position:absolute;top:50%;left:50%;width:11rem;height:14.5rem;margin:-7.25rem 0 0 -5.5rem;
+  border-radius:1.2rem;border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(150deg,rgba(255,255,255,.15),rgba(255,255,255,.045) 55%,rgba(0,20,45,.3));
+  box-shadow:0 30px 70px -30px rgba(0,10,30,.9), inset 0 1px 0 rgba(255,255,255,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;
+  /* الوجه الخلفي بيتخفي عشان النص ما يظهرش معكوس وقت اللفّة */
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+}
+.pane i{width:44px;height:44px;border-radius:.8rem;display:flex;align-items:center;justify-content:center;border:1px solid;}
+.pane i svg{width:22px;height:22px;}
+.pane b{font-family:var(--font-display);font-size:.9rem;font-weight:800;}
+.pane s{font-family:var(--font-data);direction:ltr;font-size:.6rem;color:var(--text-3);text-decoration:none;letter-spacing:.05em;}
+/* قوس من ٣ ألواح — الأول والتالت مايلين لجوه، والأوسطاني قدام */
+.pane:nth-child(2){transform:translateX(-8.4rem) translateZ(-3.4rem) rotateY(38deg);}
+.pane:nth-child(3){transform:translateZ(2.5rem);}
+.pane:nth-child(4){transform:translateX(8.4rem) translateZ(-3.4rem) rotateY(-38deg);}
+.pane.t i{background:rgba(0,119,204,.2);border-color:rgba(77,163,255,.42);color:var(--accent-soft);}
+.pane.w i{background:rgba(37,211,102,.16);border-color:rgba(37,211,102,.42);color:#5DE49A;}
+.pane.s i{background:rgba(245,165,36,.16);border-color:rgba(245,165,36,.4);color:#FFCB6B;}
+/* على الشاشات الضيقة القوس بيتصغّر عشان ما يخرجش برّه العرض */
+@media (max-width:640px){
+  .rig-inner{width:min(19rem,92vw);height:min(19rem,92vw);}
+  .pane{width:9rem;height:12.5rem;margin:-6.25rem 0 0 -4.5rem;}
+  .pane:nth-child(2){transform:translateX(-6.3rem) translateZ(-3rem) rotateY(38deg);}
+  .pane:nth-child(4){transform:translateX(6.3rem) translateZ(-3rem) rotateY(-38deg);}
+  .pane b{font-size:.8rem;}
+  .pane i{width:38px;height:38px;}
+  .pane i svg{width:19px;height:19px;}
+}
+/* قاعدة ضوئية تحت المنظومة */
+.rig-base{position:absolute;top:50%;left:50%;width:20rem;height:20rem;margin:-10rem 0 0 -10rem;border-radius:50%;transform:rotateX(90deg) translateZ(-8.6rem);background:radial-gradient(circle,rgba(77,163,255,.4),transparent 66%);filter:blur(20px);}
 
-.card.tickets{--tint:rgba(0,119,204,.16);--ring:rgba(77,163,255,.32);--ink:var(--accent-soft);}
-.card.whatsapp{--tint:rgba(37,211,102,.14);--ring:rgba(37,211,102,.32);--ink:#5DE49A;}
-.card.sie{--tint:rgba(245,165,36,.13);--ring:rgba(245,165,36,.3);--ink:#FFCB6B;}
+/* ==================================================================
+   الأقسام
+   ================================================================== */
+.section{padding:clamp(3.5rem,8vw,6.5rem) 0;}
+.section-head{max-width:660px;margin:0 auto clamp(3rem,6vw,4.5rem);text-align:center;}
+.section-head h2{font-size:clamp(1.7rem,3.6vw,2.5rem);margin-bottom:.9rem;}
+.section-head h2 .glow{background:linear-gradient(100deg,var(--accent-soft),var(--accent),#C6E2FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.section-head p{color:var(--text-2);font-size:1.02rem;}
 
-/* ============ Flow strip ============ */
-.flow{border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);padding:2.75rem 0;}
-.flow-inner{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.85rem;text-align:center;}
-.flow-node{border-radius:.8rem;padding:.7rem 1.15rem;font-size:.86rem;font-weight:600;background:var(--glass-strong);border:1px solid var(--glass-border);color:var(--text-2);}
-.flow-node.on{background:linear-gradient(135deg,rgba(0,119,204,.22),rgba(77,163,255,.1));border-color:rgba(77,163,255,.35);color:var(--text-1);}
-.flow-sep{color:var(--text-3);font-size:.9rem;}
-.flow-note{text-align:center;color:var(--text-3);font-size:.78rem;margin-top:1rem;}
+/* ==================================================================
+   الألواح الثلاثة — 3D حقيقي: ميلان بالماوس + طبقات عمق داخلية
+   ================================================================== */
+.slabs{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1.5rem,3vw,2.4rem);}
+@media (max-width:1000px){.slabs{grid-template-columns:1fr;max-width:26rem;margin-inline:auto;gap:3rem;}}
 
-/* ============ Footer ============ */
-footer{border-top:1px solid var(--glass-border);padding:2.5rem 0;}
+.slab{position:relative;perspective:1100px;}
+.slab__body{
+  position:relative;border-radius:1.5rem;padding:1.9rem 1.7rem;min-height:100%;
+  transform-style:preserve-3d;
+  transform:rotateX(var(--rx)) rotateY(var(--ry)) translateZ(var(--lift));
+  transition:transform .45s var(--ease-out), box-shadow .45s var(--ease-out);
+  /* قاعدة معتمة عشان الحافة الملوّنة تبان عند الحرف بس، مش تغرق اللوح كله */
+  background:linear-gradient(158deg, rgba(255,255,255,.09), rgba(255,255,255,.025) 46%, rgba(0,0,0,.2)), rgba(10,17,29,.94);
+  border:1px solid var(--glass-border);
+  box-shadow:0 26px 60px -30px rgba(0,8,25,.95), inset 0 1px 0 rgba(255,255,255,.14);
+  display:flex;flex-direction:column;height:100%;
+}
+.slab:hover .slab__body{
+  border-color:var(--ring);
+  box-shadow:0 46px 90px -34px rgba(0,8,25,1), 0 0 60px -22px var(--halo), inset 0 1px 0 rgba(255,255,255,.2);
+}
+/* الحافة السميكة — بتدي إحساس إن اللوح له جسم مش مجرد سطح */
+.slab__edge{
+  position:absolute;inset:0;border-radius:inherit;transform:translateZ(-16px);
+  background:linear-gradient(158deg,var(--edge),rgba(0,0,0,.55));
+  filter:blur(.5px);opacity:.95;
+}
+/* لمعة زجاجية بتتبع مكان الماوس */
+.slab__sheen{
+  position:absolute;inset:0;border-radius:inherit;pointer-events:none;transform:translateZ(1px);
+  background:radial-gradient(22rem 16rem at var(--mx) var(--my), rgba(255,255,255,.16), transparent 62%);
+  opacity:0;transition:opacity .4s ease;
+}
+.slab:hover .slab__sheen{opacity:1;}
+/* توهج اللون الخاص بكل منتج */
+.slab__aura{
+  position:absolute;inset:0;border-radius:inherit;pointer-events:none;transform:translateZ(.5px);
+  background:radial-gradient(15rem 9rem at 82% -14%, var(--wash), transparent 62%);
+  opacity:.75;transition:opacity .4s ease;
+}
+.slab:hover .slab__aura{opacity:1;}
+/* ظل أرضي بيتحرك عكس الميلان */
+.slab__shadow{
+  position:absolute;inset-inline:12%;bottom:-1.6rem;height:2.4rem;border-radius:50%;
+  background:radial-gradient(ellipse,var(--halo),transparent 72%);
+  filter:blur(18px);opacity:.4;transition:opacity .45s var(--ease-out),transform .45s var(--ease-out);
+  transform:translateX(calc(var(--ry) * -0.9)) scale(.94);
+}
+.slab:hover .slab__shadow{opacity:.85;}
+/* اللينك بيغطي اللوح كله */
+.slab__link{position:absolute;inset:0;z-index:6;border-radius:1.5rem;}
+.slab__link:focus-visible{outline-offset:-6px;}
+
+/* --- طبقات المحتوى، كل طبقة على عمق مختلف --- */
+.slab__content{position:relative;transform-style:preserve-3d;display:flex;flex-direction:column;height:100%;}
+.d1{transform:translateZ(26px);}
+.d2{transform:translateZ(44px);}
+.d3{transform:translateZ(62px);}
+
+.slab__top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;}
+.slab__icon{
+  width:60px;height:60px;border-radius:1.1rem;display:flex;align-items:center;justify-content:center;
+  background:var(--tint);border:1px solid var(--ring);color:var(--ink);
+  box-shadow:0 16px 30px -14px var(--halo), inset 0 1px 0 rgba(255,255,255,.22);
+}
+.slab__icon svg{width:29px;height:29px;}
+/* رقم بارز بحفر ثلاثي الأبعاد */
+.slab__num{
+  font-family:var(--font-data);direction:ltr;font-size:2.5rem;font-weight:700;line-height:1;
+  color:rgba(255,255,255,.055);
+  text-shadow:0 1px 0 rgba(255,255,255,.09), 0 -1px 0 rgba(0,0,0,.5);
+}
+.slab__badge{
+  display:inline-block;font-family:var(--font-data);direction:ltr;font-size:.64rem;font-weight:600;
+  letter-spacing:.07em;color:var(--ink);background:var(--tint);border:1px solid var(--ring);
+  padding:.3rem .65rem;border-radius:99px;margin-bottom:.85rem;
+}
+.slab h3{font-size:1.3rem;margin-bottom:.6rem;}
+.slab__desc{color:var(--text-2);font-size:.9rem;margin-bottom:1.3rem;}
+.slab__list{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.7rem;}
+.slab__list li{display:flex;align-items:flex-start;gap:.55rem;color:var(--text-2);font-size:.85rem;}
+.slab__list svg{width:15px;height:15px;flex-shrink:0;margin-top:.35rem;color:var(--ink);}
+.slab__foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding-top:1.15rem;border-top:1px solid var(--glass-border);}
+.slab__domain{font-family:var(--font-data);direction:ltr;font-size:.76rem;font-weight:600;color:var(--text-3);}
+.slab__go{display:inline-flex;align-items:center;gap:.45rem;font-weight:700;font-size:.86rem;color:var(--ink);}
+.slab__go svg{width:15px;height:15px;transition:transform .2s var(--ease-snap);}
+.slab:hover .slab__go svg{transform:translateX(-5px);}
+
+/* ألوان كل منتج */
+.slab.tickets{--tint:rgba(0,119,204,.2);--wash:rgba(0,119,204,.34);--ring:rgba(77,163,255,.42);--ink:var(--accent-soft);--halo:rgba(0,119,204,.55);--edge:#0A2440;}
+.slab.whatsapp{--tint:rgba(37,211,102,.15);--wash:rgba(37,211,102,.2);--ring:rgba(37,211,102,.4);--ink:#5DE49A;--halo:rgba(37,211,102,.42);--edge:#0A2E1C;}
+.slab.sie{--tint:rgba(245,165,36,.14);--wash:rgba(245,165,36,.19);--ring:rgba(245,165,36,.38);--ink:#FFCB6B;--halo:rgba(245,165,36,.4);--edge:#3A2A08;}
+
+/* ==================================================================
+   المسار — عُقد بعمق
+   ================================================================== */
+.flow{border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);padding:clamp(2.75rem,6vw,4rem) 0;}
+.flow-track{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1rem;perspective:900px;}
+.node{
+  position:relative;border-radius:1rem;padding:.9rem 1.35rem;font-size:.88rem;font-weight:700;
+  background:linear-gradient(155deg,rgba(255,255,255,.09),rgba(255,255,255,.02));
+  border:1px solid var(--glass-border);color:var(--text-2);
+  box-shadow:0 16px 34px -20px rgba(0,8,25,.95), inset 0 1px 0 rgba(255,255,255,.14);
+  transform:rotateX(8deg);transition:transform .35s var(--ease-out),color .3s ease;
+}
+.node:hover{transform:rotateX(0deg) translateY(-4px);color:var(--text-1);}
+.node.on{
+  background:linear-gradient(155deg,rgba(0,119,204,.3),rgba(77,163,255,.1));
+  border-color:rgba(77,163,255,.42);color:var(--text-1);
+  box-shadow:0 20px 44px -20px rgba(0,119,204,.85), inset 0 1px 0 rgba(255,255,255,.22);
+}
+.arrow{color:var(--text-3);font-size:1rem;}
+.flow-note{text-align:center;color:var(--text-3);font-size:.79rem;margin-top:1.15rem;}
+
+/* ==================================================================
+   Footer
+   ================================================================== */
+footer{padding:2.75rem 0;border-top:1px solid var(--glass-border);}
 .footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
 .footer-brand{display:flex;align-items:center;gap:.6rem;color:var(--text-2);font-size:.85rem;}
 .footer-brand strong{color:var(--text-1);}
 .footer-links{display:flex;gap:1.5rem;font-size:.82rem;color:var(--text-2);flex-wrap:wrap;}
 .footer-links a:hover{color:var(--accent-soft);}
+
+/* ==================================================================
+   ظهور تدريجي — البطاقات بتطير من العمق
+   ================================================================== */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.slab.reveal{transform:none;}
+.slab.reveal .slab__body{opacity:0;transform:translateZ(-260px) rotateX(22deg);}
+.slab.reveal.in .slab__body{opacity:1;transform:rotateX(var(--rx)) rotateY(var(--ry)) translateZ(var(--lift));transition:opacity .9s var(--ease-out),transform .9s var(--ease-out);}
+
+/* ==================================================================
+   احترام تقليل الحركة — كل الحركة تقف، والتصميم يفضل كامل
+   ================================================================== */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+  .rig-inner{animation:none;transform:rotateX(-16deg) rotateY(-22deg);}
+  .slab.reveal .slab__body{opacity:1;transform:none;}
+  .reveal{opacity:1;transform:none;}
+}
 </style>
 </head>
 <body>
+
+<!-- ============ عالم ثلاثي الأبعاد في الخلفية ============ -->
+<div class="world" aria-hidden="true">
+  <div class="orb a" data-depth="26"></div>
+  <div class="orb b" data-depth="-34"></div>
+  <div class="orb c" data-depth="18"></div>
+  <div class="floor"></div>
+</div>
 
 <!-- ============ Navbar ============ -->
 <nav class="navbar" id="navbar">
   <div class="container nav-inner">
     <a href="#" class="brand">
       <span class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+        <span class="brand-cube">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg></span>
+        </span>
       </span>
-      <span class="brand-text"><strong>مدعوم</strong><small>منصة الدعم المتكاملة</small></span>
+      <span class="brand-text"><strong>مدعوم</strong><small>منظومة الدعم المتكاملة</small></span>
     </a>
     <div class="nav-links">
-      <a href="#products">أجزاء المنصة</a>
+      <a href="#parts">أجزاء المنظومة</a>
       <a href="#flow">إزاي بيشتغلوا مع بعض</a>
     </div>
     <div class="nav-cta">
-      <a href="https://mad3oom.com" class="btn btn-primary" style="padding:.6rem 1.2rem;font-size:.85rem;">ادخل على مدعوم</a>
+      <a href="https://mad3oom.com" class="btn btn-primary" style="padding:.62rem 1.25rem;font-size:.85rem;">ادخل على مدعوم</a>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة"><span></span><span></span><span></span></button>
   </div>
@@ -189,104 +387,151 @@ footer{border-top:1px solid var(--glass-border);padding:2.5rem 0;}
     <span class="brand-text"><strong>مدعوم</strong></span>
     <button class="close-btn" id="closeMenuBtn" aria-label="إغلاق القائمة">✕</button>
   </div>
-  <a href="#products">أجزاء المنصة</a>
+  <a href="#parts">أجزاء المنظومة</a>
   <a href="#flow">إزاي بيشتغلوا مع بعض</a>
   <a href="https://mad3oom.com" class="btn btn-primary">ادخل على مدعوم</a>
 </div>
 
 <!-- ============ Hero ============ -->
 <header class="hero">
-  <div class="container reveal">
-    <div class="eyebrow"><span class="dot"></span> بورتفوليو المنصة</div>
-    <h1>منصة مدعوم — <span class="gradient-text">الدعم كله في مكان واحد</span></h1>
-    <p class="lede">تلات أجزاء بتشتغل مع بعض: مكان بتتسجل فيه كل تذكرة، قناة العميل بيكلمك منها على واتساب، وطبقة ذكاء بتفهم المشكلة قبل ما ترد عليها.</p>
-    <div class="hero-actions">
-      <a href="#products" class="btn btn-primary">اتفرج على الأجزاء</a>
-      <a href="#flow" class="btn btn-outline">إزاي بيشتغلوا مع بعض</a>
+  <div class="container hero-grid">
+    <div class="reveal">
+      <div class="eyebrow"><span class="dot"></span> بورتفوليو المنظومة</div>
+      <h1><span class="carve">منصة مدعوم</span><br><span class="glow">من كل زواياها</span></h1>
+      <p class="lede">تلات أجزاء مبنية فوق بعض: مكان بتتسجل فيه كل تذكرة، قناة العميل بيكلمك منها على واتساب، وطبقة ذكاء بتفهم المشكلة قبل ما ترد عليها.</p>
+      <div class="hero-actions">
+        <a href="#parts" class="btn btn-primary">لُف حوالين الأجزاء</a>
+        <a href="#flow" class="btn btn-ghost">إزاي بيشتغلوا مع بعض</a>
+      </div>
+    </div>
+
+    <div class="rig" aria-hidden="true">
+      <div class="rig-inner">
+        <div class="rig-base"></div>
+        <div class="pane t">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2a3 3 0 000 6v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a3 3 0 000-6z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg></i>
+          <b>نظام التذاكر</b><s>mad3oom.com</s>
+        </div>
+        <div class="pane w">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.3 7.6L3 21l1.9-5.6A8.5 8.5 0 1121 11.5z"/><path d="M8.6 9.2c0 3 2.2 5.2 5.2 5.2"/></svg></i>
+          <b>الواتساب</b><s>wa.mad3oom.com</s>
+        </div>
+        <div class="pane s">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 00-4 4 3.5 3.5 0 00-1 6.8V17a3 3 0 003 3h4a3 3 0 003-3v-3.2A3.5 3.5 0 0016 7a4 4 0 00-4-4z"/><path d="M9.5 21h5"/></svg></i>
+          <b>محرك الدعم الذكي</b><s>sie.mad3oom.com</s>
+        </div>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- ============ Products ============ -->
-<section class="section" id="products">
+<!-- ============ الأجزاء الثلاثة ============ -->
+<section class="section" id="parts">
   <div class="container">
     <div class="section-head reveal">
-      <div class="eyebrow"><span class="dot"></span> أجزاء المنصة</div>
-      <h2>تلات أجزاء، منظومة واحدة</h2>
+      <div class="eyebrow"><span class="dot"></span> أجزاء المنظومة</div>
+      <h2>تلات ألواح، <span class="glow">منظومة واحدة</span></h2>
       <p>كل جزء ليه شغله الواضح — وكلهم بيتكلموا مع بعض من غير ما الفريق يشتغل على أكتر من نظام.</p>
     </div>
 
-    <div class="cards">
+    <div class="slabs">
 
       <!-- 1) نظام التذاكر -->
-      <article class="card tickets glass reveal">
-        <a class="card-link" href="https://mad3oom.com" aria-label="افتح نظام التذاكر على mad3oom.com"></a>
-        <div class="card-top">
-          <span class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2a3 3 0 000 6v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a3 3 0 000-6z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>
-          </span>
-          <span class="card-badge">CORE</span>
-        </div>
-        <h3>نظام التذاكر</h3>
-        <p>قلب المنصة — كل طلب أو شكوى بتتحول لتذكرة ليها صاحب وحالة وتاريخ كامل، عشان محدش يضيع ومحدش يتنسى.</p>
-        <ul class="card-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> تذاكر بحالات وأولويات واضحة</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> توزيع على الفريق ومتابعة الرد</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> سجل كامل لكل عميل ومحادثاته</li>
-        </ul>
-        <div class="card-foot">
-          <span class="card-domain">mad3oom.com</span>
-          <span class="card-go">افتح النظام
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          </span>
+      <article class="slab tickets reveal" data-tilt>
+        <div class="slab__shadow"></div>
+        <a class="slab__link" href="https://mad3oom.com" aria-label="افتح نظام التذاكر على mad3oom.com"></a>
+        <div class="slab__body">
+          <div class="slab__edge"></div>
+          <div class="slab__aura"></div>
+          <div class="slab__sheen"></div>
+          <div class="slab__content">
+            <div class="slab__top d2">
+              <span class="slab__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2a3 3 0 000 6v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a3 3 0 000-6z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg></span>
+              <span class="slab__num">01</span>
+            </div>
+            <div class="d1">
+              <span class="slab__badge">CORE</span>
+              <h3>نظام التذاكر</h3>
+              <p class="slab__desc">قلب المنصة — كل طلب أو شكوى بتتحول لتذكرة ليها صاحب وحالة وتاريخ كامل، عشان محدش يضيع ومحدش يتنسى.</p>
+              <ul class="slab__list">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> تذاكر بحالات وأولويات واضحة</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> توزيع على الفريق ومتابعة الرد</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> سجل كامل لكل عميل ومحادثاته</li>
+              </ul>
+            </div>
+            <div class="slab__foot d3">
+              <span class="slab__domain">mad3oom.com</span>
+              <span class="slab__go">افتح النظام
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </span>
+            </div>
+          </div>
         </div>
       </article>
 
       <!-- 2) الواتساب -->
-      <article class="card whatsapp glass reveal">
-        <a class="card-link" href="https://wa.mad3oom.com" aria-label="افتح خدمة الواتساب على wa.mad3oom.com"></a>
-        <div class="card-top">
-          <span class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.3 7.6L3 21l1.9-5.6A8.5 8.5 0 1121 11.5z"/><path d="M8.6 9.2c0 3 2.2 5.2 5.2 5.2"/></svg>
-          </span>
-          <span class="card-badge">CHANNEL</span>
-        </div>
-        <h3>الواتساب</h3>
-        <p>القناة اللي العميل مرتاح فيها فعلاً. رسايل واتساب بتوصل الفريق جوه المنصة مباشرة، والرد بيرجع للعميل في نفس المحادثة.</p>
-        <ul class="card-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> ربط رقم الواتساب بالمنصة</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> استقبال وإرسال من مكان واحد</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> كل محادثة مربوطة بتذكرتها</li>
-        </ul>
-        <div class="card-foot">
-          <span class="card-domain">wa.mad3oom.com</span>
-          <span class="card-go">افتح الواتساب
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          </span>
+      <article class="slab whatsapp reveal" data-tilt>
+        <div class="slab__shadow"></div>
+        <a class="slab__link" href="https://wa.mad3oom.com" aria-label="افتح خدمة الواتساب على wa.mad3oom.com"></a>
+        <div class="slab__body">
+          <div class="slab__edge"></div>
+          <div class="slab__aura"></div>
+          <div class="slab__sheen"></div>
+          <div class="slab__content">
+            <div class="slab__top d2">
+              <span class="slab__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.3 7.6L3 21l1.9-5.6A8.5 8.5 0 1121 11.5z"/><path d="M8.6 9.2c0 3 2.2 5.2 5.2 5.2"/></svg></span>
+              <span class="slab__num">02</span>
+            </div>
+            <div class="d1">
+              <span class="slab__badge">CHANNEL</span>
+              <h3>الواتساب</h3>
+              <p class="slab__desc">القناة اللي العميل مرتاح فيها فعلاً. رسايل واتساب بتوصل الفريق جوه المنصة مباشرة، والرد بيرجع للعميل في نفس المحادثة.</p>
+              <ul class="slab__list">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> ربط رقم الواتساب بالمنصة</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> استقبال وإرسال من مكان واحد</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> كل محادثة مربوطة بتذكرتها</li>
+              </ul>
+            </div>
+            <div class="slab__foot d3">
+              <span class="slab__domain">wa.mad3oom.com</span>
+              <span class="slab__go">افتح الواتساب
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </span>
+            </div>
+          </div>
         </div>
       </article>
 
       <!-- 3) محرك الدعم الذكي -->
-      <article class="card sie glass reveal">
-        <a class="card-link" href="https://sie.mad3oom.com" aria-label="افتح محرك الدعم الذكي على sie.mad3oom.com"></a>
-        <div class="card-top">
-          <span class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 00-4 4 3.5 3.5 0 00-1 6.8V17a3 3 0 003 3h4a3 3 0 003-3v-3.2A3.5 3.5 0 0016 7a4 4 0 00-4-4z"/><path d="M9.5 21h5"/></svg>
-          </span>
-          <span class="card-badge">SIE</span>
-        </div>
-        <h3>محرك الدعم الذكي</h3>
-        <p>طبقة التفكير جوه مدعوم — بتقرا رسالة العميل، تجمع القرائن، وتقرر خطوة واحدة: ترد، تسأل، تفتح تذكرة، أو توصّله بالفريق.</p>
-        <ul class="card-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> يفهم العربي والعامية والفرانكو</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> يسأل سؤال واحد بدل ما يخمّن</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> يعرف امتى يوصّل لحد بشري</li>
-        </ul>
-        <div class="card-foot">
-          <span class="card-domain">sie.mad3oom.com</span>
-          <span class="card-go">اعرف أكتر
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          </span>
+      <article class="slab sie reveal" data-tilt>
+        <div class="slab__shadow"></div>
+        <a class="slab__link" href="https://sie.mad3oom.com" aria-label="افتح محرك الدعم الذكي على sie.mad3oom.com"></a>
+        <div class="slab__body">
+          <div class="slab__edge"></div>
+          <div class="slab__aura"></div>
+          <div class="slab__sheen"></div>
+          <div class="slab__content">
+            <div class="slab__top d2">
+              <span class="slab__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 00-4 4 3.5 3.5 0 00-1 6.8V17a3 3 0 003 3h4a3 3 0 003-3v-3.2A3.5 3.5 0 0016 7a4 4 0 00-4-4z"/><path d="M9.5 21h5"/></svg></span>
+              <span class="slab__num">03</span>
+            </div>
+            <div class="d1">
+              <span class="slab__badge">SIE</span>
+              <h3>محرك الدعم الذكي</h3>
+              <p class="slab__desc">طبقة التفكير جوه مدعوم — بتقرا رسالة العميل، تجمع القرائن، وتقرر خطوة واحدة: ترد، تسأل، تفتح تذكرة، أو توصّله بالفريق.</p>
+              <ul class="slab__list">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> يفهم العربي والعامية والفرانكو</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> يسأل سؤال واحد بدل ما يخمّن</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> يعرف امتى يوصّل لحد بشري</li>
+              </ul>
+            </div>
+            <div class="slab__foot d3">
+              <span class="slab__domain">sie.mad3oom.com</span>
+              <span class="slab__go">اعرف أكتر
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </span>
+            </div>
+          </div>
         </div>
       </article>
 
@@ -294,15 +539,15 @@ footer{border-top:1px solid var(--glass-border);padding:2.5rem 0;}
   </div>
 </section>
 
-<!-- ============ Flow ============ -->
+<!-- ============ المسار ============ -->
 <section class="flow" id="flow">
   <div class="container reveal">
-    <div class="flow-inner">
-      <span class="flow-node">💬 العميل بيبعت على واتساب</span>
-      <span class="flow-sep">←</span>
-      <span class="flow-node on">🧠 SIE يفهم ويقرر</span>
-      <span class="flow-sep">←</span>
-      <span class="flow-node">🎫 تذكرة جاهزة قدام الفريق</span>
+    <div class="flow-track">
+      <span class="node">💬 العميل بيبعت على واتساب</span>
+      <span class="arrow">←</span>
+      <span class="node on">🧠 SIE يفهم ويقرر</span>
+      <span class="arrow">←</span>
+      <span class="node">🎫 تذكرة جاهزة قدام الفريق</span>
     </div>
     <p class="flow-note">التلاتة بيشتغلوا كوحدة واحدة — العميل مش بيحس بالفرق، والفريق بيشوف كل حاجة في مكان واحد.</p>
   </div>
@@ -312,10 +557,7 @@ footer{border-top:1px solid var(--glass-border);padding:2.5rem 0;}
 <footer>
   <div class="container footer-inner">
     <div class="footer-brand">
-      <span class="brand-mark" style="width:30px;height:30px;border-radius:.55rem;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
-      </span>
-      <span><strong>مدعوم</strong> — منصة الدعم المتكاملة</span>
+      <span><strong>مدعوم</strong> — منظومة الدعم المتكاملة</span>
     </div>
     <div class="footer-links">
       <a href="https://mad3oom.com">نظام التذاكر</a>
@@ -326,35 +568,99 @@ footer{border-top:1px solid var(--glass-border);padding:2.5rem 0;}
 </footer>
 
 <script>
-// Navbar scroll state
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 20);
-}, { passive: true });
+(function () {
+  'use strict';
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Mobile menu
-const hamburgerBtn = document.getElementById('hamburgerBtn');
-const closeMenuBtn = document.getElementById('closeMenuBtn');
-const mobileMenu = document.getElementById('mobileMenu');
-hamburgerBtn?.addEventListener('click', () => mobileMenu.classList.add('open'));
-closeMenuBtn?.addEventListener('click', () => mobileMenu.classList.remove('open'));
-mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+  /* ---- حالة الـ navbar عند التمرير ---- */
+  var navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', function () {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
 
-// Reveal on scroll
-const revealEls = document.querySelectorAll('.reveal');
-if ('IntersectionObserver' in window) {
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      }
+  /* ---- قائمة الموبايل ---- */
+  var mobileMenu = document.getElementById('mobileMenu');
+  document.getElementById('hamburgerBtn').addEventListener('click', function () {
+    mobileMenu.classList.add('open');
+  });
+  document.getElementById('closeMenuBtn').addEventListener('click', function () {
+    mobileMenu.classList.remove('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () { mobileMenu.classList.remove('open'); });
+  });
+
+  /* ---- الظهور التدريجي ---- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  if (reduced) return;
+
+  /* ---- ميلان الألواح مع الماوس: 3D حقيقي ---- */
+  var MAX = 11; /* أقصى زاوية ميلان بالدرجات */
+  document.querySelectorAll('[data-tilt]').forEach(function (slab) {
+    var raf = null, tx = 0, ty = 0;
+
+    function apply() {
+      raf = null;
+      slab.style.setProperty('--ry', (tx * MAX).toFixed(2) + 'deg');
+      slab.style.setProperty('--rx', (-ty * MAX).toFixed(2) + 'deg');
+    }
+    function schedule() { if (raf === null) raf = requestAnimationFrame(apply); }
+
+    slab.addEventListener('pointermove', function (ev) {
+      /* اللمس بيسيب اللوح مستقر — الميلان للماوس بس */
+      if (ev.pointerType === 'touch') return;
+      var r = slab.getBoundingClientRect();
+      var px = (ev.clientX - r.left) / r.width;
+      var py = (ev.clientY - r.top) / r.height;
+      tx = px * 2 - 1;
+      ty = py * 2 - 1;
+      slab.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+      slab.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+      slab.style.setProperty('--lift', '26px');
+      schedule();
     });
-  }, { threshold: 0.15 });
-  revealEls.forEach(el => io.observe(el));
-} else {
-  revealEls.forEach(el => el.classList.add('in'));
-}
+
+    slab.addEventListener('pointerleave', function () {
+      tx = 0; ty = 0;
+      slab.style.setProperty('--lift', '0px');
+      schedule();
+    });
+
+    /* لوحة المفاتيح: التركيز بيرفع اللوح من غير ميلان */
+    var link = slab.querySelector('.slab__link');
+    link.addEventListener('focus', function () { slab.style.setProperty('--lift', '26px'); });
+    link.addEventListener('blur', function () { slab.style.setProperty('--lift', '0px'); });
+  });
+
+  /* ---- بارالاكس خفيف لكرات الضوء ---- */
+  var orbs = Array.prototype.slice.call(document.querySelectorAll('.orb'));
+  if (orbs.length && window.matchMedia('(pointer: fine)').matches) {
+    var oraf = null, ox = 0, oy = 0;
+    function moveOrbs() {
+      oraf = null;
+      orbs.forEach(function (o) {
+        var d = parseFloat(o.getAttribute('data-depth')) || 0;
+        o.style.transform = 'translate3d(' + (ox * d).toFixed(1) + 'px,' + (oy * d).toFixed(1) + 'px,0)';
+      });
+    }
+    window.addEventListener('pointermove', function (ev) {
+      ox = ev.clientX / window.innerWidth - 0.5;
+      oy = ev.clientY / window.innerHeight - 0.5;
+      if (oraf === null) oraf = requestAnimationFrame(moveOrbs);
+    }, { passive: true });
+  }
+})();
 </script>
 </body>
 </html>
