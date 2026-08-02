@@ -28,7 +28,7 @@ const SETTINGS_PAGE = './settings.html';
 // different origin than this standalone admin page, so a relative path
 // here would 404 on THIS origin instead of reaching the real page.
 // TODO: confirm this is the correct live platform domain.
-const PLATFORM_HOME = 'https://mad3oom.online/customer-dashboard.html';
+const PLATFORM_HOME = 'https://mad3oom.com/customer-dashboard.html';
 
 function showAlert(message, kind = 'error') {
     alertBox.textContent = message;
