@@ -64,7 +64,17 @@ test('end-to-end: a message with strong, specific evidence produces a clear, una
     assert.equal(result.topHypothesis.hypothesis.scenarioId, 'login_token_expired');
     assert.ok(result.topHypothesis.hypothesis.confidence > 0.25);
     assert.equal(result.isAmbiguous, false);
-    assert.equal(result.confidenceGap, null); // no second scenario even cleared the activation threshold
+    // A clear winner means a decisive MARGIN, not the absence of any runner-up.
+    // This used to assert confidenceGap === null, which held only while the
+    // catalog was small enough that nothing else reached the 0.15 activation
+    // threshold. With a full catalog, neighbouring scenarios legitimately
+    // register as weak candidates — "Token expired" is genuinely a little bit
+    // of evidence for several session-related scenarios. What matters is that
+    // the leader is far enough ahead for the engine to act on it.
+    assert.ok(
+        result.confidenceGap === null || result.confidenceGap > AMBIGUITY_MARGIN,
+        `expected a decisive gap, got ${result.confidenceGap}`
+    );
 });
 
 test('end-to-end: a message with evidence shared between two related scenarios produces genuine ambiguity', async () => {

@@ -69,7 +69,10 @@ test('normalizer: "الموقع بيرجع 500 Internal Server Error" recognizes
         previousLanguage: 'ar',
         ...providers()
     });
-    assert.deepEqual(tokenSummary(result), ['arabic:الموقع', 'arabic:بيرجع', 'glossary:http_status_500']);
+    // 'الموقع' now carries a canonical: in a support conversation it means the
+    // platform, and mapping it lets scenarios about the dashboard be reached
+    // by the word customers most often use for it.
+    assert.deepEqual(tokenSummary(result), ['glossary:entity_dashboard', 'arabic:بيرجع', 'glossary:http_status_500']);
     assert.equal(result.responseLanguage, 'ar');
 });
 
