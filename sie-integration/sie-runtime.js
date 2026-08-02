@@ -394,6 +394,7 @@ export const isSieLikelyAvailable = isSieAvailable;
 import { runSieTurn } from './sie-chat-bridge.js';
 import {
     isCurrentUserSieAdmin as _isCurrentUserSieAdmin,
+    isCurrentUserEngineStaff as _isCurrentUserEngineStaff,
     getSieAccessStatus as _getSieAccessStatus,
     adminSetAccess as _adminSetAccess,
     adminResetUsage as _adminResetUsage,
@@ -547,6 +548,17 @@ export { evaluateSieAccessRow };
  */
 export async function isCurrentUserSieAdmin(supabase) {
     return _isCurrentUserSieAdmin(supabase);
+}
+
+/**
+ * Is the CURRENT session allowed to edit the Scenario/Knowledge catalog?
+ * Answered by is_chat_engine_staff() — same fail-closed posture as
+ * isCurrentUserSieAdmin().
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<boolean>}
+ */
+export async function isCurrentUserEngineStaff(supabase) {
+    return _isCurrentUserEngineStaff(supabase);
 }
 
 /**
