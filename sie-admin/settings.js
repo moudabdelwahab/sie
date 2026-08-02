@@ -1,6 +1,12 @@
 /**
- * settings.js — SIE settings console
+ * settings.js — SIE settings console (standalone)
  * ------------------------------------------------------------
+ * Identical logic to the original sie-admin/settings.js. The only
+ * change: the Supabase client comes from ./supabase-client.js (a local
+ * client pointed at the same project) instead of the platform's
+ * /api-config.js, which isn't reachable from this origin — same fix
+ * already applied to login.js, per sie-admin/readme.md.
+ *
  * Three things an operator needs in one place: what the engine knows
  * (scenarios), how it decides (engine settings), and who is allowed to
  * use it (users).
@@ -9,8 +15,9 @@
  * Every call into SIE goes through `/sie-integration/sie-runtime.js` and
  * nothing else. This page never imports an engine module directly, so
  * the nine modules stay free to change shape behind the runtime. The
- * only non-SIE import is Mad3oom's Supabase client, because Mad3oom owns
- * authentication and sessions — SIE has no identity system of its own.
+ * only non-SIE import is the standalone Supabase client, because
+ * Mad3oom owns authentication and sessions — SIE has no identity system
+ * of its own.
  *
  * ── AUTHORIZATION ───────────────────────────────────────────
  * Both gates are answered by the database, never by inspecting a role in
@@ -24,7 +31,7 @@
  * These are deliberately different: catalog editing is a team role,
  * while entitlement is a single accountable address.
  */
-import { supabase } from '/api-config.js';
+import { supabase } from './supabase-client.js';
 import {
     listActiveScenarios,
     validateScenarioDraft,
