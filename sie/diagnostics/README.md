@@ -67,21 +67,22 @@ it can show what was considered and ruled out, not just the final belief.
 ## Known limitation: Arabic definite article ("ال") is not stripped
 
 Module 1's tokenizer/dialect-normalizer does not perform morphological
-stemming. A word written with the definite article fused on with no space —
-standard Arabic orthography, e.g. `الباسورد` ("the password"), `الدخول`
-("the login") — tokenizes as one token distinct from the catalog's bare
-evidence token (`باسورد`, `دخول`), and will not match it.
+stemming on its own. A word written with the definite article fused on with
+no space — standard Arabic orthography, e.g. `الباسورد` ("the password"),
+`الدخول` ("the login") — used to tokenize as one token distinct from the
+catalog's bare evidence token (`باسورد`, `دخول`), and would not match it.
 
-This is **not** a Diagnostic Engine bug — the exact-token matching here is
-working correctly against whatever Module 1 produces. It's a vocabulary/
-tokenization gap between modules, worth fixing at some point (likely a small,
-explicitly-scoped addition to `dialect-normalizer.js` to strip a leading
-`ال` when a bare form is also a known vocabulary token — NOT done here, since
-that would mean reopening an already-approved, already-tested module
-mid-task). It's locked in as an explicit regression test
-(`diagnostic-engine.test.mjs`, `"KNOWN LIMITATION: ..."`) so it's tracked
-and won't be silently rediscovered later, and other integration tests were
-written using phrasing that avoids it (documented inline where relevant).
+**This is now fixed in Module 1.** The normalizer strips Arabic clitics
+(`ال`, `و`, `ب`, `ف`, `ل`, `ك`) when the remainder is a word the glossary
+knows, so `الباسورد` reaches the same evidence as `باسورد`. Stripping is
+vocabulary-guided rather than length-guided, because length cannot tell
+`ومش` (a clitic + "not") from `وصل` ("arrived") — both are three letters
+starting with `و`; only checking the remainder against the vocabulary can.
+
+The Diagnostic Engine itself was never the problem: its exact-token matching
+was always working correctly against whatever Module 1 produced. The old
+regression test that locked in the broken behaviour has been replaced by one
+asserting the fix (`diagnostic-engine.test.mjs`).
 
 ## Running the tests
 

@@ -3,15 +3,50 @@
     {
       "key": "platform_info",
       "text": {
-        "ar": "منصتنا بتساعد الشركات تدير الدعم الفني والتواصل مع العملاء من مكان واحد، بما في ذلك الرد على واتساب، إدارة التذاكر، ومتابعة الاشتراكات. تقدر تدخل تعرف أكتر من صفحة \"عن المنصة\" في حسابك، أو تسألني أي سؤال تاني وهساعدك.",
-        "en": "Our platform helps businesses manage customer support and communication from one place — including WhatsApp replies, ticket management, and subscription tracking. You can read more on the \"About\" page in your account, or just ask me anything else."
+        "ar": "منصة مدعوم بتساعد الشركات تدير الدعم الفني والتواصل مع العملاء من مكان واحد:\n• نظام تذاكر كامل مع توزيع تلقائي وتتبّع لحالة كل تذكرة.\n• شات مباشر على موقعك، مع بوت بيرد على الأسئلة المتكررة.\n• واتساب للأعمال: ربط رقمك، قوالب، وحملات.\n• تقارير وإحصائيات عن أداء فريق الدعم وأوقات الاستجابة.\n• واجهة برمجية (API) وWebhooks للربط مع أنظمتك.\n\nاسألني عن أي جزء من دول وأنا أشرحلك بالتفصيل.",
+        "en": "Mad3oom helps businesses run customer support and communication from one place:\n• A full ticketing system with automatic routing and status tracking.\n• Live chat on your site, with a bot that handles recurring questions.\n• WhatsApp Business: link your number, manage templates, run campaigns.\n• Reports and analytics on team performance and response times.\n• An API and webhooks for integrating with your own systems.\n\nAsk me about any of these and I'll go into detail."
       }
     },
     {
       "key": "pricing",
       "text": {
-        "ar": "عندنا 3 باقات: باقة الدعم الفني بس، باقة واتساب بس، والباقة الشاملة اللي بتضم الاتنين بسعر أقل من لو اشتركت فيهم منفصلين. كل باقة متاحة شهري أو سنوي (السنوي بخصم). للأسعار الدقيقة والعروض الحالية، تقدر تزور صفحة الأسعار في حسابك أو تتواصل مع فريق المبيعات.",
-        "en": "We offer three plans: Support only, WhatsApp only, and a combined Bundle plan that costs less than subscribing to both separately. Each plan is available monthly or yearly (yearly comes with a discount). For exact current pricing and offers, check the Pricing page in your account or reach out to our sales team."
+        "ar": "عندنا ٣ باقات:\n• باقة الدعم الفني — نظام التذاكر والشات المباشر.\n• باقة واتساب — ربط الأرقام والقوالب والحملات.\n• الباقة الشاملة — الاتنين مع بعض بسعر أقل من الاشتراك فيهم منفصلين.\n\nكل باقة متاحة شهري أو سنوي، والسنوي عليه خصم. للأسعار الدقيقة والعروض الحالية، افتح صفحة \"الاشتراكات\" في حسابك — الأسعار بتتحدّث هناك أول بأول.\n\nلو قولتلي بتستخدم إيه أكتر وحجم فريقك كام، أرشحلك الأنسب.",
+        "en": "We offer three plans:\n• Support — the ticketing system and live chat.\n• WhatsApp — number linking, templates and campaigns.\n• Bundle — both together, for less than subscribing to each separately.\n\nEach is available monthly or yearly, with a discount on yearly. For exact current pricing and offers, open the \"Subscriptions\" page in your account — that's where prices are kept up to date.\n\nTell me what you use most and how big your team is, and I'll recommend the right one."
+      }
+    },
+    {
+      "key": "support_hours",
+      "text": {
+        "ar": "فريق الدعم البشري متاح من الأحد للخميس، من ٩ صباحًا لـ ٦ مساءً بتوقيت القاهرة.\n\nبرّه المواعيد دي تقدر تفتح تذكرة في أي وقت — بتتسجّل فورًا وبيتم الرد عليها أول ما اليوم يبدأ، بالترتيب حسب الأولوية. وأنا هنا ٢٤ ساعة لو حابب تجرّب نحل المشكلة مع بعض دلوقتي.",
+        "en": "Our human support team is available Sunday to Thursday, 9am to 6pm Cairo time.\n\nOutside those hours you can still open a ticket any time — it's logged immediately and answered as soon as the day starts, in priority order. And I'm here around the clock if you'd like to try solving it together now."
+      }
+    },
+    {
+      "key": "response_times",
+      "text": {
+        "ar": "أوقات الاستجابة المستهدفة حسب أولوية التذكرة:\n• عاجل (الخدمة واقفة تمامًا): خلال ساعة في مواعيد العمل.\n• عالي (خاصية أساسية معطلة): خلال ٤ ساعات عمل.\n• عادي (سؤال أو طلب تعديل): خلال يوم عمل واحد.\n\nدي أوقات أول رد، مش وقت الحل النهائي — الحل بيعتمد على طبيعة المشكلة، وبنحدّثك بالمستجدات على طول التذكرة.",
+        "en": "Target response times by ticket priority:\n• Urgent (service completely down): within 1 hour during business hours.\n• High (a core feature is broken): within 4 business hours.\n• Normal (a question or change request): within 1 business day.\n\nThese are first-response times, not resolution times — resolution depends on the issue itself, and we keep you updated on the ticket throughout."
+      }
+    },
+    {
+      "key": "data_security",
+      "text": {
+        "ar": "بياناتك متخزّنة مشفّرة، والاتصال بالمنصة كله عبر HTTPS.\n\n• كل عميل بيشوف بياناته هو بس — معزولة على مستوى قاعدة البيانات نفسها، مش بالكود.\n• كلمات المرور متخزّنة مشفّرة باتجاه واحد، ومحدش عندنا يقدر يشوفها.\n• تقدر تفعّل التحقق بخطوتين على حسابك من إعدادات الأمان.\n• فيه سجل نشاط بيوثّق كل عملية حساسة على حسابك.\n\nلو عندك سؤال محدد عن الخصوصية أو الامتثال، قولي وهوصّلك بالفريق المختص.",
+        "en": "Your data is stored encrypted, and all traffic to the platform goes over HTTPS.\n\n• Each customer sees only their own data — isolated at the database level, not in application code.\n• Passwords are stored as one-way hashes; nobody here can read them.\n• You can enable two-factor authentication from your security settings.\n• An activity log records every sensitive action on your account.\n\nIf you have a specific privacy or compliance question, tell me and I'll connect you with the right team."
+      }
+    },
+    {
+      "key": "account_limits",
+      "text": {
+        "ar": "الحدود بتعتمد على باقتك، وبتشمل عادة:\n• عدد المستخدمين/الموظفين اللي تقدر تضيفهم.\n• عدد أرقام الواتساب المربوطة.\n• عدد الرسائل شهريًا.\n• معدل نداءات الـ API في الدقيقة.\n\nتقدر تشوف استهلاكك الحالي مقابل حدودك من صفحة \"الاشتراكات\". لو قربت من أي حد، بيوصلك إشعار قبلها بوقت كافي عشان تقدر ترقّي من غير انقطاع.",
+        "en": "Limits depend on your plan and typically cover:\n• How many users/agents you can add.\n• How many WhatsApp numbers you can link.\n• Monthly message volume.\n• API request rate per minute.\n\nYou can see current usage against your limits on the \"Subscriptions\" page. If you approach any limit we notify you well in advance so you can upgrade without interruption."
+      }
+    },
+    {
+      "key": "getting_started",
+      "text": {
+        "ar": "لو لسه بادئ معانا، الترتيب المقترح:\n١. كمّل بيانات حسابك وفعّل التحقق بخطوتين.\n٢. ضيف فريقك وحدّد صلاحيات كل واحد.\n٣. ركّب شات الموقع على موقعك (كود واحد بتحطه في صفحاتك).\n٤. اربط رقم الواتساب بتاعك لو هتستخدم القناة دي.\n٥. ظبّط ردود البوت على أكتر الأسئلة تكرارًا عندك.\n\nاسألني عن أي خطوة فيهم وأنا أمشي معاك فيها خطوة بخطوة.",
+        "en": "If you're just getting started, here's the order we recommend:\n1. Complete your account details and enable two-factor authentication.\n2. Add your team and set each person's permissions.\n3. Install the chat widget on your site (one snippet on your pages).\n4. Link your WhatsApp number if you'll use that channel.\n5. Configure bot replies for your most frequent questions.\n\nAsk me about any of these steps and I'll walk you through it."
       }
     }
   ]

@@ -3,8 +3,17 @@ import assert from 'node:assert/strict';
 import { createObservabilityReadSupabasePort } from '../observability-read-port.supabase.js';
 import { createMockSupabaseQueryClient, createFailingMockSupabaseQueryClient } from '../../scenarios/tests/helpers/mock-supabase-query-client.js';
 
+// Mirrors the live chat_messages shape: there is no `turn` or `sender`
+// column, so ordering comes from created_at and "customer" means neither
+// bot nor admin. `turn` here only fixes the row order the port reads.
 function messageRow(sessionId, turn, sender, text) {
-    return { session_id: sessionId, turn, sender, text };
+    return {
+        session_id: sessionId,
+        message_text: text,
+        is_bot_reply: sender === 'bot',
+        is_admin_reply: sender === 'admin',
+        created_at: new Date(Date.UTC(2026, 0, 1, 0, turn)).toISOString()
+    };
 }
 
 test('supabase read port: returns only customer messages, ordered by turn', async () => {

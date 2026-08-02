@@ -1,7 +1,7 @@
 import { checkAdminAuth, updateAdminUI } from '/assets/js/admin/auth.js';
 import { initSidebar } from '/assets/js/admin/sidebar.js';
 import { supabase } from '/api-config.js';
-import { isCurrentUserSieAdmin, getSieAccessStatus, adminSetAccess, adminResetUsage } from '/sie-integration/sie-entitlement.js';
+import { isCurrentUserSieAdmin, getSieAccessStatus, adminSetAccess, adminResetUsage, evaluateSieAccessRow } from '/sie-integration/sie-runtime.js';
 
 initSidebar();
 
@@ -665,10 +665,10 @@ async function initReviewCenter(currentUser) {
 // قسم "العملاء" — متابعة تفعيل محرك الدعم الذكي (SIE) لكل عميل على حدة:
 // مفعّل أو لأ دلوقتي، وتقدر تغيّر حالته أو تحدّد له سقف استخدام (عدد
 // رسائل) أو تاريخ انتهاء. القسم ده مالوش أي منطق باك إند جديد — بيستخدم
-// بالظبط نفس RPCs وجدول customer_sie_access المُعرَّفين فعلًا في
-// sie-integration/sie-entitlement.js (isCurrentUserSieAdmin/
-// getSieAccessStatus/adminSetAccess/adminResetUsage)، واللي already
-// مُستخدَمين في نافذة "خيارات" الخاصة بكل مستخدم في صفحة المستخدمين
+// بالظبط نفس RPCs وجدول customer_sie_access المعروضين عبر
+// sie-integration/sie-runtime.js (isCurrentUserSieAdmin/
+// getSieAccessStatus/adminSetAccess/adminResetUsage/evaluateSieAccessRow)،
+// واللي already مُستخدَمين في نافذة "خيارات" في صفحة المستخدمين
 // (assets/js/admin/users.js). هنا بس واجهة مخصّصة وأوضح لإدارة SIE
 // تحديدًا — جدول واحد بكل العملاء وحالتهم، بدل ما تكون الإعدادات مدفونة
 // جوه نافذة عامة لكل مستخدم على حدة.
@@ -697,22 +697,14 @@ async function initCustomerAccess(currentUser) {
         return { unlimited: 'same', quota: 'low_confidence', expiration: 'fallback' }[mode] || 'same';
     }
 
-    // نفس منطق evaluateSieAccessRow() في assets/js/chatbot-mode-service.js —
-    // مكرَّر هنا عمدًا (بدل استيراده من مسار العميل) عشان القسم ده يفضل
-    // مستقل تمامًا عن مسار الشات، لكن بنفس القاعدة بالظبط، عشان الحالة
-    // المعروضة هنا للأدمن تطابق اللي العميل شايفه فعليًا (مفعّل + مش
-    // منتهي + عنده كوتة).
+    // كان فيه نسخة تانية من قاعدة "مفعّل + مش منتهي + عنده كوتة" متكتوبة
+    // هنا بالإيد. اتشالت: القاعدة دي بقت في مكان واحد بس جوه الـ runtime
+    // (evaluateSieAccessRow)، وهو نفسه بيطابق ترتيب الشروط اللي جوه
+    // sie_consume_message() في قاعدة البيانات. يعني اللي الأدمن شايفه هنا
+    // = اللي العميل شايفه في الويدجت = اللي المحرك بينفّذه فعلاً.
     function evaluateStatus(row) {
-        if (!row || !row.is_enabled) return { enabled: false, label: 'غير مفعّل' };
-        if (row.access_mode === 'expiration' && row.expires_at) {
-            if (new Date(row.expires_at).getTime() <= Date.now()) return { enabled: false, label: 'انتهت الصلاحية' };
-        }
-        if (row.access_mode === 'quota') {
-            const used = row.messages_used ?? 0;
-            const quota = row.message_quota ?? 0;
-            if (quota > 0 && used >= quota) return { enabled: false, label: 'انتهت الكوتة' };
-        }
-        return { enabled: true, label: 'مفعّل' };
+        const { available, statusLabel } = evaluateSieAccessRow(row);
+        return { enabled: available, label: statusLabel };
     }
 
     function usageLabel(row) {

@@ -121,7 +121,7 @@ test('end-to-end: accumulating more turns of evidence can resolve an initially a
     const { extractDiscriminatingAnswerEvidence } = await import('../../diagnostics/evidence-extractor.js');
     const { processTurn } = await import('../../diagnostics/diagnostic-engine.js');
     const confirmationEvidence = extractDiscriminatingAnswerEvidence({
-        impliedTokens: ['دفع'],
+        impliedTokens: ['entity_payment'],
         turn: 2,
         weight: 1
     });

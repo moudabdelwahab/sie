@@ -1,16 +1,16 @@
 /**
- * sie-chat-bridge.js
+ * sie-chat-bridge.js  —  INTERNAL TO SIE
  * ------------------------------------------------------------
- * The "future orchestrator" that action-layer.js's own comments say
- * doesn't exist yet: wires Language -> Diagnostics -> Ranking -> Decision
- * -> Knowledge -> Dialogue -> Action, in the exact order and with the
- * exact call contracts documented in each /sie module's README. Nothing
- * in /sie is imported for its internals — only its public exports.
+ * ⚠️ Not a public surface. Mad3oom must import sie-runtime.js instead.
+ * This file's entry point is runSieTurn(); the runtime wraps it as
+ * getSieReply(). Anything reaching directly in here is coupling itself
+ * to the orchestration order, which is free to change.
  *
- * Exposes getSieReply(), deliberately shaped like chatbot-engine.js's
- * getBotReply({ text, supabase, sessionId, userId, botState, botSettings,
- * imageUrl }) => { reply, options }, so chat-logic.js needs only one
- * small branch (see sie-integration/README.md) instead of a rewrite.
+ * The turn orchestrator: wires Language -> Diagnostics -> Ranking ->
+ * Decision -> Knowledge -> Dialogue -> Action, in the exact order and
+ * with the exact call contracts documented in each /sie module's README.
+ * Nothing in /sie is imported for its internals — only its public
+ * exports — so each module stays free to change shape behind them.
  *
  * SIE's own turn-by-turn memory is namespaced under botState.sie so it
  * never collides with chatbot-engine.js's own use of the same
@@ -22,17 +22,17 @@
  * (and its own error handling) is exactly what applies. This module
  * itself never writes an error message to chat_messages.
  */
-import { normalize } from '/sie/language/normalizer.js';
-import { detectSmallTalk, SMALL_TALK_REPLIES } from '/sie/language/small-talk.js';
-import { processTurn } from '/sie/diagnostics/diagnostic-engine.js';
-import { rankDiagnosticState } from '/sie/ranking/ranking-engine.js';
-import { decide } from '/sie/decision/decision-engine.js';
-import { ACTIONS, createEmptyDecisionState } from '/sie/decision/decision-types.js';
-import { composeAnswerDecision } from '/sie/knowledge/answer-composer.js';
-import { renderDecision } from '/sie/dialogue/dialogue-renderer.js';
-import { executeDecision, logTraceEvent } from '/sie/action/action-layer.js';
-import { createRealSupabasePort } from '/sie/action/supabase-port.supabase.js';
-import { buildTraceEvent } from '/sie/observability/trace-logger.js';
+import { normalize } from '../sie/language/normalizer.js';
+import { detectSmallTalk, SMALL_TALK_REPLIES } from '../sie/language/small-talk.js';
+import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
+import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
+import { decide } from '../sie/decision/decision-engine.js';
+import { ACTIONS, createEmptyDecisionState } from '../sie/decision/decision-types.js';
+import { composeAnswerDecision } from '../sie/knowledge/answer-composer.js';
+import { renderDecision } from '../sie/dialogue/dialogue-renderer.js';
+import { executeDecision, logTraceEvent } from '../sie/action/action-layer.js';
+import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js';
+import { buildTraceEvent } from '../sie/observability/trace-logger.js';
 import { tryConsumeSieMessage } from './sie-entitlement.js';
 
 /**
@@ -120,7 +120,7 @@ async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessio
         return null;
     }
 
-    return { actionResult, reply: confirmRendered.text, options: confirmRendered.options };
+    return { actionResult, reply: confirmRendered.text, options: confirmRendered.options, persistedBotState: stateWithPending };
 }
 
 /**
@@ -149,7 +149,7 @@ async function resolvePendingTicketConfirmation({ text, sessionId, botState, pre
             console.error('SIE action-layer write failed (ticket confirmation re-ask):', actionResult);
             return null;
         }
-        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null };
+        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
     }
 
     const clearedSie = { ...prevSie };
@@ -169,7 +169,7 @@ async function resolvePendingTicketConfirmation({ text, sessionId, botState, pre
             console.error('SIE action-layer write failed (ticket confirmation decline):', actionResult);
             return null;
         }
-        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null };
+        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
     }
 
     // intent === 'yes' -> ننفذ القرار الأصلي اللي كان معلّق (بتاع فتح التذكرة فعليًا).
@@ -189,7 +189,8 @@ async function resolvePendingTicketConfirmation({ text, sessionId, botState, pre
         reply: pending.rendered.text,
         options: pending.rendered.options || [],
         alreadyPersisted: true,
-        ticketNumber: actionResult.ticketNumber ?? null
+        ticketNumber: actionResult.ticketNumber ?? null,
+        botState: nextBotState
     };
 }
 
@@ -257,7 +258,7 @@ async function escalateImmediately({ reason, responseLanguage, turn, sessionId, 
         return null;
     }
 
-    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: actionResult.ticketNumber ?? null };
+    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: actionResult.ticketNumber ?? null, botState: nextBotState };
 }
 
 /**
@@ -285,10 +286,12 @@ async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botS
         return null;
     }
 
-    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null };
+    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
 }
 
 /**
+ * Runs one full SIE turn. Called only by sie-runtime.js.
+ *
  * @param {Object} params
  * @param {string} params.text
  * @param {import('@supabase/supabase-js').SupabaseClient} params.supabase
@@ -296,10 +299,10 @@ async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botS
  * @param {string} params.userId
  * @param {Object} params.botState - the session's full bot_state blob (may contain
  *   the traditional engine's own keys too — this function only reads/writes botState.sie)
- * @returns {Promise<{reply: string, options: Array, alreadyPersisted: true, ticketNumber: string|null} | null>}
- *   null means "not handled by SIE" — caller should fall back to getBotReply().
+ * @returns {Promise<{reply: string, options: Array, alreadyPersisted: true, ticketNumber: string|null, botState: Object} | null>}
+ *   null means "not handled by SIE" — caller should fall back to the traditional engine.
  */
-export async function getSieReply({ text, supabase, sessionId, userId, botState }) {
+export async function runSieTurn({ text, supabase, sessionId, userId, botState }) {
     if (!text || !supabase || !sessionId || !userId) return null;
 
     // 1. Entitlement gate — the one place a SIE turn is authorized and metered.
@@ -401,6 +404,10 @@ export async function getSieReply({ text, supabase, sessionId, userId, botState 
         let actionResult;
         let replyText = rendered.text;
         let replyOptions = rendered.options || [];
+        // الحالة اللي اتكتبت فعلاً في قاعدة البيانات. بتختلف عن nextBotState
+        // بس في حالة تأكيد التذكرة، لأن وقتها بنكتب نسخة زيادة عليها
+        // pendingTicketConfirmation.
+        let persistedBotState = nextBotState;
         if (decisionWithKnowledge.action === ACTIONS.CREATE_TICKET) {
             const confirmOutcome = await beginTicketConfirmation({
                 decisionWithKnowledge,
@@ -414,6 +421,7 @@ export async function getSieReply({ text, supabase, sessionId, userId, botState 
             actionResult = confirmOutcome.actionResult;
             replyText = confirmOutcome.reply;
             replyOptions = confirmOutcome.options;
+            persistedBotState = confirmOutcome.persistedBotState;
         } else {
             actionResult = await executeDecision({
                 decision: decisionWithKnowledge,
@@ -458,7 +466,11 @@ export async function getSieReply({ text, supabase, sessionId, userId, botState 
             reply: replyText,
             options: replyOptions,
             alreadyPersisted: true,
-            ticketNumber: actionResult.ticketNumber ?? null
+            ticketNumber: actionResult.ticketNumber ?? null,
+            // الحالة اللي اتكتبت فعلاً — لو الدور ده وقف عند تأكيد التذكرة،
+            // دي بتبقى النسخة اللي جواها pendingTicketConfirmation، مش
+            // nextBotState الأصلية.
+            botState: persistedBotState
         };
     } catch (err) {
         console.error('SIE pipeline error:', err?.message || err);
