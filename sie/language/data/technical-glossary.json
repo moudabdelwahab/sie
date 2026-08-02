@@ -1,34 +1,1558 @@
 {
   "entries": [
-    { "canonical": "http_status_401", "labels": { "ar": "خطأ 401 (انتهاء صلاحية الدخول)", "en": "401 Unauthorized" },
-      "patterns": ["error 401", "401 error", "401 unauthorized", "unauthorized 401", "401"] },
-    { "canonical": "http_status_500", "labels": { "ar": "خطأ 500 (خطأ داخلي بالسيرفر)", "en": "500 Internal Server Error" },
-      "patterns": ["500 internal server error", "internal server error", "error 500", "500 error", "500"] },
-    { "canonical": "http_status_404", "labels": { "ar": "خطأ 404 (الصفحة غير موجودة)", "en": "404 Not Found" },
-      "patterns": ["error 404", "404 error", "404 not found", "404"] },
-    { "canonical": "http_status_403", "labels": { "ar": "خطأ 403 (ممنوع الوصول)", "en": "403 Forbidden" },
-      "patterns": ["error 403", "403 error", "403 forbidden", "403"] },
-    { "canonical": "entity_api", "labels": { "ar": "الـ API", "en": "API" },
-      "patterns": ["api"] },
-    { "canonical": "entity_webhook", "labels": { "ar": "الـ Webhook", "en": "Webhook" },
-      "patterns": ["webhook", "web hook"] },
-    { "canonical": "entity_token", "labels": { "ar": "الـ Token", "en": "Token" },
-      "patterns": ["token", "access token", "auth token"] },
-    { "canonical": "entity_ssl_certificate", "labels": { "ar": "شهادة SSL", "en": "SSL Certificate" },
-      "patterns": ["ssl certificate", "ssl cert", "ssl"] },
-    { "canonical": "entity_dns", "labels": { "ar": "الـ DNS", "en": "DNS" },
-      "patterns": ["dns"] },
-    { "canonical": "entity_subdomain", "labels": { "ar": "النطاق الفرعي", "en": "Subdomain" },
-      "patterns": ["subdomain", "sub domain"] },
-    { "canonical": "entity_login", "labels": { "ar": "تسجيل الدخول", "en": "Login" },
-      "patterns": ["login", "log in", "sign in"] },
-    { "canonical": "symptom_login_failed", "labels": { "ar": "فشل تسجيل الدخول", "en": "Login Failed" },
-      "patterns": ["login failed", "login fail", "log in failed", "sign in failed"] },
-    { "canonical": "symptom_token_expired", "labels": { "ar": "انتهاء صلاحية الـ Token", "en": "Token Expired" },
-      "patterns": ["token expired", "expired token", "token has expired"] },
-    { "canonical": "symptom_generic_error", "labels": { "ar": "خطأ عام", "en": "Error" },
-      "patterns": ["error", "exception", "crash"] },
-    { "canonical": "symptom_not_working", "labels": { "ar": "مش شغال", "en": "Not Working" },
-      "patterns": ["not working", "doesn't work", "not responding"] }
+    {
+      "canonical": "http_status_400",
+      "labels": {
+        "ar": "خطأ 400 (طلب غير صالح)",
+        "en": "400 Bad Request"
+      },
+      "patterns": [
+        "400 bad request",
+        "bad request",
+        "error 400",
+        "400 error",
+        "خطأ 400",
+        "ايرور 400",
+        "400"
+      ]
+    },
+    {
+      "canonical": "http_status_401",
+      "labels": {
+        "ar": "خطأ 401 (انتهاء صلاحية الدخول)",
+        "en": "401 Unauthorized"
+      },
+      "patterns": [
+        "401 unauthorized",
+        "unauthorized 401",
+        "error 401",
+        "401 error",
+        "خطأ 401",
+        "ايرور 401",
+        "401"
+      ]
+    },
+    {
+      "canonical": "http_status_403",
+      "labels": {
+        "ar": "خطأ 403 (ممنوع الوصول)",
+        "en": "403 Forbidden"
+      },
+      "patterns": [
+        "403 forbidden",
+        "forbidden 403",
+        "error 403",
+        "403 error",
+        "خطأ 403",
+        "ايرور 403",
+        "403"
+      ]
+    },
+    {
+      "canonical": "http_status_404",
+      "labels": {
+        "ar": "خطأ 404 (الصفحة غير موجودة)",
+        "en": "404 Not Found"
+      },
+      "patterns": [
+        "404 not found",
+        "not found 404",
+        "error 404",
+        "404 error",
+        "خطأ 404",
+        "ايرور 404",
+        "404"
+      ]
+    },
+    {
+      "canonical": "http_status_408",
+      "labels": {
+        "ar": "خطأ 408 (انتهت مهلة الطلب)",
+        "en": "408 Request Timeout"
+      },
+      "patterns": [
+        "408 request timeout",
+        "request timeout",
+        "error 408",
+        "408 error",
+        "خطأ 408",
+        "408"
+      ]
+    },
+    {
+      "canonical": "http_status_409",
+      "labels": {
+        "ar": "خطأ 409 (تعارض)",
+        "en": "409 Conflict"
+      },
+      "patterns": [
+        "409 conflict",
+        "error 409",
+        "409 error",
+        "خطأ 409",
+        "409"
+      ]
+    },
+    {
+      "canonical": "http_status_422",
+      "labels": {
+        "ar": "خطأ 422 (بيانات غير صالحة)",
+        "en": "422 Unprocessable Entity"
+      },
+      "patterns": [
+        "422 unprocessable entity",
+        "unprocessable entity",
+        "error 422",
+        "422 error",
+        "خطأ 422",
+        "422"
+      ]
+    },
+    {
+      "canonical": "http_status_429",
+      "labels": {
+        "ar": "خطأ 429 (تجاوز حد الطلبات)",
+        "en": "429 Too Many Requests"
+      },
+      "patterns": [
+        "429 too many requests",
+        "too many requests",
+        "rate limit",
+        "rate limited",
+        "error 429",
+        "429 error",
+        "خطأ 429",
+        "تجاوزت الحد",
+        "حد الطلبات",
+        "429"
+      ]
+    },
+    {
+      "canonical": "http_status_500",
+      "labels": {
+        "ar": "خطأ 500 (خطأ داخلي بالسيرفر)",
+        "en": "500 Internal Server Error"
+      },
+      "patterns": [
+        "500 internal server error",
+        "internal server error",
+        "error 500",
+        "500 error",
+        "خطأ 500",
+        "ايرور 500",
+        "500"
+      ]
+    },
+    {
+      "canonical": "http_status_502",
+      "labels": {
+        "ar": "خطأ 502 (بوابة غير صالحة)",
+        "en": "502 Bad Gateway"
+      },
+      "patterns": [
+        "502 bad gateway",
+        "bad gateway",
+        "error 502",
+        "502 error",
+        "خطأ 502",
+        "502"
+      ]
+    },
+    {
+      "canonical": "http_status_503",
+      "labels": {
+        "ar": "خطأ 503 (الخدمة غير متاحة)",
+        "en": "503 Service Unavailable"
+      },
+      "patterns": [
+        "503 service unavailable",
+        "service unavailable",
+        "error 503",
+        "503 error",
+        "خطأ 503",
+        "503"
+      ]
+    },
+    {
+      "canonical": "http_status_504",
+      "labels": {
+        "ar": "خطأ 504 (انتهت مهلة البوابة)",
+        "en": "504 Gateway Timeout"
+      },
+      "patterns": [
+        "504 gateway timeout",
+        "gateway timeout",
+        "error 504",
+        "504 error",
+        "خطأ 504",
+        "504"
+      ]
+    },
+    {
+      "canonical": "entity_login",
+      "labels": {
+        "ar": "تسجيل الدخول",
+        "en": "login"
+      },
+      "patterns": [
+        "تسجيل الدخول",
+        "تسجيل دخول",
+        "تسجيل الدخول للحساب",
+        "اسجل دخول",
+        "أسجل دخول",
+        "ادخل على حسابي",
+        "أدخل على حسابي",
+        "ادخل حسابي",
+        "الدخول على المنصه",
+        "الدخول على المنصة",
+        "log in",
+        "login",
+        "sign in",
+        "signin",
+        "logging in"
+      ]
+    },
+    {
+      "canonical": "entity_password",
+      "labels": {
+        "ar": "كلمة المرور",
+        "en": "password"
+      },
+      "patterns": [
+        "كلمة المرور",
+        "كلمه المرور",
+        "كلمة السر",
+        "كلمه السر",
+        "الباسورد",
+        "باسورد",
+        "الباسوورد",
+        "password",
+        "passwd",
+        "my password"
+      ]
+    },
+    {
+      "canonical": "entity_otp",
+      "labels": {
+        "ar": "كود التحقق",
+        "en": "one-time code"
+      },
+      "patterns": [
+        "كود التحقق",
+        "كود التفعيل",
+        "كود الدخول",
+        "رمز التحقق",
+        "الكود المؤقت",
+        "كود ال sms",
+        "otp",
+        "one time password",
+        "verification code",
+        "confirmation code"
+      ]
+    },
+    {
+      "canonical": "entity_2fa",
+      "labels": {
+        "ar": "التحقق بخطوتين",
+        "en": "two-factor authentication"
+      },
+      "patterns": [
+        "التحقق بخطوتين",
+        "التحقق بخطوتين 2fa",
+        "المصادقه الثنائيه",
+        "المصادقة الثنائية",
+        "تحقق ثنائي",
+        "two factor",
+        "two-factor",
+        "2fa",
+        "mfa",
+        "authenticator"
+      ]
+    },
+    {
+      "canonical": "entity_account",
+      "labels": {
+        "ar": "الحساب",
+        "en": "account"
+      },
+      "patterns": [
+        "حسابي",
+        "الحساب بتاعي",
+        "حساب الشركه",
+        "حساب الشركة",
+        "my account",
+        "the account"
+      ]
+    },
+    {
+      "canonical": "entity_token",
+      "labels": {
+        "ar": "التوكن / مفتاح الوصول",
+        "en": "access token"
+      },
+      "patterns": [
+        "access token",
+        "api token",
+        "auth token",
+        "bearer token",
+        "refresh token",
+        "token",
+        "التوكن",
+        "توكن",
+        "مفتاح الوصول"
+      ]
+    },
+    {
+      "canonical": "entity_api_key",
+      "labels": {
+        "ar": "مفتاح الـ API",
+        "en": "API key"
+      },
+      "patterns": [
+        "api key",
+        "apikey",
+        "api-key",
+        "secret key",
+        "client secret",
+        "مفتاح الـ api",
+        "مفتاح api",
+        "المفتاح السري"
+      ]
+    },
+    {
+      "canonical": "entity_session",
+      "labels": {
+        "ar": "الجلسة",
+        "en": "session"
+      },
+      "patterns": [
+        "الجلسه",
+        "الجلسة",
+        "جلسة الدخول",
+        "جلسه الدخول",
+        "session",
+        "my session"
+      ]
+    },
+    {
+      "canonical": "entity_subscription",
+      "labels": {
+        "ar": "الاشتراك",
+        "en": "subscription"
+      },
+      "patterns": [
+        "الاشتراك",
+        "اشتراكي",
+        "اشتراك",
+        "الباقه",
+        "الباقة",
+        "باقتي",
+        "الخطه",
+        "الخطة",
+        "subscription",
+        "my plan",
+        "the plan",
+        "plan"
+      ]
+    },
+    {
+      "canonical": "entity_payment",
+      "labels": {
+        "ar": "الدفع",
+        "en": "payment"
+      },
+      "patterns": [
+        "الدفع",
+        "عملية الدفع",
+        "عمليه الدفع",
+        "دفعت",
+        "دفعة",
+        "دفعه",
+        "سددت",
+        "السداد",
+        "payment",
+        "paid",
+        "i paid",
+        "checkout"
+      ]
+    },
+    {
+      "canonical": "entity_invoice",
+      "labels": {
+        "ar": "الفاتورة",
+        "en": "invoice"
+      },
+      "patterns": [
+        "الفاتوره",
+        "الفاتورة",
+        "فاتوره",
+        "فاتورة",
+        "الفواتير",
+        "invoice",
+        "receipt",
+        "bill"
+      ]
+    },
+    {
+      "canonical": "entity_refund",
+      "labels": {
+        "ar": "استرداد المبلغ",
+        "en": "refund"
+      },
+      "patterns": [
+        "استرداد المبلغ",
+        "استرداد الفلوس",
+        "ارجاع الفلوس",
+        "إرجاع الفلوس",
+        "فلوسي ترجع",
+        "استرجاع المبلغ",
+        "refund",
+        "money back",
+        "chargeback"
+      ]
+    },
+    {
+      "canonical": "entity_wallet",
+      "labels": {
+        "ar": "المحفظة",
+        "en": "wallet"
+      },
+      "patterns": [
+        "المحفظه",
+        "المحفظة",
+        "محفظتي",
+        "رصيد المحفظه",
+        "رصيد المحفظة",
+        "wallet",
+        "balance",
+        "credit"
+      ]
+    },
+    {
+      "canonical": "entity_card",
+      "labels": {
+        "ar": "البطاقة البنكية",
+        "en": "payment card"
+      },
+      "patterns": [
+        "البطاقه",
+        "البطاقة",
+        "الكارت",
+        "كارت الفيزا",
+        "الفيزا",
+        "credit card",
+        "debit card",
+        "visa",
+        "mastercard"
+      ]
+    },
+    {
+      "canonical": "entity_whatsapp",
+      "labels": {
+        "ar": "واتساب",
+        "en": "WhatsApp"
+      },
+      "patterns": [
+        "واتساب",
+        "الواتساب",
+        "واتس اب",
+        "وتساب",
+        "whatsapp",
+        "whats app",
+        "wa business",
+        "whatsapp business"
+      ]
+    },
+    {
+      "canonical": "entity_whatsapp_number",
+      "labels": {
+        "ar": "رقم الواتساب",
+        "en": "WhatsApp number"
+      },
+      "patterns": [
+        "رقم الواتساب",
+        "رقم الواتس",
+        "رقم واتساب",
+        "whatsapp number",
+        "wa number"
+      ]
+    },
+    {
+      "canonical": "entity_whatsapp_template",
+      "labels": {
+        "ar": "قالب الواتساب",
+        "en": "WhatsApp template"
+      },
+      "patterns": [
+        "قالب الواتساب",
+        "قوالب الواتساب",
+        "التمبلت",
+        "تمبلت الواتساب",
+        "whatsapp template",
+        "message template",
+        "template"
+      ]
+    },
+    {
+      "canonical": "entity_campaign",
+      "labels": {
+        "ar": "الحملة",
+        "en": "campaign"
+      },
+      "patterns": [
+        "الحمله",
+        "الحملة",
+        "حمله",
+        "حملة",
+        "الحملات",
+        "البرودكاست",
+        "campaign",
+        "broadcast",
+        "bulk send"
+      ]
+    },
+    {
+      "canonical": "entity_qr_code",
+      "labels": {
+        "ar": "كود QR",
+        "en": "QR code"
+      },
+      "patterns": [
+        "كود qr",
+        "الكيو ار",
+        "باركود الربط",
+        "qr code",
+        "qrcode",
+        "qr"
+      ]
+    },
+    {
+      "canonical": "entity_ticket",
+      "labels": {
+        "ar": "التذكرة",
+        "en": "ticket"
+      },
+      "patterns": [
+        "التذكره",
+        "التذكرة",
+        "تذكرتي",
+        "تذكره",
+        "تذكرة",
+        "التذاكر",
+        "الشكوى",
+        "الشكوي",
+        "ticket",
+        "my ticket",
+        "support ticket",
+        "case"
+      ]
+    },
+    {
+      "canonical": "entity_chat_widget",
+      "labels": {
+        "ar": "شات الموقع",
+        "en": "chat widget"
+      },
+      "patterns": [
+        "شات الموقع",
+        "الشات بتاع الموقع",
+        "ويدجت الشات",
+        "الويدجت",
+        "المحادثه",
+        "المحادثة",
+        "chat widget",
+        "the widget",
+        "live chat"
+      ]
+    },
+    {
+      "canonical": "entity_chatbot",
+      "labels": {
+        "ar": "البوت",
+        "en": "chatbot"
+      },
+      "patterns": [
+        "البوت",
+        "الشات بوت",
+        "الروبوت",
+        "المساعد الالي",
+        "المساعد الآلي",
+        "chatbot",
+        "chat bot",
+        "the bot",
+        "bot"
+      ]
+    },
+    {
+      "canonical": "entity_notification",
+      "labels": {
+        "ar": "الإشعارات",
+        "en": "notifications"
+      },
+      "patterns": [
+        "الاشعارات",
+        "الإشعارات",
+        "اشعار",
+        "إشعار",
+        "التنبيهات",
+        "تنبيه",
+        "notification",
+        "notifications",
+        "alerts",
+        "push"
+      ]
+    },
+    {
+      "canonical": "entity_email",
+      "labels": {
+        "ar": "البريد الإلكتروني",
+        "en": "email"
+      },
+      "patterns": [
+        "البريد الالكتروني",
+        "البريد الإلكتروني",
+        "الايميل",
+        "الإيميل",
+        "ايميل",
+        "بريدي",
+        "email",
+        "e-mail",
+        "mail",
+        "inbox"
+      ]
+    },
+    {
+      "canonical": "entity_dashboard",
+      "labels": {
+        "ar": "لوحة التحكم",
+        "en": "dashboard"
+      },
+      "patterns": [
+        "لوحة التحكم",
+        "لوحه التحكم",
+        "الداشبورد",
+        "لوحة القياده",
+        "لوحة الادارة",
+        "لوحة الإدارة",
+        "dashboard",
+        "control panel",
+        "admin panel"
+      ]
+    },
+    {
+      "canonical": "entity_report",
+      "labels": {
+        "ar": "التقارير",
+        "en": "reports"
+      },
+      "patterns": [
+        "التقارير",
+        "تقرير",
+        "التقرير",
+        "الاحصائيات",
+        "الإحصائيات",
+        "احصائيات",
+        "report",
+        "reports",
+        "analytics",
+        "statistics"
+      ]
+    },
+    {
+      "canonical": "entity_agent",
+      "labels": {
+        "ar": "الموظف / الوكيل",
+        "en": "agent"
+      },
+      "patterns": [
+        "الموظف",
+        "الموظفين",
+        "الوكيل",
+        "الوكلاء",
+        "فريق الدعم عندي",
+        "المستخدمين الفرعيين",
+        "agent",
+        "agents",
+        "sub user",
+        "sub-user",
+        "team member"
+      ]
+    },
+    {
+      "canonical": "entity_forum",
+      "labels": {
+        "ar": "المنتدى",
+        "en": "forum"
+      },
+      "patterns": [
+        "المنتدي",
+        "المنتدى",
+        "الفوروم",
+        "المجتمع",
+        "forum",
+        "community"
+      ]
+    },
+    {
+      "canonical": "entity_knowledge_base",
+      "labels": {
+        "ar": "قاعدة المعرفة",
+        "en": "knowledge base"
+      },
+      "patterns": [
+        "قاعدة المعرفه",
+        "قاعده المعرفه",
+        "قاعدة المعرفة",
+        "مركز المساعده",
+        "مركز المساعدة",
+        "knowledge base",
+        "knowledgebase",
+        "help center",
+        "docs"
+      ]
+    },
+    {
+      "canonical": "entity_api",
+      "labels": {
+        "ar": "الـ API",
+        "en": "API"
+      },
+      "patterns": [
+        "الـ api",
+        "الapi",
+        "api",
+        "apis",
+        "الواجهه البرمجيه",
+        "الواجهة البرمجية",
+        "rest api"
+      ]
+    },
+    {
+      "canonical": "entity_webhook",
+      "labels": {
+        "ar": "الـ Webhook",
+        "en": "webhook"
+      },
+      "patterns": [
+        "webhook",
+        "webhooks",
+        "web hook",
+        "الويب هوك",
+        "ويبهوك"
+      ]
+    },
+    {
+      "canonical": "entity_dns",
+      "labels": {
+        "ar": "إعدادات DNS",
+        "en": "DNS"
+      },
+      "patterns": [
+        "dns",
+        "دي ان اس",
+        "سجلات dns",
+        "dns records",
+        "name server",
+        "nameserver"
+      ]
+    },
+    {
+      "canonical": "entity_subdomain",
+      "labels": {
+        "ar": "النطاق الفرعي",
+        "en": "subdomain"
+      },
+      "patterns": [
+        "النطاق الفرعي",
+        "نطاق فرعي",
+        "الساب دومين",
+        "ساب دومين",
+        "الدومين الفرعي",
+        "subdomain",
+        "sub domain",
+        "sub-domain"
+      ]
+    },
+    {
+      "canonical": "entity_domain",
+      "labels": {
+        "ar": "الدومين",
+        "en": "domain"
+      },
+      "patterns": [
+        "الدومين",
+        "دوميني",
+        "النطاق",
+        "اسم النطاق",
+        "domain",
+        "my domain",
+        "domain name"
+      ]
+    },
+    {
+      "canonical": "entity_ssl_certificate",
+      "labels": {
+        "ar": "شهادة SSL",
+        "en": "SSL certificate"
+      },
+      "patterns": [
+        "شهادة ssl",
+        "شهاده ssl",
+        "شهادة الامان",
+        "شهادة الأمان",
+        "الشهاده",
+        "الشهادة",
+        "ssl certificate",
+        "ssl",
+        "https certificate",
+        "tls"
+      ]
+    },
+    {
+      "canonical": "entity_integration",
+      "labels": {
+        "ar": "التكامل",
+        "en": "integration"
+      },
+      "patterns": [
+        "التكامل",
+        "الربط مع",
+        "الانتجريشن",
+        "integration",
+        "integrations",
+        "connector"
+      ]
+    },
+    {
+      "canonical": "entity_mcp",
+      "labels": {
+        "ar": "خادم MCP",
+        "en": "MCP server"
+      },
+      "patterns": [
+        "خادم mcp",
+        "سيرفر mcp",
+        "mcp server",
+        "mcp"
+      ]
+    },
+    {
+      "canonical": "entity_file_upload",
+      "labels": {
+        "ar": "رفع الملفات",
+        "en": "file upload"
+      },
+      "patterns": [
+        "رفع الملفات",
+        "رفع ملف",
+        "ارفع ملف",
+        "أرفع ملف",
+        "المرفقات",
+        "مرفق",
+        "upload",
+        "attachment",
+        "file upload"
+      ]
+    },
+    {
+      "canonical": "entity_export",
+      "labels": {
+        "ar": "تصدير البيانات",
+        "en": "data export"
+      },
+      "patterns": [
+        "تصدير البيانات",
+        "تصدير",
+        "اصدر البيانات",
+        "تنزيل البيانات",
+        "export",
+        "download data",
+        "csv export"
+      ]
+    },
+    {
+      "canonical": "symptom_not_working",
+      "labels": {
+        "ar": "مش شغال",
+        "en": "not working"
+      },
+      "patterns": [
+        "مش شغال",
+        "مش شغاله",
+        "مش شغالة",
+        "مش بيشتغل",
+        "مش بتشتغل",
+        "بطل يشتغل",
+        "بطلت تشتغل",
+        "واقف خالص",
+        "مش راضي يشتغل",
+        "مش راضيه تشتغل",
+        "معطل",
+        "معطله",
+        "معطلة",
+        "not working",
+        "doesnt work",
+        "does not work",
+        "stopped working",
+        "broken",
+        "down"
+      ]
+    },
+    {
+      "canonical": "symptom_slow",
+      "labels": {
+        "ar": "بطيء",
+        "en": "slow"
+      },
+      "patterns": [
+        "بطيء",
+        "بطيئه",
+        "بطيئة",
+        "بطي",
+        "بيلود كتير",
+        "بياخد وقت طويل",
+        "التحميل بطيء",
+        "بيهنج",
+        "slow",
+        "very slow",
+        "laggy",
+        "takes forever",
+        "hangs"
+      ]
+    },
+    {
+      "canonical": "symptom_blank_page",
+      "labels": {
+        "ar": "صفحة فاضية",
+        "en": "blank page"
+      },
+      "patterns": [
+        "صفحه فاضيه",
+        "صفحة فاضية",
+        "الصفحه بيضا",
+        "الصفحة بيضاء",
+        "مش بتفتح الصفحه",
+        "مش بتفتح الصفحة",
+        "blank page",
+        "white screen",
+        "empty page",
+        "page doesnt load"
+      ]
+    },
+    {
+      "canonical": "symptom_crash",
+      "labels": {
+        "ar": "بيقفل فجأة",
+        "en": "crashes"
+      },
+      "patterns": [
+        "بيقفل فجاه",
+        "بيقفل فجأة",
+        "بيقفل لوحده",
+        "بيطلعني برا",
+        "بيعلق",
+        "بيهنج وبيقفل",
+        "crash",
+        "crashes",
+        "keeps closing",
+        "freezes"
+      ]
+    },
+    {
+      "canonical": "symptom_timeout",
+      "labels": {
+        "ar": "انتهت المهلة",
+        "en": "timeout"
+      },
+      "patterns": [
+        "انتهت المهله",
+        "انتهت المهلة",
+        "بياخد وقت وبيفصل",
+        "الاتصال بيقطع",
+        "بيعمل تايم اوت",
+        "timeout",
+        "timed out",
+        "connection timeout"
+      ]
+    },
+    {
+      "canonical": "symptom_login_failed",
+      "labels": {
+        "ar": "فشل تسجيل الدخول",
+        "en": "login failed"
+      },
+      "patterns": [
+        "مش قادر ادخل",
+        "مش قادر أدخل",
+        "مش عارف ادخل",
+        "مش عارف أدخل",
+        "مش بيدخلني",
+        "رافض يدخلني",
+        "الدخول مرفوض",
+        "بيرفض الدخول",
+        "فشل تسجيل الدخول",
+        "مش بيقبل الدخول",
+        "cant login",
+        "can not login",
+        "cannot log in",
+        "unable to login",
+        "login failed",
+        "login fails"
+      ]
+    },
+    {
+      "canonical": "symptom_wrong_credentials",
+      "labels": {
+        "ar": "بيانات دخول غلط",
+        "en": "wrong credentials"
+      },
+      "patterns": [
+        "بيانات غلط",
+        "الباسورد غلط",
+        "كلمة السر غلط",
+        "كلمه السر غلط",
+        "بيقولي بيانات غير صحيحه",
+        "بيانات غير صحيحة",
+        "invalid credentials",
+        "wrong password",
+        "incorrect password"
+      ]
+    },
+    {
+      "canonical": "symptom_account_locked",
+      "labels": {
+        "ar": "الحساب مقفول",
+        "en": "account locked"
+      },
+      "patterns": [
+        "الحساب مقفول",
+        "حسابي مقفول",
+        "الحساب متوقف",
+        "حسابي متوقف",
+        "الحساب موقوف",
+        "حسابي اتقفل",
+        "الحساب محظور",
+        "حسابي محظور",
+        "account locked",
+        "account suspended",
+        "account blocked",
+        "locked out"
+      ]
+    },
+    {
+      "canonical": "symptom_token_expired",
+      "labels": {
+        "ar": "انتهت صلاحية الجلسة",
+        "en": "session expired"
+      },
+      "patterns": [
+        "انتهت الصلاحيه",
+        "انتهت الصلاحية",
+        "انتهت صلاحيته",
+        "انتهت صلاحيتها",
+        "انتهت صلاحيه",
+        "الجلسه انتهت",
+        "الجلسة انتهت",
+        "بيطلعني كل شويه",
+        "بيطلعني كل شوية",
+        "بيسجل خروج لوحده",
+        "لازم اسجل دخول كل مره",
+        "session expired",
+        "token expired",
+        "logged out automatically",
+        "keeps logging me out"
+      ]
+    },
+    {
+      "canonical": "symptom_otp_not_received",
+      "labels": {
+        "ar": "كود التحقق مش واصل",
+        "en": "OTP not received"
+      },
+      "patterns": [
+        "الكود مش واصل",
+        "كود التحقق مش واصل",
+        "مش بيوصلي كود",
+        "مستني الكود",
+        "الكود متأخر",
+        "code not received",
+        "otp not received",
+        "didnt get the code",
+        "no code"
+      ]
+    },
+    {
+      "canonical": "symptom_not_received",
+      "labels": {
+        "ar": "مش واصل",
+        "en": "not received"
+      },
+      "patterns": [
+        "مش واصل",
+        "مش واصله",
+        "مش واصلة",
+        "مش بيوصل",
+        "مش بتوصل",
+        "لسه مجاش",
+        "لسه ماوصلش",
+        "ماوصلنيش",
+        "not received",
+        "not arriving",
+        "never arrived",
+        "didnt receive",
+        "not delivered"
+      ]
+    },
+    {
+      "canonical": "symptom_not_sending",
+      "labels": {
+        "ar": "مش بيبعت",
+        "en": "not sending"
+      },
+      "patterns": [
+        "مش بيبعت",
+        "مش بتبعت",
+        "مش قادر ابعت",
+        "مش عارف ابعت",
+        "الارسال فاشل",
+        "الإرسال فاشل",
+        "فشل الارسال",
+        "cant send",
+        "not sending",
+        "failed to send",
+        "sending failed"
+      ]
+    },
+    {
+      "canonical": "symptom_disappeared",
+      "labels": {
+        "ar": "اختفى",
+        "en": "disappeared"
+      },
+      "patterns": [
+        "اختفي",
+        "اختفى",
+        "اتمسح",
+        "اتمسحت",
+        "مش لاقيه",
+        "مش لاقي",
+        "راح فين",
+        "ضاع",
+        "disappeared",
+        "missing",
+        "gone",
+        "vanished",
+        "cant find"
+      ]
+    },
+    {
+      "canonical": "symptom_duplicated",
+      "labels": {
+        "ar": "مكرر",
+        "en": "duplicated"
+      },
+      "patterns": [
+        "مكرر",
+        "مكرره",
+        "مكررة",
+        "اتبعت مرتين",
+        "بيتكرر",
+        "نسختين",
+        "duplicate",
+        "duplicated",
+        "sent twice",
+        "twice"
+      ]
+    },
+    {
+      "canonical": "symptom_wrong_data",
+      "labels": {
+        "ar": "بيانات غلط",
+        "en": "wrong data"
+      },
+      "patterns": [
+        "البيانات غلط",
+        "الارقام غلط",
+        "الأرقام غلط",
+        "مش مظبوط",
+        "مش صحيح",
+        "فيه خطأ في البيانات",
+        "wrong data",
+        "incorrect data",
+        "wrong numbers",
+        "inaccurate"
+      ]
+    },
+    {
+      "canonical": "symptom_not_updating",
+      "labels": {
+        "ar": "مش بيتحدث",
+        "en": "not updating"
+      },
+      "patterns": [
+        "مش بيتحدث",
+        "مش بيتحدّث",
+        "مش بيحدث",
+        "لسه قديم",
+        "مش بيتغير",
+        "عالق على القديم",
+        "not updating",
+        "not refreshing",
+        "stale",
+        "still old"
+      ]
+    },
+    {
+      "canonical": "symptom_expired",
+      "labels": {
+        "ar": "منتهي الصلاحية",
+        "en": "expired"
+      },
+      "patterns": [
+        "منتهي الصلاحيه",
+        "منتهي الصلاحية",
+        "منتهي",
+        "منتهى",
+        "منتهيه",
+        "منتهية",
+        "خلص",
+        "خلصت",
+        "انتهي",
+        "انتهت",
+        "انتهى",
+        "expired",
+        "has expired",
+        "ran out"
+      ]
+    },
+    {
+      "canonical": "symptom_not_activated",
+      "labels": {
+        "ar": "مش متفعل",
+        "en": "not activated"
+      },
+      "patterns": [
+        "مش متفعل",
+        "مش مفعل",
+        "مش متفعله",
+        "مش مفعلة",
+        "لسه مش متفعل",
+        "مفعلش",
+        "التفعيل مش راضي",
+        "not activated",
+        "not active",
+        "still inactive",
+        "not enabled"
+      ]
+    },
+    {
+      "canonical": "symptom_not_linked",
+      "labels": {
+        "ar": "مش مربوط",
+        "en": "not linked"
+      },
+      "patterns": [
+        "مش مربوط",
+        "مش مربوطه",
+        "مش مربوطة",
+        "الربط فشل",
+        "مش راضي يربط",
+        "مش بيربط",
+        "فشل الربط",
+        "not linked",
+        "not connected",
+        "link failed",
+        "cant connect",
+        "connection failed"
+      ]
+    },
+    {
+      "canonical": "symptom_rejected",
+      "labels": {
+        "ar": "مرفوض",
+        "en": "rejected"
+      },
+      "patterns": [
+        "مرفوض",
+        "مرفوضه",
+        "مرفوضة",
+        "اترفض",
+        "اترفضت",
+        "تم الرفض",
+        "rejected",
+        "declined",
+        "denied"
+      ]
+    },
+    {
+      "canonical": "symptom_pending",
+      "labels": {
+        "ar": "معلق",
+        "en": "pending"
+      },
+      "patterns": [
+        "معلق",
+        "معلقه",
+        "معلقة",
+        "لسه بيراجع",
+        "تحت المراجعه",
+        "تحت المراجعة",
+        "مستني الموافقه",
+        "pending",
+        "under review",
+        "awaiting approval",
+        "still processing"
+      ]
+    },
+    {
+      "canonical": "symptom_generic_error",
+      "labels": {
+        "ar": "رسالة خطأ",
+        "en": "error message"
+      },
+      "patterns": [
+        "رساله خطأ",
+        "رسالة خطأ",
+        "بيطلعلي خطأ",
+        "بيقولي خطأ",
+        "فيه ايرور",
+        "في ايرور",
+        "ايرور",
+        "error message",
+        "an error",
+        "shows an error",
+        "throws an error"
+      ]
+    },
+    {
+      "canonical": "symptom_generic_problem",
+      "labels": {
+        "ar": "فيه مشكلة",
+        "en": "there is a problem"
+      },
+      "patterns": [
+        "عندي مشكله",
+        "عندي مشكلة",
+        "في مشكله",
+        "فيه مشكلة",
+        "فيه مشكله",
+        "المشكله",
+        "المشكلة",
+        "مشكله",
+        "مشكلة",
+        "عندي عطل",
+        "فيه عطل",
+        "i have a problem",
+        "there is an issue",
+        "having an issue",
+        "issue with"
+      ]
+    },
+    {
+      "canonical": "intent_pricing",
+      "labels": {
+        "ar": "سؤال عن الأسعار",
+        "en": "pricing question"
+      },
+      "patterns": [
+        "الاسعار",
+        "الأسعار",
+        "اسعار",
+        "بكام",
+        "كام سعر",
+        "السعر",
+        "سعر الباقه",
+        "سعر الباقة",
+        "التكلفه",
+        "التكلفة",
+        "الباقات",
+        "العروض",
+        "الخطط",
+        "خطط الاسعار",
+        "price",
+        "pricing",
+        "how much",
+        "cost",
+        "plans",
+        "packages"
+      ]
+    },
+    {
+      "canonical": "intent_how_to",
+      "labels": {
+        "ar": "طلب شرح",
+        "en": "how-to question"
+      },
+      "patterns": [
+        "ازاي",
+        "إزاي",
+        "ازاى",
+        "كيف",
+        "ممكن اعرف ازاي",
+        "عايز اعرف ازاي",
+        "ايه الخطوات",
+        "الطريقه",
+        "how do i",
+        "how to",
+        "how can i",
+        "steps to"
+      ]
+    },
+    {
+      "canonical": "intent_status_check",
+      "labels": {
+        "ar": "سؤال عن الحالة",
+        "en": "status check"
+      },
+      "patterns": [
+        "حالة",
+        "الحاله",
+        "الحالة",
+        "حالتي",
+        "حالتها",
+        "وصلت لفين",
+        "وصلت لحد فين",
+        "فين وصلت",
+        "لحد فين",
+        "ايه اخبار",
+        "ايه أخبار",
+        "لسه فيه رد",
+        "فاضل قد ايه",
+        "فاضل كام",
+        "فاضل اد ايه",
+        "فاضل قد إيه",
+        "باقي قد ايه",
+        "باقي كام",
+        "عايز اعرف حالتي",
+        "عايز اعرف حالة",
+        "status",
+        "any update",
+        "whats the status",
+        "update on",
+        "how much is left",
+        "how long left"
+      ]
+    },
+    {
+      "canonical": "intent_cancel",
+      "labels": {
+        "ar": "طلب إلغاء",
+        "en": "cancellation request"
+      },
+      "patterns": [
+        "عايز الغي",
+        "عايز ألغي",
+        "الغاء الاشتراك",
+        "إلغاء الاشتراك",
+        "بطل الاشتراك",
+        "الغي الاشتراك",
+        "cancel",
+        "cancel subscription",
+        "unsubscribe",
+        "terminate"
+      ]
+    },
+    {
+      "canonical": "intent_upgrade",
+      "labels": {
+        "ar": "طلب ترقية",
+        "en": "upgrade request"
+      },
+      "patterns": [
+        "عايز اترقي",
+        "عايز أترقى",
+        "ترقية الباقه",
+        "ترقيه الباقه",
+        "اغير الباقه",
+        "أغير الباقة",
+        "باقه اكبر",
+        "باقة أكبر",
+        "upgrade",
+        "change plan",
+        "bigger plan"
+      ]
+    },
+    {
+      "canonical": "intent_reset",
+      "labels": {
+        "ar": "طلب إعادة تعيين",
+        "en": "reset request"
+      },
+      "patterns": [
+        "نسيت الباسورد",
+        "نسيت كلمة السر",
+        "نسيت كلمه السر",
+        "عايز اغير الباسورد",
+        "استعادة كلمة المرور",
+        "استعاده كلمه المرور",
+        "اعادة تعيين",
+        "إعادة تعيين",
+        "forgot password",
+        "reset password",
+        "password reset",
+        "recover account"
+      ]
+    },
+    {
+      "canonical": "qualifier_all_users",
+      "labels": {
+        "ar": "بيحصل لكل المستخدمين",
+        "en": "affects all users"
+      },
+      "patterns": [
+        "كل الموظفين",
+        "كل المستخدمين",
+        "كلنا",
+        "الفريق كله",
+        "كل الحسابات",
+        "all users",
+        "everyone",
+        "whole team",
+        "all accounts"
+      ]
+    },
+    {
+      "canonical": "qualifier_mobile",
+      "labels": {
+        "ar": "على الموبايل",
+        "en": "on mobile"
+      },
+      "patterns": [
+        "على الموبايل",
+        "من الموبايل",
+        "بالموبايل",
+        "على التليفون",
+        "التطبيق",
+        "on mobile",
+        "on my phone",
+        "the app",
+        "android",
+        "ios",
+        "iphone"
+      ]
+    },
+    {
+      "canonical": "qualifier_just_started",
+      "labels": {
+        "ar": "بدأت حديثًا",
+        "en": "started recently"
+      },
+      "patterns": [
+        "من امبارح",
+        "من إمبارح",
+        "من النهارده",
+        "من النهاردة",
+        "من ساعة",
+        "من ساعه",
+        "بدأت فجأه",
+        "بدأت فجأة",
+        "من شويه",
+        "من شوية",
+        "since yesterday",
+        "since today",
+        "just started",
+        "suddenly"
+      ]
+    }
   ]
 }

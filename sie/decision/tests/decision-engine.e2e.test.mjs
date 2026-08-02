@@ -67,7 +67,7 @@ test('Journey B: ambiguous subscription scenarios resolve after a discriminating
 
     // Customer confirms payment succeeded — simulating what the future
     // Decision/Dialogue integration will do with a discriminating answer.
-    const confirmEvidence = extractDiscriminatingAnswerEvidence({ impliedTokens: ['دفع'], turn: 2, weight: 1 });
+    const confirmEvidence = extractDiscriminatingAnswerEvidence({ impliedTokens: ['entity_payment'], turn: 2, weight: 1 });
     const scenarioProvider = createRealScenarioCatalogProvider();
     const diagnosticState2 = await processTurn({
         normalizedTokens: [],

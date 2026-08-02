@@ -12,6 +12,12 @@
 -- (is_chat_engine_staff, get_customer_profile_summary,
 -- create/publish_chat_engine_*), each with an explicit staff-only
 -- guard at the top — every other function is SECURITY INVOKER.
+--
+-- ⚠️ CORRECTED AGAINST THE LIVE SCHEMA. Parts of this file had drifted from
+-- what is actually deployed (the staff-role check, the scenario/knowledge
+-- column names). Those are fixed inline below and marked where they differ.
+-- Verify against the live database before applying this to a fresh
+-- environment — the deployed schema, not this file, is the source of truth.
 -- ------------------------------------------------------------------
 
 -- ============================================================
@@ -29,10 +35,14 @@ language sql
 security definer
 stable
 as $$
+    -- CORRECTED against the live function: profiles has no 'staff' role.
+    -- The roles that actually exist, and that the deployed policy grants, are
+    -- these three. The previous version compared against a role no row ever
+    -- has, which would have denied every genuine admin.
     select exists (
         select 1 from profiles
         where profiles.id = auth.uid()
-          and profiles.role = 'staff'
+          and profiles.role in ('admin', 'support', 'super_user')
     );
 $$;
 
@@ -52,7 +62,7 @@ create table if not exists chat_engine_scenarios (
     -- history is never ambiguous with a fresh, unrelated 'rejected' draft.
     status text not null default 'draft' check (status in ('draft', 'validated', 'published', 'rejected', 'archived')),
     definition jsonb not null,
-    author_note text,
+    notes text,
     created_by uuid references profiles(id),
     created_at timestamptz not null default now(),
     unique (scenario_key, version)
@@ -63,8 +73,12 @@ create table if not exists chat_engine_knowledge_entries (
     knowledge_key text not null,
     version integer not null,
     status text not null default 'draft' check (status in ('draft', 'validated', 'published', 'rejected', 'archived')),
-    definition jsonb not null,
-    author_note text,
+    -- CORRECTED: the live column is `content`, not `definition`. Scenarios use
+    -- `definition`; knowledge entries use `content`. static-knowledge.supabase.js
+    -- and supabase-port.supabase.js both read/write `content`, so a table
+    -- created from the old spelling would break every knowledge read.
+    content jsonb not null,
+    notes text,
     created_by uuid references profiles(id),
     created_at timestamptz not null default now(),
     unique (knowledge_key, version)
@@ -99,6 +113,18 @@ create policy "staff can read all knowledge rows"
 -- ============================================================
 -- 3. Draft creation RPCs (Review Center editing)
 -- ============================================================
+--
+-- ⚠️ NOT DEPLOYED, AND NOT REQUIRED.
+-- Neither of these functions exists on the live database — this section was
+-- never actually applied. They are also no longer needed: the live RLS policy
+-- already grants is_chat_engine_staff() a blanket ALL on both catalog tables,
+-- so supabase-port.supabase.js creates drafts with a plain insert and computes
+-- the next version itself (see createScenarioDraft / createKnowledgeDraft).
+--
+-- Kept here, corrected, only so this file stays a faithful description of the
+-- intended design. Applying them is optional; if you do, note that they must
+-- match the live columns (`notes`, and `content` on knowledge entries), which
+-- the version below now does.
 
 create or replace function create_chat_engine_scenario_draft(
     p_scenario_key text,
@@ -120,7 +146,7 @@ begin
     from chat_engine_scenarios
     where scenario_key = p_scenario_key;
 
-    insert into chat_engine_scenarios (scenario_key, version, status, definition, author_note, created_by)
+    insert into chat_engine_scenarios (scenario_key, version, status, definition, notes, created_by)
     values (p_scenario_key, v_version, 'draft', p_definition, p_author_note, auth.uid());
 
     return query select v_version;
@@ -147,7 +173,7 @@ begin
     from chat_engine_knowledge_entries
     where knowledge_key = p_knowledge_key;
 
-    insert into chat_engine_knowledge_entries (knowledge_key, version, status, definition, author_note, created_by)
+    insert into chat_engine_knowledge_entries (knowledge_key, version, status, content, notes, created_by)
     values (p_knowledge_key, v_version, 'draft', p_definition, p_author_note, auth.uid());
 
     return query select v_version;

@@ -1,303 +1,2918 @@
 {
   "scenarios": [
     {
-      "id": "whatsapp_number_not_linked",
-      "label": { "ar": "رقم الواتساب مش مربوط بالمنصة", "en": "WhatsApp number not linked to the platform" },
-      "category": "whatsapp",
+      "id": "login_credentials_forgotten",
+      "label": {
+        "ar": "نسيان كلمة المرور",
+        "en": "Forgotten password"
+      },
+      "category": "login",
       "evidenceSignature": [
-        { "token": "واتساب", "weight": 2, "source": "text" },
-        { "token": "رابط", "weight": 1, "source": "text" },
-        { "token": "symptom_not_working", "weight": 1, "source": "text" }
+        {
+          "token": "intent_reset",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 1,
+          "source": "text"
+        }
       ],
       "discriminatingQuestions": [],
-      "resolution": { "hasAutoResolution": false },
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، ده أسهل حاجة نحلها [[icon:smile]]\n١. افتح صفحة تسجيل الدخول واضغط على \"نسيت كلمة المرور؟\".\n٢. اكتب الإيميل المسجّل عندنا واضغط إرسال.\n٣. هيوصلك لينك على إيميلك خلال دقيقة — اضغط عليه واختار كلمة مرور جديدة.\n\nلو اللينك مجاش خلال ٥ دقايق، بصّ في مجلد الـ Spam أو Promotions الأول. ولو لسه مش لاقيه، قولي وهفتحلك تذكرة على طول.",
+          "en": "No problem at all, this one's easy [[icon:smile]]\n1. Open the login page and click \"Forgot your password?\".\n2. Enter your registered email and hit send.\n3. You'll get a reset link within a minute — click it and choose a new password.\n\nIf it hasn't arrived after 5 minutes, check your Spam or Promotions folder first. Still nothing? Tell me and I'll open a ticket right away."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_account_locked",
+      "label": {
+        "ar": "الحساب مقفول",
+        "en": "Account locked"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_account_locked",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحساب بيتقفل تلقائيًا بعد عدة محاولات دخول خاطئة، وده إجراء حماية مؤقت.\n\nغالبًا هيتفتح لوحده بعد ٣٠ دقيقة — جرّب تاني بعد المدة دي. ولو محتاج تدخل حالًا، أو الحساب لسه مقفول بعد الوقت ده، قولي وهصعّد الموضوع لفريق الدعم فورًا عشان يفكّوه يدويًا.",
+          "en": "Accounts lock automatically after several failed sign-in attempts — it's a temporary security measure.\n\nIt usually unlocks itself after 30 minutes, so try again after that. If you need access sooner, or it's still locked after that window, tell me and I'll escalate it to support to unlock it manually."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_wrong_credentials",
+      "label": {
+        "ar": "بيانات الدخول مرفوضة",
+        "en": "Credentials rejected"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_wrong_credentials",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خلينا نستبعد الأسباب الشائعة الأول:\n• اتأكد إن الـ Caps Lock مقفول، وإن مفيش مسافة زيادة في آخر الإيميل أو كلمة المرور.\n• لو بتستخدم كلمة مرور محفوظة في المتصفح، جرّب تكتبها بإيدك — أحيانًا بتكون نسخة قديمة.\n• اتأكد إنك بتستخدم نفس الإيميل اللي مسجّل بيه فعلًا (مش إيميل تاني ليك).\n\nلو جربت ده كله ولسه بيرفض، أسهل حل إنك تعمل إعادة تعيين لكلمة المرور من \"نسيت كلمة المرور؟\".",
+          "en": "Let's rule out the common causes first:\n• Check that Caps Lock is off and there's no trailing space in your email or password.\n• If you're using a browser-saved password, try typing it manually — saved copies go stale.\n• Make sure you're using the email the account is actually registered under.\n\nIf you've tried all of that and it still rejects you, the quickest fix is a password reset via \"Forgot your password?\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_token_expired",
+      "label": {
+        "ar": "انتهاء صلاحية الجلسة / الـ Token",
+        "en": "Session or token expired"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_token_expired",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_token",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "http_status_401",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الخروج المتكرر ده غالبًا سببه واحد من دول:\n• المتصفح بيمسح الكوكيز أوتوماتيك (شائع في وضع التصفح الخفي أو مع إضافات حماية الخصوصية).\n• ساعة الجهاز مش مضبوطة — فرق التوقيت بيخلي الجلسة تبان منتهية.\n• الحساب مفتوح على أكتر من جهاز والجلسات بتتزاحم.\n\nجرّب تفتح المنصة في نافذة عادية (مش خفية)، واتأكد إن تاريخ ووقت الجهاز مظبوطين. لو المشكلة مستمرة بعد كده، قولي وهفتحلك تذكرة بالتفاصيل دي.",
+          "en": "Getting logged out repeatedly usually comes down to one of these:\n• Your browser is clearing cookies automatically (common in private browsing or with privacy extensions).\n• Your device clock is off — a time skew makes the session look expired.\n• The account is open on several devices and the sessions are competing.\n\nTry opening the platform in a normal (non-private) window and confirm your device's date and time are correct. If it keeps happening after that, tell me and I'll open a ticket with these details."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_otp_not_received",
+      "label": {
+        "ar": "كود التحقق مش واصل",
+        "en": "Verification code not received"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_otp_not_received",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو كود التحقق مش واصل:\n• استنى دقيقة كاملة قبل ما تطلب كود جديد — الطلبات المتكررة بتلغي بعضها.\n• لو الكود على الإيميل، بصّ في الـ Spam والـ Promotions.\n• لو على SMS، اتأكد إن الرقم صحيح وإن الشبكة عندك شغالة.\n\nقولي الكود بيتبعت على إيميل ولا رقم موبايل، وهساعدك بالخطوة اللي بعدها.",
+          "en": "If your verification code isn't arriving:\n• Wait a full minute before requesting a new one — rapid requests invalidate each other.\n• If it's sent by email, check Spam and Promotions.\n• If it's by SMS, confirm the number is correct and you have signal.\n\nTell me whether the code goes to your email or your phone and I'll take it from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_2fa_locked_out",
+      "label": {
+        "ar": "مشكلة في التحقق بخطوتين",
+        "en": "Two-factor lockout"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_2fa",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_login_failed",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
       "requiresTicketIfUnresolved": true
     },
     {
+      "id": "login_cannot_access",
+      "label": {
+        "ar": "مش قادر يدخل حسابه",
+        "en": "Cannot sign in"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_login_failed",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "login_error_shown",
+          "prompt": {
+            "ar": "بيظهرلك رسالة خطأ معينة وانت بتحاول تدخل؟",
+            "en": "Do you see a specific error message when you try to sign in?"
+          },
+          "resolvesEvidence": [
+            "symptom_wrong_credentials",
+            "symptom_account_locked"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه بيقولي البيانات غلط",
+                "en": "Yes — it says my credentials are wrong"
+              },
+              "value": "wrong_creds",
+              "impliesEvidence": [
+                "symptom_wrong_credentials"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أيوه بيقولي الحساب مقفول",
+                "en": "Yes — it says the account is locked"
+              },
+              "value": "locked",
+              "impliesEvidence": [
+                "symptom_account_locked"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ، الصفحة بس مش بتفتح",
+                "en": "No, the page just doesn't load"
+              },
+              "value": "no_error",
+              "impliesEvidence": [
+                "symptom_blank_page"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "login_401_unauthorized",
+      "label": {
+        "ar": "خطأ 401 عند الدخول",
+        "en": "401 on sign-in"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "http_status_401",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_login_failed",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خطأ 401 معناه إن صلاحية الجلسة انتهت أو التوكن مابقاش صالح.\n\nالحل السريع: سجّل خروج بالكامل، امسح الكاش والكوكيز الخاصة بالموقع، وبعدين سجّل دخول من جديد. ده بيحل الحالة دي في الغالبية العظمى من المرات.\n\nلو ٤٠١ بيظهرلك على نداءات API مش على الموقع، غالبًا التوكن نفسه منتهي ومحتاج تجديد.",
+          "en": "A 401 means your session has expired or the token is no longer valid.\n\nQuick fix: sign out completely, clear the site's cache and cookies, then sign back in. That resolves it the overwhelming majority of the time.\n\nIf you're seeing 401 on API calls rather than in the browser, the token itself has likely expired and needs refreshing."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
       "id": "subscription_payment_not_reflected",
-      "label": { "ar": "الدفع تم لكن الاشتراك لسه مش متفعل", "en": "Payment made but subscription not reflected" },
+      "label": {
+        "ar": "الدفع تم والاشتراك مش متفعل",
+        "en": "Paid but subscription inactive"
+      },
       "category": "subscription",
       "evidenceSignature": [
-        { "token": "اشتراك", "weight": 2, "source": "text" },
-        { "token": "دفع", "weight": 2, "source": "text" },
-        { "token": "فاتوره", "weight": 2, "source": "text" },
-        { "token": "خصم", "weight": 1, "source": "text" }
+        {
+          "token": "entity_subscription",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_activated",
+          "weight": 1,
+          "source": "text"
+        }
       ],
       "discriminatingQuestions": [
         {
           "id": "payment_confirmation_received",
           "prompt": {
-            "ar": "وصلك رسالة أو إيصال يأكد إن الدفع نجح؟",
-            "en": "Did you receive a confirmation message or receipt that the payment succeeded?"
+            "ar": "وصلك إيصال أو رسالة تأكيد إن عملية الدفع نجحت؟",
+            "en": "Did you get a receipt or confirmation that the payment went through?"
           },
-          "resolvesEvidence": ["دفع"],
+          "resolvesEvidence": [
+            "entity_payment",
+            "entity_invoice"
+          ],
           "options": [
-            { "label": { "ar": "أيوه وصلني تأكيد", "en": "Yes, I got a confirmation" }, "value": "confirmed", "impliesEvidence": ["دفع"] },
-            { "label": { "ar": "لأ محصلش", "en": "No, I didn't" }, "value": "not_confirmed" }
+            {
+              "label": {
+                "ar": "أيوه وصلني تأكيد",
+                "en": "Yes, I got a confirmation"
+              },
+              "value": "confirmed",
+              "impliesEvidence": [
+                "entity_invoice"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ محصلش",
+                "en": "No, nothing arrived"
+              },
+              "value": "not_confirmed",
+              "impliesEvidence": [
+                "symptom_not_received"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الفلوس اتخصمت بس مفيش تأكيد",
+                "en": "Money was taken but no confirmation"
+              },
+              "value": "debited_only",
+              "impliesEvidence": [
+                "entity_payment",
+                "symptom_not_received"
+              ]
+            }
           ]
         }
       ],
-      "resolution": { "hasAutoResolution": false },
+      "resolution": {
+        "hasAutoResolution": false
+      },
       "requiresTicketIfUnresolved": true
     },
     {
       "id": "subscription_expired",
-      "label": { "ar": "الاشتراك منتهي الصلاحية", "en": "Subscription has expired" },
+      "label": {
+        "ar": "الاشتراك منتهي",
+        "en": "Subscription expired"
+      },
       "category": "subscription",
       "evidenceSignature": [
-        { "token": "اشتراك", "weight": 2, "source": "text" },
-        { "token": "انتهت", "weight": 2, "source": "text" },
-        { "token": "صلاحيه", "weight": 2, "source": "text" },
-        { "token": "subscription_recently_expired", "weight": 4, "source": "live" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "text": {
-          "ar": "يبدو إن اشتراكك انتهى. تقدر تجدده من صفحة الاشتراكات في حسابك مباشرة.",
-          "en": "It looks like your subscription has expired. You can renew it directly from the subscriptions page in your account."
-        }
-      },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "login_credentials_forgotten",
-      "label": { "ar": "نسيان كلمة المرور", "en": "Forgotten login credentials" },
-      "category": "login",
-      "evidenceSignature": [
-        { "token": "entity_login", "weight": 1, "source": "text" },
-        { "token": "دخول", "weight": 1, "source": "text" },
-        { "token": "باسورد", "weight": 2, "source": "text" },
-        { "token": "symptom_login_failed", "weight": 2, "source": "text" }
-      ],
-      "discriminatingQuestions": [
         {
-          "id": "login_error_type",
-          "prompt": {
-            "ar": "بيقولك إيه بالظبط لما تحاول تدخل؟ كلمة السر غلط، ولا الحساب مقفول؟",
-            "en": "What exactly happens when you try to log in — wrong password, or account locked?"
-          },
-          "resolvesEvidence": ["باسورد", "مقفول"],
-          "options": [
-            { "label": { "ar": "كلمة السر غلط", "en": "Wrong password" }, "value": "wrong_password", "impliesEvidence": ["باسورد"] },
-            { "label": { "ar": "الحساب مقفول", "en": "Account locked" }, "value": "account_locked", "impliesEvidence": ["مقفول"] }
-          ]
+          "token": "entity_subscription",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_expired",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_status_check",
+          "weight": 1,
+          "source": "text"
         }
-      ],
-      "resolution": {
-        "hasAutoResolution": true,
-        "text": {
-          "ar": "تقدر تعمل استعادة كلمة المرور من صفحة تسجيل الدخول، هتوصلك رسالة على بريدك الإلكتروني لإعادة تعيينها.",
-          "en": "You can reset your password from the login page — you'll receive an email to set a new one."
-        }
-      },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "login_account_locked",
-      "label": { "ar": "الحساب مقفول بسبب محاولات دخول فاشلة", "en": "Account locked due to failed login attempts" },
-      "category": "login",
-      "evidenceSignature": [
-        { "token": "entity_login", "weight": 1, "source": "text" },
-        { "token": "مقفول", "weight": 2, "source": "text" },
-        { "token": "account_recently_locked", "weight": 4, "source": "live" }
       ],
       "discriminatingQuestions": [],
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "حسابك اتقفل مؤقتًا بسبب محاولات دخول فاشلة متكررة، وهيتفتح تلقائيًا بعد فترة قصيرة. لو المشكلة استمرت بعدها، افتحلك تذكرة.",
-          "en": "Your account was temporarily locked due to repeated failed login attempts and will unlock automatically shortly. If it persists, we'll open a ticket."
-        }
-      },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "login_token_expired",
-      "label": { "ar": "انتهاء صلاحية الـ Token", "en": "Access token expired" },
-      "category": "login",
-      "evidenceSignature": [
-        { "token": "entity_token", "weight": 2, "source": "text" },
-        { "token": "symptom_token_expired", "weight": 3, "source": "text" },
-        { "token": "انتهت", "weight": 1, "source": "text" },
-        { "token": "صلاحيه", "weight": 1, "source": "text" },
-        { "token": "http_status_401", "weight": 3, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "text": {
-          "ar": "الـ Token بتاعك انتهت صلاحيته. تقدر تولّد واحد جديد من إعدادات حسابك أو من لوحة تحكم المطورين.",
-          "en": "Your access token has expired. You can generate a new one from your account settings or the developer dashboard."
-        }
-      },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "api_integration_issue",
-      "label": { "ar": "مشكلة في التكامل مع الـ API", "en": "API integration issue" },
-      "category": "api",
-      "evidenceSignature": [
-        { "token": "entity_api", "weight": 3, "source": "text" },
-        { "token": "symptom_generic_error", "weight": 1, "source": "text" },
-        { "token": "symptom_not_working", "weight": 1, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": { "hasAutoResolution": false },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "webhook_not_receiving",
-      "label": { "ar": "الـ Webhook مش بيستقبل الأحداث", "en": "Webhook not receiving events" },
-      "category": "api",
-      "evidenceSignature": [
-        { "token": "entity_webhook", "weight": 3, "source": "text" },
-        { "token": "symptom_not_working", "weight": 2, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": { "hasAutoResolution": false },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "dns_subdomain_issue",
-      "label": { "ar": "مشكلة في الـ DNS أو النطاق الفرعي", "en": "DNS or subdomain issue" },
-      "category": "other",
-      "evidenceSignature": [
-        { "token": "entity_dns", "weight": 3, "source": "text" },
-        { "token": "entity_subdomain", "weight": 2, "source": "text" },
-        { "token": "رابط", "weight": 1, "source": "text" },
-        { "token": "نطاق", "weight": 1, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "text": {
-          "ar": "تغييرات الـ DNS بتاخد لحد 24-48 ساعة عشان تنتشر بالكامل. لو الفترة دي عدت والمشكلة مستمرة، هنفتحلك تذكرة.",
-          "en": "DNS changes can take up to 24-48 hours to fully propagate. If it's been longer than that and the issue persists, we'll open a ticket."
-        }
-      },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "ssl_certificate_issue",
-      "label": { "ar": "مشكلة في شهادة SSL", "en": "SSL certificate issue" },
-      "category": "other",
-      "evidenceSignature": [
-        { "token": "entity_ssl_certificate", "weight": 3, "source": "text" },
-        { "token": "شهاده", "weight": 1, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "text": {
-          "ar": "شهادات SSL بتتجدد تلقائيًا على المنصة، وممكن ياخد التفعيل شوية وقت بعد ربط نطاق جديد. لو استمرت المشكلة، هنفتحلك تذكرة.",
-          "en": "SSL certificates renew automatically on the platform, and activation can take a little time after linking a new domain. If it persists, we'll open a ticket."
-        }
-      },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "server_error_5xx",
-      "label": { "ar": "خطأ في السيرفر (5xx)", "en": "Server-side error (5xx)" },
-      "category": "other",
-      "evidenceSignature": [
-        { "token": "http_status_500", "weight": 3, "source": "text" },
-        { "token": "symptom_generic_error", "weight": 1, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": { "hasAutoResolution": false },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "unknown",
-      "label": { "ar": "مشكلة غير محددة", "en": "Unclassified issue" },
-      "category": "other",
-      "evidenceSignature": [
-        { "token": "symptom_generic_error", "weight": 0.1, "source": "any" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": { "hasAutoResolution": false },
-      "requiresTicketIfUnresolved": true
-    },
-    {
-      "id": "platform_info_inquiry",
-      "label": { "ar": "استفسار عن المنصة", "en": "Platform information inquiry" },
-      "category": "inquiry",
-      "evidenceSignature": [
-        { "token": "منصه", "weight": 3, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "knowledgeSource": "platform_info",
-        "text": {
-          "ar": "مش لاقي المعلومة دلوقتي، جرب تاني كمان شوية أو تواصل مع فريق الدعم.",
-          "en": "I couldn't find that information right now — please try again shortly or contact our support team."
-        }
-      },
-      "requiresTicketIfUnresolved": false
-    },
-    {
-      "id": "pricing_inquiry",
-      "label": { "ar": "استفسار عن الأسعار", "en": "Pricing inquiry" },
-      "category": "inquiry",
-      "evidenceSignature": [
-        { "token": "اسعار", "weight": 3, "source": "text" },
-        { "token": "خطط", "weight": 2, "source": "text" },
-        { "token": "باقات", "weight": 2, "source": "text" },
-        { "token": "بكام", "weight": 2, "source": "text" },
-        { "token": "عروض", "weight": 1, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "knowledgeSource": "pricing",
-        "text": {
-          "ar": "مش لاقي المعلومة دلوقتي، جرب تاني كمان شوية أو تواصل مع فريق الدعم.",
-          "en": "I couldn't find that information right now — please try again shortly or contact our support team."
-        }
-      },
-      "requiresTicketIfUnresolved": false
-    },
-    {
-      "id": "ticket_status_inquiry",
-      "label": { "ar": "استفسار عن حالة التذكرة", "en": "Ticket status inquiry" },
-      "category": "inquiry",
-      "evidenceSignature": [
-        { "token": "تذكرتي", "weight": 3, "source": "text" },
-        { "token": "حالتي", "weight": 2, "source": "text" },
-        { "token": "وصلت", "weight": 1, "source": "text" },
-        { "token": "فين", "weight": 1, "source": "text" }
-      ],
-      "discriminatingQuestions": [],
-      "resolution": {
-        "hasAutoResolution": true,
-        "knowledgeSource": "ticket_status",
-        "text": {
-          "ar": "مش لاقي بيانات تذاكرك دلوقتي، جرب تاني كمان شوية أو تواصل مع فريق الدعم مباشرة.",
-          "en": "I couldn't find your ticket data right now — please try again shortly or contact our support team directly."
+          "ar": "اشتراكك منتهي، وعشان كده الخصائص المدفوعة اتوقفت مؤقتًا — بياناتك كلها زي ما هي ومحدش لمسها [[icon:note]]\n\nتقدر تجدد في أي وقت من صفحة \"الاشتراكات\" في حسابك، والخدمة بترجع فورًا بعد ما الدفع يتأكد.\n\nلو محتاج تعرف الباقة المناسبة أو فيه عرض حالي، قولي وأنا أساعدك.",
+          "en": "Your subscription has expired, so the paid features are paused for now — all your data is exactly where you left it [[icon:note]]\n\nYou can renew any time from the \"Subscriptions\" page in your account, and service resumes as soon as payment clears.\n\nIf you'd like help picking the right plan or want to know about current offers, just ask."
         }
       },
       "requiresTicketIfUnresolved": false
     },
     {
       "id": "subscription_status_inquiry",
-      "label": { "ar": "استفسار عن حالة الاشتراك", "en": "Subscription status inquiry" },
+      "label": {
+        "ar": "استعلام عن حالة الاشتراك",
+        "en": "Subscription status inquiry"
+      },
       "category": "inquiry",
       "evidenceSignature": [
-        { "token": "اشتراكي", "weight": 3, "source": "text" },
-        { "token": "فاضل", "weight": 1, "source": "text" }
+        {
+          "token": "intent_status_check",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
       ],
       "discriminatingQuestions": [],
       "resolution": {
         "hasAutoResolution": true,
-        "knowledgeSource": "subscription_status",
         "text": {
           "ar": "مش لاقي بيانات اشتراكك دلوقتي، جرب تاني كمان شوية أو تواصل مع فريق الدعم مباشرة.",
           "en": "I couldn't find your subscription data right now — please try again shortly or contact our support team directly."
+        },
+        "knowledgeSource": "subscription_status"
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_double_charged",
+      "label": {
+        "ar": "خصم مبلغ مرتين",
+        "en": "Charged twice"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_payment",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_refund",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "subscription_refund_request",
+      "label": {
+        "ar": "طلب استرداد مبلغ",
+        "en": "Refund request"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_refund",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "subscription_cancel_request",
+      "label": {
+        "ar": "طلب إلغاء الاشتراك",
+        "en": "Cancellation request"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "intent_cancel",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تلغي الاشتراك في أي وقت من صفحة \"الاشتراكات\" في حسابك، من زر \"إلغاء التجديد التلقائي\".\n\nمهم تعرف: الإلغاء بيوقف التجديد الجاي بس — اشتراكك الحالي هيفضل شغال لحد آخر يوم في المدة المدفوعة، ومش هتخسر أي حاجة قبل كده.\n\nلو فيه حاجة معينة مضايقاك في الخدمة، قولهالي — يمكن نقدر نحلها بدل ما تلغي [[icon:smile]]",
+          "en": "You can cancel any time from the \"Subscriptions\" page in your account, using \"Turn off auto-renewal\".\n\nWorth knowing: cancelling only stops the next renewal — your current subscription stays active until the last day of the period you've already paid for, so you lose nothing before then.\n\nIf something specific is bothering you about the service, tell me — we might be able to fix it instead [[icon:smile]]"
         }
       },
       "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_upgrade_request",
+      "label": {
+        "ar": "طلب ترقية الباقة",
+        "en": "Plan upgrade request"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "intent_upgrade",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الترقية بتتم من صفحة \"الاشتراكات\" — اختار الباقة الأكبر واضغط ترقية.\n\nالفرق في السعر بيتحسب بالتناسب مع المدة المتبقية في اشتراكك الحالي، يعني مش بتدفع مرتين، والباقة الجديدة بتشتغل فورًا بعد تأكيد الدفع.\n\nلو مش متأكد أنهي باقة تناسب حجم شغلك، قولي بتستخدم إيه أكتر وأنا أرشحلك.",
+          "en": "Upgrades happen from the \"Subscriptions\" page — pick the larger plan and click upgrade.\n\nThe price difference is prorated against the time remaining on your current subscription, so you never pay twice, and the new plan activates as soon as payment is confirmed.\n\nNot sure which plan fits your usage? Tell me what you use most and I'll recommend one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_invoice_missing",
+      "label": {
+        "ar": "الفاتورة مش موجودة",
+        "en": "Invoice missing"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_invoice",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كل فواتيرك متاحة للتحميل في أي وقت من صفحة \"الاشتراكات\" → قسم \"الفواتير\".\n\nلو الفاتورة اللي بتدور عليها مش ظاهرة هناك، أو محتاجها ببيانات ضريبية معينة، قولي وهفتحلك تذكرة عشان الفريق يجهزهالك.",
+          "en": "All your invoices are available to download any time from \"Subscriptions\" → \"Invoices\".\n\nIf the one you need isn't listed there, or you need it issued with specific tax details, tell me and I'll open a ticket so the team can prepare it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_payment_rejected",
+      "label": {
+        "ar": "الدفع مرفوض",
+        "en": "Payment declined"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "symptom_rejected",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_card",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رفض الدفع غالبًا بيجي من البنك مش من المنصة. جرّب الآتي بالترتيب:\n• اتأكد إن البطاقة مفعّل عليها الشراء أونلاين والمعاملات الدولية.\n• اتأكد إن الرصيد كافي وإن تاريخ الانتهاء صحيح.\n• جرّب بطاقة تانية أو وسيلة دفع مختلفة.\n\nلو كل ده مظبوط والدفع لسه مرفوض، قولي وهصعّدها للفريق المالي.",
+          "en": "Declines almost always come from the bank rather than the platform. Try these in order:\n• Confirm online and international transactions are enabled on the card.\n• Check the available balance and that the expiry date is correct.\n• Try a different card or payment method.\n\nIf all of that checks out and it's still declined, tell me and I'll escalate to the billing team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "wallet_balance_issue",
+      "label": {
+        "ar": "مشكلة في رصيد المحفظة",
+        "en": "Wallet balance issue"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_wallet",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wallet_topup_not_reflected",
+      "label": {
+        "ar": "الشحن مش ظاهر في المحفظة",
+        "en": "Top-up not reflected"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_wallet",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "whatsapp_number_not_linked",
+      "label": {
+        "ar": "رقم الواتساب مش مربوط",
+        "en": "WhatsApp number not linked"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp_number",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_linked",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "whatsapp_link_stage",
+          "prompt": {
+            "ar": "وصلت لحد فين في خطوات الربط؟",
+            "en": "How far did you get in the linking steps?"
+          },
+          "resolvesEvidence": [
+            "entity_qr_code",
+            "symptom_rejected"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مسحت الكود بس مكملش",
+                "en": "I scanned the code but it didn't complete"
+              },
+              "value": "qr_scanned",
+              "impliesEvidence": [
+                "entity_qr_code"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الكود نفسه مش ظاهر",
+                "en": "The code itself doesn't appear"
+              },
+              "value": "no_qr",
+              "impliesEvidence": [
+                "entity_qr_code",
+                "symptom_not_working"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيقولي الرقم مرفوض",
+                "en": "It says the number is rejected"
+              },
+              "value": "rejected",
+              "impliesEvidence": [
+                "symptom_rejected"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "whatsapp_messages_not_sending",
+      "label": {
+        "ar": "رسائل الواتساب مش بتتبعت",
+        "en": "WhatsApp messages not sending"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_sending",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_campaign",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "delivery_direction",
+          "prompt": {
+            "ar": "المشكلة في الرسايل اللي بتطلع منك ولا اللي بتيجي من العملاء؟",
+            "en": "Is the problem with messages you send, or messages coming in from customers?"
+          },
+          "resolvesEvidence": [
+            "symptom_not_sending",
+            "symptom_not_received"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "اللي بابعتها انا",
+                "en": "The ones I send"
+              },
+              "value": "outbound",
+              "impliesEvidence": [
+                "symptom_not_sending"
+              ]
+            },
+            {
+              "label": {
+                "ar": "اللي جاية من العملاء",
+                "en": "The ones coming in"
+              },
+              "value": "inbound",
+              "impliesEvidence": [
+                "symptom_not_received"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الاتنين",
+                "en": "Both"
+              },
+              "value": "both",
+              "impliesEvidence": [
+                "symptom_not_sending",
+                "symptom_not_received"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "whatsapp_messages_not_received",
+      "label": {
+        "ar": "رسائل الواتساب مش بتوصل",
+        "en": "WhatsApp messages not received"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_notification",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "delivery_direction",
+          "prompt": {
+            "ar": "المشكلة في الرسايل اللي بتطلع منك ولا اللي بتيجي من العملاء؟",
+            "en": "Is the problem with messages you send, or messages coming in from customers?"
+          },
+          "resolvesEvidence": [
+            "symptom_not_sending",
+            "symptom_not_received"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "اللي بابعتها انا",
+                "en": "The ones I send"
+              },
+              "value": "outbound",
+              "impliesEvidence": [
+                "symptom_not_sending"
+              ]
+            },
+            {
+              "label": {
+                "ar": "اللي جاية من العملاء",
+                "en": "The ones coming in"
+              },
+              "value": "inbound",
+              "impliesEvidence": [
+                "symptom_not_received"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الاتنين",
+                "en": "Both"
+              },
+              "value": "both",
+              "impliesEvidence": [
+                "symptom_not_sending",
+                "symptom_not_received"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "whatsapp_template_rejected",
+      "label": {
+        "ar": "قالب الواتساب مرفوض",
+        "en": "WhatsApp template rejected"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp_template",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رفض القوالب بيجي من واتساب نفسه (Meta) مش من المنصة، وأشهر أسبابه:\n• صياغة تسويقية زيادة عن اللزوم أو وعود مبالغ فيها.\n• متغيرات ({{1}}) في أول أو آخر الرسالة من غير نص حواليها.\n• أخطاء إملائية واضحة، أو تصنيف غلط (Marketing بدل Utility أو العكس).\n\nعدّل الصياغة وابعت القالب للمراجعة تاني — المراجعة عادة بتاخد من دقايق لـ ٢٤ ساعة. لو اترفض أكتر من مرة ومش عارف السبب، ابعتلي نص القالب وهساعدك تراجعه.",
+          "en": "Template rejections come from WhatsApp (Meta) rather than the platform. The most common causes:\n• Overly promotional wording or exaggerated claims.\n• Variables ({{1}}) at the very start or end with no surrounding text.\n• Obvious spelling errors, or the wrong category (Marketing vs Utility).\n\nRevise the wording and resubmit — review usually takes anywhere from minutes to 24 hours. If it's been rejected repeatedly and you're not sure why, send me the template text and I'll help you review it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "whatsapp_campaign_failed",
+      "label": {
+        "ar": "الحملة فشلت",
+        "en": "Campaign failed"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_campaign",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "whatsapp_number_banned",
+      "label": {
+        "ar": "رقم الواتساب محظور",
+        "en": "WhatsApp number banned"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp_number",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_account_locked",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "whatsapp_qr_not_scanning",
+      "label": {
+        "ar": "كود QR مش راضي يتقرأ",
+        "en": "QR code won't scan"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_qr_code",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو كود الـ QR مش راضي يتقرأ:\n• حدّث الصفحة عشان يتولّد كود جديد — الكود بينتهي بعد دقيقة تقريبًا.\n• زوّد إضاءة الشاشة وكبّر حجم الكود.\n• اتأكد إنك بتمسح من داخل واتساب → الأجهزة المرتبطة، مش من كاميرا الموبايل العادية.\n\nلو الكود نفسه مش ظاهر أصلًا على الشاشة، قولي — دي مشكلة تانية خالص.",
+          "en": "If the QR code won't scan:\n• Refresh the page to generate a new one — codes expire after about a minute.\n• Turn up your screen brightness and enlarge the code.\n• Make sure you're scanning from WhatsApp → Linked devices, not your phone's normal camera.\n\nIf the code doesn't appear on screen at all, tell me — that's a different problem entirely."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_401_unauthorized",
+      "label": {
+        "ar": "الـ API بيرجع 401",
+        "en": "API returning 401"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "http_status_401",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_token",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "٤٠١ من الـ API معناها إن المصادقة مرفوضة. راجع الآتي:\n• هيدر الـ Authorization لازم يكون بالشكل ده بالظبط: `Authorization: Bearer <token>`.\n• اتأكد إن التوكن مش منتهي وإنه اتنسخ كامل من غير مسافات في الأول أو الآخر.\n• اتأكد إنك بتستخدم توكن بيئة الإنتاج مش بيئة الاختبار (أو العكس).\n\nلو التوكن جديد ولسه بيرفض، ابعتلي أول ٦ حروف منه (من غير الباقي) ووقت آخر محاولة، وهفتحلك تذكرة.",
+          "en": "A 401 from the API means authentication was refused. Check:\n• The Authorization header must be exactly: `Authorization: Bearer <token>`.\n• Confirm the token hasn't expired and was copied in full, with no leading or trailing spaces.\n• Make sure you're using the production token, not the test one (or vice versa).\n\nIf the token is fresh and it's still refusing, send me its first 6 characters (nothing more) and the time of your last attempt, and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_403_forbidden",
+      "label": {
+        "ar": "الـ API بيرجع 403",
+        "en": "API returning 403"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "http_status_403",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_api_key",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "٤٠٣ معناها إن التوكن صحيح لكن مالوش صلاحية على العملية دي تحديدًا (مش مشكلة مصادقة).\n\nراجع الـ scopes المفعّلة على المفتاح من صفحة إدارة الـ API، واتأكد إن الصلاحية المطلوبة للـ endpoint ده موجودة فيها. لو المفتاح اتعمل من فترة، يمكن يكون اتعمل قبل ما الصلاحية دي تتضاف — أسهل حل تولّد مفتاح جديد بالصلاحيات الصح.",
+          "en": "A 403 means the token is valid but lacks permission for this specific operation — not an authentication problem.\n\nReview the scopes enabled on the key from the API management page and confirm the one this endpoint requires is included. If the key is old it may predate that scope — the simplest fix is to generate a new key with the right permissions."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_429_rate_limited",
+      "label": {
+        "ar": "تجاوز حد الطلبات",
+        "en": "Rate limited"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "http_status_429",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "٤٢٩ معناها إن عدد الطلبات تجاوز الحد المسموح في الفترة الزمنية دي.\n\nالحل الصح مش إعادة المحاولة فورًا — ده بيزوّد المشكلة. استخدم exponential backoff: استنى ثانية، بعدين ٢، بعدين ٤، وهكذا. وراجع هيدر `Retry-After` في الرد لو موجود، بيقولك تستنى قد إيه بالظبط.\n\nلو شغلك محتاج معدل أعلى بشكل دائم، قولي وهفتحلك تذكرة لمراجعة حدود حسابك.",
+          "en": "A 429 means you've exceeded the allowed request rate for this window.\n\nThe right fix isn't retrying immediately — that makes it worse. Use exponential backoff: wait 1 second, then 2, then 4, and so on. Also check the `Retry-After` header in the response if present; it tells you exactly how long to wait.\n\nIf your workload genuinely needs a higher sustained rate, tell me and I'll open a ticket to review your account limits."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_500_server_error",
+      "label": {
+        "ar": "الـ API بيرجع 500",
+        "en": "API returning 500"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "http_status_500",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_integration_issue",
+      "label": {
+        "ar": "مشكلة في تكامل الـ API",
+        "en": "API integration issue"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_api",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "api_error_code",
+          "prompt": {
+            "ar": "بيرجعلك كود خطأ معين؟ (زي 401 أو 403 أو 500)",
+            "en": "Does it return a specific error code? (like 401, 403 or 500)"
+          },
+          "resolvesEvidence": [
+            "http_status_401",
+            "http_status_403",
+            "http_status_500"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "401",
+                "en": "401"
+              },
+              "value": "401",
+              "impliesEvidence": [
+                "http_status_401"
+              ]
+            },
+            {
+              "label": {
+                "ar": "403",
+                "en": "403"
+              },
+              "value": "403",
+              "impliesEvidence": [
+                "http_status_403"
+              ]
+            },
+            {
+              "label": {
+                "ar": "500",
+                "en": "500"
+              },
+              "value": "500",
+              "impliesEvidence": [
+                "http_status_500"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مفيش كود واضح",
+                "en": "No clear code"
+              },
+              "value": "none",
+              "impliesEvidence": [
+                "symptom_generic_error"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_key_invalid",
+      "label": {
+        "ar": "مفتاح API غير صالح",
+        "en": "Invalid API key"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_api_key",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "webhook_not_receiving",
+      "label": {
+        "ar": "الـ Webhook مش بيستقبل",
+        "en": "Webhook not receiving"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_webhook",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الـ Webhook مش بيستقبل أحداث، راجع الترتيب ده:\n• الـ endpoint لازم يكون HTTPS وشهادته صالحة — الـ HTTP العادي مش مقبول.\n• لازم يرد بـ 2xx خلال ٥ ثواني؛ لو اتأخر بيتحسب فشل وبيتعاد.\n• اتأكد إن الأحداث اللي محتاجها متعلّم عليها فعلًا في إعدادات الـ Webhook.\n• اتأكد إن الـ firewall عندك مش بيحجب طلباتنا.\n\nفي صفحة الـ Webhooks هتلاقي سجل المحاولات وحالة كل واحدة — ابدأ منه، بيوضح المشكلة في الغالب.",
+          "en": "If your webhook isn't receiving events, check in this order:\n• The endpoint must be HTTPS with a valid certificate — plain HTTP is rejected.\n• It must respond 2xx within 5 seconds; slower responses count as failures and get retried.\n• Confirm the events you need are actually selected in the webhook's settings.\n• Make sure your firewall isn't blocking our requests.\n\nThe Webhooks page has a delivery log with the status of every attempt — start there, it usually shows the cause."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "webhook_duplicate_events",
+      "label": {
+        "ar": "أحداث Webhook مكررة",
+        "en": "Duplicate webhook events"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_webhook",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تكرار الأحداث ده سلوك متوقع في أي نظام Webhook، مش عطل: لو الـ endpoint بتاعك ماردش بـ 2xx بسرعة كفاية، بنعيد الإرسال عشان نضمن إن الحدث مايضيعش.\n\nالحل المعياري إنك تخلي المعالجة عندك idempotent: خزّن معرّف الحدث (event id) وتجاهل أي حدث بنفس المعرّف وصلك قبل كده. كده التكرار مايأثرش على بياناتك.",
+          "en": "Duplicate deliveries are expected behaviour in any webhook system, not a fault: if your endpoint doesn't return 2xx quickly enough, we retry so the event isn't lost.\n\nThe standard fix is to make your handler idempotent: store each event's id and ignore any event whose id you've already processed. Duplicates then can't affect your data."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "mcp_connection_issue",
+      "label": {
+        "ar": "مشكلة في الاتصال بخادم MCP",
+        "en": "MCP connection issue"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_mcp",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_linked",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "integration_not_working",
+      "label": {
+        "ar": "التكامل مش شغال",
+        "en": "Integration not working"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_integration",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "dns_subdomain_issue",
+      "label": {
+        "ar": "النطاق الفرعي مش شغال",
+        "en": "Subdomain not resolving"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_subdomain",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dns",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مشاكل النطاقات غالبًا بتكون في انتشار الـ DNS. راجع الآتي:\n• اتأكد إن سجل CNAME أو A متضبط بالظبط زي ما ظاهر في صفحة النطاقات عندنا.\n• انتشار الـ DNS بياخد من ١٥ دقيقة لـ ٤٨ ساعة — لو عملت التعديل من شوية، ده طبيعي.\n• جرّب تفتح النطاق من شبكة تانية (بيانات الموبايل مثلًا) عشان تستبعد الكاش المحلي.\n\nلو عدّى أكتر من ٤٨ ساعة والسجلات مظبوطة، قولي وهفتحلك تذكرة فورًا.",
+          "en": "Domain problems are usually DNS propagation. Check:\n• Confirm the CNAME or A record matches exactly what's shown on our Domains page.\n• DNS propagation takes anywhere from 15 minutes to 48 hours — if you changed it recently, this is normal.\n• Try opening the domain from a different network (mobile data) to rule out local caching.\n\nIf it's been more than 48 hours and the records are correct, tell me and I'll open a ticket right away."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "ssl_certificate_issue",
+      "label": {
+        "ar": "مشكلة في شهادة SSL",
+        "en": "SSL certificate issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_ssl_certificate",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_domain",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شهادات SSL بتتصدر تلقائيًا بعد ما الـ DNS يتظبط ويتأكد، وده بياخد لحد ساعة بعد التحقق.\n\nلو المتصفح بيقولك إن الاتصال مش آمن:\n• اتأكد إن الـ DNS بيشاور علينا فعلًا (لو لسه بيشاور على مكان تاني، الشهادة مش هتتصدر).\n• جرّب تفتح بـ https:// صراحة.\n• امسح كاش المتصفح، أو جرّب متصفح تاني.\n\nلو عدّت أكتر من ساعتين بعد ما الـ DNS ظبط، قولي وهصعّدها.",
+          "en": "SSL certificates are issued automatically once DNS is correct and verified, which takes up to an hour after verification.\n\nIf your browser says the connection isn't secure:\n• Confirm DNS actually points to us (if it still points elsewhere, no certificate will be issued).\n• Try loading the site with an explicit https://.\n• Clear your browser cache, or try another browser.\n\nIf it's been more than two hours since DNS was correct, tell me and I'll escalate."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "domain_request_pending",
+      "label": {
+        "ar": "طلب النطاق معلق",
+        "en": "Domain request pending"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_domain",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_pending",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_subdomain",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "server_error_5xx",
+      "label": {
+        "ar": "خطأ في السيرفر",
+        "en": "Server error"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "http_status_500",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "platform_slow",
+      "label": {
+        "ar": "المنصة بطيئة",
+        "en": "Platform is slow"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_slow",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_just_started",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "scope_of_problem",
+          "prompt": {
+            "ar": "المشكلة دي بتحصل معاك انت بس ولا مع كل الفريق؟",
+            "en": "Is this happening just to you, or to your whole team?"
+          },
+          "resolvesEvidence": [
+            "qualifier_all_users",
+            "qualifier_mobile"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مع كل الفريق",
+                "en": "The whole team"
+              },
+              "value": "all",
+              "impliesEvidence": [
+                "qualifier_all_users"
+              ]
+            },
+            {
+              "label": {
+                "ar": "معايا انا بس",
+                "en": "Just me"
+              },
+              "value": "me"
+            },
+            {
+              "label": {
+                "ar": "على الموبايل بس",
+                "en": "Only on mobile"
+              },
+              "value": "mobile",
+              "impliesEvidence": [
+                "qualifier_mobile"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "platform_blank_page",
+      "label": {
+        "ar": "الصفحة مش بتفتح",
+        "en": "Page won't load"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_blank_page",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الصفحة بتفضل بيضا أو مش بتحمّل خالص، جرّب بالترتيب:\n• اعمل Hard refresh (Ctrl+Shift+R أو Cmd+Shift+R).\n• جرّب نافذة تصفح خفي — ده بيستبعد الإضافات والكاش القديم.\n• جرّب متصفح تاني أو جهاز تاني.\n\nلو الصفحة بتفتح في التصفح الخفي وبس، المشكلة غالبًا من إضافة في متصفحك (خصوصًا مانعات الإعلانات). قولي نتيجة التجارب دي وأنا أكمل معاك.",
+          "en": "If the page stays blank or never loads, try in order:\n• Hard refresh (Ctrl+Shift+R or Cmd+Shift+R).\n• Try a private/incognito window — that rules out extensions and stale cache.\n• Try a different browser or device.\n\nIf it works in incognito but not normally, the cause is almost certainly a browser extension (ad blockers especially). Tell me what those tests showed and I'll take it from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "file_upload_failing",
+      "label": {
+        "ar": "رفع الملفات بيفشل",
+        "en": "File upload failing"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_file_upload",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو رفع الملف بيفشل، أشهر الأسباب:\n• حجم الملف أكبر من الحد المسموح — جرّب تضغطه أو تقسّمه.\n• نوع الملف مش مدعوم — المدعوم عندنا صور ومستندات PDF وملفات نصية.\n• الاتصال بيقطع أثناء الرفع — شائع مع الملفات الكبيرة على شبكة ضعيفة.\n\nقولي حجم الملف ونوعه وأنا أقولك المشكلة فين بالظبط.",
+          "en": "If uploads keep failing, the usual causes:\n• The file exceeds the size limit — try compressing or splitting it.\n• The file type isn't supported — we accept images, PDFs and text files.\n• The connection drops mid-upload — common with large files on a weak network.\n\nTell me the file's size and type and I'll pinpoint it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "data_export_issue",
+      "label": {
+        "ar": "مشكلة في تصدير البيانات",
+        "en": "Data export issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_export",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "ticket_status_inquiry",
+      "label": {
+        "ar": "استعلام عن حالة التذكرة",
+        "en": "Ticket status inquiry"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_status_check",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش لاقي بيانات تذاكرك دلوقتي، جرب تاني كمان شوية أو تواصل مع فريق الدعم مباشرة.",
+          "en": "I couldn't find your ticket data right now — please try again shortly or contact our support team directly."
+        },
+        "knowledgeSource": "ticket_status"
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "ticket_no_response",
+      "label": {
+        "ar": "التذكرة من غير رد",
+        "en": "Ticket has no response"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_ticket",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_status_check",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "ticket_disappeared",
+      "label": {
+        "ar": "التذكرة اختفت",
+        "en": "Ticket disappeared"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_ticket",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التذاكر مابتتمسحش من النظام أبدًا — لكنها بتختفي من القائمة الافتراضية في حالتين:\n• لما تتقفل (بيبقى فيه فلتر بيخفي المقفولة).\n• لما تتأرشف من زر الأرشيف.\n\nجرّب تغيّر الفلتر لـ \"كل التذاكر\" أو تفتح قسم الأرشيف. لو لسه مش لاقيها، قولي رقم التذكرة وهدوّرلك عليها.",
+          "en": "Tickets are never deleted from the system — but they disappear from the default list in two cases:\n• When they're closed (a filter hides closed tickets).\n• When they've been archived.\n\nTry switching the filter to \"All tickets\" or opening the Archive section. If you still can't find it, give me the ticket number and I'll look it up."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "notifications_not_arriving",
+      "label": {
+        "ar": "الإشعارات مش بتوصل",
+        "en": "Notifications not arriving"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_notification",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الإشعارات مش بتوصل:\n• راجع إعدادات الإشعارات في حسابك واتأكد إن النوع اللي محتاجه مفعّل.\n• لو إشعارات المتصفح، اتأكد إنك مسمحتش بالحظر — راجع إعدادات الموقع في متصفحك.\n• لو إشعارات بالإيميل، بصّ في الـ Spam.\n\nقولي نوع الإشعار اللي مش واصل (متصفح / إيميل / داخل المنصة) وهساعدك أكتر.",
+          "en": "If notifications aren't arriving:\n• Check your account's notification settings and confirm the type you need is enabled.\n• For browser notifications, make sure you haven't blocked them — check your browser's site settings.\n• For email notifications, check your Spam folder.\n\nTell me which kind isn't arriving (browser / email / in-platform) and I'll help further."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "email_not_arriving",
+      "label": {
+        "ar": "الإيميلات مش بتوصل",
+        "en": "Emails not arriving"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_notification",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "chat_widget_not_working",
+      "label": {
+        "ar": "شات الموقع مش شغال",
+        "en": "Chat widget not working"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_chat_widget",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "scope_of_problem",
+          "prompt": {
+            "ar": "المشكلة دي بتحصل معاك انت بس ولا مع كل الفريق؟",
+            "en": "Is this happening just to you, or to your whole team?"
+          },
+          "resolvesEvidence": [
+            "qualifier_all_users",
+            "qualifier_mobile"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مع كل الفريق",
+                "en": "The whole team"
+              },
+              "value": "all",
+              "impliesEvidence": [
+                "qualifier_all_users"
+              ]
+            },
+            {
+              "label": {
+                "ar": "معايا انا بس",
+                "en": "Just me"
+              },
+              "value": "me"
+            },
+            {
+              "label": {
+                "ar": "على الموبايل بس",
+                "en": "Only on mobile"
+              },
+              "value": "mobile",
+              "impliesEvidence": [
+                "qualifier_mobile"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "chatbot_wrong_answers",
+      "label": {
+        "ar": "البوت بيرد ردود غلط",
+        "en": "Chatbot giving wrong answers"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_chatbot",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "reports_wrong_data",
+      "label": {
+        "ar": "التقارير بتعرض أرقام غلط",
+        "en": "Reports showing wrong numbers"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_report",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "reports_not_updating",
+      "label": {
+        "ar": "التقارير مش بتتحدث",
+        "en": "Reports not updating"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_report",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التقارير عندنا بتتحدّث على فترات مش لحظيًا، فالبيانات ممكن تتأخر شوية عن الواقع.\n\nجرّب تعمل تحديث للصفحة، واتأكد إن الفترة الزمنية المختارة في الفلتر بتغطي التاريخ اللي بتدور عليه — ده أكتر سبب شائع لتقرير \"مش بيتحدث\".\n\nلو البيانات لسه قديمة بعد ساعة، قولي وهفتحلك تذكرة.",
+          "en": "Reports refresh periodically rather than in real time, so figures can lag slightly behind.\n\nTry refreshing the page, and confirm the date range in your filter actually covers the period you're looking for — that's the single most common cause of a report that looks stuck.\n\nIf the data is still stale after an hour, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "agent_cannot_access",
+      "label": {
+        "ar": "الموظف مش قادر يدخل",
+        "en": "Agent cannot access"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_agent",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_login_failed",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "agent_permissions_issue",
+      "label": {
+        "ar": "مشكلة في صلاحيات الموظفين",
+        "en": "Agent permissions issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_agent",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "platform_wide_outage",
+      "label": {
+        "ar": "عطل عام في المنصة",
+        "en": "Platform-wide outage"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_not_working",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_all_users",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "scope_of_problem",
+          "prompt": {
+            "ar": "المشكلة دي بتحصل معاك انت بس ولا مع كل الفريق؟",
+            "en": "Is this happening just to you, or to your whole team?"
+          },
+          "resolvesEvidence": [
+            "qualifier_all_users",
+            "qualifier_mobile"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مع كل الفريق",
+                "en": "The whole team"
+              },
+              "value": "all",
+              "impliesEvidence": [
+                "qualifier_all_users"
+              ]
+            },
+            {
+              "label": {
+                "ar": "معايا انا بس",
+                "en": "Just me"
+              },
+              "value": "me"
+            },
+            {
+              "label": {
+                "ar": "على الموبايل بس",
+                "en": "Only on mobile"
+              },
+              "value": "mobile",
+              "impliesEvidence": [
+                "qualifier_mobile"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "pricing_inquiry",
+      "label": {
+        "ar": "استعلام عن الأسعار",
+        "en": "Pricing inquiry"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_pricing",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تشوف كل الباقات والأسعار الحالية من صفحة \"الاشتراكات\" في حسابك، وفيها مقارنة كاملة بين الباقات وإيه اللي داخل في كل واحدة.",
+          "en": "You can see all current plans and pricing on the \"Subscriptions\" page in your account, including a full comparison of what each plan includes."
+        },
+        "knowledgeSource": "pricing"
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "platform_info_inquiry",
+      "label": {
+        "ar": "استعلام عن المنصة",
+        "en": "Platform information inquiry"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "منصة مدعوم بتساعدك تدير الدعم الفني والتواصل مع عملائك من مكان واحد: تذاكر، شات، واتساب، وتقارير. اسألني عن أي جزء تحديدًا وأنا أشرحلك.",
+          "en": "Mad3oom helps you run customer support and communication from one place: tickets, chat, WhatsApp and reports. Ask me about any part of it and I'll walk you through it."
+        },
+        "knowledgeSource": "platform_info"
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_link_whatsapp",
+      "label": {
+        "ar": "إزاي أربط رقم واتساب",
+        "en": "How to link a WhatsApp number"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp_number",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ربط رقم واتساب بيتم كده:\n١. من لوحة التحكم، افتح قسم \"واتساب\" واضغط \"ربط رقم جديد\".\n٢. اكتب الرقم بصيغة دولية (مثال: ‎+20 لمصر) واضغط متابعة.\n٣. هيظهرلك كود QR — امسحه من واتساب على موبايلك: الإعدادات ← الأجهزة المرتبطة ← ربط جهاز.\n٤. استنى لحد ما الحالة تتحول لـ \"مربوط\".\n\nمهم: الرقم لازم يكون شغال على واتساب فعلًا، ومش مربوط بحساب WhatsApp Business API تاني.",
+          "en": "Linking a WhatsApp number works like this:\n1. In the dashboard, open the \"WhatsApp\" section and click \"Link a new number\".\n2. Enter the number in international format and click continue.\n3. A QR code appears — scan it from WhatsApp on your phone: Settings → Linked devices → Link a device.\n4. Wait until the status changes to \"Linked\".\n\nImportant: the number must be active on WhatsApp and not already tied to another WhatsApp Business API account."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_create_ticket",
+      "label": {
+        "ar": "إزاي أفتح تذكرة",
+        "en": "How to open a ticket"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تفتح تذكرة بطريقتين:\n• من قسم \"التذاكر\" في حسابك، زر \"تذكرة جديدة\".\n• أو ببساطة قولي هنا إيه المشكلة، وأنا أفتحهالك بنفسي بكل التفاصيل اللي اتكلمنا فيها [[icon:ticket]]\n\nالطريقة التانية أسرع، لأن الفريق بيوصله سياق المحادثة كاملة مش وصف مختصر.",
+          "en": "You can open a ticket two ways:\n• From the \"Tickets\" section in your account, using \"New ticket\".\n• Or just tell me what's wrong here and I'll open it for you with everything we've discussed [[icon:ticket]]\n\nThe second is faster, because the team receives the full conversation context rather than a short summary."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_add_agent",
+      "label": {
+        "ar": "إزاي أضيف موظف",
+        "en": "How to add an agent"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إضافة موظف جديد:\n١. من لوحة التحكم، افتح \"المستخدمين\" أو \"الفريق\".\n٢. اضغط \"إضافة مستخدم\" واكتب اسمه وإيميله.\n٣. اختار الصلاحيات المناسبة له (مشاهدة فقط / رد على التذاكر / إدارة كاملة).\n٤. هيوصله إيميل دعوة يفعّل بيه حسابه.\n\nخد بالك: عدد المستخدمين المسموح بيه بيعتمد على باقتك الحالية.",
+          "en": "To add a new agent:\n1. From the dashboard, open \"Users\" or \"Team\".\n2. Click \"Add user\" and enter their name and email.\n3. Pick their permissions (view only / reply to tickets / full admin).\n4. They'll get an invitation email to activate their account.\n\nNote: how many users you can add depends on your current plan."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_setup_subdomain",
+      "label": {
+        "ar": "إزاي أظبط النطاق الفرعي",
+        "en": "How to set up a subdomain"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_subdomain",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ظبط النطاق الفرعي:\n١. من لوحة التحكم، افتح \"النطاقات\" واطلب نطاق فرعي جديد.\n٢. هنديك سجل CNAME — ضيفه عند مزوّد الدومين بتاعك بالظبط زي ما هو.\n٣. ارجع للمنصة واضغط \"تحقق\".\n٤. بعد ما التحقق ينجح، شهادة SSL بتتصدر تلقائيًا خلال ساعة.\n\nانتشار الـ DNS ممكن ياخد لحد ٤٨ ساعة، فمتقلقش لو التحقق مانجحش من أول مرة.",
+          "en": "Setting up a subdomain:\n1. From the dashboard, open \"Domains\" and request a new subdomain.\n2. We'll give you a CNAME record — add it at your domain provider exactly as shown.\n3. Come back to the platform and click \"Verify\".\n4. Once verification passes, an SSL certificate is issued automatically within an hour.\n\nDNS propagation can take up to 48 hours, so don't worry if verification doesn't pass on the first try."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_use_api",
+      "label": {
+        "ar": "إزاي أستخدم الـ API",
+        "en": "How to use the API"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "للبدء مع الـ API:\n١. من \"إدارة الـ API\" في حسابك، أنشئ مفتاح جديد واختار الصلاحيات المطلوبة.\n٢. انسخ المفتاح فورًا — بيظهر مرة واحدة بس ومش هينفع تشوفه تاني.\n٣. ابعت المفتاح في كل طلب في هيدر: `Authorization: Bearer <token>`.\n\nالتوثيق الكامل بكل الـ endpoints وأمثلة عملية موجود في صفحة \"المطورين\". لو عندك سؤال عن endpoint معيّن، اسألني.",
+          "en": "To get started with the API:\n1. From \"API management\" in your account, create a new key and select the scopes you need.\n2. Copy the key immediately — it's shown once and can't be retrieved later.\n3. Send it with every request in the header: `Authorization: Bearer <token>`.\n\nFull documentation with every endpoint and working examples lives on the \"Developers\" page. If you have a question about a specific endpoint, just ask."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "whatsapp_number_disconnected",
+      "label": {
+        "ar": "الرقم بيفصل لوحده",
+        "en": "Number keeps disconnecting"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp_number",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_linked",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_just_started",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فصل الرقم لوحده بيحصل غالبًا لواحد من دول:\n• الموبايل اللي الرقم مربوط منه قافل أو مفصول من النت لفترة طويلة.\n• واتساب اتفتح على جهاز تاني وفصل الجلسة القديمة.\n• التطبيق على الموبايل محتاج تحديث.\n\nاتأكد إن الموبايل شغال ومتصل بالنت باستمرار، وإن واتساب عليه محدّث لآخر إصدار. لو الفصل بيتكرر كل يوم رغم كده، قولي وهفتحلك تذكرة عشان نراجع الجلسة من عندنا.",
+          "en": "A number disconnecting on its own usually comes down to:\n• The phone the number is linked from being off or offline for a long stretch.\n• WhatsApp being opened on another device, which ends the older session.\n• The app on the phone needing an update.\n\nMake sure the phone stays on and connected, and that WhatsApp is on the latest version. If it still disconnects daily, tell me and I'll open a ticket so we can review the session from our side."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "whatsapp_slow_delivery",
+      "label": {
+        "ar": "الرسائل بتتأخر",
+        "en": "Messages arriving late"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_whatsapp",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_slow",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_campaign",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "customer_messages_missing",
+      "label": {
+        "ar": "رسائل العملاء مش ظاهرة",
+        "en": "Customer messages not showing"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_chat_widget",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_notification",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "account_data_missing",
+      "label": {
+        "ar": "بيانات ناقصة في الحساب",
+        "en": "Missing account data"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_account",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "dashboard_not_updating",
+      "label": {
+        "ar": "لوحة التحكم مش بتتحدث",
+        "en": "Dashboard not updating"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_dashboard",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو لوحة التحكم عالقة على بيانات قديمة:\n• اعمل تحديث قسري للصفحة (Ctrl+Shift+R أو Cmd+Shift+R) — ده بيتخطى الكاش.\n• اتأكد إن فلتر التاريخ مش مضبوط على فترة قديمة.\n• لو فاتح المنصة من أكتر من تاب، اقفلهم وسيب واحد بس.\n\nلو البيانات لسه قديمة بعد كده، قولي وهفتحلك تذكرة.",
+          "en": "If your dashboard is stuck on old data:\n• Do a hard refresh (Ctrl+Shift+R or Cmd+Shift+R) — that bypasses the cache.\n• Check the date filter isn't set to an older range.\n• If you have the platform open in several tabs, close them and keep just one.\n\nIf the data is still stale after that, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "mobile_app_issue",
+      "label": {
+        "ar": "مشكلة على الموبايل",
+        "en": "Mobile-specific issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "qualifier_mobile",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو المشكلة بتظهر على الموبايل بس:\n• جرّب تقفل المتصفح بالكامل وتفتحه تاني (مش بس التاب).\n• امسح كاش المتصفح على الموبايل.\n• جرّب متصفح تاني على نفس الموبايل عشان نعرف المشكلة من المتصفح ولا من الحساب.\n\nقولي شغال على أندرويد ولا آيفون، وأنهي متصفح — ده بيفرق في التشخيص.",
+          "en": "If the problem only shows on mobile:\n• Fully close the browser and reopen it (not just the tab).\n• Clear the browser cache on the phone.\n• Try a different browser on the same phone, so we know whether it's the browser or the account.\n\nTell me whether you're on Android or iPhone, and which browser — it genuinely changes the diagnosis."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "everything_broken_urgent",
+      "label": {
+        "ar": "كل حاجة واقفة",
+        "en": "Everything is down"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "qualifier_all_users",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_just_started",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "ticket_reopen_request",
+      "label": {
+        "ar": "طلب إعادة فتح تذكرة",
+        "en": "Reopen ticket request"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_ticket",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_status_check",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "email_wrong_address",
+      "label": {
+        "ar": "الإيميل المسجل غلط",
+        "en": "Wrong registered email"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "agent_cannot_reply",
+      "label": {
+        "ar": "الموظف مش قادر يرد",
+        "en": "Agent cannot reply"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_agent",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_sending",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "notifications_too_many",
+      "label": {
+        "ar": "إشعارات كتير جدًا",
+        "en": "Too many notifications"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_notification",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تظبط الإشعارات بالتفصيل من إعدادات حسابك ← الإشعارات، وتقفل الأنواع اللي مش محتاجها من غير ما تقفلها كلها.\n\nلو بيوصلك نفس الإشعار أكتر من مرة، ده غالبًا معناه إن المنصة مفتوحة على أكتر من تاب أو جهاز — اقفل الزيادة وهتلاقي التكرار وقف.",
+          "en": "You can fine-tune notifications from your account settings → Notifications, and switch off just the types you don't need rather than all of them.\n\nIf you're getting the same notification more than once, that usually means the platform is open in several tabs or on several devices — close the extras and the duplication stops."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "knowledge_base_search_issue",
+      "label": {
+        "ar": "البحث في قاعدة المعرفة مش شغال",
+        "en": "Knowledge base search issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_knowledge_base",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "forum_access_issue",
+      "label": {
+        "ar": "مشكلة في الدخول للمنتدى",
+        "en": "Forum access issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_forum",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "howto_export_data",
+      "label": {
+        "ar": "إزاي أصدّر البيانات",
+        "en": "How to export data"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تصدير البيانات:\n١. افتح القسم اللي عايز تصدّر منه (التذاكر أو التقارير).\n٢. ظبّط الفلاتر على الفترة والبيانات اللي محتاجها.\n٣. اضغط \"تصدير\" واختار الصيغة (CSV أو Excel).\n٤. الملف بيتجهّز وينزل تلقائيًا — لو البيانات كتير، بيوصلك على الإيميل بدل ما ينزل على طول.\n\nلو التصدير بيفضل بيحمّل من غير ما يخلص، جرّب تصغّر الفترة الزمنية الأول.",
+          "en": "To export data:\n1. Open the section you want to export from (Tickets or Reports).\n2. Set the filters to the period and data you need.\n3. Click \"Export\" and pick a format (CSV or Excel).\n4. The file is prepared and downloads automatically — for large exports it's emailed to you instead.\n\nIf the export spins without finishing, try narrowing the date range first."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_change_password",
+      "label": {
+        "ar": "إزاي أغير كلمة المرور",
+        "en": "How to change password"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تغيير كلمة المرور وانت داخل على حسابك:\n١. افتح إعدادات الحساب ← الأمان.\n٢. اضغط \"تغيير كلمة المرور\".\n٣. اكتب كلمة المرور الحالية، وبعدين الجديدة مرتين.\n\nكلمة المرور لازم تكون ٨ حروف على الأقل وفيها حروف وأرقام. بعد التغيير هيتم تسجيل خروجك من باقي الأجهزة تلقائيًا — ده مقصود لحمايتك.",
+          "en": "To change your password while signed in:\n1. Open Account settings → Security.\n2. Click \"Change password\".\n3. Enter your current password, then the new one twice.\n\nPasswords must be at least 8 characters and mix letters and numbers. After changing it you'll be signed out of your other devices automatically — that's intentional, for your security."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_enable_2fa",
+      "label": {
+        "ar": "إزاي أفعّل التحقق بخطوتين",
+        "en": "How to enable 2FA"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تفعيل التحقق بخطوتين:\n١. إعدادات الحساب ← الأمان ← التحقق بخطوتين.\n٢. اضغط تفعيل، هيظهرلك كود QR.\n٣. امسحه بتطبيق زي Google Authenticator أو Authy.\n٤. اكتب الكود اللي ظهر في التطبيق عشان تأكد التفعيل.\n\nمهم جدًا: احفظ أكواد الاستعادة اللي هتظهرلك في مكان آمن — دي طريقتك الوحيدة للدخول لو ضاع الموبايل.",
+          "en": "To enable two-factor authentication:\n1. Account settings → Security → Two-factor authentication.\n2. Click enable; a QR code appears.\n3. Scan it with an app like Google Authenticator or Authy.\n4. Enter the code the app shows to confirm.\n\nImportant: save the recovery codes you're shown somewhere safe — they're your only way back in if you lose your phone."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "howto_connect_integration",
+      "label": {
+        "ar": "إزاي أربط تكامل خارجي",
+        "en": "How to connect an integration"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "howto_read_reports",
+      "label": {
+        "ar": "إزاي أقرأ التقارير",
+        "en": "How to read the reports"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_how_to",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "domain_not_working",
+      "label": {
+        "ar": "الدومين مش شغال",
+        "en": "Domain not working"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_domain",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_dns",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما الدومين مش بيفتح، رتّب التشخيص كده:\n• اتأكد إن سجلات الـ DNS (CNAME أو A) متضبطة زي ما ظاهر في صفحة النطاقات عندنا بالظبط.\n• لو عدّلت السجلات من شوية، استنى — الانتشار بياخد من ١٥ دقيقة لـ ٤٨ ساعة.\n• جرّب تفتح الدومين من شبكة تانية (بيانات الموبايل) عشان تستبعد كاش الشبكة عندك.\n• اتأكد إن الدومين نفسه لسه مجدَّد ومش منتهي عند مزوّد النطاق.\n\nقولي عملت التعديل من إمتى وأنا أقولك لو ده وقت طبيعي ولا فيه مشكلة فعلًا.",
+          "en": "When a domain won't load, work through it in this order:\n• Confirm the DNS records (CNAME or A) match exactly what our Domains page shows.\n• If you changed them recently, wait — propagation takes 15 minutes to 48 hours.\n• Try the domain from a different network (mobile data) to rule out local DNS caching.\n• Check the domain itself is still renewed and hasn't expired at your registrar.\n\nTell me when you made the change and I'll tell you whether that's still a normal wait or a real problem."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "unknown",
+      "label": {
+        "ar": "مشكلة غير محددة",
+        "en": "Unclassified issue"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_generic_problem",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_generic_error",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_slow",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
     }
   ]
 }

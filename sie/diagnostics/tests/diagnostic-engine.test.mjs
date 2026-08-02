@@ -211,23 +211,26 @@ test('end-to-end: evidence accumulates across turns to raise confidence in the r
     );
 });
 
-test('KNOWN LIMITATION: a word with an attached Arabic definite article ("ال") does not match its bare evidence token', async () => {
-    // Documents a real, currently-unaddressed gap rather than hiding it:
-    // "الباسورد" (the-password, article fused with no space, which is
-    // standard Arabic orthography) tokenizes as a single distinct token
-    // and does NOT match the catalog's bare evidence token "باسورد".
-    // This is a property of Module 1's tokenizer/dialect-normalizer (no
-    // morphological article-stripping), not of the Diagnostic Engine's
-    // matching logic, which correctly does exact-token comparison
-    // against whatever Module 1 produces. Locked in here as an explicit
-    // regression test: if this starts failing (i.e. confidence is no
-    // longer 0), it means article-stripping was added upstream, and this
-    // test plus the note in tests/README.md should be revisited.
+test('a word with an attached Arabic definite article ("ال") now matches its bare evidence token', async () => {
+    // This replaces a test that used to LOCK IN the opposite behaviour, and
+    // said so explicitly: "if this starts failing (i.e. confidence is no
+    // longer 0), it means article-stripping was added upstream, and this test
+    // ... should be revisited."
+    //
+    // It was. Module 1 now strips Arabic clitics ("ال", "و", "ب", "ف", "ل",
+    // "ك") when the remainder is a word the glossary knows, so "الباسورد"
+    // (the-password, article fused with no space — standard Arabic
+    // orthography) reaches the same evidence as the bare "باسورد". Without
+    // this, every Arabic evidence token had to be listed once per article
+    // form, which is exactly the duplication the engine should not need.
     const scenarioProvider = createRealScenarioCatalogProvider();
     const normalized = await normalizeReal('نسيت الباسورد بتاعي');
     const state = await processTurn({ normalizedTokens: normalized.normalizedTokens, turn: 1, scenarioProvider });
     const hypothesis = state.hypotheses.find((h) => h.scenarioId === 'login_credentials_forgotten');
-    assert.equal(hypothesis.confidence, 0, 'documents that "الباسورد" currently does not match evidence token "باسورد"');
+    assert.ok(
+        hypothesis.confidence > 0,
+        `"الباسورد" must now reach the forgotten-credentials scenario (got ${hypothesis.confidence})`
+    );
 });
 
 test('end-to-end: DiagnosticState round-trips through JSON (safe for chat_sessions.bot_state storage later)', async () => {

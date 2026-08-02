@@ -8,7 +8,9 @@ function entryRow(key, version, status, overrides = {}) {
         knowledge_key: key,
         version,
         status,
-        definition: { key, text: { ar: `نص-${key}`, en: `text-${key}` }, ...overrides }
+        // Live column is `content`, not `definition` — see
+        // static-knowledge.supabase.js, corrected against the real schema.
+        content: { key, text: { ar: `نص-${key}`, en: `text-${key}` }, ...overrides }
     };
 }
 

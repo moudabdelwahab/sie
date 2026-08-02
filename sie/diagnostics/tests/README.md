@@ -29,17 +29,18 @@ text in, a scored `DiagnosticState` out. This is what caught a real gap
 during development (see below) rather than only ever testing against
 idealized inputs.
 
-## Known limitation, tracked as a test
+## A former limitation, now a regression test for the fix
 
-`"KNOWN LIMITATION: a word with an attached Arabic definite article ("ال")
-does not match its bare evidence token"` in `diagnostic-engine.test.mjs` is
-an intentional, currently-passing regression test documenting that
-`الباسورد` does not match the evidence token `باسورد` (see the module's main
-`README.md` for the full explanation). If this test ever starts failing,
-it means article-stripping was added to Module 1 — at which point this test
-and the corresponding note should be revisited or removed, and phrasing in
-the other end-to-end tests that currently works around this gap could be
-simplified.
+`diagnostic-engine.test.mjs` used to carry a test named
+`"KNOWN LIMITATION: a word with an attached Arabic definite article ..."`,
+which asserted that `الباسورد` did **not** match the evidence token
+`باسورد`. Its own comment said that if it ever started failing, it meant
+article-stripping had been added to Module 1 and the test should be revisited.
+
+It was, so it has been: the test now asserts the opposite — that `الباسورد`
+does reach the forgotten-credentials scenario. Module 1 strips Arabic clitics
+when the remainder is a word the glossary knows, so Arabic evidence tokens no
+longer need to be listed once per article form.
 
 ## Adding tests when Module 4 (Ranking Engine) is built
 

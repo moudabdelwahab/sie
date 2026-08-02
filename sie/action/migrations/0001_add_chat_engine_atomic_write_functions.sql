@@ -19,11 +19,19 @@
 -- formatTicketDescription()) and written straight into the existing
 -- tickets.description column.
 --
--- Column/table names below (chat_messages, chat_sessions, tickets)
--- follow the existing chatbot-engine.js schema as best inferred from
--- the approved architecture description; confirm against the live
--- schema before applying in a real environment (see action/README.md's
--- "Remaining work" section).
+-- ⚠️ CORRECTED AGAINST THE LIVE SCHEMA.
+-- An earlier version of this file was written from an inferred schema and
+-- had drifted from what is actually deployed. Running it as written would
+-- have replaced the working functions with broken ones, because it
+-- inserted into chat_messages columns that do not exist. The real table is:
+--
+--   id, session_id, sender_id, message_text, is_bot_reply, is_admin_reply,
+--   created_at, image_url, audio_url
+--
+-- There is no `turn`, `sender` or `text` column. `p_turn` is therefore
+-- accepted (callers pass it, and it is echoed back) but deliberately not
+-- stored — turn numbering lives in chat_sessions.bot_state, which is the
+-- only place it is ever read from.
 -- ------------------------------------------------------------------
 
 create or replace function persist_bot_turn(
@@ -32,19 +40,38 @@ create or replace function persist_bot_turn(
     p_message_text text,
     p_bot_state jsonb
 )
-returns void
+returns jsonb
 language plpgsql
 security invoker
+set search_path to 'public'
 as $$
+declare
+    v_message_id uuid;
+    v_message_created_at timestamptz;
 begin
-    insert into chat_messages (session_id, turn, sender, text, created_at)
-    values (p_session_id, p_turn, 'bot', p_message_text, now());
+    insert into chat_messages (session_id, sender_id, message_text, is_admin_reply, is_bot_reply)
+    values (p_session_id, null, p_message_text, false, true)
+    returning id, created_at into v_message_id, v_message_created_at;
 
     update chat_sessions
     set bot_state = p_bot_state,
         updated_at = now()
     where id = p_session_id
       and user_id = auth.uid();
+
+    -- A session that does not belong to the caller must fail loudly rather
+    -- than silently persisting a bot message against nothing: the whole
+    -- point of doing both writes here is that they succeed or fail together.
+    if not found then
+        raise exception 'chat_sessions row % not found or not permitted for this user', p_session_id;
+    end if;
+
+    return jsonb_build_object(
+        'message_id', v_message_id,
+        'message_created_at', v_message_created_at,
+        'session_id', p_session_id,
+        'turn', p_turn
+    );
 end;
 $$;
 
@@ -68,8 +95,8 @@ begin
     values (p_session_id, auth.uid(), p_scenario_id, p_category, p_description, 'open', now())
     returning tickets.ticket_number into v_ticket_number;
 
-    insert into chat_messages (session_id, turn, sender, text, created_at)
-    values (p_session_id, p_turn, 'bot', p_message_text, now());
+    insert into chat_messages (session_id, sender_id, message_text, is_admin_reply, is_bot_reply)
+    values (p_session_id, null, p_message_text, false, true);
 
     update chat_sessions
     set bot_state = p_bot_state,
