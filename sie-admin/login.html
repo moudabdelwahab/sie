@@ -4,15 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>تسجيل الدخول — محرك الدعم الذكي (SIE)</title>
-<link rel="icon" type="image/png" href="/assets/images/logo.png">
-<link rel="stylesheet" href="/styles.css">
-<script src="/theme-manager.js"></script>
+
+<!-- Inline SVG favicon: replaces /assets/images/logo.png, which lives
+     in the platform repo and 404s from this origin. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234DA3FF'/%3E%3Cstop offset='1' stop-color='%230077CC'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='%23071023'/%3E%3Ccircle cx='50' cy='46' r='26' fill='url(%23g)'/%3E%3Ccircle cx='50' cy='18' r='5' fill='url(%23g)'/%3E%3C/svg%3E">
+
+<!-- Self-contained tokens + toggle, replacing /styles.css + /theme-manager.js -->
+<link rel="stylesheet" href="./base-theme.css">
+<script src="./theme-toggle.js"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="./sie-admin.css">
 </head>
 <body class="sie-auth-body">
+
+<button type="button" onclick="toggleSieAdminTheme()" aria-label="تبديل الوضع الليلي"
+        style="position:fixed; top:1rem; left:1rem; z-index:10; background:var(--color-surface); border:1px solid var(--color-border); border-radius:10px; padding:.5rem .8rem; color:var(--color-text); font-size:.8rem; cursor:pointer;">
+    🌓
+</button>
 
 <main class="auth-wrap">
     <form class="auth-card" id="loginForm" novalidate>
@@ -56,14 +68,8 @@
             <span class="spinner" hidden aria-hidden="true"></span>
         </button>
 
-        <div class="auth-links">
-            <a href="/login.html">نسيت كلمة المرور؟</a>
-            <a href="/login.html">الرجوع لمنصة مدعوم</a>
-        </div>
-
         <p class="auth-foot">
-            الوصول لهذه اللوحة مقصور على فريق العمل. لو دخلت بحساب عميل عادي،
-            هيتم توجيهك لمنصة مدعوم.
+            الوصول لهذه اللوحة مقصور على فريق العمل.
         </p>
     </form>
 </main>
