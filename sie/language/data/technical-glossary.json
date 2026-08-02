@@ -140,7 +140,11 @@
         "500 error",
         "خطأ 500",
         "ايرور 500",
-        "500"
+        "500",
+        "خطأ في السيرفر",
+        "خطا في السيرفر",
+        "مشكلة في السيرفر",
+        "السيرفر واقع"
       ]
     },
     {
@@ -408,7 +412,11 @@
         "استرجاع المبلغ",
         "refund",
         "money back",
-        "chargeback"
+        "chargeback",
+        "استرداد",
+        "استرداد مبلغ",
+        "ارجاع مبلغ",
+        "ترجيع الفلوس"
       ]
     },
     {
@@ -474,7 +482,10 @@
         "رقم الواتس",
         "رقم واتساب",
         "whatsapp number",
-        "wa number"
+        "wa number",
+        "الرقم",
+        "رقمي",
+        "الرقم بتاعي"
       ]
     },
     {
@@ -562,7 +573,9 @@
         "المحادثة",
         "chat widget",
         "the widget",
-        "live chat"
+        "live chat",
+        "رسائل العملاء",
+        "رسايل العملاء"
       ]
     },
     {
@@ -599,7 +612,10 @@
         "notification",
         "notifications",
         "alerts",
-        "push"
+        "push",
+        "اشعارات كتير",
+        "إشعارات كتير",
+        "تنبيهات كتير"
       ]
     },
     {
@@ -636,7 +652,11 @@
         "لوحة الإدارة",
         "dashboard",
         "control panel",
-        "admin panel"
+        "admin panel",
+        "المنصة",
+        "المنصه",
+        "النظام",
+        "الموقع"
       ]
     },
     {
@@ -690,7 +710,9 @@
         "الفوروم",
         "المجتمع",
         "forum",
-        "community"
+        "community",
+        "الدخول للمنتدى",
+        "الدخول للمنتدي"
       ]
     },
     {
@@ -867,7 +889,9 @@
         "تنزيل البيانات",
         "export",
         "download data",
-        "csv export"
+        "csv export",
+        "ملف التصدير",
+        "ملف الاكسبورت"
       ]
     },
     {
@@ -895,7 +919,16 @@
         "does not work",
         "stopped working",
         "broken",
-        "down"
+        "down",
+        "واقفة",
+        "واقفه",
+        "بايظ",
+        "بايظة",
+        "خربان",
+        "خربانة",
+        "مش راضية تشتغل",
+        "وقف فجأة",
+        "وقفت فجأة"
       ]
     },
     {
@@ -917,7 +950,12 @@
         "very slow",
         "laggy",
         "takes forever",
-        "hangs"
+        "hangs",
+        "بتتأخر",
+        "بيتأخر",
+        "متأخرة",
+        "متأخر",
+        "فيه تأخير"
       ]
     },
     {
@@ -936,7 +974,13 @@
         "blank page",
         "white screen",
         "empty page",
-        "page doesnt load"
+        "page doesnt load",
+        "الصفحه مش بتفتح",
+        "الصفحة مش بتفتح",
+        "مش بتفتح",
+        "مش بيفتح",
+        "الصفحة بيضا",
+        "صفحة بيضا"
       ]
     },
     {
@@ -1015,7 +1059,11 @@
         "بيانات غير صحيحة",
         "invalid credentials",
         "wrong password",
-        "incorrect password"
+        "incorrect password",
+        "بيانات الدخول مرفوضة",
+        "بيانات الدخول مرفوضه",
+        "بيانات الدخول غلط",
+        "الدخول مرفوض"
       ]
     },
     {
@@ -1142,7 +1190,22 @@
         "missing",
         "gone",
         "vanished",
-        "cant find"
+        "cant find",
+        "فاضي",
+        "فاضية",
+        "فاضيه",
+        "طالع فاضي",
+        "طلع فاضي",
+        "مفيهوش حاجة",
+        "مفيهوش حاجه",
+        "من غير بيانات",
+        "مفيش نتايج",
+        "مفيش نتائج",
+        "ناقصة",
+        "ناقصه",
+        "ناقص",
+        "مش كاملة",
+        "مش كامله"
       ]
     },
     {
@@ -1161,7 +1224,10 @@
         "duplicate",
         "duplicated",
         "sent twice",
-        "twice"
+        "twice",
+        "مرتين",
+        "اتخصم مرتين",
+        "اتكرر"
       ]
     },
     {
@@ -1180,7 +1246,11 @@
         "wrong data",
         "incorrect data",
         "wrong numbers",
-        "inaccurate"
+        "inaccurate",
+        "الارقام مش مظبوطة",
+        "البيانات مش مظبوطة",
+        "مش متطابقة",
+        "مش متطابق"
       ]
     },
     {
@@ -1199,7 +1269,15 @@
         "not updating",
         "not refreshing",
         "stale",
-        "still old"
+        "still old",
+        "بيعرض بيانات قديمة",
+        "بيعرض بيانات قديمه",
+        "بيانات قديمة",
+        "بيانات قديمه",
+        "لسه بيعرض القديم",
+        "مش بيجدد",
+        "مش بتتجدد",
+        "البيانات قديمة"
       ]
     },
     {
@@ -1263,7 +1341,12 @@
         "not connected",
         "link failed",
         "cant connect",
-        "connection failed"
+        "connection failed",
+        "بيفصل",
+        "بيفصل لوحده",
+        "بيقطع",
+        "غير متصل",
+        "مش متصل"
       ]
     },
     {
@@ -1281,7 +1364,14 @@
         "تم الرفض",
         "rejected",
         "declined",
-        "denied"
+        "denied",
+        "بيرفض",
+        "بترفض",
+        "رافض",
+        "رافضة",
+        "مش بيقبل",
+        "مش بتقبل",
+        "الطلب مرفوض"
       ]
     },
     {
@@ -1301,7 +1391,12 @@
         "pending",
         "under review",
         "awaiting approval",
-        "still processing"
+        "still processing",
+        "لسه مش ظاهر",
+        "لسه ماظهرش",
+        "لسه مستني",
+        "لسه بيراجعوه",
+        "في الانتظار"
       ]
     },
     {
@@ -1321,7 +1416,11 @@
         "error message",
         "an error",
         "shows an error",
-        "throws an error"
+        "throws an error",
+        "خطأ",
+        "خطا",
+        "إيرور",
+        "error"
       ]
     },
     {
@@ -1552,6 +1651,1314 @@
         "since today",
         "just started",
         "suddenly"
+      ]
+    },
+    {
+      "canonical": "entity_wa_group",
+      "labels": {
+        "ar": "جروب واتساب",
+        "en": "WhatsApp group"
+      },
+      "patterns": [
+        "جروب",
+        "الجروب",
+        "جروبات",
+        "الجروبات",
+        "مجموعة واتساب",
+        "مجموعه واتساب",
+        "المجموعات",
+        "whatsapp group",
+        "group"
+      ]
+    },
+    {
+      "canonical": "entity_wa_contact",
+      "labels": {
+        "ar": "جهة الاتصال",
+        "en": "contact"
+      },
+      "patterns": [
+        "جهة الاتصال",
+        "جهه الاتصال",
+        "جهات الاتصال",
+        "الكونتاكت",
+        "الكونتاكتس",
+        "دفتر العناوين",
+        "contact",
+        "contacts"
+      ]
+    },
+    {
+      "canonical": "entity_wa_media",
+      "labels": {
+        "ar": "الوسائط",
+        "en": "media"
+      },
+      "patterns": [
+        "الوسائط",
+        "الميديا",
+        "صورة",
+        "صوره",
+        "الصور",
+        "فيديو",
+        "الفيديوهات",
+        "ملف صوتي",
+        "الڤويس",
+        "الفويس نوت",
+        "رسالة صوتية",
+        "رساله صوتيه",
+        "media",
+        "image",
+        "photo",
+        "video",
+        "voice note"
+      ]
+    },
+    {
+      "canonical": "entity_wa_business_profile",
+      "labels": {
+        "ar": "الملف التجاري",
+        "en": "business profile"
+      },
+      "patterns": [
+        "الملف التجاري",
+        "البروفايل التجاري",
+        "بروفايل الشركة",
+        "بروفايل الشركه",
+        "بيانات النشاط",
+        "business profile",
+        "company profile",
+        "اسم المرسل",
+        "الاسم المعروض",
+        "اسم الحساب"
+      ]
+    },
+    {
+      "canonical": "entity_wa_verification",
+      "labels": {
+        "ar": "التوثيق",
+        "en": "verification"
+      },
+      "patterns": [
+        "التوثيق",
+        "العلامة الخضراء",
+        "العلامه الخضرا",
+        "التيك الاخضر",
+        "الشارة الزرقاء",
+        "توثيق الحساب",
+        "green tick",
+        "verified badge",
+        "verification"
+      ]
+    },
+    {
+      "canonical": "entity_wa_catalog",
+      "labels": {
+        "ar": "كتالوج المنتجات",
+        "en": "product catalog"
+      },
+      "patterns": [
+        "الكتالوج",
+        "كتالوج المنتجات",
+        "كتالوج",
+        "المنتجات",
+        "قائمة المنتجات",
+        "قائمه المنتجات",
+        "catalog",
+        "catalogue",
+        "products"
+      ]
+    },
+    {
+      "canonical": "entity_wa_quality_rating",
+      "labels": {
+        "ar": "تقييم جودة الرقم",
+        "en": "number quality rating"
+      },
+      "patterns": [
+        "تقييم الرقم",
+        "جودة الرقم",
+        "جوده الرقم",
+        "الكواليتي",
+        "حالة الرقم عند ميتا",
+        "التقييم الاخضر",
+        "quality rating",
+        "phone quality"
+      ]
+    },
+    {
+      "canonical": "entity_wa_messaging_limit",
+      "labels": {
+        "ar": "حد المراسلة",
+        "en": "messaging limit"
+      },
+      "patterns": [
+        "حد المراسلة",
+        "حد المراسله",
+        "لحد المراسلة",
+        "لحد المراسله",
+        "حد الرسايل",
+        "حد الرسائل",
+        "الليمت",
+        "عدد الرسائل المسموح",
+        "الحد اليومي",
+        "حد يومي",
+        "messaging limit",
+        "tier limit",
+        "حد المراسلة اليومي",
+        "الحد اليومي للرسائل"
+      ]
+    },
+    {
+      "canonical": "entity_wa_optin",
+      "labels": {
+        "ar": "موافقة العميل",
+        "en": "customer opt-in"
+      },
+      "patterns": [
+        "موافقة العميل",
+        "موافقه العميل",
+        "الاوبت ان",
+        "اذن الاستقبال",
+        "إذن الاستقبال",
+        "اشتراك العميل",
+        "opt in",
+        "opt-in",
+        "consent",
+        "نافذة 24 ساعة",
+        "نافذه 24 ساعه",
+        "نافذة الرد",
+        "مهلة 24 ساعة"
+      ]
+    },
+    {
+      "canonical": "entity_auto_reply",
+      "labels": {
+        "ar": "الرد الآلي",
+        "en": "auto-reply"
+      },
+      "patterns": [
+        "الرد الالي",
+        "الرد الآلي",
+        "الردود الاليه",
+        "الردود الآلية",
+        "رد تلقائي",
+        "الرد التلقائي",
+        "auto reply",
+        "autoreply",
+        "automatic reply"
+      ]
+    },
+    {
+      "canonical": "entity_bot_flow",
+      "labels": {
+        "ar": "مسار البوت",
+        "en": "bot flow"
+      },
+      "patterns": [
+        "مسار البوت",
+        "التدفق",
+        "التدفقات",
+        "الفلو",
+        "فلو البوت",
+        "سيناريو البوت",
+        "شجرة الردود",
+        "flow",
+        "bot flow",
+        "workflow"
+      ]
+    },
+    {
+      "canonical": "entity_keyword_trigger",
+      "labels": {
+        "ar": "الكلمة المفتاحية",
+        "en": "keyword trigger"
+      },
+      "patterns": [
+        "الكلمة المفتاحية",
+        "الكلمه المفتاحيه",
+        "الكلمات المفتاحية",
+        "الكيوورد",
+        "كلمة التشغيل",
+        "keyword",
+        "trigger word"
+      ]
+    },
+    {
+      "canonical": "entity_welcome_message",
+      "labels": {
+        "ar": "رسالة الترحيب",
+        "en": "welcome message"
+      },
+      "patterns": [
+        "رسالة الترحيب",
+        "رساله الترحيب",
+        "الرسالة الترحيبية",
+        "الترحيب",
+        "رسالة البداية",
+        "welcome message",
+        "greeting message"
+      ]
+    },
+    {
+      "canonical": "entity_away_message",
+      "labels": {
+        "ar": "رسالة خارج أوقات العمل",
+        "en": "away message"
+      },
+      "patterns": [
+        "رسالة خارج اوقات العمل",
+        "رساله خارج ساعات العمل",
+        "رسالة الغياب",
+        "رساله الغياب",
+        "away message",
+        "out of office"
+      ]
+    },
+    {
+      "canonical": "entity_working_hours",
+      "labels": {
+        "ar": "أوقات العمل",
+        "en": "working hours"
+      },
+      "patterns": [
+        "اوقات العمل",
+        "أوقات العمل",
+        "ساعات العمل",
+        "مواعيد الشغل",
+        "مواعيد العمل",
+        "الشيفتات",
+        "working hours",
+        "business hours",
+        "shifts",
+        "اوقات الشغل",
+        "مواعيد العمل عندي",
+        "خارج العمل",
+        "بره العمل",
+        "بعد المواعيد"
+      ]
+    },
+    {
+      "canonical": "entity_canned_response",
+      "labels": {
+        "ar": "الردود الجاهزة",
+        "en": "canned responses"
+      },
+      "patterns": [
+        "الردود الجاهزة",
+        "الردود الجاهزه",
+        "رد جاهز",
+        "القوالب الجاهزة",
+        "الشورت كت",
+        "canned response",
+        "saved reply",
+        "quick reply"
+      ]
+    },
+    {
+      "canonical": "entity_handoff",
+      "labels": {
+        "ar": "التحويل لموظف",
+        "en": "handoff to agent"
+      },
+      "patterns": [
+        "التحويل لموظف",
+        "تحويل المحادثة",
+        "تحويل المحادثه",
+        "ينقل للموظف",
+        "التسليم للموظف",
+        "handoff",
+        "transfer to agent",
+        "escalate to human"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_assignment",
+      "labels": {
+        "ar": "إسناد التذكرة",
+        "en": "ticket assignment"
+      },
+      "patterns": [
+        "اسناد التذكرة",
+        "إسناد التذكرة",
+        "توزيع التذاكر",
+        "تعيين التذكرة",
+        "تحويل التذكرة",
+        "assignment",
+        "assign ticket",
+        "routing",
+        "التوزيع التلقائي",
+        "توزيع تلقائي"
+      ]
+    },
+    {
+      "canonical": "entity_sla",
+      "labels": {
+        "ar": "اتفاقية مستوى الخدمة",
+        "en": "SLA"
+      },
+      "patterns": [
+        "اتفاقية مستوى الخدمة",
+        "مستوى الخدمة",
+        "وقت الاستجابة",
+        "وقت الاستجابه",
+        "المهلة المحددة",
+        "sla",
+        "response time",
+        "resolution time"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_priority",
+      "labels": {
+        "ar": "أولوية التذكرة",
+        "en": "ticket priority"
+      },
+      "patterns": [
+        "اولوية التذكرة",
+        "أولوية التذكرة",
+        "الاولوية",
+        "الأولوية",
+        "درجة الاهمية",
+        "عاجل ولا عادي",
+        "priority",
+        "urgency"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_tag",
+      "labels": {
+        "ar": "تصنيف التذكرة",
+        "en": "ticket tag"
+      },
+      "patterns": [
+        "تصنيف التذكرة",
+        "تصنيف التذكره",
+        "التاجات",
+        "التاج",
+        "الوسوم",
+        "تصنيفات التذاكر",
+        "tag",
+        "tags",
+        "label"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_rating",
+      "labels": {
+        "ar": "تقييم الخدمة",
+        "en": "service rating"
+      },
+      "patterns": [
+        "تقييم الخدمة",
+        "تقييم الخدمه",
+        "تقييم العميل",
+        "استطلاع الرضا",
+        "تقييم التذكرة",
+        "النجوم",
+        "rating",
+        "csat",
+        "satisfaction survey"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_note",
+      "labels": {
+        "ar": "الملاحظات الداخلية",
+        "en": "internal notes"
+      },
+      "patterns": [
+        "الملاحظات الداخلية",
+        "الملاحظات الداخليه",
+        "ملاحظة داخلية",
+        "النوت الداخلي",
+        "تعليق داخلي",
+        "internal note",
+        "private note"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_merge",
+      "labels": {
+        "ar": "دمج التذاكر",
+        "en": "merging tickets"
+      },
+      "patterns": [
+        "دمج التذاكر",
+        "دمج تذكرتين",
+        "ضم التذاكر",
+        "التذاكر المكررة",
+        "التذاكر المكرره",
+        "merge tickets",
+        "duplicate tickets"
+      ]
+    },
+    {
+      "canonical": "entity_role",
+      "labels": {
+        "ar": "الدور / الصلاحية",
+        "en": "role"
+      },
+      "patterns": [
+        "الدور",
+        "الادوار",
+        "الأدوار",
+        "الرول",
+        "الصلاحيات",
+        "الصلاحية",
+        "مستوى الصلاحية",
+        "role",
+        "roles",
+        "permissions"
+      ]
+    },
+    {
+      "canonical": "entity_invite",
+      "labels": {
+        "ar": "الدعوة",
+        "en": "invitation"
+      },
+      "patterns": [
+        "الدعوة",
+        "الدعوه",
+        "دعوة الانضمام",
+        "ايميل الدعوة",
+        "لينك الدعوة",
+        "رابط الدعوه",
+        "invite",
+        "invitation"
+      ]
+    },
+    {
+      "canonical": "entity_department",
+      "labels": {
+        "ar": "القسم",
+        "en": "department"
+      },
+      "patterns": [
+        "القسم",
+        "الاقسام",
+        "الأقسام",
+        "الفريق",
+        "الفرق",
+        "المجموعة الوظيفية",
+        "department",
+        "team",
+        "queue"
+      ]
+    },
+    {
+      "canonical": "entity_coupon",
+      "labels": {
+        "ar": "كوبون الخصم",
+        "en": "discount coupon"
+      },
+      "patterns": [
+        "كوبون",
+        "الكوبون",
+        "كود الخصم",
+        "كوبون الخصم",
+        "البروموكود",
+        "كود الخصم بتاعي",
+        "coupon",
+        "promo code",
+        "discount code"
+      ]
+    },
+    {
+      "canonical": "entity_trial",
+      "labels": {
+        "ar": "الفترة التجريبية",
+        "en": "free trial"
+      },
+      "patterns": [
+        "الفترة التجريبية",
+        "الفتره التجريبيه",
+        "التجربة المجانية",
+        "التجربه المجانيه",
+        "الترايل",
+        "free trial",
+        "trial period"
+      ]
+    },
+    {
+      "canonical": "entity_downgrade",
+      "labels": {
+        "ar": "تخفيض الباقة",
+        "en": "plan downgrade"
+      },
+      "patterns": [
+        "تخفيض الباقة",
+        "تخفيض الباقه",
+        "انزل باقة اقل",
+        "باقة اصغر",
+        "باقه اقل",
+        "ارجع للباقة الاقل",
+        "downgrade"
+      ]
+    },
+    {
+      "canonical": "entity_auto_renewal",
+      "labels": {
+        "ar": "التجديد التلقائي",
+        "en": "auto-renewal"
+      },
+      "patterns": [
+        "التجديد التلقائي",
+        "التجديد الاوتوماتيك",
+        "تجديد تلقائي",
+        "يجدد لوحده",
+        "auto renewal",
+        "auto-renew",
+        "recurring"
+      ]
+    },
+    {
+      "canonical": "entity_local_payment",
+      "labels": {
+        "ar": "وسيلة دفع محلية",
+        "en": "local payment method"
+      },
+      "patterns": [
+        "فودافون كاش",
+        "فودافون كاش",
+        "انستاباي",
+        "إنستاباي",
+        "فوري",
+        "محفظة الموبايل",
+        "تحويل بنكي",
+        "حوالة بنكية",
+        "حواله بنكيه",
+        "الدفع عند الاستلام",
+        "instapay",
+        "vodafone cash",
+        "fawry",
+        "bank transfer",
+        "التحويل البنكي",
+        "الحوالة البنكية",
+        "الحواله البنكيه",
+        "التحويل من البنك"
+      ]
+    },
+    {
+      "canonical": "entity_vat_invoice",
+      "labels": {
+        "ar": "الفاتورة الضريبية",
+        "en": "tax invoice"
+      },
+      "patterns": [
+        "الفاتورة الضريبية",
+        "الفاتوره الضريبيه",
+        "فاتورة ضريبية",
+        "السجل التجاري",
+        "الرقم الضريبي",
+        "tax invoice",
+        "vat invoice"
+      ]
+    },
+    {
+      "canonical": "entity_search",
+      "labels": {
+        "ar": "البحث",
+        "en": "search"
+      },
+      "patterns": [
+        "البحث",
+        "خانة البحث",
+        "خانه البحث",
+        "ابحث",
+        "السيرش",
+        "نتائج البحث",
+        "search",
+        "search results"
+      ]
+    },
+    {
+      "canonical": "entity_filter",
+      "labels": {
+        "ar": "الفلاتر",
+        "en": "filters"
+      },
+      "patterns": [
+        "الفلتر",
+        "الفلاتر",
+        "التصفية",
+        "التصفيه",
+        "خيارات الفرز",
+        "الفرز",
+        "filter",
+        "filters",
+        "sorting"
+      ]
+    },
+    {
+      "canonical": "entity_timezone",
+      "labels": {
+        "ar": "المنطقة الزمنية",
+        "en": "timezone"
+      },
+      "patterns": [
+        "المنطقة الزمنية",
+        "المنطقه الزمنيه",
+        "التوقيت",
+        "توقيت المنصة",
+        "فرق التوقيت",
+        "timezone",
+        "time zone"
+      ]
+    },
+    {
+      "canonical": "entity_language_setting",
+      "labels": {
+        "ar": "لغة الواجهة",
+        "en": "interface language"
+      },
+      "patterns": [
+        "لغة الواجهة",
+        "لغه الواجهه",
+        "لغة الموقع",
+        "تغيير اللغة",
+        "تغيير اللغه",
+        "الواجهة بالانجليزي",
+        "interface language",
+        "change language",
+        "الواجهه بالانجليزي",
+        "اللغة الانجليزية",
+        "عايزها عربي",
+        "عايز عربي",
+        "خليها عربي"
+      ]
+    },
+    {
+      "canonical": "entity_profile_picture",
+      "labels": {
+        "ar": "الصورة الشخصية",
+        "en": "profile picture"
+      },
+      "patterns": [
+        "الصورة الشخصية",
+        "الصوره الشخصيه",
+        "صورة الحساب",
+        "الافاتار",
+        "اللوجو",
+        "شعار الشركة",
+        "profile picture",
+        "avatar",
+        "logo"
+      ]
+    },
+    {
+      "canonical": "entity_browser",
+      "labels": {
+        "ar": "المتصفح",
+        "en": "browser"
+      },
+      "patterns": [
+        "المتصفح",
+        "كروم",
+        "جوجل كروم",
+        "فايرفوكس",
+        "سفاري",
+        "ايدج",
+        "المتصفح بتاعي",
+        "browser",
+        "chrome",
+        "firefox",
+        "safari",
+        "edge"
+      ]
+    },
+    {
+      "canonical": "entity_cache",
+      "labels": {
+        "ar": "الكاش",
+        "en": "cache"
+      },
+      "patterns": [
+        "الكاش",
+        "الذاكرة المؤقتة",
+        "الذاكره المؤقته",
+        "الكوكيز",
+        "بيانات المتصفح",
+        "cache",
+        "cookies",
+        "كاش المتصفح",
+        "الكاش بتاع المتصفح"
+      ]
+    },
+    {
+      "canonical": "entity_extension",
+      "labels": {
+        "ar": "إضافة المتصفح",
+        "en": "browser extension"
+      },
+      "patterns": [
+        "اضافة المتصفح",
+        "إضافة المتصفح",
+        "الاضافات",
+        "الإضافات",
+        "مانع الاعلانات",
+        "الاد بلوك",
+        "extension",
+        "adblock",
+        "add-on"
+      ]
+    },
+    {
+      "canonical": "entity_vpn",
+      "labels": {
+        "ar": "الشبكة الافتراضية",
+        "en": "VPN"
+      },
+      "patterns": [
+        "في بي ان",
+        "الشبكة الافتراضية",
+        "البروكسي",
+        "vpn",
+        "proxy"
+      ]
+    },
+    {
+      "canonical": "entity_notification_sound",
+      "labels": {
+        "ar": "صوت التنبيه",
+        "en": "notification sound"
+      },
+      "patterns": [
+        "صوت التنبيه",
+        "صوت الاشعار",
+        "صوت الإشعار",
+        "النغمة",
+        "التنبيه الصوتي",
+        "notification sound",
+        "alert sound"
+      ]
+    },
+    {
+      "canonical": "entity_import",
+      "labels": {
+        "ar": "استيراد البيانات",
+        "en": "data import"
+      },
+      "patterns": [
+        "استيراد البيانات",
+        "استيراد",
+        "رفع ملف العملاء",
+        "ارفع الاكسيل",
+        "استيراد جهات الاتصال",
+        "import",
+        "bulk upload"
+      ]
+    },
+    {
+      "canonical": "entity_spreadsheet",
+      "labels": {
+        "ar": "ملف Excel/CSV",
+        "en": "spreadsheet file"
+      },
+      "patterns": [
+        "ملف اكسيل",
+        "ملف إكسيل",
+        "الاكسيل",
+        "csv",
+        "ملف csv",
+        "شيت",
+        "الشيت",
+        "excel",
+        "spreadsheet",
+        "xlsx"
+      ]
+    },
+    {
+      "canonical": "entity_backup",
+      "labels": {
+        "ar": "النسخ الاحتياطي",
+        "en": "backup"
+      },
+      "patterns": [
+        "النسخ الاحتياطي",
+        "نسخة احتياطية",
+        "نسخه احتياطيه",
+        "الباك اب",
+        "حفظ نسخة",
+        "backup",
+        "restore"
+      ]
+    },
+    {
+      "canonical": "entity_archive",
+      "labels": {
+        "ar": "الأرشيف",
+        "en": "archive"
+      },
+      "patterns": [
+        "الارشيف",
+        "الأرشيف",
+        "المؤرشف",
+        "ارشفة",
+        "أرشفة",
+        "archive",
+        "archived",
+        "المحادثات القديمة",
+        "المحادثات القديمه",
+        "القديمة"
+      ]
+    },
+    {
+      "canonical": "entity_audit_log",
+      "labels": {
+        "ar": "سجل النشاط",
+        "en": "activity log"
+      },
+      "patterns": [
+        "سجل النشاط",
+        "سجل الحركات",
+        "سجل الدخول",
+        "الاكتيفيتي لوج",
+        "تاريخ العمليات",
+        "activity log",
+        "audit log"
+      ]
+    },
+    {
+      "canonical": "entity_api_docs",
+      "labels": {
+        "ar": "توثيق الـ API",
+        "en": "API documentation"
+      },
+      "patterns": [
+        "توثيق ال api",
+        "التوثيق",
+        "الدوكيومنتيشن",
+        "صفحة المطورين",
+        "صفحه المطورين",
+        "الدوكس",
+        "api docs",
+        "documentation",
+        "developer docs"
+      ]
+    },
+    {
+      "canonical": "entity_sandbox",
+      "labels": {
+        "ar": "بيئة الاختبار",
+        "en": "sandbox environment"
+      },
+      "patterns": [
+        "بيئة الاختبار",
+        "بيئه الاختبار",
+        "الساندبوكس",
+        "بيئة التجربة",
+        "وضع الاختبار",
+        "sandbox",
+        "test environment",
+        "staging"
+      ]
+    },
+    {
+      "canonical": "entity_endpoint",
+      "labels": {
+        "ar": "نقطة النهاية",
+        "en": "endpoint"
+      },
+      "patterns": [
+        "نقطة النهاية",
+        "نقطه النهايه",
+        "الاندبوينت",
+        "الرابط البرمجي",
+        "المسار",
+        "endpoint",
+        "route"
+      ]
+    },
+    {
+      "canonical": "entity_pagination",
+      "labels": {
+        "ar": "تقسيم الصفحات",
+        "en": "pagination"
+      },
+      "patterns": [
+        "تقسيم الصفحات",
+        "الباجينيشن",
+        "الصفحات",
+        "عدد النتائج",
+        "الصفحة التالية",
+        "pagination",
+        "page size",
+        "next page"
+      ]
+    },
+    {
+      "canonical": "entity_signature_verify",
+      "labels": {
+        "ar": "توقيع الويبهوك",
+        "en": "webhook signature"
+      },
+      "patterns": [
+        "توقيع الويبهوك",
+        "التوقيع",
+        "signature",
+        "hmac",
+        "webhook signature"
+      ]
+    },
+    {
+      "canonical": "symptom_cannot_delete",
+      "labels": {
+        "ar": "مش قادر يمسح",
+        "en": "cannot delete"
+      },
+      "patterns": [
+        "مش قادر امسح",
+        "مش عارف امسح",
+        "مش بيتمسح",
+        "مش راضي يتمسح",
+        "الحذف مش شغال",
+        "cannot delete",
+        "delete not working",
+        "مش بيتشال",
+        "مش راضي يتشال",
+        "الحذف بيفشل"
+      ]
+    },
+    {
+      "canonical": "symptom_cannot_edit",
+      "labels": {
+        "ar": "مش قادر يعدّل",
+        "en": "cannot edit"
+      },
+      "patterns": [
+        "مش قادر اعدل",
+        "مش عارف اعدل",
+        "مش بيتعدل",
+        "التعديل مش بيتحفظ",
+        "مش راضي يتعدل",
+        "cannot edit",
+        "edit not saving",
+        "مش بيتغير",
+        "مش راضي يتغير",
+        "التعديل بيفشل"
+      ]
+    },
+    {
+      "canonical": "symptom_not_saving",
+      "labels": {
+        "ar": "مش بيتحفظ",
+        "en": "not saving"
+      },
+      "patterns": [
+        "مش بيتحفظ",
+        "مش بيسيف",
+        "الحفظ مش شغال",
+        "بيرجع زي ما كان",
+        "مش بيسجل التعديل",
+        "not saving",
+        "changes lost",
+        "wont save",
+        "مش بتتحفظ",
+        "مش بيتسجل",
+        "مش بتتسجل",
+        "مش بيحفظ",
+        "مش بتحفظ",
+        "التعديل ضاع",
+        "التعديلات مش بتتحفظ",
+        "رجع زي ما كان",
+        "الحفظ فشل",
+        "مش راضي يحفظ"
+      ]
+    },
+    {
+      "canonical": "symptom_button_dead",
+      "labels": {
+        "ar": "الزرار مش شغال",
+        "en": "button does nothing"
+      },
+      "patterns": [
+        "الزرار مش شغال",
+        "الزراير مش شغالة",
+        "بدوس مفيش حاجة بتحصل",
+        "الزر مش بيستجيب",
+        "button not working",
+        "nothing happens",
+        "الزر مش شغال",
+        "مفيش حاجة بتحصل",
+        "بدوس ومفيش حاجة"
+      ]
+    },
+    {
+      "canonical": "symptom_stuck_loading",
+      "labels": {
+        "ar": "بيفضل بيحمّل",
+        "en": "stuck loading"
+      },
+      "patterns": [
+        "بيفضل بيحمل",
+        "بيلف ومش بيخلص",
+        "عالق على التحميل",
+        "اللودينج مش بيخلص",
+        "بيحمل من ساعة",
+        "stuck loading",
+        "spinner forever",
+        "keeps loading",
+        "بيفضل بيلود",
+        "عالق",
+        "عالقة",
+        "واقف على التحميل"
+      ]
+    },
+    {
+      "canonical": "symptom_limit_reached",
+      "labels": {
+        "ar": "وصل للحد الأقصى",
+        "en": "limit reached"
+      },
+      "patterns": [
+        "وصلت للحد الاقصى",
+        "وصلت للحد الأقصى",
+        "خلص الحد",
+        "الحد الاقصى",
+        "مش قادر اضيف اكتر",
+        "limit reached",
+        "quota full",
+        "maximum reached",
+        "وصلت للحد",
+        "خلص الحد الاقصى",
+        "عديت الحد",
+        "تعديت الحد",
+        "مفيش مساحة"
+      ]
+    },
+    {
+      "canonical": "symptom_permission_denied",
+      "labels": {
+        "ar": "مفيش صلاحية",
+        "en": "permission denied"
+      },
+      "patterns": [
+        "مفيش صلاحية",
+        "مفيش صلاحيه",
+        "ملكش صلاحية",
+        "غير مصرح",
+        "الصلاحية مرفوضة",
+        "محظور عليا",
+        "permission denied",
+        "not authorized",
+        "access denied"
+      ]
+    },
+    {
+      "canonical": "symptom_not_visible",
+      "labels": {
+        "ar": "مش ظاهر",
+        "en": "not visible"
+      },
+      "patterns": [
+        "مش ظاهر",
+        "مش ظاهره",
+        "مش ظاهرة",
+        "مش بيظهر",
+        "مش بتظهر",
+        "مش شايفه",
+        "مش شايفها",
+        "مختفي",
+        "مش موجود قدامي",
+        "مش بيبان",
+        "اختفى من عندي",
+        "not visible",
+        "not showing",
+        "cannot see",
+        "does not appear",
+        "مش لاقيه",
+        "مش لاقيها",
+        "مش لاقي",
+        "مختفية",
+        "مختفيه",
+        "مش بتبان"
+      ]
+    },
+    {
+      "canonical": "symptom_wrong_order",
+      "labels": {
+        "ar": "الترتيب غلط",
+        "en": "wrong order"
+      },
+      "patterns": [
+        "الترتيب غلط",
+        "مش مرتب",
+        "الترتيب مقلوب",
+        "بيظهر بترتيب غريب",
+        "wrong order",
+        "not sorted"
+      ]
+    },
+    {
+      "canonical": "symptom_partially_working",
+      "labels": {
+        "ar": "شغال جزئيًا",
+        "en": "partially working"
+      },
+      "patterns": [
+        "شغال جزئيا",
+        "شغال نص نص",
+        "بيشتغل مرة ومرة لا",
+        "مرة يشتغل ومرة لا",
+        "متقطع",
+        "intermittent",
+        "works sometimes",
+        "partially working"
+      ]
+    },
+    {
+      "canonical": "symptom_after_update",
+      "labels": {
+        "ar": "بعد التحديث",
+        "en": "after an update"
+      },
+      "patterns": [
+        "بعد التحديث",
+        "من بعد التحديث",
+        "بعد اخر تحديث",
+        "بعد آخر تحديث",
+        "من ساعة التحديث",
+        "after the update",
+        "since the update"
+      ]
+    },
+    {
+      "canonical": "intent_delete",
+      "labels": {
+        "ar": "طلب حذف",
+        "en": "delete request"
+      },
+      "patterns": [
+        "عايز امسح",
+        "عايز احذف",
+        "ازاي امسح",
+        "ازاي احذف",
+        "حذف نهائي",
+        "امسح البيانات",
+        "delete",
+        "remove",
+        "erase"
+      ]
+    },
+    {
+      "canonical": "intent_add",
+      "labels": {
+        "ar": "طلب إضافة",
+        "en": "add request"
+      },
+      "patterns": [
+        "عايز اضيف",
+        "ازاي اضيف",
+        "عايزة اضيف",
+        "اضافة جديد",
+        "إضافة جديدة",
+        "add new",
+        "create new"
+      ]
+    },
+    {
+      "canonical": "intent_change",
+      "labels": {
+        "ar": "طلب تعديل",
+        "en": "change request"
+      },
+      "patterns": [
+        "عايز اغير",
+        "عايز اعدل",
+        "ازاي اغير",
+        "ازاي اعدل",
+        "تعديل البيانات",
+        "change",
+        "edit",
+        "update my"
+      ]
+    },
+    {
+      "canonical": "intent_report_bug",
+      "labels": {
+        "ar": "الإبلاغ عن خلل",
+        "en": "bug report"
+      },
+      "patterns": [
+        "فيه باج",
+        "في باج",
+        "خلل في المنصة",
+        "عيب في النظام",
+        "حاجة غلط في الموقع",
+        "ابلغ عن مشكلة",
+        "bug",
+        "glitch",
+        "report a bug"
+      ]
+    },
+    {
+      "canonical": "intent_feature_request",
+      "labels": {
+        "ar": "اقتراح خاصية",
+        "en": "feature request"
+      },
+      "patterns": [
+        "اقتراح",
+        "عندي اقتراح",
+        "ياريت تضيفوا",
+        "نفسي يبقى فيه",
+        "ممكن تضيفوا خاصية",
+        "feature request",
+        "suggestion",
+        "can you add"
+      ]
+    },
+    {
+      "canonical": "intent_recover",
+      "labels": {
+        "ar": "استعادة",
+        "en": "recovery request"
+      },
+      "patterns": [
+        "استرجاع",
+        "استعادة",
+        "استعاده",
+        "ارجع البيانات",
+        "رجعولي",
+        "استرد",
+        "recover",
+        "restore",
+        "get back"
+      ]
+    },
+    {
+      "canonical": "intent_compare",
+      "labels": {
+        "ar": "مقارنة",
+        "en": "comparison"
+      },
+      "patterns": [
+        "الفرق بين",
+        "ايه الفرق",
+        "مقارنة",
+        "مقارنه",
+        "ايهما افضل",
+        "اختار انهي",
+        "difference between",
+        "compare",
+        "which is better"
+      ]
+    },
+    {
+      "canonical": "entity_cors",
+      "labels": {
+        "ar": "سياسة CORS",
+        "en": "CORS policy"
+      },
+      "patterns": [
+        "cors",
+        "cors policy",
+        "cross origin",
+        "خطأ cors",
+        "مشكلة cors",
+        "سياسة cors"
       ]
     }
   ]
