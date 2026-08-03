@@ -197,3 +197,80 @@ export async function adminResetUsage(supabase, userId) {
         return { error: err instanceof Error ? err : new Error(String(err)) };
     }
 }
+
+// ===================================================================
+// Engine settings
+// ===================================================================
+
+/**
+ * What the engine does when nobody has configured anything. These describe
+ * today's behaviour exactly, so a missing row never changes how SIE acts —
+ * it only means "nobody has touched this yet".
+ */
+export const SIE_DEFAULT_SETTINGS = Object.freeze({
+    engine_enabled: true,          // المحرك شغّال أصلًا؟
+    answer_directly: true,         // يرد بالحل، أو يجمع المعلومات ويسلّم لموظف
+    ask_before_ticket: true,       // يستأذن قبل ما يفتح تذكرة
+    auto_ticket_enabled: true,     // مسموح له يفتح تذاكر من الأساس
+    escalate_when_upset: true,     // يحوّل لموظف بشري فورًا لو العميل منزعج
+    reply_to_greetings: true,      // يرد على التحيات والكلام العادي
+    use_published_scenarios: false // ياخد السيناريوهات المنشورة من قاعدة البيانات
+});
+
+let settingsCache = null;
+
+/**
+ * Current settings, merged over the defaults.
+ *
+ * Cached for the life of the page: these are read on every customer turn,
+ * and a round trip per message would add latency to every single reply for
+ * values that change perhaps monthly. saveSieSetting() clears the cache, so
+ * an admin editing them sees the effect immediately in their own tab, and
+ * other tabs pick it up on their next load.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{fresh?: boolean}} [options] - fresh:true bypasses the cache
+ * @returns {Promise<typeof SIE_DEFAULT_SETTINGS>}
+ */
+export async function getSieSettings(supabase, { fresh = false } = {}) {
+    if (settingsCache && !fresh) return settingsCache;
+    try {
+        const { data, error } = await supabase.from('sie_settings').select('key, value');
+        if (error) {
+            console.warn('[sie-runtime] sie_settings read failed, using defaults:', error.message);
+            return { ...SIE_DEFAULT_SETTINGS };
+        }
+        const stored = Object.fromEntries((data || []).map((r) => [r.key, r.value]));
+        settingsCache = { ...SIE_DEFAULT_SETTINGS, ...stored };
+        return settingsCache;
+    } catch (err) {
+        // Defaults rather than a throw: a settings outage must never stop the
+        // engine answering customers.
+        console.warn('[sie-runtime] sie_settings read threw, using defaults:', err?.message || err);
+        return { ...SIE_DEFAULT_SETTINGS };
+    }
+}
+
+/**
+ * Saves one setting. Staff-only, enforced by RLS on the table.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} key
+ * @param {*} value
+ * @returns {Promise<{error: Error|null}>}
+ */
+export async function saveSieSetting(supabase, key, value) {
+    if (!(key in SIE_DEFAULT_SETTINGS)) {
+        return { error: new Error(`إعداد غير معروف: ${key}`) };
+    }
+    try {
+        const { error } = await supabase
+            .from('sie_settings')
+            .upsert({ key, value }, { onConflict: 'key' });
+        if (error) return { error: new Error(error.message) };
+        settingsCache = null; // next read reflects the change
+        return { error: null };
+    } catch (err) {
+        return { error: err instanceof Error ? err : new Error(String(err)) };
+    }
+}

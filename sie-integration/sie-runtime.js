@@ -245,6 +245,18 @@ export async function adminResetUsage(supabase, userId) {
 }
 
 // ===================================================================
+// Settings
+// ===================================================================
+
+/**
+ * Settings live in sie-entitlement.js rather than here, because the bridge
+ * needs them on every turn and the runtime imports the bridge — reading them
+ * from here would make the two modules import each other. Re-exported so the
+ * public surface is unchanged: callers still only ever touch the runtime.
+ */
+export { SIE_DEFAULT_SETTINGS, getSieSettings, saveSieSetting } from './sie-entitlement.js';
+
+// ===================================================================
 // Scenario catalog (admin)
 // ===================================================================
 

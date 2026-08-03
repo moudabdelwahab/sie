@@ -33,7 +33,8 @@ import { renderDecision } from '../sie/dialogue/dialogue-renderer.js';
 import { executeDecision, logTraceEvent } from '../sie/action/action-layer.js';
 import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js';
 import { buildTraceEvent } from '../sie/observability/trace-logger.js';
-import { tryConsumeSieMessage } from './sie-entitlement.js';
+import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
+import { createScenarioCatalogSupabaseProvider } from '../sie/scenarios/scenario-catalog.supabase.js';
 
 /**
  * قرار CREATE_TICKET كان بينفّذ فورًا جوه محرك القرار من غير ما يسأل
@@ -48,6 +49,16 @@ import { tryConsumeSieMessage } from './sie-entitlement.js';
  * السؤال، وده بيخزن الرسالة وحالة الجلسة بنفس الطريقة العادية من غير ما
  * يفتح تذكرة فعليًا.
  */
+/**
+ * رد الاعتراف بالانزعاج لما «التحويل لموظف فورًا» يكون مقفول. مش رد
+ * كامل - بيتحط قدّام رد المحرك العادي، عشان العميل يحس إن حد سمعه
+ * ويفضل مع نفس التشخيص بدل ما يبدأ من الأول.
+ */
+const FRUSTRATION_ACK_TEXT = {
+    ar: 'معلش والله، وأنا آسف إن التجربة مضايقاك. خليني أحاول أساعدك بجد المرة دي.\n\n',
+    en: "I'm sorry this has been frustrating. Let me try to actually get this sorted for you.\n\n"
+};
+
 const TICKET_CONFIRM_TEXT = {
     ar: 'تحب أفتحلك تذكرة دعم عشان فريقنا يتابع معاك؟ [[icon:ticket]]',
     en: 'Would you like me to open a support ticket so our team can follow up with you? [[icon:ticket]]'
@@ -63,6 +74,18 @@ const TICKET_CONFIRM_OPTIONS = {
         { label: '[[icon:cancel]] No, not now', value: 'no not now' }
     ]
 };
+
+const TICKET_DISABLED_TEXT = {
+    ar: 'المشكلة دي محتاجة حد من فريق الدعم يشوفها، بس فتح التذاكر متوقف حاليًا من الإعدادات. '
+        + 'تقدر تتواصل مع الفريق مباشرة وهما هيتابعوا معاك [[icon:note]]',
+    en: 'This needs a member of the support team, but ticket creation is currently switched off in settings. '
+        + 'Please contact the team directly and they will follow up with you [[icon:note]]'
+};
+
+/** Published rows from chat_engine_scenarios, used when settings say so. */
+function createSupabaseScenarioProvider(supabase) {
+    return createScenarioCatalogSupabaseProvider(supabase);
+}
 
 const TICKET_DECLINE_TEXT = {
     ar: 'تمام، معلش، مش هفتحلك تذكرة دلوقتي. لو احتجت أي حاجة تانية قولي [[icon:smile]]',
@@ -306,6 +329,15 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
     if (!text || !supabase || !sessionId || !userId) return null;
 
     // 1. Entitlement gate — the one place a SIE turn is authorized and metered.
+    // 0. Settings. Read before anything is spent or written, so turning the
+    //    engine off is immediate and costs the customer nothing — the caller
+    //    simply falls back to the traditional engine as if SIE were absent.
+    const settings = await getSieSettings(supabase);
+    if (!settings.engine_enabled) {
+        console.info('SIE turn skipped: المحرك متوقف من الإعدادات');
+        return null;
+    }
+
     const entitlement = await tryConsumeSieMessage(supabase, userId);
     if (!entitlement.allowed) {
         console.info('SIE turn skipped:', entitlement.reason);
@@ -325,6 +357,9 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         }
 
         const turn = (prevSie?.turnCount || 0) + 1;
+        // Prepended to whatever the pipeline decides this turn, when the
+        // customer sounded fed up but escalation is switched off.
+        let frustrationPrefix = '';
 
         // 2. Language (Module 1)
         const { normalizedTokens, responseLanguage } = await normalize(text, {
@@ -338,13 +373,25 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // هتكمل عادي في الدور اللي بعد كده لأن botState.sie ماتغيرش هنا (ما
         // عدا human_request/frustration، اللي بيسجّلوا تصعيد حقيقي – شايف
         // escalateImmediately فوق).
+        // Detection always runs. «يرد على التحيات» is about pleasantries, so
+        // it must not silently disable "عايز أكلم موظف" — an explicit request
+        // for a person is honoured whatever the settings say.
         const smallTalk = detectSmallTalk(text);
-        if (smallTalk?.type === 'human_request' || smallTalk?.type === 'frustration') {
+        const wantsHuman = smallTalk?.type === 'human_request';
+        const isUpset = smallTalk?.type === 'frustration';
+        // Escalating on *detected* frustration is a judgement call, so it is
+        // a setting; an explicit request never is.
+        if (wantsHuman || (isUpset && settings.escalate_when_upset)) {
             const result = await escalateImmediately({ reason: smallTalk.type, responseLanguage, turn, sessionId, botState, prevSie, port });
             if (result) return result;
             return null;
         }
-        if (smallTalk) {
+        if (isUpset) {
+            // Escalation is off, but ignoring visible frustration and replying
+            // as if nothing happened is worse than either. Acknowledge it, then
+            // let the diagnostic pipeline carry on with this same turn.
+            frustrationPrefix = FRUSTRATION_ACK_TEXT[responseLanguage === 'en' ? 'en' : 'ar'];
+        } else if (smallTalk && settings.reply_to_greetings) {
             const result = await respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port });
             if (result) return result;
             // لو الكتابة فشلت، منكملش على البايبلاين التشخيصي بنفس normalizedTokens
@@ -353,11 +400,19 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         }
 
         // 3. Diagnostics (Module 3)
+        // Which catalog answers the customer. Published Supabase rows let an
+        // edit made in the settings panel take effect without a deploy; the
+        // shipped catalog stays the default because it is the reviewed one.
+        const scenarioProvider = settings.use_published_scenarios
+            ? createSupabaseScenarioProvider(supabase)
+            : undefined;
+
         const diagnosticState = await processTurn({
             normalizedTokens,
             turn,
             previousState: prevSie?.diagnosticState,
-            liveEvidenceContext: { userId }
+            liveEvidenceContext: { userId },
+            ...(scenarioProvider ? { scenarioProvider } : {})
         });
 
         // How much genuinely new evidence landed this turn, derived from the
@@ -366,14 +421,19 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             .filter((e) => e.turn === turn).length;
 
         // 4. Ranking (Module 4)
-        const ranking = await rankDiagnosticState(diagnosticState);
+        const ranking = scenarioProvider
+            ? await rankDiagnosticState(diagnosticState, scenarioProvider)
+            : await rankDiagnosticState(diagnosticState);
 
         // 5. Decision (Module 5)
         const { decision, decisionState } = decide({
             ranking,
             turn,
             previousDecisionState: prevSie?.decisionState,
-            newEvidenceAddedThisTurn
+            newEvidenceAddedThisTurn,
+            // «يرد بالحل بنفسه» لو اتقفل، المحرك يفضل يشخّص ويجمع المعلومات
+            // زي ما هو، بس يسلّم الحل لموظف بدل ما يبعته للعميل.
+            policy: { allowAutoResolution: settings.answer_directly }
         });
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
@@ -385,7 +445,10 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         });
 
         // 7. Dialogue (Module 6)
-        const rendered = renderDecision(decisionWithKnowledge, responseLanguage);
+        const renderedDecision = renderDecision(decisionWithKnowledge, responseLanguage);
+        const rendered = frustrationPrefix
+            ? { ...renderedDecision, text: frustrationPrefix + renderedDecision.text }
+            : renderedDecision;
 
         // 8. Action (Module 8) — the sole writer. Persists the bot's message +
         //    session state (+ ticket, if this turn created one) in one transaction.
@@ -408,7 +471,19 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // بس في حالة تأكيد التذكرة، لأن وقتها بنكتب نسخة زيادة عليها
         // pendingTicketConfirmation.
         let persistedBotState = nextBotState;
-        if (decisionWithKnowledge.action === ACTIONS.CREATE_TICKET) {
+        if (decisionWithKnowledge.action === ACTIONS.CREATE_TICKET && !settings.auto_ticket_enabled) {
+            // Tickets are switched off: say so plainly rather than opening one
+            // silently or pretending the request went nowhere.
+            const lang = responseLanguage === 'en' ? 'en' : 'ar';
+            replyText = TICKET_DISABLED_TEXT[lang];
+            replyOptions = [];
+            actionResult = await executeDecision({
+                decision: { action: ACTIONS.WAIT_FOR_USER, turn: decisionWithKnowledge.turn },
+                rendered: { text: replyText, options: [] },
+                sessionId, nextBotState, port
+            });
+            if (!actionResult?.success) return null;
+        } else if (decisionWithKnowledge.action === ACTIONS.CREATE_TICKET && settings.ask_before_ticket) {
             const confirmOutcome = await beginTicketConfirmation({
                 decisionWithKnowledge,
                 rendered,

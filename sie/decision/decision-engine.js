@@ -66,14 +66,25 @@ function findUnaskedCandidateQuestion(candidateQuestions, askedQuestionIds, scen
     );
 }
 
-export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock }) {
+/**
+ * @param {Object} params
+ * @param {Object} [params.policy] - operator-set switches. The only one today
+ *   is `allowAutoResolution` (default true): when false the engine still
+ *   diagnoses normally but never hands the customer a stored solution, falling
+ *   through R7's existing "gather supplementary evidence, then ticket" path so
+ *   a human delivers the answer. It is a parameter rather than a module
+ *   constant because it is a per-deployment operator choice, not a property of
+ *   the decision rules.
+ */
+export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy = {} }) {
     const prevState = previousDecisionState || createEmptyDecisionState();
     const noNewEvidence = !newEvidenceAddedThisTurn || newEvidenceAddedThisTurn === 0;
     const consecutiveNoNewEvidenceTurns = noNewEvidence ? prevState.consecutiveNoNewEvidenceTurns + 1 : 0;
+    const allowAutoResolution = policy.allowAutoResolution !== false;
 
     const evaluatedRules = [];
     let decision = decideAction(
-        { ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns },
+        { ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, allowAutoResolution },
         evaluatedRules,
         clock
     );
@@ -115,7 +126,7 @@ function finalize(action, opts, turn, evaluatedRules, clock) {
     };
 }
 
-function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns }, evaluatedRules, clock) {
+function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, allowAutoResolution = true }, evaluatedRules, clock) {
     const { topHypothesis, runnerUp, isAmbiguous, candidateDiscriminatingQuestions } = ranking;
 
     const rule0Matches = noNewEvidence && !topHypothesis && prevState.lastAction === null;
@@ -286,7 +297,18 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, resolutionThreshold=${RESOLUTION_CONFIDENCE_THRESHOLD}`
     });
     if (rule7Matches) {
-        if (topHypothesis.scenario?.resolution?.hasAutoResolution) {
+        // The recorded reason distinguishes "this scenario has no stored
+        // solution" from "solutions are switched off", which otherwise look
+        // identical in a trace.
+        const autoResolutionAvailable = Boolean(topHypothesis.scenario?.resolution?.hasAutoResolution);
+        if (autoResolutionAvailable && !allowAutoResolution) {
+            evaluatedRules.push({
+                rule: 'R7_AUTO_RESOLUTION_DISABLED',
+                matched: true,
+                detail: `"${topHypothesis.hypothesis.scenarioId}" has an automatic resolution, but policy.allowAutoResolution is off; handing off to a human instead.`
+            });
+        }
+        if (autoResolutionAvailable && allowAutoResolution) {
             return finalize(
                 ACTIONS.ANSWER,
                 {

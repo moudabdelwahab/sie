@@ -36,18 +36,91 @@ import {
     evaluateSieAccessRow,
     adminSetAccess,
     adminResetUsage,
-    SIE_RUNTIME_VERSION
+    getSieSettings,
+    saveSieSetting,
+    publishScenarioVersion,
+    SIE_DEFAULT_SETTINGS
 } from '/sie-integration/sie-runtime.js';
 
 const LOGIN_PAGE = './login.html';
 
+/**
+ * Each switch says what the customer experiences, not what the code does.
+ * "بيفهم المحادثة ويرد بالحل" is a behaviour an operator can reason about;
+ * "answer_directly" is an implementation detail they should never have to
+ * learn. The `warn` copy appears when a switch is turned OFF, so the
+ * consequence is visible at the moment of the decision rather than
+ * discovered later from customer complaints.
+ */
+const SWITCHES = [
+    {
+        key: 'engine_enabled',
+        title: 'المحرك الذكي شغّال',
+        desc: 'لما يكون مقفول، العملاء بيرجعوا للبوت العادي على طول ومحدش بيتأثر.',
+        warn: 'المحرك متوقف دلوقتي — كل العملاء بيرد عليهم البوت العادي.'
+    },
+    {
+        key: 'answer_directly',
+        title: 'يبعت الحل للعميل بنفسه',
+        desc: 'لما يتأكد من المشكلة ويكون عنده حل جاهز، يبعته للعميل على طول من غير انتظار.',
+        warn: 'مش هيبعت حلول بنفسه — هيفهم المشكلة ويجمع التفاصيل ويسلّمها لموظف يرد.'
+    },
+    {
+        key: 'reply_to_greetings',
+        title: 'يرد على التحيات والكلام العادي',
+        desc: 'يرحّب ويرد على «شكرًا» و«في حد؟» بدل ما يعاملها كمشكلة فنية.',
+        warn: 'التحيات مش هيتم الرد عليها، والعميل ممكن يحس إن محدش موجود.'
+    },
+    {
+        key: 'escalate_when_upset',
+        title: 'يحوّل لموظف فورًا لو العميل منزعج',
+        desc: 'أول ما يحس بضيق واضح، يوقف التشخيص ويوصّله بحد من الفريق.',
+        warn: 'العميل المنزعج هيفضل مع المحرك لحد ما يطلب موظف بنفسه.'
+    },
+    {
+        key: 'auto_ticket_enabled',
+        title: 'يقدر يفتح تذاكر دعم',
+        desc: 'لما مايعرفش يحل، يفتح تذكرة فيها تفاصيل المحادثة كاملة.',
+        warn: 'مش هيفتح تذاكر خالص — هيقول للعميل يتواصل مع الفريق بنفسه.'
+    },
+    {
+        key: 'ask_before_ticket',
+        title: 'يستأذن قبل ما يفتح تذكرة',
+        desc: 'يسأل «تحب أفتحلك تذكرة؟» ويستنى موافقة العميل.',
+        warn: 'هيفتح التذاكر من غير ما يسأل، وده بيزوّد عدد التذاكر.'
+    },
+    {
+        key: 'use_published_scenarios',
+        title: 'استخدم الحالات اللي ضفتها',
+        desc: 'يشتغل بالحالات المفعّلة من صفحة «الحالات اللي بيفهمها» بدل الحالات الأساسية.',
+        warn: 'شغّال بالحالات الأساسية بس — اللي ضفته مش مستخدم.'
+    }
+];
+
 const state = {
+    settings: { ...SIE_DEFAULT_SETTINGS },
     scenarios: [],
     drafts: [],
     users: [],
     isStaff: false,
     isSieAdmin: false,
     editingUserId: null
+};
+
+/** Stored category codes are English because tickets.category is; never show them raw. */
+const CATEGORY_AR = {
+    whatsapp: 'واتساب',
+    subscription: 'الاشتراكات والفلوس',
+    login: 'الدخول والحساب',
+    api: 'الربط البرمجي',
+    inquiry: 'استفسارات',
+    other: 'أخرى'
+};
+const catAr = (c) => CATEGORY_AR[c] || c;
+
+const DRAFT_STATUS_AR = {
+    draft: 'مسودة', validated: 'اتراجعت', published: 'مفعّلة',
+    rejected: 'مرفوضة', archived: 'قديمة'
 };
 
 const $ = (id) => document.getElementById(id);
@@ -94,7 +167,7 @@ function toast(message, kind = 'ok') {
     wireScenarioEditor();
     wireAccessEditor();
 
-    await Promise.all([loadScenarios(), loadEngineSettings(), loadUsers()]);
+    await Promise.all([loadSettings(), loadScenarios(), loadUsers()]);
 })();
 
 function wireChrome() {
@@ -117,20 +190,21 @@ function wireChrome() {
 // Scenarios
 // ═════════════════════════════════════════════════════════════
 async function loadScenarios() {
+    await loadTokenLabels();
     state.scenarios = await listActiveScenarios();
     state.drafts = state.isStaff ? await listStoredScenarioVersions(supabase) : [];
 
     const categories = [...new Set(state.scenarios.map((s) => s.category))].sort();
     $('scenarioCategory').insertAdjacentHTML('beforeend',
-        categories.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join(''));
+        categories.map((c) => `<option value="${esc(c)}">${esc(catAr(c))}</option>`).join(''));
 
     const auto = state.scenarios.filter((s) => s.resolution.hasAutoResolution).length;
     const withQ = state.scenarios.filter((s) => s.discriminatingQuestions?.length).length;
     $('scenarioStats').innerHTML = [
-        ['إجمالي السيناريوهات', state.scenarios.length],
-        ['بيرد تلقائيًا', auto],
-        ['بيفتح تذكرة', state.scenarios.length - auto],
-        ['فيها أسئلة توضيحية', withQ]
+        ['حالة بيفهمها', state.scenarios.length],
+        ['بيرد عليها بحل', auto],
+        ['بيجمع معلومات ويسلّم', state.scenarios.length - auto],
+        ['بيسأل فيها سؤال توضيحي', withQ]
     ].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
 
     $('draftCount').textContent = state.drafts.length;
@@ -142,7 +216,7 @@ async function loadScenarios() {
     $('newScenarioBtn').addEventListener('click', () => openScenarioDialog(null));
     if (!state.isStaff) {
         $('newScenarioBtn').disabled = true;
-        $('newScenarioBtn').title = 'إضافة السيناريوهات لفريق المحرك فقط';
+        $('newScenarioBtn').title = 'إضافة الحالات متاحة لفريق العمل بس';
     }
 }
 
@@ -164,18 +238,13 @@ function renderScenarios() {
     $('scenarioEmpty').hidden = rows.length > 0;
     $('scenarioRows').innerHTML = rows.map((s) => `
         <tr>
-          <td>
-            <b>${esc(s.label.ar)}</b>
-            <span class="sub ltr">${esc(s.id)}</span>
-          </td>
-          <td><span class="pill">${esc(s.category)}</span></td>
-          <td class="ltr sub">${s.evidenceSignature.map((e) =>
-              `${esc(e.token)}<b>·${e.weight}</b>`).join('<br>')}</td>
+          <td><b>${esc(s.label.ar)}</b></td>
+          <td><span class="pill">${esc(catAr(s.category))}</span></td>
+          <td class="sub">${s.evidenceSignature.map((e) => esc(tokenAr(e.token))).join(' + ')}</td>
           <td>${s.resolution.hasAutoResolution
-              ? '<span class="pill pill--ok">رد تلقائي</span>'
-              : '<span class="pill pill--warn">تذكرة</span>'}</td>
-          <td>${s.discriminatingQuestions?.length || 0}</td>
-          <td><button class="btn-ghost btn-sm" data-view="${esc(s.id)}">عرض</button></td>
+              ? '<span class="pill pill--ok">بيرد بحل</span>'
+              : '<span class="pill pill--warn">بيسلّم لفريق</span>'}</td>
+          <td><button class="btn-ghost btn-sm" data-view="${esc(s.id)}">افتح</button></td>
         </tr>`).join('');
 
     $('scenarioRows').querySelectorAll('[data-view]').forEach((b) =>
@@ -187,13 +256,32 @@ function renderDrafts() {
     $('draftRows').innerHTML = state.drafts.length
         ? state.drafts.map((d) => `
             <tr>
-              <td class="ltr">${esc(d.scenario_key)}</td>
-              <td>${d.version}</td>
-              <td><span class="pill">${esc(d.status)}</span></td>
+              <td><b>${esc(d.scenario_key)}</b></td>
+              <td class="ltr">${d.version}</td>
+              <td><span class="pill ${d.status === 'published' ? 'pill--ok' : ''}">${esc(DRAFT_STATUS_AR[d.status] || d.status)}</span></td>
               <td class="sub">${esc(d.notes || '—')}</td>
-              <td class="sub">${d.created_at ? new Date(d.created_at).toLocaleString('ar-EG') : ''}</td>
+              <td>${d.status === 'published'
+                  ? '<span class="sub">شغّالة</span>'
+                  : `<button class="btn-ghost btn-sm" data-publish="${esc(d.scenario_key)}" data-version="${d.version}">فعّلها</button>`}</td>
             </tr>`).join('')
-        : '<tr><td colspan="5" class="sub">مفيش مسودات محفوظة.</td></tr>';
+        : '<tr><td colspan="5" class="sub">لسه مضفتش أي حالة.</td></tr>';
+
+    $('draftRows').querySelectorAll('[data-publish]').forEach((b) =>
+        b.addEventListener('click', async () => {
+            if (!confirm('تفعيل الحالة دي معناها إن المحرك يبدأ يستخدمها مع العملاء. تمام؟')) return;
+            b.disabled = true;
+            const { success, error } = await publishScenarioVersion(supabase, {
+                key: b.dataset.publish,
+                version: Number(b.dataset.version)
+            });
+            b.disabled = false;
+            if (!success) { toast(`مااتفعلتش: ${error}`, 'err'); return; }
+            toast(state.settings.use_published_scenarios
+                ? 'اتفعّلت، والمحرك هيستخدمها في المحادثات الجديدة.'
+                : 'اتفعّلت. عشان تشتغل فعلًا، افتح خيار «استخدم الحالات اللي ضفتها» من صفحة التشغيل.');
+            state.drafts = await listStoredScenarioVersions(supabase);
+            renderDrafts();
+        }));
 }
 
 // ── Scenario editor ──────────────────────────────────────────
@@ -354,71 +442,83 @@ async function submitScenario() {
 }
 
 // ═════════════════════════════════════════════════════════════
-// Engine settings
+// Operation — real switches, saved to Supabase, obeyed by the engine
 // ═════════════════════════════════════════════════════════════
-async function loadEngineSettings() {
-    const kv = (grid, pairs) => {
-        $(grid).innerHTML = pairs.map(([k, v, hint]) => `
-            <div class="kv">
-              <span class="kv-k">${esc(k)}</span>
-              <span class="kv-v ltr">${esc(v)}</span>
-              ${hint ? `<span class="kv-hint">${esc(hint)}</span>` : ''}
-            </div>`).join('');
-    };
-
-    try {
-        const policy = await import('/sie/decision/decision-policy.js');
-        const tracker = await import('/sie/diagnostics/hypothesis-tracker.js');
-        const ranking = await import('/sie/ranking/ranking-engine.js');
-
-        kv('policyGrid', [
-            ['حد الحسم', policy.RESOLUTION_CONFIDENCE_THRESHOLD, 'الثقة اللازمة عشان المحرك يرد أو يفتح تذكرة'],
-            ['أقصى أسئلة توضيحية', policy.MAX_CLARIFYING_QUESTIONS, 'بعدها بيصعّد بدل ما يفضل يسأل'],
-            ['أقصى عدد أدوار', policy.MAX_TURNS_BEFORE_ESCALATION, 'سقف المحادثة قبل التصعيد الإجباري'],
-            ['أدوار بلا تقدّم', policy.MAX_NO_PROGRESS_TURNS, 'أدوار متتالية بلا دليل جديد قبل الاستسلام'],
-            ['حد التفعيل', tracker.ACTIVATION_THRESHOLD, 'الفرضية بتُعتبر مرشحة فوق القيمة دي'],
-            ['حد الرفض', tracker.REJECTION_THRESHOLD, 'تحتها بتُرفض بعد ما كانت نشطة'],
-            ['هامش التعادل', ranking.AMBIGUITY_MARGIN, 'فرق أقل من كده بين أول اتنين = تعادل']
-        ]);
-    } catch (err) {
-        $('policyGrid').innerHTML = `<div class="sub">تعذّر قراءة إعدادات القرار: ${esc(err.message)}</div>`;
-    }
-
-    try {
-        const [glossary, arabizi] = await Promise.all([
-            fetch('/sie/language/data/technical-glossary.json').then((r) => r.json()),
-            fetch('/sie/language/data/arabizi-map.json').then((r) => r.json())
-        ]);
-        kv('languageGrid', [
-            ['مصطلحات معرّفة', glossary.entries.length],
-            ['أنماط الكتابة', glossary.entries.reduce((n, e) => n + e.patterns.length, 0),
-             'يشمل الفصحى والعامية والأخطاء الإملائية الشائعة'],
-            ['كلمات فرانكو', Object.keys(arabizi.wordMap).length],
-            ['نسخة الـ runtime', SIE_RUNTIME_VERSION]
-        ]);
-    } catch (err) {
-        $('languageGrid').innerHTML = `<div class="sub">تعذّر قراءة بيانات اللغة: ${esc(err.message)}</div>`;
-    }
-
-    try {
-        const knowledge = await fetch('/sie/knowledge/static-knowledge.data/content.json').then((r) => r.json());
-        $('knowledgeRows').innerHTML = knowledge.entries.map((e) => `
-            <tr><td class="ltr"><b>${esc(e.key)}</b></td>
-                <td class="sub">${esc(e.text.ar.slice(0, 160))}${e.text.ar.length > 160 ? '…' : ''}</td></tr>`).join('');
-    } catch {
-        $('knowledgeRows').innerHTML = '<tr><td colspan="2" class="sub">تعذّر تحميل قاعدة المعرفة.</td></tr>';
-    }
+async function loadSettings() {
+    // `fresh` so an admin never sees a cached value on a page whose whole
+    // purpose is showing the current one.
+    state.settings = await getSieSettings(supabase, { fresh: true });
+    renderSwitches();
+    renderLiveBanner();
 
     $('tryBtn').addEventListener('click', runDiagnosisPreview);
     $('tryInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runDiagnosisPreview(); });
 }
 
+function renderSwitches() {
+    $('switchList').innerHTML = SWITCHES.map((sw) => {
+        const on = state.settings[sw.key] !== false;
+        return `
+        <div class="switch-row ${on ? '' : 'is-off'}" data-key="${esc(sw.key)}">
+          <label class="switch">
+            <input type="checkbox" ${on ? 'checked' : ''} ${state.isStaff ? '' : 'disabled'}>
+            <span class="slider"></span>
+          </label>
+          <div class="switch-text">
+            <b>${esc(sw.title)}</b>
+            <span class="sub">${esc(sw.desc)}</span>
+            ${!on ? `<span class="switch-warn">${esc(sw.warn)}</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    $('switchList').querySelectorAll('.switch-row input').forEach((input) => {
+        input.addEventListener('change', async (e) => {
+            const key = e.target.closest('.switch-row').dataset.key;
+            const value = e.target.checked;
+            e.target.disabled = true;
+
+            const { error } = await saveSieSetting(supabase, key, value);
+            e.target.disabled = false;
+
+            if (error) {
+                // Put the switch back: showing it in a state the database
+                // never accepted is worse than showing the failure.
+                e.target.checked = !value;
+                toast(`مااتحفظش: ${error.message}`, 'err');
+                return;
+            }
+            state.settings[key] = value;
+            renderSwitches();
+            renderLiveBanner();
+            toast('اتحفظ، وشغّال على المحادثات الجديدة على طول.');
+        });
+    });
+}
+
+function renderLiveBanner() {
+    const banner = $('liveBanner');
+    if (state.settings.engine_enabled === false) {
+        banner.className = 'live-banner live-banner--off';
+        banner.textContent = 'المحرك الذكي متوقف دلوقتي. العملاء بيرد عليهم البوت العادي.';
+    } else {
+        banner.className = 'live-banner live-banner--on';
+        // Counts what differs from the shipped defaults, not what is merely
+        // off: use_published_scenarios ships off, so counting "off" would
+        // report a changed setting on a console nobody has ever touched.
+        const changed = SWITCHES.filter(
+            (sw) => sw.key !== 'engine_enabled' && state.settings[sw.key] !== SIE_DEFAULT_SETTINGS[sw.key]
+        ).length;
+        banner.textContent = changed === 0
+            ? 'المحرك الذكي شغّال بكل الإعدادات المعتادة.'
+            : `المحرك الذكي شغّال، مع ${changed} إعداد متغيّر عن المعتاد.`;
+    }
+}
+
 /**
- * Runs Language -> Diagnostics -> Ranking on a sample message.
- *
- * Stops before Decision and Action deliberately: this is a preview, and
- * it must never be able to write a message, open a ticket or spend a
- * customer's quota.
+ * Runs the message through Language -> Diagnostics -> Ranking only.
+ * Stops before Decision and Action deliberately, so a preview can never
+ * write a message, open a ticket or spend a customer's quota.
  */
 async function runDiagnosisPreview() {
     const text = $('tryInput').value.trim();
@@ -426,35 +526,41 @@ async function runDiagnosisPreview() {
     if (!text) return;
 
     box.hidden = false;
-    box.innerHTML = 'جارِ التشخيص…';
+    box.innerHTML = 'ثانية واحدة…';
     try {
         const { normalize } = await import('/sie/language/normalizer.js');
         const { processTurn } = await import('/sie/diagnostics/diagnostic-engine.js');
         const { rankDiagnosticState } = await import('/sie/ranking/ranking-engine.js');
 
-        const { normalizedTokens, responseLanguage } = await normalize(text);
+        const { normalizedTokens } = await normalize(text);
         const diagnosticState = await processTurn({ normalizedTokens, turn: 1 });
         const ranking = await rankDiagnosticState(diagnosticState);
-        const top = ranking.ranked.slice(0, 5);
+        const top = ranking.ranked.slice(0, 4).filter((r) => r.hypothesis.confidence > 0);
 
+        if (top.length === 0) {
+            box.innerHTML = '<span class="sub">المحرك مافهمش الرسالة دي، وهيسأل العميل يوضّح أكتر. '
+                + 'لو دي حالة متكررة عندك، ضيفها من صفحة «الحالات اللي بيفهمها».</span>';
+            return;
+        }
+
+        const best = top[0];
+        const willAnswer = best.hypothesis.confidence >= 0.6;
         box.innerHTML = `
-          <div class="try-tokens"><b>الأدلة المستخرجة:</b>
-            ${normalizedTokens.map((t) => `<span class="tok tok--${esc(t.source)}">${esc(t.canonical)}</span>`).join('') || '<span class="sub">مفيش</span>'}
+          <div class="verdict ${willAnswer ? 'verdict--ok' : 'verdict--ask'}">
+            ${willAnswer
+              ? `هيتعامل معاها كـ «${esc(best.scenario?.label.ar || best.hypothesis.scenarioId)}»`
+              : 'مش متأكد كفاية، فهيسأل العميل سؤال توضيحي الأول'}
           </div>
-          <div class="sub">لغة الرد: ${esc(responseLanguage)} · تعادل: ${ranking.isAmbiguous ? 'أيوه' : 'لأ'}</div>
           <table class="data-table">
-            <thead><tr><th>السيناريو</th><th>الثقة</th><th></th></tr></thead>
+            <thead><tr><th>أقرب الحالات</th><th>درجة التأكد</th></tr></thead>
             <tbody>${top.map((r) => `
               <tr>
-                <td>${esc(r.scenario?.label.ar || r.hypothesis.scenarioId)}<span class="sub ltr">${esc(r.hypothesis.scenarioId)}</span></td>
-                <td class="ltr"><b>${r.hypothesis.confidence.toFixed(2)}</b></td>
-                <td>${r.hypothesis.confidence >= 0.6
-                    ? '<span class="pill pill--ok">يحسم</span>'
-                    : '<span class="pill pill--warn">يسأل</span>'}</td>
+                <td>${esc(r.scenario?.label.ar || r.hypothesis.scenarioId)}</td>
+                <td class="ltr">${Math.round(r.hypothesis.confidence * 100)}%</td>
               </tr>`).join('')}</tbody>
           </table>`;
     } catch (err) {
-        box.innerHTML = `<span class="sub">تعذّر التشخيص: ${esc(err.message)}</span>`;
+        box.innerHTML = `<span class="sub">مقدرتش أجرّب دلوقتي: ${esc(err.message)}</span>`;
     }
 }
 
@@ -466,7 +572,7 @@ async function loadUsers() {
     if (!state.isSieAdmin) {
         notice.hidden = false;
         notice.textContent =
-            'تفعيل SIE للعملاء مقصور على أدمن SIE. تقدر تشوف القائمة، لكن التعديل هيترفض من قاعدة البيانات.';
+            'السماح للعملاء متاح لمسؤول المحرك بس. تقدر تشوف القائمة، لكن الحفظ هيترفض من قاعدة البيانات.';
     }
 
     const [{ data: profiles, error: pErr }, { data: access }] = await Promise.all([
@@ -491,10 +597,10 @@ async function loadUsers() {
 
     const enabled = state.users.filter((u) => evaluateSieAccessRow(u.access).available).length;
     $('userStats').innerHTML = [
-        ['إجمالي المستخدمين', state.users.length],
-        ['مفعّل لهم SIE', enabled],
-        ['غير مفعّل', state.users.length - enabled],
-        ['بحدود استخدام', state.users.filter((u) => u.access && u.access.access_mode !== 'unlimited').length]
+        ['كل المستخدمين', state.users.length],
+        ['مسموح لهم', enabled],
+        ['مش مسموح', state.users.length - enabled],
+        ['عندهم حد استخدام', state.users.filter((u) => u.access && u.access.access_mode !== 'unlimited').length]
     ].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
 
     ['userSearch', 'userFilter'].forEach((id) => $(id).addEventListener('input', renderUsers));
@@ -524,7 +630,7 @@ function renderUsers() {
         <tr>
           <td><b>${esc(u.name)}</b><span class="sub ltr">${esc(u.email)}</span></td>
           <td><span class="pill ${s.available ? 'pill--ok' : 'pill--warn'}">${esc(s.statusLabel)}</span></td>
-          <td class="sub">${esc(u.access?.access_mode || '—')}</td>
+          <td class="sub">${esc({ unlimited: 'من غير حدود', quota: 'عدد رسائل', expiration: 'لحد تاريخ' }[u.access?.access_mode] || '—')}</td>
           <td class="ltr sub">${esc(usage)}</td>
           <td><button class="btn-ghost btn-sm" data-edit="${esc(u.id)}">تعديل</button></td>
         </tr>`;
