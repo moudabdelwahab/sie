@@ -1,6 +1,1098 @@
 {
   "entries": [
     {
+      "canonical": "trigger_goodbye_done",
+      "labels": {
+        "ar": "إنهاء بعد الحل",
+        "en": "trigger goodbye done"
+      },
+      "patterns": [
+        "خلاص كده",
+        "خلصنا",
+        "تمام خلاص",
+        "شكرا خلاص"
+      ]
+    },
+    {
+      "canonical": "trigger_deadline_now",
+      "labels": {
+        "ar": "عنده موعد نهائي",
+        "en": "trigger deadline now"
+      },
+      "patterns": [
+        "عندي ديدلاين",
+        "الديدلاين",
+        "عندي معاد نهائي",
+        "موعد نهائي",
+        "لازم يخلص النهاردة",
+        "لازم قبل بكرة",
+        "الوقت ضيق عندي"
+      ]
+    },
+    {
+      "canonical": "trigger_needs_now",
+      "labels": {
+        "ar": "محتاج دلوقتي",
+        "en": "trigger needs now"
+      },
+      "patterns": [
+        "محتاج حل دلوقتي",
+        "حالا",
+        "ضروري جدا",
+        "بسرعة لو سمحت",
+        "مستعجل"
+      ]
+    },
+    {
+      "canonical": "trigger_cannot_decide",
+      "labels": {
+        "ar": "مش عارف يقرر",
+        "en": "trigger cannot decide"
+      },
+      "patterns": [
+        "مش عارف اقرر",
+        "محتار اختار ايه",
+        "لسه بفكر",
+        "مش متأكد اختار ايه"
+      ]
+    },
+    {
+      "canonical": "trigger_criticism",
+      "labels": {
+        "ar": "انتقاد",
+        "en": "trigger criticism"
+      },
+      "patterns": [
+        "خدمة وحشة",
+        "خدمه وحشه",
+        "الخدمة وحشة",
+        "الخدمه وحشه",
+        "الخدمة عندكم وحشة",
+        "خدمة سيئة",
+        "مش عاجبني",
+        "ده مش مقبول",
+        "شغل وحش",
+        "خدمتكم وحشة"
+      ]
+    },
+    {
+      "canonical": "trigger_grateful",
+      "labels": {
+        "ar": "امتنان",
+        "en": "trigger grateful"
+      },
+      "patterns": [
+        "متشكر جدا",
+        "شاكر ليك",
+        "تسلم ايدك",
+        "ماقصرت"
+      ]
+    },
+    {
+      "canonical": "trigger_confused",
+      "labels": {
+        "ar": "حيرة",
+        "en": "trigger confused"
+      },
+      "patterns": [
+        "مش فاهم حاجة",
+        "محتار",
+        "تايه",
+        "ملخبط",
+        "مش مستوعب"
+      ]
+    },
+    {
+      "canonical": "trigger_disappointed",
+      "labels": {
+        "ar": "خيبة أمل",
+        "en": "trigger disappointed"
+      },
+      "patterns": [
+        "خيبتوا املي",
+        "مكنتش متوقع",
+        "كنت متوقع احسن",
+        "محبط"
+      ]
+    },
+    {
+      "canonical": "trigger_angry",
+      "labels": {
+        "ar": "غضب",
+        "en": "trigger angry"
+      },
+      "patterns": [
+        "انا زعلان",
+        "انا غضبان",
+        "متضايق جدا",
+        "مستاء",
+        "انا معصب"
+      ]
+    },
+    {
+      "canonical": "trigger_fed_up",
+      "labels": {
+        "ar": "زهق",
+        "en": "trigger fed up"
+      },
+      "patterns": [
+        "زهقت",
+        "زهقان",
+        "تعبت خلاص",
+        "مليت",
+        "قرفت",
+        "مبقتش قادر"
+      ]
+    },
+    {
+      "canonical": "trigger_is_data_safe",
+      "labels": {
+        "ar": "البيانات آمنة",
+        "en": "trigger is data safe"
+      },
+      "patterns": [
+        "بياناتي امنة",
+        "مؤمنين البيانات",
+        "فيه حماية",
+        "البيانات مشفرة"
+      ]
+    },
+    {
+      "canonical": "trigger_praise_service",
+      "labels": {
+        "ar": "ثناء على الخدمة",
+        "en": "trigger praise service"
+      },
+      "patterns": [
+        "خدمة ممتازة",
+        "شغل حلو",
+        "برافو",
+        "تحفة",
+        "ممتازين"
+      ]
+    },
+    {
+      "canonical": "trigger_why_late",
+      "labels": {
+        "ar": "ليه التأخير",
+        "en": "trigger why late"
+      },
+      "patterns": [
+        "ليه التأخير",
+        "ليه اتأخرتوا",
+        "ايه سبب التأخير",
+        "التأخير ده ليه"
+      ]
+    },
+    {
+      "canonical": "trigger_customer_sorry",
+      "labels": {
+        "ar": "اعتذار",
+        "en": "trigger customer sorry"
+      },
+      "patterns": [
+        "انا اسف",
+        "انا اسفة",
+        "اعتذر",
+        "سامحني",
+        "مش قصدي"
+      ]
+    },
+    {
+      "canonical": "trigger_embarrassed",
+      "labels": {
+        "ar": "محرج",
+        "en": "trigger embarrassed"
+      },
+      "patterns": [
+        "سؤال ممكن يكون غبي",
+        "متكسف اسأل",
+        "اسف على السؤال البسيط",
+        "سؤال ساذج"
+      ]
+    },
+    {
+      "canonical": "trigger_last_chance",
+      "labels": {
+        "ar": "فرصة أخيرة",
+        "en": "trigger last chance"
+      },
+      "patterns": [
+        "اخر فرصة",
+        "فرصة اخيرة",
+        "دي اخر مرة",
+        "مش هستحمل تاني"
+      ]
+    },
+    {
+      "canonical": "trigger_start_over",
+      "labels": {
+        "ar": "يبدأ من الأول",
+        "en": "trigger start over"
+      },
+      "patterns": [
+        "نبدأ من الاول",
+        "انسى اللي فات",
+        "من البداية",
+        "خلينا نبدأ تاني"
+      ]
+    },
+    {
+      "canonical": "trigger_no_rush",
+      "labels": {
+        "ar": "مش مستعجل",
+        "en": "trigger no rush"
+      },
+      "patterns": [
+        "مش مستعجل",
+        "خد وقتك",
+        "براحتك",
+        "مفيش استعجال"
+      ]
+    },
+    {
+      "canonical": "trigger_another_thing",
+      "labels": {
+        "ar": "حاجة تانية",
+        "en": "trigger another thing"
+      },
+      "patterns": [
+        "عندي حاجة تانية",
+        "سؤال تاني",
+        "استفسار تاني",
+        "كمان سؤال"
+      ]
+    },
+    {
+      "canonical": "trigger_repeating_myself",
+      "labels": {
+        "ar": "بيعيد كلامه",
+        "en": "trigger repeating myself"
+      },
+      "patterns": [
+        "قولت كده قبل كده",
+        "بعيد نفسي",
+        "شرحت قبل كده",
+        "قولتها كذا مرة"
+      ]
+    },
+    {
+      "canonical": "trigger_will_you_follow",
+      "labels": {
+        "ar": "هتتابع معايا",
+        "en": "trigger will you follow"
+      },
+      "patterns": [
+        "هتتابع معايا",
+        "هتفتكرني",
+        "مش هتنسوني",
+        "هتردوا عليا"
+      ]
+    },
+    {
+      "canonical": "trigger_needs_reassurance",
+      "labels": {
+        "ar": "محتاج طمأنة",
+        "en": "trigger needs reassurance"
+      },
+      "patterns": [
+        "طمني",
+        "طمنى",
+        "قلقان جدا",
+        "اهدي بالي"
+      ]
+    },
+    {
+      "canonical": "trigger_stuck_midway",
+      "labels": {
+        "ar": "واقف في النص",
+        "en": "trigger stuck midway"
+      },
+      "patterns": [
+        "واقف عند",
+        "وصلت لحد",
+        "مش عارف اكمل",
+        "عالق في خطوة"
+      ]
+    },
+    {
+      "canonical": "trigger_neutral_ack",
+      "labels": {
+        "ar": "إقرار محايد",
+        "en": "trigger neutral ack"
+      },
+      "patterns": [
+        "ok",
+        "اوك",
+        "ماشي",
+        "تمام"
+      ]
+    },
+    {
+      "canonical": "trigger_short_ok",
+      "labels": {
+        "ar": "موافقة قصيرة",
+        "en": "trigger short ok"
+      },
+      "patterns": [
+        "تمام كده",
+        "اوك تمام",
+        "ماشي تمام",
+        "حلو كده"
+      ]
+    },
+    {
+      "canonical": "trigger_offer_help",
+      "labels": {
+        "ar": "عرض مساعدة",
+        "en": "trigger offer help"
+      },
+      "patterns": [
+        "ممكن تساعدني في حاجة تانية",
+        "عندكم ايه كمان",
+        "ايه الخدمات التانية"
+      ]
+    },
+    {
+      "canonical": "trigger_thanks_bye",
+      "labels": {
+        "ar": "شكر ووداع",
+        "en": "trigger thanks bye"
+      },
+      "patterns": [
+        "شكرا مع السلامة",
+        "تسلم وسلام",
+        "متشكر وباي",
+        "شكرا وسلام"
+      ]
+    },
+    {
+      "canonical": "trigger_busy_now",
+      "labels": {
+        "ar": "مشغول",
+        "en": "trigger busy now"
+      },
+      "patterns": [
+        "مشغول دلوقتي",
+        "مش فاضي",
+        "هرد عليك بعدين",
+        "في شغل دلوقتي"
+      ]
+    },
+    {
+      "canonical": "trigger_well_wishes",
+      "labels": {
+        "ar": "تمنيات",
+        "en": "trigger well wishes"
+      },
+      "patterns": [
+        "يوم سعيد",
+        "يومك جميل",
+        "بالتوفيق",
+        "ربنا يوفقك"
+      ]
+    },
+    {
+      "canonical": "trigger_anything_else",
+      "labels": {
+        "ar": "أي حاجة تانية",
+        "en": "trigger anything else"
+      },
+      "patterns": [
+        "في حاجة تانية",
+        "حاجة كمان",
+        "تحتاج حاجة تانية"
+      ]
+    },
+    {
+      "canonical": "trigger_back_later",
+      "labels": {
+        "ar": "هيرجع بعدين",
+        "en": "trigger back later"
+      },
+      "patterns": [
+        "هرجعلك",
+        "هكلمك بعدين",
+        "هرجع تاني",
+        "بعدين ان شاء الله"
+      ]
+    },
+    {
+      "canonical": "trigger_leaving_unresolved",
+      "labels": {
+        "ar": "ماشي من غير حل",
+        "en": "trigger leaving unresolved"
+      },
+      "patterns": [
+        "هسيبها كده",
+        "خلاص مش مهم",
+        "هبطل اسأل",
+        "مش هكمل"
+      ]
+    },
+    {
+      "canonical": "trigger_last_question",
+      "labels": {
+        "ar": "آخر سؤال",
+        "en": "trigger last question"
+      },
+      "patterns": [
+        "اخر سؤال",
+        "اخر حاجة",
+        "حاجة اخيرة",
+        "سؤال اخير"
+      ]
+    },
+    {
+      "canonical": "trigger_nothing_else",
+      "labels": {
+        "ar": "مفيش حاجة تانية",
+        "en": "trigger nothing else"
+      },
+      "patterns": [
+        "مفيش حاجة تانية",
+        "مش محتاج حاجة",
+        "ده كل حاجة",
+        "كفاية كده",
+        "خلاص كده مفيش حاجة تانية",
+        "لا مفيش حاجة",
+        "مفيش حاجه تانيه"
+      ]
+    },
+    {
+      "canonical": "trigger_reported_issue",
+      "labels": {
+        "ar": "بلّغ عن مشكلة",
+        "en": "trigger reported issue"
+      },
+      "patterns": [
+        "حبيت اقولكم",
+        "عايز ابلغ",
+        "لاحظت حاجة",
+        "في حاجة غريبة"
+      ]
+    },
+    {
+      "canonical": "trigger_it_works_now",
+      "labels": {
+        "ar": "اشتغلت",
+        "en": "trigger it works now"
+      },
+      "patterns": [
+        "اشتغلت",
+        "ظبطت",
+        "تمام اشتغلت",
+        "شغالة دلوقتي",
+        "الحمد لله ظبطت"
+      ]
+    },
+    {
+      "canonical": "trigger_thanks_patience",
+      "labels": {
+        "ar": "شكر على الصبر",
+        "en": "trigger thanks patience"
+      },
+      "patterns": [
+        "شكرا على صبرك",
+        "متشكر على وقتك",
+        "تعبتك معايا",
+        "اسف على الازعاج"
+      ]
+    },
+    {
+      "canonical": "trigger_blessing",
+      "labels": {
+        "ar": "دعاء",
+        "en": "trigger blessing"
+      },
+      "patterns": [
+        "ربنا يكرمك",
+        "جزاك الله خير",
+        "ربنا يبارك فيك",
+        "الله يعطيك العافية"
+      ]
+    },
+    {
+      "canonical": "trigger_finally",
+      "labels": {
+        "ar": "أخيرًا",
+        "en": "trigger finally"
+      },
+      "patterns": [
+        "اخيرا",
+        "اخيراً",
+        "الحمد لله اخيرا",
+        "بعد طول انتظار",
+        "خلاص اتحلت اخيرا"
+      ]
+    },
+    {
+      "canonical": "trigger_why_happened",
+      "labels": {
+        "ar": "ليه حصل",
+        "en": "trigger why happened"
+      },
+      "patterns": [
+        "ليه حصل كده",
+        "ايه السبب",
+        "ليه المشكلة دي",
+        "سبب المشكلة"
+      ]
+    },
+    {
+      "canonical": "trigger_unknown_answer",
+      "labels": {
+        "ar": "إجابة غير معروفة",
+        "en": "trigger unknown answer"
+      },
+      "patterns": [
+        "انت متأكد من كده",
+        "مصدر المعلومة",
+        "ده اكيد",
+        "مين قالك"
+      ]
+    },
+    {
+      "canonical": "trigger_promise_time",
+      "labels": {
+        "ar": "يطلب وعد بميعاد",
+        "en": "trigger promise time"
+      },
+      "patterns": [
+        "وعدني",
+        "اوعدني",
+        "اكدلي الميعاد",
+        "مضمون امتى",
+        "التزام بميعاد"
+      ]
+    },
+    {
+      "canonical": "trigger_repeat_please",
+      "labels": {
+        "ar": "يطلب إعادة",
+        "en": "trigger repeat please"
+      },
+      "patterns": [
+        "اعيد تاني",
+        "قول تاني",
+        "مش سامع",
+        "ممكن تعيد",
+        "اشرح تاني"
+      ]
+    },
+    {
+      "canonical": "trigger_wants_summary",
+      "labels": {
+        "ar": "يطلب تلخيص",
+        "en": "trigger wants summary"
+      },
+      "patterns": [
+        "لخصلي",
+        "اختصرلي",
+        "الخلاصة ايه",
+        "قولي باختصار",
+        "في نقط"
+      ]
+    },
+    {
+      "canonical": "trigger_confirm_steps",
+      "labels": {
+        "ar": "تأكيد الخطوات",
+        "en": "trigger confirm steps"
+      },
+      "patterns": [
+        "اعمل ايه بالظبط",
+        "الخطوات ايه",
+        "اكد لي الخطوات",
+        "اعملها ازاي بالترتيب"
+      ]
+    },
+    {
+      "canonical": "trigger_general_worry",
+      "labels": {
+        "ar": "قلق عام",
+        "en": "trigger general worry"
+      },
+      "patterns": [
+        "قلقان",
+        "قلقانة",
+        "خايف",
+        "خايفة",
+        "مش مطمن",
+        "متوتر"
+      ]
+    },
+    {
+      "canonical": "trigger_business_impact",
+      "labels": {
+        "ar": "الشغل متأثر",
+        "en": "trigger business impact"
+      },
+      "patterns": [
+        "شغلي متأثر",
+        "بخسر عملاء",
+        "الشركة متأثرة",
+        "الخسارة كبيرة"
+      ]
+    },
+    {
+      "canonical": "trigger_money_lost",
+      "labels": {
+        "ar": "خسر فلوس",
+        "en": "trigger money lost"
+      },
+      "patterns": [
+        "فلوسي راحت",
+        "خسرت فلوس",
+        "المبلغ اتخصم وضاع",
+        "دفعت ومحصلتش على حاجة"
+      ]
+    },
+    {
+      "canonical": "trigger_will_work_stop",
+      "labels": {
+        "ar": "هل الشغل هيقف",
+        "en": "trigger will work stop"
+      },
+      "patterns": [
+        "الشغل هيقف",
+        "هخسر رسايل",
+        "هيوقف عندي",
+        "هيأثر على شغلي"
+      ]
+    },
+    {
+      "canonical": "trigger_hidden_cost",
+      "labels": {
+        "ar": "رسوم مخفية",
+        "en": "trigger hidden cost"
+      },
+      "patterns": [
+        "فيه رسوم مخفية",
+        "هتخصموا مني زيادة",
+        "فلوس اضافية",
+        "تكلفة زيادة",
+        "هدفع اكتر"
+      ]
+    },
+    {
+      "canonical": "trigger_lost_something",
+      "labels": {
+        "ar": "خايف حاجة ضاعت",
+        "en": "trigger lost something"
+      },
+      "patterns": [
+        "ضاع مني",
+        "راح مني",
+        "اتمسح كل حاجة",
+        "خسرت البيانات",
+        "مش لاقي شغلي"
+      ]
+    },
+    {
+      "canonical": "trigger_our_fault",
+      "labels": {
+        "ar": "غلط من عندنا",
+        "en": "trigger our fault"
+      },
+      "patterns": [
+        "الغلط منكم",
+        "انتوا السبب",
+        "ده خطأكم",
+        "غلطتكم",
+        "المشكلة من عندكم"
+      ]
+    },
+    {
+      "canonical": "trigger_feedback",
+      "labels": {
+        "ar": "ملاحظات",
+        "en": "trigger feedback"
+      },
+      "patterns": [
+        "عندي ملاحظة",
+        "عايز اقولكم حاجة",
+        "ملاحظات على المنصة",
+        "رأيي في الخدمة"
+      ]
+    },
+    {
+      "canonical": "trigger_too_many_steps",
+      "labels": {
+        "ar": "خطوات كتير",
+        "en": "trigger too many steps"
+      },
+      "patterns": [
+        "خطوات كتير",
+        "معقد اوي",
+        "ليه كل ده",
+        "طولت عليا",
+        "مش محتاج كل ده"
+      ]
+    },
+    {
+      "canonical": "trigger_bot_useless",
+      "labels": {
+        "ar": "البوت مش مفيد",
+        "en": "trigger bot useless"
+      },
+      "patterns": [
+        "ردودك مش مفيدة",
+        "البوت مش بيفهم",
+        "انت مش بتفهمني",
+        "ردودك عامة",
+        "مش بتجاوب على سؤالي"
+      ]
+    },
+    {
+      "canonical": "trigger_competitor",
+      "labels": {
+        "ar": "مقارنة بمنافس",
+        "en": "trigger competitor"
+      },
+      "patterns": [
+        "في شركة تانية",
+        "المنافسين",
+        "عند غيركم",
+        "شركة تانية بتعمل كده",
+        "شفت حاجة احسن"
+      ]
+    },
+    {
+      "canonical": "trigger_declined_quality",
+      "labels": {
+        "ar": "المستوى نزل",
+        "en": "trigger declined quality"
+      },
+      "patterns": [
+        "المستوى نزل",
+        "بقيتوا وحشين",
+        "زمان كنتوا احسن",
+        "الخدمة اتغيرت للاسوأ",
+        "مش زي الاول"
+      ]
+    },
+    {
+      "canonical": "trigger_client_waiting",
+      "labels": {
+        "ar": "عميله مستني",
+        "en": "trigger client waiting"
+      },
+      "patterns": [
+        "عميلي مستني",
+        "زبون مستني",
+        "عندي عميل منتظر",
+        "الزباين مستنيين"
+      ]
+    },
+    {
+      "canonical": "trigger_needs_calming",
+      "labels": {
+        "ar": "محتاج تهدئة",
+        "en": "trigger needs calming"
+      },
+      "patterns": [
+        "انا مش قادر اركز",
+        "دماغي هتنفجر",
+        "اهدى ازاي",
+        "مش عارف اعمل ايه"
+      ]
+    },
+    {
+      "canonical": "trigger_wants_call",
+      "labels": {
+        "ar": "يطلب مكالمة",
+        "en": "trigger wants call"
+      },
+      "patterns": [
+        "عايز مكالمة",
+        "كلموني تليفون",
+        "فيه رقم اتصل بيه",
+        "اتصلوا بيا",
+        "مكالمة هاتفية"
+      ]
+    },
+    {
+      "canonical": "trigger_repeated_pings",
+      "labels": {
+        "ar": "رسائل متكررة",
+        "en": "trigger repeated pings"
+      },
+      "patterns": [
+        "بعتلكم كذا مرة",
+        "كتبت كتير",
+        "بعتلك اكتر من رسالة",
+        "ردوا عليا",
+        "رد رد رد"
+      ]
+    },
+    {
+      "canonical": "trigger_outside_hours",
+      "labels": {
+        "ar": "بره المواعيد",
+        "en": "trigger outside hours"
+      },
+      "patterns": [
+        "دلوقتي بالليل",
+        "انتوا مقفولين",
+        "بره ساعات العمل",
+        "الاجازة",
+        "يوم الجمعة",
+        "بعد الدوام"
+      ]
+    },
+    {
+      "canonical": "trigger_how_long",
+      "labels": {
+        "ar": "هياخد قد إيه",
+        "en": "trigger how long"
+      },
+      "patterns": [
+        "هياخد قد ايه",
+        "هتاخد وقت اد ايه",
+        "امتى هيتحل",
+        "كام يوم",
+        "الحل هيجي امتى",
+        "متى الرد"
+      ]
+    },
+    {
+      "canonical": "trigger_everything_stopped",
+      "labels": {
+        "ar": "كل حاجة واقفة",
+        "en": "trigger everything stopped"
+      },
+      "patterns": [
+        "كل حاجة واقفة",
+        "الشغل كله واقف",
+        "مفيش حاجة شغالة",
+        "كله وقف",
+        "النظام كله واقف"
+      ]
+    },
+    {
+      "canonical": "trigger_data_concern",
+      "labels": {
+        "ar": "قلق على البيانات",
+        "en": "trigger data concern"
+      },
+      "patterns": [
+        "بياناتي في امان",
+        "بتعملوا ايه ببياناتي",
+        "مين بيشوف بياناتي",
+        "خصوصية بياناتي",
+        "بياناتي محمية",
+        "خايف على بياناتي",
+        "قلقان على بياناتي",
+        "خايفة على بياناتي"
+      ]
+    },
+    {
+      "canonical": "trigger_demands_manager",
+      "labels": {
+        "ar": "يطلب مسؤول",
+        "en": "trigger demands manager"
+      },
+      "patterns": [
+        "عايز اكلم مسؤول",
+        "المدير",
+        "مسؤول عنكم",
+        "حد اكبر",
+        "الادارة"
+      ]
+    },
+    {
+      "canonical": "trigger_wants_compensation",
+      "labels": {
+        "ar": "يطلب تعويض",
+        "en": "trigger wants compensation"
+      },
+      "patterns": [
+        "عايز تعويض",
+        "تعوضوني",
+        "حقي تعويض",
+        "استرد فلوسي عن المدة دي",
+        "خسرت بسببكم"
+      ]
+    },
+    {
+      "canonical": "trigger_no_one_helped",
+      "labels": {
+        "ar": "محدش ساعده",
+        "en": "trigger no one helped"
+      },
+      "patterns": [
+        "محدش ساعدني",
+        "محدش بيهتم",
+        "مفيش حد بيساعد",
+        "كلكم بتحولوني لبعض",
+        "مش لاقي حد يحل"
+      ]
+    },
+    {
+      "canonical": "trigger_angry_charge",
+      "labels": {
+        "ar": "غاضب من خصم",
+        "en": "trigger angry charge"
+      },
+      "patterns": [
+        "ليه اتخصم مني",
+        "خصمتوا مني ليه",
+        "فلوس اتخصمت غلط",
+        "خصم مش مفهوم",
+        "اتخصم مبلغ من غير اذني"
+      ]
+    },
+    {
+      "canonical": "trigger_problem_returned",
+      "labels": {
+        "ar": "المشكلة رجعت",
+        "en": "trigger problem returned"
+      },
+      "patterns": [
+        "رجعت تاني",
+        "المشكلة رجعت",
+        "حصلت تاني",
+        "بترجع كل شوية",
+        "اتحلت ورجعت",
+        "قفلتوها ورجعت"
+      ]
+    },
+    {
+      "canonical": "trigger_threatens_leave",
+      "labels": {
+        "ar": "يهدد بالإلغاء",
+        "en": "trigger threatens leave"
+      },
+      "patterns": [
+        "هلغي الاشتراك",
+        "هسيبكم",
+        "همشي من عندكم",
+        "هحول لشركة تانية",
+        "مش هكمل معاكم",
+        "هوقف التعامل"
+      ]
+    },
+    {
+      "canonical": "trigger_wants_escalation",
+      "labels": {
+        "ar": "يطلب تصعيد",
+        "en": "trigger wants escalation"
+      },
+      "patterns": [
+        "عايز اصعد الموضوع",
+        "صعدوا الشكوى",
+        "عايز تصعيد",
+        "الموضوع يتصعد",
+        "وصلوا شكواي لفوق",
+        "عايز شكوى رسمية"
+      ]
+    },
+    {
+      "canonical": "trigger_asks_our_opinion",
+      "labels": {
+        "ar": "يسأل عن رأينا",
+        "en": "trigger asks our opinion"
+      },
+      "patterns": [
+        "انتوا شايفين ايه",
+        "رأيكم ايه",
+        "ايه اللي بتنصحوا بيه",
+        "الناس بتختار ايه"
+      ]
+    },
+    {
+      "canonical": "trigger_bad_experience",
+      "labels": {
+        "ar": "تجربة سابقة سيئة",
+        "en": "trigger bad experience"
+      },
+      "patterns": [
+        "جربت قبل كده وماظبطتش",
+        "اتعاملت مع حد قبلكم",
+        "تجربتي السابقة وحشة",
+        "اتصدمت قبل كده",
+        "خدتها قبل كده ومانفعتش"
+      ]
+    },
+    {
+      "canonical": "trigger_needs_time",
+      "labels": {
+        "ar": "محتاج وقت",
+        "en": "trigger needs time"
+      },
+      "patterns": [
+        "محتاج وقت افكر",
+        "هفكر وارجعلك",
+        "سيبني افكر",
+        "هاخد وقتي",
+        "مش هقرر دلوقتي",
+        "هرجعلك بعدين"
+      ]
+    },
+    {
+      "canonical": "trigger_compare_plans",
+      "labels": {
+        "ar": "يقارن بين الباقات",
+        "en": "trigger compare plans"
+      },
+      "patterns": [
+        "ايه الفرق بين الباقات",
+        "الفرق بين الباقة",
+        "اختار انهي باقة",
+        "انهي باقة تناسبني",
+        "ايه احسن باقة",
+        "مقارنة الباقات"
+      ]
+    },
+    {
+      "canonical": "trigger_try_first",
+      "labels": {
+        "ar": "عايز يجرب الأول",
+        "en": "trigger try first"
+      },
+      "patterns": [
+        "عايز اجرب الاول",
+        "ممكن اجرب",
+        "فيه تجربة",
+        "اجرب قبل ما اشترك",
+        "ينفع اجرب من غير التزام",
+        "تجربة قبل الشراء"
+      ]
+    },
+    {
+      "canonical": "trigger_wants_advice",
+      "labels": {
+        "ar": "يطلب نصيحة",
+        "en": "trigger wants advice"
+      },
+      "patterns": [
+        "انصحني",
+        "ايه رأيك",
+        "ايه نصيحتك",
+        "تنصحني بايه",
+        "شايف ايه الافضل",
+        "لو مكاني هتعمل ايه",
+        "قولي رأيك بصراحة"
+      ]
+    },
+    {
+      "canonical": "trigger_afraid_mistake",
+      "labels": {
+        "ar": "خايف يغلط",
+        "en": "trigger afraid mistake"
+      },
+      "patterns": [
+        "خايف اغلط",
+        "خايفة اغلط",
+        "خايف اعمل حاجة غلط",
+        "لو غلطت هيحصل ايه",
+        "خايف اضغط غلط",
+        "ينفع ارجع في القرار",
+        "ده بيتلغي ولا لا"
+      ]
+    },
+    {
       "canonical": "http_status_400",
       "labels": {
         "ar": "خطأ 400 (طلب غير صالح)",
@@ -2959,6 +4051,637 @@
         "خطأ cors",
         "مشكلة cors",
         "سياسة cors"
+      ]
+    },
+    {
+      "canonical": "social_anyone_there",
+      "labels": {
+        "ar": "هل يوجد أحد",
+        "en": "social anyone there"
+      },
+      "patterns": [
+        "هل يوجد احد",
+        "هل يوجد أحد",
+        "في حد",
+        "فيه حد",
+        "في حد هنا",
+        "فيه حد موجود",
+        "حد موجود",
+        "حد يرد",
+        "ترد عليا",
+        "مفيش حد بيرد",
+        "محدش بيرد",
+        "محدش رد عليا",
+        "انتوا موجودين",
+        "موجودين ولا لا",
+        "الو",
+        "هالو",
+        "ايه الاخبار في حد"
+      ]
+    },
+    {
+      "canonical": "social_need_help",
+      "labels": {
+        "ar": "محتاج مساعدة",
+        "en": "social need help"
+      },
+      "patterns": [
+        "محتاج مساعدة",
+        "محتاج مساعده",
+        "محتاجة مساعدة",
+        "عايز مساعدة",
+        "عايزة مساعده",
+        "ساعدني",
+        "ساعدوني",
+        "ممكن مساعدة",
+        "ممكن تساعدني",
+        "ينفع تساعدني",
+        "محتاج حد يساعدني",
+        "احتاج المساعدة",
+        "أحتاج المساعدة",
+        "محتاج حد يفهمني"
+      ]
+    },
+    {
+      "canonical": "social_has_question",
+      "labels": {
+        "ar": "عنده سؤال",
+        "en": "social has question"
+      },
+      "patterns": [
+        "عندي سؤال",
+        "عندي استفسار",
+        "حابب اسأل",
+        "ممكن اسأل",
+        "ينفع اسأل",
+        "عايز اسأل",
+        "لو سمحت سؤال",
+        "سؤال صغير",
+        "استفسار بسيط",
+        "محتاج اعرف حاجة"
+      ]
+    },
+    {
+      "canonical": "social_first_time",
+      "labels": {
+        "ar": "أول مرة",
+        "en": "social first time"
+      },
+      "patterns": [
+        "اول مره",
+        "أول مرة",
+        "انا جديد",
+        "جديد عندكم",
+        "لسه مشترك",
+        "لسه بادئ",
+        "مش فاهم اتصرف ازاي",
+        "مش عارف ابدأ منين",
+        "من اين ابدأ"
+      ]
+    },
+    {
+      "canonical": "emotion_angry",
+      "labels": {
+        "ar": "غضب",
+        "en": "emotion angry"
+      },
+      "patterns": [
+        "انا زعلان",
+        "انا زعلانة",
+        "زعلان جدا",
+        "انا غضبان",
+        "غاضب",
+        "غاضبة",
+        "مش راضي خالص",
+        "مستاء",
+        "مستاءة",
+        "انا متضايق",
+        "متضايقة جدا",
+        "ده كلام يتقال",
+        "حاجة تقرف",
+        "حاجة تجنن",
+        "اتجننت"
+      ]
+    },
+    {
+      "canonical": "emotion_fed_up",
+      "labels": {
+        "ar": "ضيق وزهق",
+        "en": "emotion fed up"
+      },
+      "patterns": [
+        "زهقت",
+        "زهقان",
+        "زهقانة",
+        "تعبت",
+        "تعبت خلاص",
+        "مليت",
+        "مليت خلاص",
+        "قرفت",
+        "مبقتش قادر",
+        "مبقتش قادرة",
+        "بقالي كتير",
+        "خلاص مش قادر استحمل",
+        "كل مرة نفس الكلام",
+        "تعبت من الموضوع ده"
+      ]
+    },
+    {
+      "canonical": "emotion_disappointed",
+      "labels": {
+        "ar": "خيبة أمل",
+        "en": "emotion disappointed"
+      },
+      "patterns": [
+        "خيبة امل",
+        "خيبت املي",
+        "مكنتش متوقع",
+        "كنت متوقع احسن",
+        "صدمتوني",
+        "مستوى اقل من المتوقع",
+        "كنت فاكركم احسن",
+        "حزين",
+        "محبط",
+        "محبطة"
+      ]
+    },
+    {
+      "canonical": "emotion_worried",
+      "labels": {
+        "ar": "قلق",
+        "en": "emotion worried"
+      },
+      "patterns": [
+        "قلقان",
+        "قلقانة",
+        "خايف",
+        "خايفة",
+        "متوتر",
+        "متوترة",
+        "مقلق",
+        "خايف على بياناتي",
+        "خايف اخسر",
+        "مش مطمن",
+        "مش مطمنة",
+        "قلقان من الموضوع"
+      ]
+    },
+    {
+      "canonical": "emotion_confused",
+      "labels": {
+        "ar": "حيرة",
+        "en": "emotion confused"
+      },
+      "patterns": [
+        "مش فاهم",
+        "مش فاهمة",
+        "محتار",
+        "محتارة",
+        "مش عارف",
+        "مش عارفة",
+        "تايه",
+        "تايهة",
+        "الموضوع مش واضح",
+        "مش مستوعب",
+        "ملخبط",
+        "ملخبطة"
+      ]
+    },
+    {
+      "canonical": "emotion_grateful",
+      "labels": {
+        "ar": "امتنان",
+        "en": "emotion grateful"
+      },
+      "patterns": [
+        "متشكر جدا",
+        "شاكر ليك",
+        "شاكرة ليكم",
+        "ربنا يكرمك",
+        "تسلم ايدك",
+        "جزاك الله خير",
+        "ماقصرت",
+        "ماقصرتوا",
+        "مقدرلك",
+        "تعبتك معايا"
+      ]
+    },
+    {
+      "canonical": "emotion_relieved",
+      "labels": {
+        "ar": "ارتياح",
+        "en": "emotion relieved"
+      },
+      "patterns": [
+        "الحمد لله",
+        "ارتحت",
+        "اطمنت",
+        "خلاص اتحلت",
+        "تمام كده",
+        "الموضوع اتظبط",
+        "شغالة دلوقتي",
+        "اشتغلت",
+        "ضبطت"
+      ]
+    },
+    {
+      "canonical": "social_praise",
+      "labels": {
+        "ar": "ثناء",
+        "en": "social praise"
+      },
+      "patterns": [
+        "شغلكم حلو",
+        "خدمة ممتازة",
+        "خدمه ممتازه",
+        "برافو عليكم",
+        "تحفة",
+        "انتوا محترمين",
+        "رد سريع",
+        "خدمة سريعة",
+        "شكرا على السرعة",
+        "ممتازين",
+        "احسن خدمة",
+        "انتوا الافضل",
+        "شغل محترم"
+      ]
+    },
+    {
+      "canonical": "social_criticism",
+      "labels": {
+        "ar": "انتقاد",
+        "en": "social criticism"
+      },
+      "patterns": [
+        "خدمة وحشة",
+        "خدمه وحشه",
+        "خدمة سيئة",
+        "مستوى سيء",
+        "مش عاجبني",
+        "شغل وحش",
+        "ده مش مقبول",
+        "غير مقبول",
+        "انتوا مقصرين",
+        "تقصير",
+        "مستوى الخدمة نزل",
+        "زمان كنتوا احسن"
+      ]
+    },
+    {
+      "canonical": "social_complaint_about_wait",
+      "labels": {
+        "ar": "شكوى من التأخير",
+        "en": "social complaint about wait"
+      },
+      "patterns": [
+        "بقالي كتير مستني",
+        "مستني من امبارح",
+        "مستني من ساعات",
+        "محدش رد عليا من امبارح",
+        "التأخير ده كتير",
+        "ليه التأخير",
+        "ليه بتتأخروا",
+        "ردكم متأخر",
+        "بطيئين في الرد"
+      ]
+    },
+    {
+      "canonical": "social_apology_from_customer",
+      "labels": {
+        "ar": "اعتذار من العميل",
+        "en": "social apology from customer"
+      },
+      "patterns": [
+        "انا اسف",
+        "انا اسفة",
+        "معلش",
+        "اعتذر",
+        "سامحني",
+        "مش قصدي",
+        "اتعصبت عليك",
+        "اسف على اسلوبي",
+        "معلش انا كنت متعصب"
+      ]
+    },
+    {
+      "canonical": "social_goodbye",
+      "labels": {
+        "ar": "إنهاء المحادثة",
+        "en": "social goodbye"
+      },
+      "patterns": [
+        "خلاص كده",
+        "مفيش حاجة تانية",
+        "ده كل حاجة",
+        "كفاية كده",
+        "خلصنا",
+        "مش محتاج حاجة تانية",
+        "تمام خلاص",
+        "شكرا مع السلامة",
+        "اقفل المحادثة"
+      ]
+    },
+    {
+      "canonical": "social_continue",
+      "labels": {
+        "ar": "الاستمرار في المحادثة",
+        "en": "social continue"
+      },
+      "patterns": [
+        "عندي حاجة تانية",
+        "فيه حاجة كمان",
+        "سؤال تاني",
+        "استفسار تاني",
+        "حاجة اخيرة",
+        "اخر حاجة",
+        "كمان سؤال",
+        "لسه عندي"
+      ]
+    },
+    {
+      "canonical": "social_small_request",
+      "labels": {
+        "ar": "طلب لطيف",
+        "en": "social small request"
+      },
+      "patterns": [
+        "لو سمحت",
+        "من فضلك",
+        "لو ينفع",
+        "لو أمكن",
+        "ياريت",
+        "ممكن طلب",
+        "محتاج خدمة منك",
+        "اتمنى تساعدني"
+      ]
+    },
+    {
+      "canonical": "behaviour_urgent",
+      "labels": {
+        "ar": "استعجال",
+        "en": "behaviour urgent"
+      },
+      "patterns": [
+        "مستعجل",
+        "مستعجلة",
+        "ضروري جدا",
+        "حالا",
+        "دلوقتي حالا",
+        "بسرعة لو سمحت",
+        "الموضوع طاريء",
+        "عندي ديدلاين",
+        "الشغل واقف",
+        "محتاج حل النهاردة",
+        "مش مستني",
+        "قبل بكرة"
+      ]
+    },
+    {
+      "canonical": "behaviour_hesitant",
+      "labels": {
+        "ar": "تردد",
+        "en": "behaviour hesitant"
+      },
+      "patterns": [
+        "مش عارف اقرر",
+        "محتار اختار ايه",
+        "لسه بفكر",
+        "مش متأكد",
+        "مش متأكدة",
+        "ممكن اجرب الاول",
+        "خايف اغلط",
+        "ينفع افكر",
+        "مش عايز اتسرع",
+        "ايه رأيك",
+        "انصحني"
+      ]
+    },
+    {
+      "canonical": "behaviour_wants_human",
+      "labels": {
+        "ar": "يفضّل موظف بشري",
+        "en": "behaviour wants human"
+      },
+      "patterns": [
+        "عايز اتكلم مع حد حقيقي",
+        "مش عايز بوت",
+        "حد من الفريق",
+        "موظف حقيقي",
+        "ينفع اكلم انسان"
+      ]
+    },
+    {
+      "canonical": "behaviour_testing_bot",
+      "labels": {
+        "ar": "يختبر البوت",
+        "en": "behaviour testing bot"
+      },
+      "patterns": [
+        "انت بتفهم عربي",
+        "بتفهم اللهجة",
+        "انت ذكي",
+        "هتعرف تحل",
+        "شايفك بترد سريع",
+        "انت بوت صح",
+        "عامل ازاي كده"
+      ]
+    },
+    {
+      "canonical": "behaviour_repeat_request",
+      "labels": {
+        "ar": "إعادة الشرح",
+        "en": "behaviour repeat request"
+      },
+      "patterns": [
+        "مفهمتش",
+        "مش فاهم اللي قولته",
+        "اشرحلي تاني",
+        "وضحلي اكتر",
+        "ممكن تعيد",
+        "ببساطة اكتر",
+        "اشرح بشكل ابسط",
+        "كلام كتير"
+      ]
+    },
+    {
+      "canonical": "behaviour_wants_confirmation",
+      "labels": {
+        "ar": "طلب تأكيد",
+        "en": "behaviour wants confirmation"
+      },
+      "patterns": [
+        "متأكد",
+        "متأكدة",
+        "انت متأكد",
+        "اكيد كده",
+        "مضمون",
+        "مضمونة",
+        "مش هيحصل مشكلة",
+        "ده هيحل المشكلة فعلا"
+      ]
+    },
+    {
+      "canonical": "social_asks_hours",
+      "labels": {
+        "ar": "يسأل عن المواعيد",
+        "en": "social asks hours"
+      },
+      "patterns": [
+        "مواعيد الشغل عندكم",
+        "شغالين لحد امتى",
+        "بتشتغلوا امتى",
+        "مواعيد الدعم",
+        "متاحين امتى",
+        "الدعم شغال دلوقتي",
+        "انتوا شغالين النهاردة",
+        "اجازة النهاردة"
+      ]
+    },
+    {
+      "canonical": "social_long_duration",
+      "labels": {
+        "ar": "من فترة طويلة",
+        "en": "social long duration"
+      },
+      "patterns": [
+        "بقالي اسبوع",
+        "بقالي شهر",
+        "بقالي كام يوم",
+        "من فترة طويلة",
+        "من زمان",
+        "الموضوع بقاله كتير",
+        "من اكتر من مرة",
+        "للمرة الثالثة",
+        "للمرة العاشرة"
+      ]
+    },
+    {
+      "canonical": "social_harsh_tone",
+      "labels": {
+        "ar": "أسلوب حاد",
+        "en": "social harsh tone"
+      },
+      "patterns": [
+        "كلام فارغ",
+        "هراء",
+        "بتضحكوا علينا",
+        "نصب",
+        "مستهترين",
+        "مش محترمين",
+        "ده استهبال",
+        "بتلفوا وتدوروا"
+      ]
+    },
+    {
+      "canonical": "social_recommend",
+      "labels": {
+        "ar": "ترشيح للآخرين",
+        "en": "social recommend"
+      },
+      "patterns": [
+        "هرشحكم",
+        "هقول لاصحابي",
+        "هرشح المنصة",
+        "نصحت بيكم",
+        "قولت لزمايلي عليكم",
+        "هحكي عنكم"
+      ]
+    },
+    {
+      "canonical": "social_praise_speed",
+      "labels": {
+        "ar": "ثناء على سرعة الرد",
+        "en": "social praise speed"
+      },
+      "patterns": [
+        "رديت بسرعة",
+        "رد سريع جدا",
+        "ما شاء الله سرعة",
+        "اسرع مما توقعت",
+        "استجابة سريعة",
+        "سرعة الرد حلوة"
+      ]
+    },
+    {
+      "canonical": "social_deadline",
+      "labels": {
+        "ar": "موعد نهائي",
+        "en": "social deadline"
+      },
+      "patterns": [
+        "عندي ديدلاين",
+        "الديدلاين",
+        "موعد نهائي",
+        "لازم يخلص النهاردة",
+        "لازم قبل بكرة",
+        "عندي معاد",
+        "الوقت ضيق"
+      ]
+    },
+    {
+      "canonical": "social_third_party_waiting",
+      "labels": {
+        "ar": "عميله مستني",
+        "en": "social third party waiting"
+      },
+      "patterns": [
+        "عميلي مستني",
+        "العميل بتاعي مستني",
+        "زبون مستني",
+        "عندي عميل منتظر",
+        "الناس مستنياني",
+        "زباين مستنيين"
+      ]
+    },
+    {
+      "canonical": "social_worth_it",
+      "labels": {
+        "ar": "يسأل عن الجدوى",
+        "en": "social worth it"
+      },
+      "patterns": [
+        "يستاهل",
+        "تستاهل",
+        "هتفرق معايا",
+        "هتفيدني",
+        "ليها لازمة",
+        "محتاجها فعلا",
+        "هستفيد منها"
+      ]
+    },
+    {
+      "canonical": "social_commitment",
+      "labels": {
+        "ar": "الالتزام والتعاقد",
+        "en": "social commitment"
+      },
+      "patterns": [
+        "التزام",
+        "مرتبط بعقد",
+        "مربوط بمدة",
+        "ينفع الغي في اي وقت",
+        "فيه عقد",
+        "مدة الالتزام"
+      ]
+    },
+    {
+      "canonical": "social_greeting_extended",
+      "labels": {
+        "ar": "تحية موسّعة",
+        "en": "social greeting extended"
+      },
+      "patterns": [
+        "ازيك عامل ايه",
+        "اخبارك ايه",
+        "عامل ايه النهاردة",
+        "ان شاء الله تكون بخير",
+        "اتمنى تكون بخير",
+        "صباح الفل",
+        "صباح الورد",
+        "مساء الفل",
+        "مساء الورد",
+        "تحياتي",
+        "تحياتي ليكم"
       ]
     }
   ]
