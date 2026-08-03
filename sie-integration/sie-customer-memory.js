@@ -139,3 +139,95 @@ export async function recallPreviousSession(supabase, userId, currentSessionId, 
         return null;
     }
 }
+
+// ===================================================================
+// الذاكرة الدائمة: حاجات العميل طلب إن المحرك يفتكرها
+// ===================================================================
+
+/**
+ * ------------------------------------------------------------
+ * WHY THIS IS NOT bot_state
+ *
+ * chat_sessions.bot_state is the DIAGNOSTIC state of one conversation, and
+ * it is deliberately wiped when a problem is resolved — that reset is what
+ * stops the engine re-answering a closed issue.
+ *
+ * "I am the owner of the platform" must survive that. It is true after the
+ * WhatsApp question is closed and true in next month's conversation, so it
+ * lives in its own table keyed by account, not by session.
+ */
+
+/**
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} userId
+ * @param {Array<{key: string, value: string}>} facts
+ * @returns {Promise<{saved: number}>}
+ */
+export async function rememberFacts(supabase, userId, facts) {
+    if (!userId || !Array.isArray(facts) || facts.length === 0) return { saved: 0 };
+    try {
+        const rows = facts.map((fact) => ({
+            user_id: userId,
+            key: fact.key,
+            value: String(fact.value).slice(0, 500),
+            updated_at: new Date().toISOString()
+        }));
+        // Upsert on (user_id, key): a customer who corrects their name ends
+        // up with one name, not two contradictory rows.
+        const { error } = await supabase
+            .from('sie_customer_memory')
+            .upsert(rows, { onConflict: 'user_id,key' });
+        if (error) {
+            console.warn('[sie] could not save customer memory:', error.message);
+            return { saved: 0 };
+        }
+        return { saved: rows.length };
+    } catch (err) {
+        console.warn('[sie] saving customer memory threw:', err?.message || err);
+        return { saved: 0 };
+    }
+}
+
+/**
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} userId
+ * @returns {Promise<Array<{key: string, value: string}>>}
+ */
+export async function recallFacts(supabase, userId) {
+    if (!userId) return [];
+    try {
+        const { data, error } = await supabase
+            .from('sie_customer_memory')
+            .select('key, value')
+            .eq('user_id', userId)
+            .order('updated_at', { ascending: false });
+        if (error) {
+            console.warn('[sie] could not read customer memory:', error.message);
+            return [];
+        }
+        return data || [];
+    } catch (err) {
+        console.warn('[sie] reading customer memory threw:', err?.message || err);
+        return [];
+    }
+}
+
+/**
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} userId
+ * @returns {Promise<{forgotten: boolean}>}
+ */
+export async function forgetFacts(supabase, userId) {
+    if (!userId) return { forgotten: false };
+    try {
+        const { error } = await supabase.from('sie_customer_memory').delete().eq('user_id', userId);
+        if (error) {
+            console.warn('[sie] could not clear customer memory:', error.message);
+            return { forgotten: false };
+        }
+        return { forgotten: true };
+    } catch (err) {
+        console.warn('[sie] clearing customer memory threw:', err?.message || err);
+        return { forgotten: false };
+    }
+}

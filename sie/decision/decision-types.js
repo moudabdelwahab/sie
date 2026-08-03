@@ -129,6 +129,15 @@ export function createEmptyDecisionState() {
         consecutiveNoNewEvidenceTurns: 0,
         lastAction: null,
         lastScenarioId: null,
+        // Scenarios this session has already delivered an answer for. The
+        // engine must never hand the customer the same solution twice: if it
+        // did not work the first time, repeating it verbatim is worse than
+        // useless, and if it DID work the customer has moved on.
+        answeredScenarioIds: [],
+        // Set once the customer signals the problem is over (thanks, "it
+        // worked"). Kept in state rather than inferred each turn so the
+        // engine does not re-diagnose a conversation that is finished.
+        resolvedByCustomer: false,
         ticketAlreadyCreated: false,
         history: []
     };

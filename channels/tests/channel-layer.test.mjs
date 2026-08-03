@@ -257,13 +257,27 @@ test('buildReplyMarkup: بيشيل الكيبورد لما مفيش اختيار
 
 test('buildReplyMarkup: بيبني كيبورد من اختيارات المحرك', () => {
     const markup = buildReplyMarkup([{ label: '[[icon:check]] تم، شكرًا', value: 'تم الحل' }]);
-    assert.deepEqual(markup.reply_markup.keyboard, [[{ text: 'تم، شكرًا' }]]);
+    assert.deepEqual(markup.reply_markup.keyboard, [[{ text: '✅ تم، شكرًا' }]]);
     assert.equal(markup.reply_markup.one_time_keyboard, true);
 });
 
-test('stripIconMarkers: بيشيل علامات الأيقونات', () => {
-    assert.equal(stripIconMarkers('[[icon:smile]] أهلاً'), 'أهلاً');
+test('stripIconMarkers: بيحوّل علامات الأيقونات لإيموجي', () => {
+    // تيليجرام مابيعرفش يرسم SVG زي الودجت، وكان بيعرض العلامة نص خام
+    // للعميل: «... ونكمل [[icon:smile]]».
+    assert.equal(stripIconMarkers('[[icon:smile]] أهلاً'), '🙂 أهلاً');
+    assert.equal(stripIconMarkers('تحب أفتحلك تذكرة؟ [[icon:ticket]]'), 'تحب أفتحلك تذكرة؟ 🎫');
     assert.equal(stripIconMarkers('من غير أيقونة'), 'من غير أيقونة');
+});
+
+test('stripIconMarkers: العلامة المجهولة بتتشال مش بتتعرض', () => {
+    assert.equal(stripIconMarkers('حاجة [[icon:brand_new]] تانية'), 'حاجة تانية');
+});
+
+test('stripIconMarkers: بيتطبّق على نص الرسالة نفسها مش الأزرار بس', async () => {
+    const api = fakeTelegramApi();
+    const adapter = createTelegramAdapter({ botToken: 't', secretToken: SECRET, api });
+    await adapter.send('555', { text: 'وضّحلي المشكلة ونكمل [[icon:smile]]', options: [] });
+    assert.ok(!api.sent[0].text.includes('[[icon:'), `العلامة وصلت للعميل: ${api.sent[0].text}`);
 });
 
 test('الإرسال: الرد الطويل بيتقسم والكيبورد على آخر جزء بس', async () => {

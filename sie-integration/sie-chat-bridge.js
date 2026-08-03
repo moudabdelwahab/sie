@@ -24,9 +24,10 @@
  */
 import { normalize } from '../sie/language/normalizer.js';
 import { detectSmallTalk, SMALL_TALK_REPLIES } from '../sie/language/small-talk.js';
-import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion } from '../sie/language/emotion-detector.js';
+import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion, detectResolutionSignal } from '../sie/language/emotion-detector.js';
 import { activationThresholdForLevel } from '../sie/ranking/ranking-engine.js';
-import { recallCustomerName, findOpenTicket, recallPreviousSession } from './sie-customer-memory.js';
+import { recallCustomerName, findOpenTicket, recallPreviousSession, rememberFacts, recallFacts, forgetFacts } from './sie-customer-memory.js';
+import { detectMemoryIntent, MEMORY_REPLIES } from '../sie/language/memory-intent.js';
 import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
 import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
 import { decide } from '../sie/decision/decision-engine.js';
@@ -161,6 +162,88 @@ async function rescueWithArticle(decision, ranking) {
         console.warn('[sie] article lookup before ticket failed:', err?.message || err);
         return null;
     }
+}
+
+/**
+ * رد إقفال المحادثة لما العميل يقول إن المشكلة اتحلّت.
+ *
+ * Resets botState.sie entirely rather than marking a flag. The accumulated
+ * evidence belongs to a problem that is now over; carrying it forward is
+ * exactly what made the engine answer the same scenario again on the next
+ * message, whatever that message said.
+ */
+const CONVERSATION_CLOSED_TEXT = {
+    ar: 'تمام، مبسوط إنها اتظبطت معاك 🙌\nلو احتجت أي حاجة تانية أنا موجود في أي وقت.',
+    en: "Great — glad that sorted it. I'm here whenever you need anything else."
+};
+
+async function closeConversation({ responseLanguage, sessionId, botState, port }) {
+    const lang = responseLanguage === 'en' ? 'en' : 'ar';
+    const rendered = { text: CONVERSATION_CLOSED_TEXT[lang], options: [] };
+
+    // A clean slate: the next problem this customer raises starts from
+    // nothing, which is what "the last one is finished" means.
+    const nextBotState = { ...(botState || {}), sie: { turnCount: 0, language: lang } };
+
+    const actionResult = await executeDecision({
+        decision: { action: ACTIONS.WAIT_FOR_USER, turn: 0 },
+        rendered,
+        sessionId,
+        nextBotState,
+        port
+    });
+    if (!actionResult?.success) return null;
+
+    return { reply: rendered.text, options: [], alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
+}
+
+/**
+ * الذاكرة: حفظ / استرجاع / مسح.
+ *
+ * Runs before diagnosis and returns a finished turn, because these are
+ * instructions ABOUT the conversation rather than problems to diagnose.
+ * Feeding «احفظ ده في ذاكرتك» into the pipeline is what produced an
+ * unrelated WhatsApp answer.
+ *
+ * Returns null when there is nothing to do, so the caller falls through to
+ * the normal pipeline rather than swallowing the turn.
+ */
+async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage }) {
+    const lang = responseLanguage === 'en' ? 'en' : 'ar';
+    let replyText;
+
+    if (intent.kind === 'forget') {
+        await forgetFacts(supabase, userId);
+        replyText = MEMORY_REPLIES.forgotten;
+    } else if (intent.kind === 'recall') {
+        const facts = await recallFacts(supabase, userId);
+        replyText = MEMORY_REPLIES.recalled(facts);
+    } else if (intent.facts.length === 0) {
+        replyText = MEMORY_REPLIES.nothingToSave;
+    } else {
+        const { saved } = await rememberFacts(supabase, userId, intent.facts);
+        // A failed write must not be reported as a success — the customer
+        // would rely on a fact the engine does not actually hold.
+        replyText = saved > 0 ? MEMORY_REPLIES.saved(intent.facts) : MEMORY_REPLIES.nothingToSave;
+    }
+
+    // Diagnostic state is carried through untouched: saving a fact is not
+    // progress on a problem, and must not reset one in flight either.
+    const nextBotState = {
+        ...(botState || {}),
+        sie: { ...(prevSie || { turnCount: 0 }), language: lang, lastCustomerText: intent.raw.slice(0, 500) }
+    };
+
+    const actionResult = await executeDecision({
+        decision: { action: ACTIONS.WAIT_FOR_USER, turn: prevSie?.turnCount || 0 },
+        rendered: { text: replyText, options: [] },
+        sessionId,
+        nextBotState,
+        port
+    });
+    if (!actionResult?.success) return null;
+
+    return { reply: replyText, options: [], alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
 }
 
 const EMOTION_SETTING_KEYS = [
@@ -569,6 +652,30 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             return null;
         }
 
+        // «تم الحل» / «شكرًا» بعد ما المحرك رد فعلاً: المحادثة خلصت.
+        //
+        // بنقفلها ونصفّر حالة التشخيص، فأي مشكلة جديدة بعد كده بتبدأ من
+        // نضيف. من غير ده الأدلة القديمة بتفضل متراكمة والمحرك بيرجع يرد
+        // بنفس الحل على أي رسالة بعدها — وده بالظبط اللي كان بيحصل.
+        // 2.4. «احفظ ده في ذاكرتك» / «انت فاكر إيه عني» — تعليمات عن
+        //      المحادثة نفسها، مش مشكلة نشخّصها. لو عدّت على التشخيص،
+        //      المحرك بيرد بحل مالوش علاقة — وده اللي كان بيحصل.
+        const memoryIntent = detectMemoryIntent(text, prevSie?.lastCustomerText || '');
+        if (memoryIntent) {
+            const handled = await handleMemoryIntent({
+                intent: memoryIntent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage
+            });
+            if (handled) return handled;
+        }
+
+        const resolutionSignal = detectResolutionSignal(text);
+        const alreadyAnswered = (prevSie?.decisionState?.answeredScenarioIds || []).length > 0;
+        if (resolutionSignal === 'resolved' && alreadyAnswered) {
+            const closed = await closeConversation({ responseLanguage, sessionId, botState, port });
+            if (closed) return closed;
+            return null;
+        }
+
         // مش هيتصعّد، فبنعترف بحالته ونكمل تشخيص في نفس الدور. تجاهُل
         // نبرة واضحة أسوأ من إننا نرد عليها ونكمل.
         if (emotion && settings.emotion_reply && settings.knowledge_empathy_replies) {
@@ -646,7 +753,10 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 maxTurnsBeforeEscalation: settings.ticket_after_turns,
                 allowSmartGuess: settings.allow_smart_guess,
                 requireCompleteEvidence: settings.inference_mode === 'knowledge_only'
-            }
+            },
+            // المحرك مايقدرش يستنتج دي من الأدلة: «تم الحل» و«لسه مش شغال»
+            // الاتنين بيدّوا توكنز وبيسيبوا الثقة زي ما هي.
+            customerSignal: resolutionSignal
         });
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
@@ -705,7 +815,9 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 // بيخلّي «مدة الاحتفاظ بالسياق» تعرف السياق ده قديم قد إيه.
                 lastTurnAt: new Date().toISOString(),
                 // «يفتكر آخر مشكلة» — بيفضل موجود حتى بعد ما السياق ينتهي.
-                lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null
+                lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null,
+                // بيخلّي «احفظ ده» في الرسالة الجاية يعرف «ده» دي إيه.
+                lastCustomerText: text.slice(0, 500)
             }
         };
 

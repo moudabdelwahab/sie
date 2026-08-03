@@ -81,7 +81,15 @@ function findUnaskedCandidateQuestion(candidateQuestions, askedQuestionIds, scen
  *   an argument rather than living as constants. Omitting `policy` entirely
  *   reproduces the pre-policy behaviour exactly.
  */
-export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy: rawPolicy = {} }) {
+/**
+ * @param {'resolved'|'unresolved'|null} [params.customerSignal] - what the
+ *   customer just said about the state of their problem, when they said
+ *   anything at all. "شكرًا" / "اشتغلت" is resolved; "لسه عندي نفس المشكلة"
+ *   is unresolved. The engine cannot infer this from evidence — a thank-you
+ *   and a complaint both produce tokens — so it is supplied by the caller,
+ *   which has the language layer's read of the message.
+ */
+export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy: rawPolicy = {}, customerSignal = null }) {
     const prevState = previousDecisionState || createEmptyDecisionState();
     const noNewEvidence = !newEvidenceAddedThisTurn || newEvidenceAddedThisTurn === 0;
     const consecutiveNoNewEvidenceTurns = noNewEvidence ? prevState.consecutiveNoNewEvidenceTurns + 1 : 0;
@@ -89,7 +97,7 @@ export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedT
 
     const evaluatedRules = [];
     let decision = decideAction(
-        { ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy },
+        { ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy, customerSignal },
         evaluatedRules,
         clock
     );
@@ -132,7 +140,7 @@ function finalize(action, opts, turn, evaluatedRules, clock) {
     };
 }
 
-function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy }, evaluatedRules, clock) {
+function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy, customerSignal = null }, evaluatedRules, clock) {
     const { topHypothesis, runnerUp, isAmbiguous, candidateDiscriminatingQuestions } = ranking;
 
     const rule0Matches = noNewEvidence && !topHypothesis && prevState.lastAction === null;
@@ -304,6 +312,62 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
             matched: true,
             detail: 'Ambiguity is unresolvable but policy.ticketOnAmbiguity is off; continuing to refine instead of handing off.'
         });
+    }
+
+    // R6b — an answer is delivered ONCE.
+    //
+    // Without this the engine re-answers forever. Confidence accumulates
+    // across turns and never decays, so a scenario that once cleared the
+    // threshold clears it on every subsequent turn too — and R2 cannot stop
+    // it, because R2 requires "no new evidence" and almost any message
+    // produces some token. Observed live on Telegram: the same WhatsApp
+    // answer sent four times, including in reply to "تم الحل" and to the
+    // customer introducing themselves.
+    //
+    // Repeating a solution is never the right move. If it worked, the
+    // customer has moved on; if it did not, saying it again louder does not
+    // help. So once a scenario has been answered:
+    //
+    //   customer signalled it is resolved  -> COMPLETE, quietly
+    //   otherwise                          -> the answer did not land, so a
+    //                                         human takes it
+    const alreadyAnswered = prevState.answeredScenarioIds.includes(topHypothesis.hypothesis.scenarioId);
+    evaluatedRules.push({
+        rule: 'R6B_ALREADY_ANSWERED',
+        matched: alreadyAnswered,
+        detail: alreadyAnswered
+            ? `"${topHypothesis.hypothesis.scenarioId}" was already answered this session; refusing to repeat it.`
+            : 'The leading scenario has not been answered yet this session.'
+    });
+    if (alreadyAnswered) {
+        // "لسه عندي نفس المشكلة" is the one thing that overrides everything
+        // else here: the customer is telling us plainly that the stored
+        // answer failed, so no amount of accumulated confidence justifies
+        // treating the issue as closed.
+        const stillBroken = customerSignal === 'unresolved';
+        if (!stillBroken && (customerSignal === 'resolved' || prevState.resolvedByCustomer || noNewEvidence)) {
+            return finalize(
+                ACTIONS.COMPLETE,
+                {
+                    scenarioId: topHypothesis.hypothesis.scenarioId,
+                    scenarioLabel: topHypothesis.scenario?.label ?? null,
+                    confidence: topHypothesis.hypothesis.confidence,
+                    explanation: `"${topHypothesis.hypothesis.scenarioId}" was already answered and nothing new suggests it is still open; treating the issue as resolved.`
+                },
+                turn, evaluatedRules, clock
+            );
+        }
+        return finalize(
+            ACTIONS.CREATE_TICKET,
+            {
+                scenarioId: topHypothesis.hypothesis.scenarioId,
+                scenarioLabel: topHypothesis.scenario?.label ?? null,
+                confidence: topHypothesis.hypothesis.confidence,
+                explanation: `"${topHypothesis.hypothesis.scenarioId}" was already answered and the customer is still describing it; the stored solution did not resolve it, so a human takes over rather than repeating it.`,
+                ticketDraft: buildTicketDraft(ranking, policy)
+            },
+            turn, evaluatedRules, clock
+        );
     }
 
     const rule7Matches = topHypothesis.hypothesis.confidence >= policy.resolutionConfidenceThreshold;
@@ -502,6 +566,11 @@ function updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns)
         prevState.ticketAlreadyCreated ||
         (decision.action === ACTIONS.CREATE_TICKET || decision.action === ACTIONS.ESCALATE_TO_HUMAN);
 
+    const answeredScenarioIds =
+        decision.action === ACTIONS.ANSWER && decision.scenarioId
+            ? [...new Set([...prevState.answeredScenarioIds, decision.scenarioId])]
+            : prevState.answeredScenarioIds;
+
     return {
         askedQuestionIds,
         questionsAskedCount,
@@ -511,6 +580,8 @@ function updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns)
         consecutiveNoNewEvidenceTurns,
         lastAction: decision.action,
         lastScenarioId: decision.scenarioId,
+        answeredScenarioIds,
+        resolvedByCustomer: prevState.resolvedByCustomer || decision.action === ACTIONS.COMPLETE,
         ticketAlreadyCreated,
         history: [
             ...prevState.history,
