@@ -433,3 +433,58 @@ test('Decision object round-trips through JSON (safe for chat_sessions.bot_state
     const { decision } = decide({ ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock });
     assert.deepEqual(JSON.parse(JSON.stringify(decision)), decision);
 });
+
+// ── policy.allowAutoResolution ──────────────────────────────────────────
+// The operator switch «يرد بالحل بنفسه». Off, the engine must keep
+// diagnosing exactly as before and only withhold the stored answer.
+
+test('policy.allowAutoResolution defaults to on, so an unset policy answers as it always did', () => {
+    const resolution = { hasAutoResolution: true, text: { ar: 'حل', en: 'fix' } };
+    const ranking = fakeRanking({ ranked: [fakeRankedEntry('s1', 0.9, { scenarioOverrides: { resolution } })] });
+    const previousDecisionState = { ...createEmptyDecisionState(), lastAction: 'x' };
+
+    const withoutPolicy = decide({ ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock });
+    const withEmptyPolicy = decide({ ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock, policy: {} });
+
+    assert.equal(withoutPolicy.decision.action, ACTIONS.ANSWER);
+    assert.equal(withEmptyPolicy.decision.action, ACTIONS.ANSWER);
+});
+
+test('policy.allowAutoResolution=false withholds a stored answer and gathers evidence instead', () => {
+    const resolution = { hasAutoResolution: true, text: { ar: 'حل', en: 'fix' } };
+    const ranking = fakeRanking({ ranked: [fakeRankedEntry('s1', 0.9, { scenarioOverrides: { resolution, category: 'api' } })] });
+    const previousDecisionState = { ...createEmptyDecisionState(), lastAction: 'x' };
+    const { decision } = decide({
+        ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock,
+        policy: { allowAutoResolution: false }
+    });
+
+    assert.notEqual(decision.action, ACTIONS.ANSWER);
+    assert.equal(decision.resolution, null);
+    // Still the same diagnosis — the switch changes delivery, not understanding.
+    assert.equal(decision.scenarioId, 's1');
+    assert.ok(decision.evaluatedRules.some((r) => r.rule === 'R7_AUTO_RESOLUTION_DISABLED' && r.matched));
+});
+
+test('policy.allowAutoResolution=false reaches CREATE_TICKET once supplementary evidence was already requested', () => {
+    const resolution = { hasAutoResolution: true, text: { ar: 'حل', en: 'fix' } };
+    const ranking = fakeRanking({ ranked: [fakeRankedEntry('s1', 0.9, { scenarioOverrides: { resolution } })] });
+    const previousDecisionState = { ...createEmptyDecisionState(), lastAction: 'x', supplementaryEvidenceRequested: true };
+    const { decision } = decide({
+        ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock,
+        policy: { allowAutoResolution: false }
+    });
+
+    assert.equal(decision.action, ACTIONS.CREATE_TICKET);
+    assert.ok(decision.ticketDraft, 'a human needs the diagnostic trail to answer with');
+});
+
+test('policy.allowAutoResolution=false does not invent a hand-off for scenarios that never had a stored answer', () => {
+    const ranking = fakeRanking({ ranked: [fakeRankedEntry('s1', 0.9, { scenarioOverrides: { resolution: { hasAutoResolution: false } } })] });
+    const previousDecisionState = { ...createEmptyDecisionState(), lastAction: 'x' };
+    const off = decide({ ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock, policy: { allowAutoResolution: false } });
+    const on = decide({ ranking, turn: 2, previousDecisionState, newEvidenceAddedThisTurn: 1, clock: fixedClock });
+
+    assert.equal(off.decision.action, on.decision.action);
+    assert.ok(!off.decision.evaluatedRules.some((r) => r.rule === 'R7_AUTO_RESOLUTION_DISABLED'));
+});

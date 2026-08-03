@@ -9400,6 +9400,3406 @@
         "hasAutoResolution": false
       },
       "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_anyone_there",
+      "label": {
+        "ar": "هل يوجد أحد؟",
+        "en": "Is anyone there?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_anyone_there",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه موجود معاك دلوقتي [[icon:smile]]\nقولّي المشكلة إيه وأنا معاك خطوة بخطوة.",
+          "en": "Yes, I'm here with you. Tell me what's going on and I'll help."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_greeting_extended",
+      "label": {
+        "ar": "تحية موسّعة",
+        "en": "Extended greeting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_greeting_extended",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أهلًا بيك، الحمد لله بخير وأتمنى تكون بخير كمان [[icon:smile]]\nأنا هنا عشان أساعدك في أي حاجة تخص المنصة — قولّي إيه اللي محتاجه.",
+          "en": "Hello, glad to have you here. I'm ready to help with anything on the platform — what do you need?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_need_help_generic",
+      "label": {
+        "ar": "محتاج مساعدة",
+        "en": "Needs help"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_need_help",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تحت أمرك، وهساعدك أكيد [[icon:smile]]\nعشان أوصل للحل أسرع، احكيلي بس: إيه اللي بتحاول تعمله، وإيه اللي حصل بالظبط؟",
+          "en": "Of course, happy to help. To get you a fast answer: what were you trying to do, and what happened instead?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_has_question",
+      "label": {
+        "ar": "عنده سؤال",
+        "en": "Has a question"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_has_question",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_small_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اتفضل، اسأل براحتك — مفيش سؤال بسيط أو كتير [[icon:smile]]",
+          "en": "Go ahead, ask away — no question is too small."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_first_time_user",
+      "label": {
+        "ar": "عميل جديد",
+        "en": "First-time customer"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_first_time",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أهلًا بيك معانا [[icon:smile]] ومتقلقش، الأول دايمًا بيبان أصعب مما هو.\n\nقولّي إنت عايز تبدأ بإيه: تظبط الشات على موقعك، تربط رقم واتساب، ولا تضيف فريقك؟ وأنا أمشي معاك في الخطوات واحدة واحدة.",
+          "en": "Welcome aboard. Tell me what you'd like to set up first — site chat, a WhatsApp number, or your team — and I'll walk you through it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_polite_request",
+      "label": {
+        "ar": "طلب لطيف",
+        "en": "Polite request"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_small_request",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أكيد، اتفضل [[icon:smile]] قولّي محتاج إيه بالظبط.",
+          "en": "Certainly — tell me what you need."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_testing_the_bot",
+      "label": {
+        "ar": "يختبر البوت",
+        "en": "Testing the assistant"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "behaviour_testing_bot",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه بفهم العربي والعامية المصرية كويس، وبفهم كمان لو كتبت بالفرانكو [[icon:smile]]\n\nبس الأهم إني أساعدك فعلًا مش إني أرد بس — جرّب تحكيلي مشكلتك وشوف.",
+          "en": "Yes, I understand Arabic and Egyptian dialect well. More usefully though — tell me your issue and let's solve it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_for_human_politely",
+      "label": {
+        "ar": "يطلب موظف بشري",
+        "en": "Asks for a human agent"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "behaviour_wants_human",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تحت أمرك، هوصّلك بفريق الدعم البشري [[icon:note]]\n\nبس لو حابب، احكيلي المشكلة الأول في سطر واحد — أحيانًا بتبقى حاجة أقدر أحلّهالك في ثواني بدل ما تستنى. ولو مش هينفع، هصعّدها فورًا وبكل تفاصيلها.",
+          "en": "Of course, I'll connect you with the human team. If you'd like, tell me the issue in one line first — sometimes I can solve it instantly; if not I'll escalate with full context."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_good_morning_extended",
+      "label": {
+        "ar": "صباح الخير موسّع",
+        "en": "Extended morning greeting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_greeting_extended",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_small_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "صباح الفل والنور عليك [[icon:smile]] اتفضل قولّي أخدمك بإيه النهاردة.",
+          "en": "Good morning. How can I help you today?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_checking_availability",
+      "label": {
+        "ar": "يسأل عن التوفّر",
+        "en": "Asking about availability"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_hours",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_anyone_there",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أنا متاح معاك ٢٤ ساعة، طول الأسبوع [[icon:smile]]\n\nفريق الدعم البشري مواعيده من الأحد للخميس، ٩ صباحًا لـ ٦ مساءً بتوقيت القاهرة — وبرّه المواعيد دي بفتحلك تذكرة بتوصلهم أول ما اليوم يبدأ. يعني مفيش استفسار بيضيع.",
+          "en": "I'm available 24/7. The human team works Sunday to Thursday, 9am-6pm Cairo time, and outside those hours I open a ticket that reaches them first thing."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_nobody_replied",
+      "label": {
+        "ar": "محدش رد عليه",
+        "en": "Nobody replied"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_anyone_there",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معلش والله، وأنا آسف إنك استنيت [[icon:note]]\n\nأنا معاك دلوقتي وهتابع الموضوع بنفسي. احكيلي المشكلة من الأول، ولو فيه تذكرة مفتوحة قولّي رقمها وأنا أشوف وصلت لفين وأصعّدها.",
+          "en": "I'm sorry you were kept waiting. I'm with you now — tell me the issue, or give me your ticket number and I'll chase it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wants_to_start_over",
+      "label": {
+        "ar": "يريد البدء من جديد",
+        "en": "Wants to start over"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_start_over",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_repeat_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، نبدأ من الأول وبهدوء [[icon:smile]]\n\nانسى اللي فات وقولّي في جملة واحدة: إيه اللي مضايقك دلوقتي؟",
+          "en": "No problem, let's start fresh. In one sentence — what's the issue right now?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_fed_up",
+      "label": {
+        "ar": "العميل زهقان",
+        "en": "Customer is fed up"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_fed_up",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "حقك عليا، وأنا حاسس بيك فعلًا [[icon:note]]\n\nإن المشكلة تتكرر ده مضايق، ومش هطلب منك تعيد كلام قولته قبل كده. قولّي بس رقم التذكرة القديمة أو آخر حاجة حصلت، وأنا أكمّل من عندها بنفسي — ولو محتاجة تصعيد، هصعّدها من غير ما تطلب.",
+          "en": "You're right to be frustrated, and I won't make you repeat yourself. Give me your old ticket number or the last thing that happened and I'll pick it up from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_angry",
+      "label": {
+        "ar": "العميل غاضب",
+        "en": "Customer is angry"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_angry",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من حقك تزعل، والزعل ده في محله [[icon:note]]\n\nمش هحاول أبرر ولا أدافع. اللي يهمني دلوقتي إن المشكلة تتحل. احكيلي حصل إيه بالظبط، وأنا هتصرف على طول — ولو محتاجة حد من الفريق، هوصّلك بيه فورًا من غير لف ودوران.",
+          "en": "You have every right to be upset. I won't make excuses — tell me exactly what happened and I'll act on it, or connect you to the team right away."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_disappointed",
+      "label": {
+        "ar": "خيبة أمل",
+        "en": "Customer is disappointed"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_disappointed",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كلامك واصلني، وإحساس إن التوقع كان أعلى من اللي حصل ده مش بسيط [[icon:note]]\n\nأنا مش هقولك \"معلش\" وخلاص. قولّي إيه اللي كنت متوقعه بالظبط وحصل إيه بدله، عشان لو فيه حاجة نقدر نصلّحها نصلّحها، ولو فيه قصور من عندنا يوصل للفريق المسؤول.",
+          "en": "I hear you, and falling short of what you expected isn't a small thing. Tell me what you expected and what happened instead so we can fix it or escalate it properly."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_worried",
+      "label": {
+        "ar": "العميل قلقان",
+        "en": "Customer is worried"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_general_worry",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اطمن، وخليني أهدّي قلقك بمعلومة مش بكلام عام [[icon:note]]\n\nقولّي قلقان من إيه بالظبط — بياناتك، فلوسك، ولا إن الشغل هيقف؟ وأنا أقولك الوضع الحقيقي بصراحة، حتى لو الإجابة مش مريحة.",
+          "en": "Let me address the worry with facts rather than reassurance. What exactly are you worried about — your data, your money, or downtime? I'll tell you the real position."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_confused",
+      "label": {
+        "ar": "العميل محتار",
+        "en": "Customer is confused"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_confused",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_repeat_request",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، الحاجات دي بتبقى مربكة في الأول وده طبيعي جدًا [[icon:smile]]\n\nتعالى نبسّطها: قولّي إنت واقف فين دلوقتي، وإيه اللي كنت عايز توصله؟ وأنا أمشي معاك خطوة خطوة، ومش هننتقل لخطوة غير لما اللي قبلها تبقى واضحة.",
+          "en": "This gets confusing at first, which is normal. Tell me where you are now and where you were trying to get to, and I'll take it one step at a time."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_long_standing_issue",
+      "label": {
+        "ar": "مشكلة قديمة متكررة",
+        "en": "Long-standing repeated issue"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_long_duration",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إن الموضوع ماشي معاك من فترة ولسه مااتحلّش — ده مش وضع مقبول وأنا مش هعامله كأنه عادي [[icon:note]]\n\nقولّي رقم التذكرة أو تاريخ تقريبي لأول مرة بلّغت فيها، وأنا هجمع التاريخ كله في مكان واحد وأصعّده كحالة متكررة — دي بتتعامل عندنا بأولوية أعلى من الحالة الجديدة.",
+          "en": "An issue dragging on unresolved isn't acceptable and I won't treat it as routine. Give me the ticket number or roughly when you first reported it, and I'll escalate it as a recurring case, which carries higher priority."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_apologizes",
+      "label": {
+        "ar": "العميل بيعتذر",
+        "en": "Customer apologizes"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_customer_sorry",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك خالص، ومفيش أي زعل [[icon:smile]]\n\nإنت متضايق من موقف وده حقك تمامًا، وأنا شغلي إني أساعدك مش إني أتحسس. يلا نكمل — فضل إيه في المشكلة؟",
+          "en": "No apology needed at all. You were frustrated by a situation, which is fair. Let's carry on — what's still outstanding?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_says_last_chance",
+      "label": {
+        "ar": "فرصة أخيرة",
+        "en": "Last chance"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_last_chance",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "واضح إن صبرك خلص، وأنا مش هضيّع الفرصة دي في كلام [[icon:note]]\n\nقولّي المشكلة في سطر، وأنا إما أحلّها معاك دلوقتي، أو أصعّدها فورًا لحد يقدر يحلّها — ومش هسيبك تلف في دايرة تاني.",
+          "en": "Your patience has clearly run out, and I won't waste this on talk. One line on the issue, and I'll either solve it now or escalate it immediately."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_lost_money",
+      "label": {
+        "ar": "خسر فلوس",
+        "en": "Customer lost money"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_money_lost",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "موضوع الفلوس ده أنا آخده بجدية كاملة، ومش هسيبه معلّق [[icon:note]]\n\nعشان الفريق المالي يتحرك بسرعة، جهّزلي: المبلغ، تاريخ ووقت العملية تقريبًا، وآخر ٤ أرقام من وسيلة الدفع. أول ما تبعتهم هفتح تذكرة مالية على طول.",
+          "en": "Anything involving money I treat with full seriousness. Send me the amount, the approximate date and time, and the last 4 digits of the payment method, and I'll open a finance ticket immediately."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_business_affected",
+      "label": {
+        "ar": "شغله متأثر",
+        "en": "Business is affected"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_business_impact",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إن شغلك واقف بسبب المشكلة دي — ده اللي بيخلّيها عاجلة مش عادية [[icon:note]]\n\nقولّي إيه اللي واقف بالظبط (استقبال رسائل، إرسال، ولا الدخول أصلًا)، وأنا هفتحها بأولوية عاجلة وأوضّح فيها إن فيه تأثير مباشر على الشغل.",
+          "en": "Your work being blocked is what makes this urgent rather than routine. Tell me exactly what's stopped and I'll raise it as urgent with the business impact noted."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_embarrassed",
+      "label": {
+        "ar": "محرج من سؤاله",
+        "en": "Embarrassed to ask"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_embarrassed",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "متكسفش خالص، والسؤال ده بيتسأل كل يوم [[icon:smile]]\n\nمفيش حاجة اسمها سؤال بسيط أوي — اللي بيوفر وقتك هو إنك تسأل، مش إنك تفضل تجرب لوحدك. اتفضل قولّي.",
+          "en": "Please don't feel awkward — this gets asked every day. Asking saves you time; go ahead."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_thanks_for_patience",
+      "label": {
+        "ar": "يشكر على الصبر",
+        "en": "Thanks for patience"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_thanks_patience",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده واجبي وماعملتش حاجة تُذكر [[icon:smile]]\nالمهم إن الموضوع اتظبط معاك. لو ظهر أي حاجة تانية، أنا هنا.",
+          "en": "That's simply my job. What matters is that it's sorted — and I'm here if anything else comes up."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_apology_for_delay",
+      "label": {
+        "ar": "اعتذار عن التأخير",
+        "en": "Apology for delay"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_why_late",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "آسف على التأخير، ومحدش يحب يستنى وهو مستني حل [[icon:note]]\n\nمش هدّيك وعد عام — قولّي رقم التذكرة وأنا أشوف وصلت لفين بالظبط وأقولك متوقع الرد إمتى. ولو المدة عدّت اللي المفروض تكون، هصعّدها.",
+          "en": "Sorry for the wait. Give me your ticket number and I'll tell you exactly where it stands and when to expect a reply — and escalate it if it's overdue."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_reassure_data_safe",
+      "label": {
+        "ar": "طمأنة عن البيانات",
+        "en": "Reassurance about data"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_is_data_safe",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "بياناتك في أمان، وده مش كلام تطمين — دي إجراءات فعلية [[icon:note]]\n\n• كل عميل بيشوف بياناته هو بس، والعزل ده على مستوى قاعدة البيانات نفسها مش بالكود.\n• الاتصال كله مشفّر.\n• فيه سجل نشاط بيوثّق أي عملية حساسة على حسابك، وتقدر تراجعه بنفسك.\n\nلو قلقك من حاجة معيّنة، قولّي عليها بالتحديد وأنا أوضّحلك وضعها.",
+          "en": "Your data is safe, and not just as reassurance: each customer's data is isolated at the database level, all traffic is encrypted, and an activity log records every sensitive action."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_reassure_nothing_lost",
+      "label": {
+        "ar": "طمأنة إن مفيش حاجة ضاعت",
+        "en": "Nothing was lost"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_lost_something",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اطمن، مفيش حاجة ضاعت [[icon:note]]\n\nالمحادثات والتذاكر بتفضل محفوظة حتى لو اختفت من القائمة اللي قدامك — الاختفاء ده بيبقى فلتر أو أرشفة مش حذف.\n\nقولّي إيه اللي مش لاقيه وأنا أدلّك على مكانه.",
+          "en": "Nothing is lost. Conversations and tickets are retained even when they vanish from your current view — that's a filter or archive, not deletion. Tell me what you can't find."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_reassure_will_follow_up",
+      "label": {
+        "ar": "طمأنة بالمتابعة",
+        "en": "Promise to follow up"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_will_you_follow",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش هسيب الموضوع معلّق [[icon:note]]\n\nكل حاجة بنتكلم فيها هنا بتتسجّل في التذكرة بالتفاصيل، فحتى لو قفلت المحادثة دلوقتي، الفريق هيلاقي السياق كامل ومش هيطلب منك تعيد.",
+          "en": "I won't leave this hanging. Everything we discuss is recorded on the ticket, so even if you close this chat the team has the full context and won't ask you to repeat it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_owning_our_mistake",
+      "label": {
+        "ar": "الاعتراف بالخطأ",
+        "en": "Owning a mistake"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_our_fault",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الغلط من عندنا، مش هلف حواليه [[icon:note]]\n\nقولّي حصل إيه بالظبط وأنا أشوف الموضوع بصراحة. لو طلع تقصير من ناحيتنا، هوثّقه في التذكرة كده بالنص عشان يوصل للفريق المسؤول — مش عشان الشكل، عشان مايتكررش مع حد تاني.",
+          "en": "If the fault is ours, I won't dance around it. Tell me what happened and I'll document it plainly on the ticket so it reaches the responsible team — so it doesn't recur."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_cannot_promise_timeline",
+      "label": {
+        "ar": "مش قادر يحدد ميعاد",
+        "en": "Cannot promise a timeline"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_promise_time",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش هوعدك بميعاد مش متأكد منه — ده هيضايقك أكتر لو عدّى [[icon:note]]\n\nاللي أقدر أقوله بثقة: التذكرة هتوصل الفريق بأولويتها الصح، وأول رد متوقع خلال يوم عمل للحالات العادية وأسرع للعاجلة. ولو حصل أي جديد قبل كده، هيوصلك إشعار على طول.",
+          "en": "I won't promise a time I can't keep. What I can say: the ticket reaches the team at the right priority, with a first reply within one business day for normal cases and sooner for urgent ones."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_reassure_no_extra_cost",
+      "label": {
+        "ar": "طمأنة إن مفيش تكلفة زيادة",
+        "en": "No extra cost"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_hidden_cost",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اطمن، مفيش أي رسوم مخفية ومفيش حاجة هتتخصم من غير علمك [[icon:note]]\n\nأي خصم بيظهر في صفحة الفواتير بتفصيله، وأي تغيير في باقتك بيتطلب تأكيد منك الأول. لو شايف خصم مش فاهمه، قولّي المبلغ والتاريخ وأنا أوضّحلك هو إيه.",
+          "en": "There are no hidden charges and nothing is deducted without your knowledge. If you see a charge you don't recognise, tell me the amount and date and I'll explain it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_reassure_work_continues",
+      "label": {
+        "ar": "طمأنة إن الشغل مش هيقف",
+        "en": "Work will continue"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_will_work_stop",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شغلك مش هيقف [[icon:note]]\n\nحتى لو فيه مشكلة في الإرسال، الرسائل اللي بتيجي من عملائك بتفضل توصلك وتتسجّل عادي، فمفيش استفسار بيضيع منك. وأول ما المشكلة تتحل هتلاقي كل حاجة مكانها.",
+          "en": "Your work won't stop. Even during a sending problem, incoming customer messages still arrive and are recorded, so no enquiry is lost."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_explain_why_it_happened",
+      "label": {
+        "ar": "شرح سبب المشكلة",
+        "en": "Explaining the cause"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_why_happened",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من حقك تعرف السبب مش بس الحل [[icon:smile]]\n\nقولّي المشكلة إيه وأنا أشرحلك حصلت ليه بالظبط، وإيه اللي يمنع تكرارها. فهم السبب بيوفر عليك وقت المرة الجاية.",
+          "en": "You're entitled to know the cause, not just the fix. Tell me the issue and I'll explain why it happened and what prevents a repeat."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_admit_dont_know",
+      "label": {
+        "ar": "الاعتراف بعدم المعرفة",
+        "en": "Admitting uncertainty"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_unknown_answer",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أفضل إني أقولك مش متأكد على إني أدّيك معلومة غلط [[icon:note]]\n\nالحاجة دي محتاجة حد من الفريق يشوفها بنفسه. لو تحب، أفتحلك تذكرة بكل التفاصيل اللي اتكلمنا فيها عشان ماتضطرش تشرح من الأول.",
+          "en": "I'd rather tell you I'm unsure than give you something wrong. This needs a person to look at it — I can open a ticket with everything we've discussed so you don't repeat yourself."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_after_resolution_check",
+      "label": {
+        "ar": "التأكد بعد الحل",
+        "en": "Checking after a fix"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_it_works_now",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحمد لله إنها ظبطت [[icon:smile]]\n\nخد بالك بس: لو ظهرت تاني في أي وقت، مترجعش تبدأ من الأول — قولّي وأنا عندي سياق النهاردة كله وهكمّل من عنده.",
+          "en": "Glad that's sorted. If it comes back, don't start over — just tell me and I'll pick up from today's context."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_thanks_for_reporting",
+      "label": {
+        "ar": "شكر على الإبلاغ",
+        "en": "Thanks for reporting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_reported_issue",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكرًا إنك بلّغت، وده فعلًا بيفرق [[icon:smile]]\n\nكتير من التحسينات اللي عملناها جت من عميل قعد يوضّح مشكلة بدل ما يسيبها. لو لاحظت أي حاجة تانية غريبة، قولّي عليها من غير تردد.",
+          "en": "Thank you for reporting it — that genuinely helps. Many of our improvements came from a customer taking the time to explain. Tell me if you spot anything else."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_says_no_rush",
+      "label": {
+        "ar": "العميل مش مستعجل",
+        "en": "Customer is not in a rush"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_no_rush",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، وخد وقتك براحتك [[icon:smile]]\nأنا موجود في أي وقت، ومحدش هيقفل المحادثة عليك. لما تجهز قولّي.",
+          "en": "No rush at all. I'm here whenever you're ready."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_apology_for_repetition",
+      "label": {
+        "ar": "اعتذار عن التكرار",
+        "en": "Apology for repetition"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_repeating_myself",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_repeat_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معاك حق، ومش هخليك تعيد كلامك تاني [[icon:note]]\n\nكل اللي قولته محفوظ في المحادثة، وأي تذكرة هتتفتح هتتكتب فيها التفاصيل دي كاملة. كمّل من عند آخر نقطة وقفنا عندها.",
+          "en": "You're right, and I won't make you repeat yourself. Everything you've said is on the conversation and will go into any ticket in full."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_grateful",
+      "label": {
+        "ar": "العميل شاكر",
+        "en": "Customer is grateful"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_grateful",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "العفو، وده واجبي [[icon:smile]]\nمبسوط إن الموضوع اتحل معاك. لو احتجت أي حاجة تانية، أنا موجود في أي وقت.",
+          "en": "You're very welcome — glad it worked out. I'm here any time you need anything else."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_praises_service",
+      "label": {
+        "ar": "ثناء على الخدمة",
+        "en": "Praising the service"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_praise_service",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كلامك ده بيفرق معانا فعلًا، شكرًا [[icon:smile]]\n\nهوصّل الكلام ده للفريق — الناس بتسمع الشكاوى أكتر من الشكر، وده بيبقى ليه أثر حقيقي على معنوياتهم.",
+          "en": "That genuinely means a lot — thank you. I'll pass it to the team; they hear complaints far more often than praise."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_praises_speed",
+      "label": {
+        "ar": "ثناء على السرعة",
+        "en": "Praising the speed"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_praise_speed",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحمد لله إن الرد وصلك بسرعة [[icon:smile]]\nده اللي بنحاول نحافظ عليه دايمًا. لو في أي وقت حسّيت إن الرد اتأخر عن المعتاد، قولّي على طول — ده بيبقى مؤشر مهم بالنسبالنا.",
+          "en": "Glad the reply reached you quickly — that's what we aim for. If it ever feels slower than usual, tell me; that's a useful signal for us."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_recommends",
+      "label": {
+        "ar": "ينوي يرشّح المنصة",
+        "en": "Would recommend us"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_recommend",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده أحلى كلام ممكن نسمعه، شكرًا من قلبي [[icon:smile]]\n\nلو ترشيحك ده وصل لحد فعلًا وحب يجرب، قولّي وأنا أساعده يبدأ صح من أول يوم.",
+          "en": "That's the best thing we could hear — thank you. If your recommendation reaches someone who wants to try it, tell me and I'll help them start well."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_criticism_general",
+      "label": {
+        "ar": "انتقاد عام",
+        "en": "General criticism"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_criticism",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كلامك مسموع، ومش هحاول أقنعك بعكسه [[icon:note]]\n\nاللي يهمني أفهم: إيه اللي ضايقك بالتحديد؟ التأخير في الرد، مشكلة معيّنة ماتحلّتش، ولا حاجة في المنصة نفسها؟ لما أعرف أقدر أوصّلها للجهة الصح بدل ما تفضل مجرد انطباع.",
+          "en": "I hear you, and I won't try to talk you out of it. What specifically bothered you — response time, an unresolved issue, or the platform itself? Knowing that lets me route it properly."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_criticism_service_declined",
+      "label": {
+        "ar": "مستوى الخدمة نزل",
+        "en": "Service has declined"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_declined_quality",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إنك تحس إن المستوى نزل عن الأول — دي ملاحظة تستاهل تتاخد بجدية [[icon:note]]\n\nقولّي بقالك قد إيه حاسس بكده، وإيه أكتر حاجة اختلفت من وجهة نظرك. الملاحظات دي بتوصل للإدارة كتقييم مش كشكوى فردية.",
+          "en": "Feeling the standard has slipped deserves to be taken seriously. Tell me how long you've felt that and what changed most — this goes to management as feedback, not just an individual complaint."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_criticism_compared_to_competitor",
+      "label": {
+        "ar": "مقارنة بمنافس",
+        "en": "Compared to a competitor"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_competitor",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مقارنتك دي مفيدة بصراحة، ومش هزعل منها [[icon:smile]]\n\nقولّي إيه اللي شفته عندهم وحسّيت إنه ناقص عندنا — لو حاجة موجودة فعلًا وإنت مش لاقيها هدلّك عليها، ولو مش موجودة هسجّلها كطلب من عميل. الاتنين مفيدين.",
+          "en": "That comparison is genuinely useful. Tell me what you saw there that feels missing here — if it exists I'll show you, and if it doesn't I'll log it as a customer request."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_criticism_bot_not_useful",
+      "label": {
+        "ar": "انتقاد للبوت",
+        "en": "Criticism of the assistant"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_bot_useless",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو ردودي مش بتفيدك، فالمشكلة عندي مش عندك [[icon:note]]\n\nخليني أجرب معاك بشكل مختلف: قولّي المشكلة بجملة واحدة بأسلوبك إنت، من غير ما تحاول تصيغها بطريقة معينة. ولو برضه مانفعتش، هوصّلك بحد من الفريق فورًا.",
+          "en": "If my replies aren't helping, that's on me. Tell me the issue in one sentence in your own words — and if that still doesn't work, I'll connect you to the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_criticism_too_many_steps",
+      "label": {
+        "ar": "الخطوات كتير",
+        "en": "Too many steps"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_too_many_steps",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معاك حق، وأنا مش بحب أطوّل عليك [[icon:note]]\n\nقولّي النتيجة اللي عايز توصلها بالظبط، وأنا أدّيك أقصر طريق ليها — ولو فيه اختصار موجود فعلًا هقولك عليه بدل الطريق الطويل.",
+          "en": "Fair point, and I don't want to drag it out. Tell me the outcome you want and I'll give you the shortest route to it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_praise_for_arabic",
+      "label": {
+        "ar": "ثناء على فهم العربي",
+        "en": "Praise for Arabic support"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "behaviour_testing_bot",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكرًا [[icon:smile]] الاهتمام بالعربي والعامية المصرية ده مقصود، مش صدفة — لأن أغلب عملائنا بيكتبوا كده فعلًا.\n\nولو في أي وقت كتبت حاجة ومافهمتهاش صح، قولّي — ده بيساعدني أتحسن.",
+          "en": "Thank you. Supporting Arabic and Egyptian dialect is deliberate, since that's how most of our customers actually write. If I ever misread you, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_says_finally",
+      "label": {
+        "ar": "أخيرًا اتحلت",
+        "en": "Finally resolved"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_finally",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحمد لله، وأنا عارف إنها أخدت منك وقت أطول من اللازم [[icon:note]]\n\nأنا آسف على الطريق الطويل ده. لو ظهرت تاني، متستناش — قولّي على طول وهتعامل معاها كحالة متكررة، ودي بتاخد أولوية أعلى.",
+          "en": "Glad it's done, and I know it took longer than it should have. If it returns, tell me immediately and I'll treat it as a recurring case with higher priority."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_gives_feedback",
+      "label": {
+        "ar": "ملاحظات على المنصة",
+        "en": "Product feedback"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_feedback",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اتفضل، وأنا بسمع [[icon:smile]]\n\nأنفع ملاحظة بتكون اللي بتوصف المشكلة اللي بتواجهك مش الحل المقترح — لأن كده الفريق بيفهم الاحتياج الحقيقي وأحيانًا بيطلع فيه حل موجود بالفعل.",
+          "en": "Go ahead, I'm listening. The most useful feedback describes the problem you're hitting rather than the proposed solution — that way the team understands the real need."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_blesses",
+      "label": {
+        "ar": "دعوة خير",
+        "en": "Customer offers a blessing"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_blessing",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ربنا يكرمك ويبارك فيك [[icon:smile]] كلامك ده أحسن حاجة في يومي.\nوأنا تحت أمرك في أي وقت.",
+          "en": "That's very kind of you, thank you. I'm here whenever you need."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_neutral_acknowledgement",
+      "label": {
+        "ar": "رد قصير محايد",
+        "en": "Short neutral acknowledgement"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_neutral_ack",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام [[icon:smile]] موجود لو احتجت أي حاجة.",
+          "en": "Understood — I'm here if you need anything."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_wants_escalation",
+      "label": {
+        "ar": "غاضب ويطلب تصعيد",
+        "en": "Angry, wants escalation"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_wants_escalation",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_human",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، وهصعّدها فورًا — من غير ما أطلب منك تشرح تاني [[icon:note]]\n\nكل اللي اتقال في المحادثة دي هيتكتب في التذكرة زي ما هو، ومعاه ملاحظة إنك طلبت تصعيد. الفريق هيشوف السياق كامل قبل ما يكلمك.",
+          "en": "I'll escalate it now, without asking you to explain again. Everything said here goes into the ticket verbatim, flagged as an escalation request."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_threatens_to_leave",
+      "label": {
+        "ar": "يهدد بالإلغاء",
+        "en": "Threatening to cancel"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_threatens_leave",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش هحاول أقنعك تفضل، ده قرارك وأنا محترمه [[icon:note]]\n\nبس قبل ما توصل للنقطة دي، إديني فرصة أفهم إيه اللي وصلك لها. لو حاجة نقدر نصلّحها، هصلّحها دلوقتي. ولو قررت تمشي بعدها، هساعدك تصدّر بياناتك وتخلّص الإجراءات من غير أي تعقيد.",
+          "en": "I won't try to talk you out of it — that's your decision. But let me understand what brought you here. If it's fixable, I'll fix it now; if you still decide to leave, I'll help you export your data cleanly."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_uses_harsh_words",
+      "label": {
+        "ar": "أسلوب حاد",
+        "en": "Harsh language"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_harsh_tone",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "واضح إنك متضايق جدًا، وأنا مش هاخد الكلام على نفسي [[icon:note]]\n\nاللي يهمني إن اللي ضايقك يتحل. احكيلي المشكلة وأنا معاك — ولو تفضّل تتكلم مع حد من الفريق مباشرة، قولّي وهوصّلك على طول.",
+          "en": "You're clearly very frustrated and I won't take it personally. What matters is fixing what upset you — or connecting you to a person directly if you prefer."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_repeated_problem",
+      "label": {
+        "ar": "نفس المشكلة رجعت",
+        "en": "Same problem returned"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_problem_returned",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إنها ترجع تاني بعد ما اتقفلت — ده معناه إن الحل الأول عالج العرض مش السبب [[icon:note]]\n\nمش هقفلها بنفس الطريقة. قولّي رقم التذكرة القديمة، وأنا هفتح واحدة جديدة مربوطة بيها ومعلّم عليها \"مشكلة متكررة\" — دي بتروح لمستوى أعلى في الفريق.",
+          "en": "If it came back after being closed, the first fix treated the symptom rather than the cause. Give me the old ticket number and I'll open a linked one flagged as recurring, which goes to a higher tier."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_about_charge",
+      "label": {
+        "ar": "غاضب من خصم",
+        "en": "Angry about a charge"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_angry_charge",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أي حاجة تخص فلوس أنا باخدها بجدية من أول لحظة [[icon:note]]\n\nقولّي المبلغ وتاريخ الخصم تقريبًا، وأنا أراجع الفواتير معاك بند بند. لو طلع خصم غير مستحق، هفتح تذكرة مالية بأولوية عاجلة على طول.",
+          "en": "Anything involving money I take seriously from the first moment. Give me the amount and rough date and I'll review your invoices line by line — and open an urgent finance ticket if it's unwarranted."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_no_one_helped",
+      "label": {
+        "ar": "محدش ساعده",
+        "en": "Nobody helped"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_no_one_helped",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إنك تدور على مساعدة وماتلاقيهاش — ده أسوأ إحساس ممكن يمر بيه عميل [[icon:note]]\n\nأنا معاك دلوقتي ومش هسيبك. ابدأ من أي نقطة تحبها، وأنا هجمّع الصورة بنفسي من غير ما أطلب منك ترتّبها.",
+          "en": "Looking for help and not finding it is the worst experience a customer can have. I'm with you now — start wherever you like and I'll piece it together myself."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_calming_down",
+      "label": {
+        "ar": "بدأ يهدى",
+        "en": "Starting to calm down"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_apology_from_customer",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك خالص، وأنا مقدّر إنك رجعت تكمل معايا [[icon:smile]]\n\nيلا نركّز على الحل. فضل إيه بالظبط؟",
+          "en": "Not a problem at all, and I appreciate you continuing with me. Let's focus on the fix — what's still outstanding?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_wants_compensation",
+      "label": {
+        "ar": "يطلب تعويض",
+        "en": "Asking for compensation"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_wants_compensation",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "طلبك مفهوم، ومش هرد عليه برد جاهز [[icon:note]]\n\nقرارات التعويض مش بتاعتي، بس اللي أقدر أعمله إني أوثّق الحالة بالتفصيل — مدة التعطل، أثرها على شغلك، وتاريخ البلاغات — وأصعّدها للجهة اللي بتقرر. قولّي التفاصيل دي وأنا أجهّزها.",
+          "en": "That's a fair ask and I won't fob you off. Compensation isn't my decision, but I can document the outage duration, its impact and your report history, and escalate it to the people who decide."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_at_wait_time",
+      "label": {
+        "ar": "غاضب من مدة الانتظار",
+        "en": "Angry about wait time"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الانتظار ده طويل فعلًا ومش هبرره [[icon:note]]\n\nقولّي رقم التذكرة وأنا أشوف هي واقفة عند مين وليه، وأقولك الحقيقة زي ما هي — ولو عدّت المدة المفروضة، هصعّدها من غير ما تطلب.",
+          "en": "That wait is genuinely long and I won't justify it. Give me the ticket number and I'll tell you where it's stuck and why — and escalate it if it's overdue."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_demands_manager",
+      "label": {
+        "ar": "يطلب مسؤول",
+        "en": "Demanding a manager"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_demands_manager",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_human",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "حقك، وهوصّل طلبك للإدارة [[icon:note]]\n\nعشان يوصلهم بصورة كاملة، قولّي في سطرين: المشكلة إيه، وإيه اللي حصل لما بلّغت عنها قبل كده. التفاصيل دي بتخلي المراجعة أسرع وأجدى.",
+          "en": "That's your right and I'll pass it to management. So it reaches them complete, tell me in two lines: the issue, and what happened when you reported it before."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_frustrated_with_process",
+      "label": {
+        "ar": "ضايق من الإجراءات",
+        "en": "Frustrated with the process"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "emotion_fed_up",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الإجراءات معقدة أكتر من اللازم، دي ملاحظة في محلها [[icon:note]]\n\nقولّي إنت واقف عند أنهي خطوة، ويمكن يكون فيه طريق أقصر ماخدتش بالك منه. ولو مفيش، هسجّل إن الخطوة دي بتعطّل العملاء.",
+          "en": "If the process is more complicated than it needs to be, that's fair feedback. Tell me which step you're stuck on — there may be a shorter route, and if not I'll log that this step blocks customers."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_angry_data_concern",
+      "label": {
+        "ar": "غاضب بخصوص بياناته",
+        "en": "Angry about data handling"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_data_concern",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "قلقك على بياناتك مشروع تمامًا، وسؤالك ده من حقك [[icon:note]]\n\nتقدر تراجع سجل النشاط في حسابك وتشوف كل عملية حساسة اتعملت وإمتى ومن أنهي جهاز. ولو شايف حاجة مريبة فيه، قولّي عليها وأنا أفتح تذكرة أمنية بأولوية عاجلة.",
+          "en": "Your concern about your data is entirely legitimate. You can review the activity log to see every sensitive action, when and from which device — and if anything looks wrong I'll open an urgent security ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_cannot_decide",
+      "label": {
+        "ar": "مش عارف يقرر",
+        "en": "Cannot decide"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_cannot_decide",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد وقتك، ومش لازم تقرر دلوقتي [[icon:smile]]\n\nخليني أساعدك تختار بدل ما تفضل محتار: قولّي بتستخدم إيه أكتر، وحجم فريقك كام، وأنا أرشحلك الأنسب وأقولك ليه — وتقدر ترجع في القرار في أي وقت.",
+          "en": "Take your time. Tell me what you use most and how big your team is, and I'll recommend the right option and explain why — and it's reversible."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_afraid_of_mistake",
+      "label": {
+        "ar": "خايف يغلط",
+        "en": "Afraid of making a mistake"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_afraid_mistake",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اطمن، وأغلب الحاجات هنا مش نهائية [[icon:smile]]\n\nقولّي إنت ناوي تعمل إيه، وأنا أقولك بصراحة: ده قابل للتراجع ولا لأ، وإيه اللي هيحصل بالظبط لو عملته. كده تقرر وإنت عارف مش وإنت خايف.",
+          "en": "Most things here are reversible. Tell me what you're about to do and I'll tell you honestly whether it can be undone and exactly what will happen."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_wants_advice",
+      "label": {
+        "ar": "يطلب نصيحة",
+        "en": "Asking for advice"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_wants_advice",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أكيد، وهقولك رأيي بصراحة مش اللي يرضيك [[icon:smile]]\n\nاحكيلي الموقف وإيه الخيارات اللي قدامك، وأنا أقولك أنهي واحد أنسب لحالتك وإيه عيوبه كمان — عشان تقرر بمعلومة كاملة.",
+          "en": "Of course, and I'll give you my honest view rather than what you want to hear. Describe the situation and your options and I'll tell you which fits, including its downsides."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_wants_to_try_first",
+      "label": {
+        "ar": "عايز يجرب الأول",
+        "en": "Wants to try first"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_try_first",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فكرة كويسة، والتجربة قبل الالتزام دايمًا أأمن [[icon:smile]]\n\nقولّي عايز تجرب إيه بالظبط وأنا أدلّك على أأمن طريقة تجربه بيها — من غير ما تأثر على عملائك أو على بياناتك الحقيقية.",
+          "en": "Good instinct — trying before committing is always safer. Tell me what you want to test and I'll show you the safest way to do it without affecting real customers or data."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_comparing_plans",
+      "label": {
+        "ar": "بيقارن بين الباقات",
+        "en": "Comparing plans"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_compare_plans",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خليني أسهّلها عليك بدل ما تقعد تقارن بنفسك [[icon:smile]]\n\nجاوبني على تلاتة: بتستخدم واتساب ولا تذاكر أكتر؟ فريقك كام واحد؟ وبتبعت كام رسالة في الشهر تقريبًا؟ وأنا أقولك الباقة المناسبة والسبب.",
+          "en": "Let me make it simpler. Answer three things: WhatsApp or tickets more? How many people on your team? Roughly how many messages a month? Then I'll tell you which plan fits and why."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_worried_about_commitment",
+      "label": {
+        "ar": "قلقان من الالتزام",
+        "en": "Worried about commitment"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_commitment",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفيش أي التزام بيقيّدك [[icon:note]]\n\nتقدر تلغي التجديد التلقائي في أي وقت، والاشتراك بيفضل شغال لآخر يوم دفعته — يعني مش بتخسر حاجة. وبياناتك بتفضل محفوظة ٩٠ يوم بعد الإلغاء لو غيّرت رأيك.",
+          "en": "There's no lock-in. You can turn off auto-renewal any time and keep the service until the last day you paid for, and your data is retained for 90 days after cancelling."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_asks_opinion",
+      "label": {
+        "ar": "بيسأل عن رأيك",
+        "en": "Asking for our opinion"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_asks_our_opinion",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_testing_bot",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رأيي إن أنسب اختيار بيعتمد على حجم شغلك مش على أكبر باقة [[icon:smile]]\n\nالناس بتغلط لما تاخد أكبر من احتياجها وتدفع في حاجة مش بتستخدمها. قولّي استخدامك الحقيقي وأنا أرشحلك اللي يكفيك — وتقدر ترقّي بعدين في أي وقت.",
+          "en": "My honest view: the right choice follows your actual usage, not the biggest plan. Tell me your real usage and I'll recommend what's enough — you can always upgrade later."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_needs_time",
+      "label": {
+        "ar": "محتاج وقت يفكر",
+        "en": "Needs time to think"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_needs_time",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد وقتك براحتك، ومفيش أي ضغط [[icon:smile]]\n\nلو حبيت ترجع تسأل في أي وقت، أنا هنا — وكل اللي اتكلمنا فيه النهاردة هيبقى موجود قدامك في المحادثة.",
+          "en": "Take all the time you need, no pressure. I'm here whenever you want to come back, and today's conversation stays here for you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_asks_if_worth_it",
+      "label": {
+        "ar": "يسأل هل يستاهل",
+        "en": "Asking if it is worth it"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_worth_it",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "سؤال في محله، وهجاوبه بصراحة [[icon:smile]]\n\nالحاجة دي بتستاهل لو إنت فعلًا بتواجه المشكلة اللي بتحلها. قولّي بتتعامل مع كام عميل وإزاي بتديرهم دلوقتي، وأنا أقولك هتفرق معاك ولا لأ — حتى لو الإجابة إنها مش ضرورية ليك.",
+          "en": "Fair question, answered honestly: it's worth it if you actually have the problem it solves. Tell me how many customers you handle and how you manage them now, and I'll tell you whether it will help — even if the answer is no."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hesitant_after_bad_experience",
+      "label": {
+        "ar": "متردد بسبب تجربة سابقة",
+        "en": "Hesitant after a bad experience"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_bad_experience",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_disappointed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو تجربة سابقة خلّتك حذر، ده مفهوم تمامًا وماينفعش أطلب منك تنساها [[icon:note]]\n\nقولّي إيه اللي حصل وقتها، وأنا أقولك بصراحة الحالة دي عندنا بتتعامل إزاي — ولو فيه حاجة فعلًا ماينفعش نضمنها، هقولك عليها بدل ما أطمّنك بالغلط.",
+          "en": "If a past experience made you cautious, that's understandable. Tell me what happened and I'll tell you honestly how that case is handled here — including anything we genuinely can't guarantee."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_needs_now",
+      "label": {
+        "ar": "مستعجل ومحتاج دلوقتي",
+        "en": "Urgent, needs it now"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_needs_now",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، هختصر معاك على طول [[icon:note]]\n\nقولّي المشكلة في سطر واحد بس — إيه اللي واقف؟ وأنا إما أدّيك الحل فورًا لو معروف، أو أفتحلك تذكرة عاجلة في نفس اللحظة.",
+          "en": "Understood — I'll keep it short. One line: what's blocked? I'll either give you the fix immediately or open an urgent ticket right now."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_deadline",
+      "label": {
+        "ar": "عنده موعد نهائي",
+        "en": "Has a deadline"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_deadline_now",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_deadline",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وجود ديدلاين بيغيّر ترتيب الأولوية فعلًا [[icon:note]]\n\nقولّي الديدلاين إمتى وإيه اللي مش عارف تخلّصه، وأنا أكتبهم في التذكرة صراحة — الحالات اللي ليها وقت محدد بتتعامل قبل العادية.",
+          "en": "A deadline genuinely changes the priority. Tell me when it is and what's blocking you, and I'll state both on the ticket — time-bound cases are handled ahead of routine ones."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_everything_stopped",
+      "label": {
+        "ar": "كل حاجة واقفة",
+        "en": "Everything has stopped"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_everything_stopped",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو كل حاجة واقفة، دي أعلى درجة أولوية عندنا [[icon:note]]\n\nجاوبني بسرعة على سؤالين وأنا أفتحها عاجلة: المشكلة دي معاك إنت بس ولا الفريق كله؟ وبدأت إمتى تقريبًا؟",
+          "en": "A complete stoppage is our highest priority. Two quick questions and I'll raise it as urgent: is it just you or the whole team, and roughly when did it start?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_asks_how_long",
+      "label": {
+        "ar": "بيسأل هياخد قد إيه",
+        "en": "Asking how long it will take"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_how_long",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "هقولك المدة الحقيقية مش المدة اللي تريّحك [[icon:note]]\n\nالحالات العاجلة: أول رد خلال ساعة في مواعيد العمل.\nالحالات العادية: خلال يوم عمل.\n\nودي مدة أول رد مش الحل النهائي — الحل بيعتمد على طبيعة المشكلة نفسها.",
+          "en": "I'll give you the real timeline rather than a comfortable one. Urgent: first reply within an hour during business hours. Normal: within one business day. That's first response, not final resolution."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_outside_hours",
+      "label": {
+        "ar": "مستعجل بره المواعيد",
+        "en": "Urgent outside working hours"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_outside_hours",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أنا معاك دلوقتي حتى لو الفريق البشري خارج المواعيد [[icon:note]]\n\nاحكيلي المشكلة — لو حاجة أقدر أحلّها هحلّها فورًا، ولو لأ هفتح تذكرة عاجلة بتوصلهم أول ما اليوم يبدأ، وبأولوية أعلى من اللي جت بعدك.",
+          "en": "I'm here even though the human team is outside hours. Tell me the issue — I'll fix it now if I can, otherwise I'll open an urgent ticket that reaches them first thing."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_repeated_pings",
+      "label": {
+        "ar": "بيكرر الرسائل",
+        "en": "Sending repeated messages"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_repeated_pings",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_anyone_there",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أنا شايف رسايلك كلها ومحتاجش تعيد [[icon:smile]]\n\nأنا هنا ومعاك. اكتبلي التفاصيل في رسالة واحدة براحتك، وده هيخليني أوصل للحل أسرع من الرسايل المتفرقة.",
+          "en": "I can see all your messages — no need to repeat. Put the details in one message and I'll get to the answer faster than with scattered ones."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_wants_phone_call",
+      "label": {
+        "ar": "عايز مكالمة",
+        "en": "Wants a phone call"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_wants_call",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_human",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الدعم عندنا بيشتغل بالتذاكر والشات مش بالمكالمات، وده عشان كل خطوة تبقى موثّقة [[icon:note]]\n\nبس ده مش معناه إنك تستنى: قولّي المشكلة هنا وأنا أفتحها بأولوية عاجلة، وفريق الدعم هيتواصل معاك على التذكرة بسرعة.",
+          "en": "Our support runs on tickets and chat rather than calls, so every step stays documented. That needn't slow you down — tell me the issue and I'll raise it as urgent."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_customer_waiting",
+      "label": {
+        "ar": "عميله مستني",
+        "en": "Their own customer is waiting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_client_waiting",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_third_party_waiting",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فاهم — عندك عميل مستني وإنت في النص، والموقف ده مش مريح [[icon:note]]\n\nقولّي إيه اللي مش عارف توصله لعميلك، ويمكن يكون فيه طريق بديل مؤقت يخليك ترد عليه دلوقتي لحد ما المشكلة الأساسية تتحل.",
+          "en": "I understand — you have a customer waiting and you're caught in the middle. Tell me what you can't get to them and there may be a temporary workaround so you can reply now."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_urgent_calm_down_first",
+      "label": {
+        "ar": "تهدئة قبل الحل",
+        "en": "Settling before solving"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_needs_calming",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_angry",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد نفس، واحنا هنخلّصها [[icon:note]]\n\nأسرع طريق مش إننا نستعجل، إننا نبدأ صح: قولّي حاجة واحدة بس — إيه أهم حاجة محتاج تشتغل دلوقتي حالًا؟ ونبدأ منها.",
+          "en": "Take a breath — we'll get through it. The fastest route is starting in the right place: what's the single most important thing you need working right now?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_goodbye_satisfied",
+      "label": {
+        "ar": "إنهاء بعد الحل",
+        "en": "Closing after resolution"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_goodbye_done",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، مبسوط إننا خلّصناها مع بعض [[icon:smile]]\n\nلو ظهر أي حاجة تانية في أي وقت، أنا موجود. يوم سعيد عليك.",
+          "en": "Glad we got it sorted together. I'm here any time something else comes up — have a good day."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_goodbye_nothing_else",
+      "label": {
+        "ar": "مفيش حاجة تانية",
+        "en": "Nothing else needed"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_nothing_else",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام [[icon:smile]] لو احتجت أي حاجة بعد كده، ابعتلي في أي وقت وهكمّل معاك من غير ما تعيد الشرح.",
+          "en": "Understood. Message me any time and I'll pick up without you having to explain again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wants_to_continue",
+      "label": {
+        "ar": "عنده حاجة تانية",
+        "en": "Has another question"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_another_thing",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اتفضل طبعًا، احنا لسه مخلّصناش [[icon:smile]] قولّي الحاجة التانية.",
+          "en": "Of course, go ahead — what else can I help with?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_last_question",
+      "label": {
+        "ar": "آخر سؤال",
+        "en": "One last question"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_last_question",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد راحتك، ومفيش حاجة اسمها آخر سؤال [[icon:smile]] اسأل براحتك.",
+          "en": "Ask away — and there's no such thing as a last question here."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_encourage_to_continue",
+      "label": {
+        "ar": "تشجيع على الاستمرار",
+        "en": "Encouraging them to continue"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_stuck_midway",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كمّل معايا، إحنا قربنا [[icon:smile]]\nأي تفصيلة صغيرة فاكرها ممكن تكون هي المفتاح — حتى لو شكلها مش مهم.",
+          "en": "Stay with me, we're close. Any small detail you remember could be the key, even if it seems unimportant."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_leaving_unresolved",
+      "label": {
+        "ar": "مغادرة من غير حل",
+        "en": "Leaving unresolved"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_leaving_unresolved",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش مرتاح إنك تمشي والموضوع لسه معلّق [[icon:note]]\n\nخليني أفتحلك تذكرة بكل اللي اتكلمنا فيه قبل ما تقفل، عشان الفريق يتابع معاك حتى وإنت مش هنا. كده مش هتحتاج ترجع تشرح من الأول.",
+          "en": "I'm not comfortable with you leaving this unresolved. Let me open a ticket with everything we discussed so the team follows up even while you're away."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_will_come_back_later",
+      "label": {
+        "ar": "هيرجع بعدين",
+        "en": "Will come back later"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_back_later",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، وأنا هنا في أي وقت ترجع فيه [[icon:smile]]\n\nالمحادثة دي محفوظة، فلما ترجع مش هتبدأ من الصفر — هنكمّل من عند آخر نقطة.",
+          "en": "I'm here whenever you come back. This conversation is saved, so we'll continue from where we left off rather than starting over."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_check_if_anything_else",
+      "label": {
+        "ar": "سؤال عن أي حاجة تانية",
+        "en": "Checking for anything else"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_anything_else",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام كده [[icon:smile]] فيه أي حاجة تانية تحب نشوفها مع بعض قبل ما نقفل؟",
+          "en": "Anything else you'd like to look at together before we finish?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wish_good_day",
+      "label": {
+        "ar": "تمنيات طيبة",
+        "en": "Well wishes"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_well_wishes",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ويوم سعيد عليك كمان [[icon:smile]] وربنا يوفقك في شغلك.",
+          "en": "Have a good day as well, and best of luck with your work."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_customer_busy_now",
+      "label": {
+        "ar": "مشغول دلوقتي",
+        "en": "Busy right now"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_busy_now",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك خالص، اتصرف براحتك [[icon:smile]]\nأنا مش رايح حتة — ابعتلي لما تفضى.",
+          "en": "Not a problem at all — I'm not going anywhere. Message me when you're free."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_thanks_and_goodbye",
+      "label": {
+        "ar": "شكر ووداع",
+        "en": "Thanks and farewell"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_thanks_bye",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "العفو، وأي وقت [[icon:smile]] خلّي بالك من نفسك، ومع السلامة.",
+          "en": "You're welcome any time. Take care."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_offer_more_help",
+      "label": {
+        "ar": "عرض مساعدة إضافية",
+        "en": "Offering further help"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_offer_help",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو حابب، أقدر أساعدك في حاجات تانية كمان: ظبط الردود الآلية، مراجعة إعدادات الإشعارات، أو شرح التقارير [[icon:smile]] قولّي لو حاجة منهم تهمك.",
+          "en": "If you'd like, I can also help with auto-replies, notification settings or understanding the reports — just say the word."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_short_ok",
+      "label": {
+        "ar": "رد قصير بالموافقة",
+        "en": "Short acknowledgement"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_short_ok",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام كده [[icon:smile]] موجود لو احتجت حاجة.",
+          "en": "Great — I'm here if you need anything."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_to_repeat",
+      "label": {
+        "ar": "يطلب إعادة الشرح",
+        "en": "Asking to repeat"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_repeat_please",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_repeat_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، هقولها بشكل أبسط [[icon:smile]]\n\nقولّي بس: أنهي جزء بالتحديد اللي مش واضح؟ عشان أركّز عليه بدل ما أعيد الكلام كله.",
+          "en": "No problem, I'll put it more simply. Which part specifically wasn't clear, so I focus there rather than repeating everything?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wants_summary",
+      "label": {
+        "ar": "يطلب تلخيص",
+        "en": "Asking for a summary"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_wants_summary",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_repeat_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، الخلاصة في نقط [[icon:smile]]\n\nقولّي إنت عايز تلخيص لإيه بالظبط — الخطوات اللي عملناها، ولا اللي لسه مطلوب منك؟ وأنا ألخّصهولك في سطرين.",
+          "en": "Sure. Do you want a summary of what we've done, or of what's still needed from you? I'll keep it to two lines."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_confirm_understanding",
+      "label": {
+        "ar": "يتأكد إنه فهم",
+        "en": "Confirming understanding"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_confirm_steps",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خليني أتأكد إننا على نفس الصفحة [[icon:smile]]\n\nاعملها بالترتيب اللي قولتهولك، ولو أي خطوة فيهم مااشتغلتش زي ما قولت، قولّي وقفت عند أنهي واحدة بالظبط وأنا أكمّل معاك من عندها.",
+          "en": "Let me make sure we're aligned. Follow the steps in order, and if any one doesn't behave as described, tell me which and I'll continue from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_general_reassurance",
+      "label": {
+        "ar": "طمأنة عامة",
+        "en": "General reassurance"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_needs_reassurance",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "متقلقش، إحنا هنوصل لحل [[icon:note]]\n\nأغلب اللي بيوصلني بيتحل في نفس المحادثة، واللي مابيتحلش بيروح للفريق بسياق كامل. في الحالتين مش هتفضل مستني من غير ما تعرف إيه اللي بيحصل.",
+          "en": "Don't worry, we'll get to a solution. Most issues are resolved in the same conversation, and those that aren't go to the team with full context. Either way you won't be left in the dark."
+        }
+      },
+      "requiresTicketIfUnresolved": false
     }
   ]
 }

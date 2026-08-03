@@ -16,6 +16,22 @@ function scenarioName(decision) {
     return decision.scenarioLabel?.ar || 'المشكلة دي';
 }
 
+/**
+ * «يقترح أكتر من حل»: بيعرض الاحتمالات القريبة اللي المحرك شافها كمان،
+ * مرتّبة من الأرجح للأقل.
+ *
+ * The alternatives arrive on the Decision as `alternatives` — the caller
+ * decides how many and whether to include any at all, so this template
+ * stays what it claims to be: phrasing, not policy. Nothing renders when
+ * the field is absent, which is the default.
+ */
+function renderAlternatives(decision) {
+    const alternatives = decision.alternatives;
+    if (!Array.isArray(alternatives) || alternatives.length === 0) return '';
+    const lines = alternatives.map((alt, i) => `${i + 1}. ${alt.label?.ar || alt.scenarioId}`);
+    return `\n\nولو ده مش هو، أقرب احتمالات تانية عندي:\n${lines.join('\n')}`;
+}
+
 export const ar = {
     WAIT_FOR_USER: () => ({
         text: 'تمام، قولي طلبك أو المشكلة اللي حابب تتكلم عنها وهساعدك فورًا [[icon:smile]]',
@@ -33,8 +49,20 @@ export const ar = {
             return { text: `${bodyText}\n\nأي حاجة تانية حابب تعرفها؟`, options: [] };
         }
 
+        // «يقول السبب المرجّح»: بيطمّن العميل إن المحرك فاهمه قبل ما يديه
+        // الحل. بيتحط قبل الحل مش بعده — العميل بيقرا أول سطرين بس.
+        const rootCause = decision.explainRootCause && decision.scenarioLabel?.ar
+            ? `اللي فهمته إن المشكلة في «${scenarioName(decision)}».\n\n`
+            : '';
+
+        // «التخمين الذكي»: لازم يبان إنه ترجيح، مش تشخيص. عميل يتصرف على
+        // أساس تخمين غلط أسوأ من عميل استنى موظف.
+        const hedge = decision.hedged
+            ? 'مش متأكد ١٠٠٪، بس أرجح حاجة إن ده سبب المشكلة:\n\n'
+            : '';
+
         return {
-            text: `${bodyText}\n\nده حل المشكلة؟`,
+            text: `${rootCause}${hedge}${bodyText}${renderAlternatives(decision)}\n\nده حل المشكلة؟`,
             options: [
                 { label: '[[icon:check]] تم، شكرًا', value: 'تم الحل' },
                 { label: '[[icon:note]] لسه عندي نفس المشكلة', value: 'المشكلة لسه موجودة' }

@@ -13,6 +13,14 @@ function scenarioName(decision) {
     return decision.scenarioLabel?.en || 'this issue';
 }
 
+/** Mirrors ar.js's renderAlternatives — see the rationale there. */
+function renderAlternatives(decision) {
+    const alternatives = decision.alternatives;
+    if (!Array.isArray(alternatives) || alternatives.length === 0) return '';
+    const lines = alternatives.map((alt, i) => `${i + 1}. ${alt.label?.en || alt.scenarioId}`);
+    return `\n\nIf that isn't it, the next most likely causes are:\n${lines.join('\n')}`;
+}
+
 export const en = {
     WAIT_FOR_USER: () => ({
         text: "Sure, go ahead and tell me what's going on and I'll help right away.",
@@ -30,8 +38,16 @@ export const en = {
             return { text: `${bodyText}\n\nAnything else you'd like to know?`, options: [] };
         }
 
+        const rootCause = decision.explainRootCause && decision.scenarioLabel?.en
+            ? `From what you've described, this looks like ${scenarioName(decision)}.\n\n`
+            : '';
+
+        const hedge = decision.hedged
+            ? "I'm not certain, but this is the most likely cause:\n\n"
+            : '';
+
         return {
-            text: `${bodyText}\n\nDid that solve it?`,
+            text: `${rootCause}${hedge}${bodyText}${renderAlternatives(decision)}\n\nDid that solve it?`,
             options: [
                 { label: 'Yes, thanks', value: 'resolved' },
                 { label: "I'm still having the same issue", value: 'still having the issue' }

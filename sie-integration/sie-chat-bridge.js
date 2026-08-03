@@ -24,30 +24,188 @@
  */
 import { normalize } from '../sie/language/normalizer.js';
 import { detectSmallTalk, SMALL_TALK_REPLIES } from '../sie/language/small-talk.js';
+import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion } from '../sie/language/emotion-detector.js';
+import { activationThresholdForLevel } from '../sie/ranking/ranking-engine.js';
+import { recallCustomerName, findOpenTicket, recallPreviousSession } from './sie-customer-memory.js';
 import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
 import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
 import { decide } from '../sie/decision/decision-engine.js';
 import { ACTIONS, createEmptyDecisionState } from '../sie/decision/decision-types.js';
 import { composeAnswerDecision } from '../sie/knowledge/answer-composer.js';
+import { staticKnowledgeProvider } from '../sie/knowledge/static-knowledge.local.js';
 import { renderDecision } from '../sie/dialogue/dialogue-renderer.js';
 import { executeDecision, logTraceEvent } from '../sie/action/action-layer.js';
 import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js';
 import { buildTraceEvent } from '../sie/observability/trace-logger.js';
-import { tryConsumeSieMessage } from './sie-entitlement.js';
+import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
+import { createScenarioCatalogSupabaseProvider } from '../sie/scenarios/scenario-catalog.supabase.js';
 
 /**
- * قرار CREATE_TICKET كان بينفّذ فورًا جوه محرك القرار من غير ما يسأل
- * العميل. دلوقتي أي مرة الـ Decision Engine يوصل لـ CREATE_TICKET، بدل ما
- * نفتح التذكرة على طول، بنوقف ونسأل العميل الأول ("تحب أفتحلك تذكرة؟")
- * ولحد ما يوافق صراحة، التذكرة متتفتحش. الحالة المؤقتة دي (اللي بتفضل
- * لحد رد العميل) بتتخزن جوه botState.sie.pendingTicketConfirmation.
+ * الحالات اللي الإعدادات سامحة للمحرك يقراها.
  *
- * بنعيد استخدام executeDecision() الموجود بدل ما نضيف مسار كتابة جديد:
- * أي Decision بـ action مش من TICKET_ACTIONS بيمر على persistBotTurn
- * العادي، فبنبعتله WAIT_FOR_USER (موجود أصلاً في ACTIONS) مع رسالة
- * السؤال، وده بيخزن الرسالة وحالة الجلسة بنفس الطريقة العادية من غير ما
- * يفتح تذكرة فعليًا.
+ * Each emotion has its own switch, so an operator who finds one category
+ * misfiring can silence just that one instead of losing the whole layer.
+ *
+ * @param {Object} settings
+ * @returns {string[]}
  */
+function enabledEmotions(settings) {
+    return EMOTION_SETTING_KEYS
+        .filter(({ key }) => settings[key] !== false)
+        .map(({ emotion }) => emotion);
+}
+
+/**
+ * «يستخدم المقالات» لما يتقفل. مزوّد فاضي بدل ما نلف على الشرط في نص
+ * answer-composer — الموديول يفضل مايعرفش إن فيه إعداد أصلاً.
+ */
+const EMPTY_KNOWLEDGE_PROVIDER = { getEntryByKey: async () => null };
+
+/**
+ * «يقترح أكتر من حل»: الاحتمالات اللي بعد الأول، من المرشحين الحقيقيين بس.
+ *
+ * Anything below the activation threshold is noise the engine already
+ * discounted; listing it as a "next most likely cause" would be inventing
+ * confidence the ranking never had.
+ *
+ * @param {Object} ranking
+ * @param {number} max
+ * @param {number} activationThreshold
+ * @returns {Array<{scenarioId: string, label: Object|null, confidence: number}>|null}
+ */
+function collectAlternatives(ranking, max, activationThreshold) {
+    const limit = typeof max === 'number' && max > 0 ? max : 2;
+    const rest = (ranking.ranked || [])
+        .slice(1)
+        .filter((entry) => entry.hypothesis.confidence >= activationThreshold && entry.scenario)
+        .slice(0, limit);
+    if (rest.length === 0) return null;
+    return rest.map((entry) => ({
+        scenarioId: entry.hypothesis.scenarioId,
+        label: entry.scenario.label || null,
+        confidence: entry.hypothesis.confidence
+    }));
+}
+
+/**
+ * جملة الترحيب الشخصية: اسم العميل، ولو رجع بعد فترة، سؤال عن مشكلته
+ * اللي فاتت.
+ *
+ * Both halves are settings-gated and both fail soft — a name lookup that
+ * errors simply produces a normal greeting, never a broken turn.
+ *
+ * @returns {Promise<string>} '' when there is nothing personal to say
+ */
+async function buildGreetingPersonalisation({ supabase, userId, prevSie, settings, responseLanguage }) {
+    const lang = responseLanguage === 'en' ? 'en' : 'ar';
+    const parts = [];
+
+    if (settings.memory_remember_name) {
+        const name = await recallCustomerName(supabase, userId);
+        if (name) parts.push(lang === 'en' ? `Hi ${name},` : `أهلاً يا ${name}،`);
+    }
+
+    // Only after the context has actually expired. Asking "did last time's
+    // problem get sorted?" mid-conversation would be asking about the
+    // problem they are currently describing.
+    const lastIssue = prevSie?.contextExpired ? prevSie.lastScenarioLabel : null;
+    if (settings.memory_remember_last_issue && lastIssue) {
+        const label = lastIssue[lang] || lastIssue.ar || null;
+        if (label) {
+            parts.push(lang === 'en'
+                ? `last time we looked at "${label}" — did that get sorted?`
+                : `آخر مرة كنا بنشوف «${label}» — اتظبطت معاك؟`);
+        }
+    }
+
+    return parts.length ? `${parts.join(' ')}\n\n` : '';
+}
+
+/**
+ * «يدوّر في المقالات قبل ما يفتح تذكرة».
+ *
+ * The engine reaches CREATE_TICKET when the leading scenario has no stored
+ * solution. But a scenario having no solution and the knowledge base having
+ * no answer are different things — the article is keyed on the scenario's
+ * `knowledgeSource`, which exists independently of whether the scenario
+ * itself declares a resolution.
+ *
+ * Returns an ANSWER decision when an article covers it, or null to let the
+ * ticket proceed. Deliberately does NOT reach for the runner-up's article:
+ * answering from a scenario the engine did not actually settle on is how a
+ * customer gets a confident reply to a question they never asked.
+ *
+ * @param {Object} decision
+ * @param {Object} ranking
+ * @returns {Promise<Object|null>}
+ */
+async function rescueWithArticle(decision, ranking) {
+    const scenario = ranking.topHypothesis?.scenario;
+    const key = scenario?.resolution?.knowledgeSource;
+    if (!key) return null;
+
+    try {
+        const entry = await staticKnowledgeProvider.getEntryByKey(key);
+        if (!entry) return null;
+        return {
+            ...decision,
+            action: ACTIONS.ANSWER,
+            ticketDraft: null,
+            resolution: { ...scenario.resolution, hasAutoResolution: true },
+            knowledgeData: { source: key, data: { text: entry.text } },
+            explanation: `${decision.explanation} Knowledge base has an entry for "${key}", so answering from it instead of creating a ticket.`
+        };
+    } catch (err) {
+        // A knowledge outage must not block the hand-off it was meant to
+        // avoid — fall through and let the ticket be created.
+        console.warn('[sie] article lookup before ticket failed:', err?.message || err);
+        return null;
+    }
+}
+
+const EMOTION_SETTING_KEYS = [
+    { key: 'emotion_anger', emotion: 'anger' },
+    { key: 'emotion_frustration', emotion: 'frustration' },
+    { key: 'emotion_urgency', emotion: 'urgency' },
+    { key: 'emotion_sarcasm', emotion: 'sarcasm' },
+    { key: 'emotion_thanks', emotion: 'thanks' },
+    { key: 'emotion_satisfaction', emotion: 'satisfaction' }
+];
+
+/**
+ * «يفتكر سياق المحادثة» و«مدة الاحتفاظ بالسياق».
+ *
+ * Returning null makes the very next line treat the turn as the first one
+ * of a fresh session — the engine needs no separate "forget" path, because
+ * "no previous state" is a case it already handles on every new chat.
+ *
+ * Expiry matters more than it looks: a customer who comes back tomorrow
+ * with an unrelated problem would otherwise be diagnosed against
+ * yesterday's evidence, and the accumulated tokens would quietly pull the
+ * engine toward the wrong scenario.
+ *
+ * @param {Object|null} prevSie
+ * @param {Object} settings
+ * @returns {Object|null}
+ */
+function recallPreviousState(prevSie, settings) {
+    if (!prevSie) return null;
+    if (settings.memory_keep_context === false) return null;
+
+    const minutes = typeof settings.memory_context_minutes === 'number' ? settings.memory_context_minutes : null;
+    if (minutes && prevSie.lastTurnAt) {
+        const ageMinutes = (Date.now() - new Date(prevSie.lastTurnAt).getTime()) / 60000;
+        if (Number.isFinite(ageMinutes) && ageMinutes > minutes) {
+            // «يفتكر آخر مشكلة» يفضل شغّال حتى بعد ما السياق يتنسى: دي
+            // معلومة واحدة بنسأل عنها، مش دليل تشخيصي بنبني عليه.
+            return settings.memory_remember_last_issue === false
+                ? null
+                : { lastScenarioLabel: prevSie.lastScenarioLabel || null, contextExpired: true };
+        }
+    }
+    return prevSie;
+}
+
 const TICKET_CONFIRM_TEXT = {
     ar: 'تحب أفتحلك تذكرة دعم عشان فريقنا يتابع معاك؟ [[icon:ticket]]',
     en: 'Would you like me to open a support ticket so our team can follow up with you? [[icon:ticket]]'
@@ -63,6 +221,18 @@ const TICKET_CONFIRM_OPTIONS = {
         { label: '[[icon:cancel]] No, not now', value: 'no not now' }
     ]
 };
+
+const TICKET_DISABLED_TEXT = {
+    ar: 'المشكلة دي محتاجة حد من فريق الدعم يشوفها، بس فتح التذاكر متوقف حاليًا من الإعدادات. '
+        + 'تقدر تتواصل مع الفريق مباشرة وهما هيتابعوا معاك [[icon:note]]',
+    en: 'This needs a member of the support team, but ticket creation is currently switched off in settings. '
+        + 'Please contact the team directly and they will follow up with you [[icon:note]]'
+};
+
+/** Published rows from chat_engine_scenarios, used when settings say so. */
+function createSupabaseScenarioProvider(supabase) {
+    return createScenarioCatalogSupabaseProvider(supabase);
+}
 
 const TICKET_DECLINE_TEXT = {
     ar: 'تمام، معلش، مش هفتحلك تذكرة دلوقتي. لو احتجت أي حاجة تانية قولي [[icon:smile]]',
@@ -91,9 +261,22 @@ function classifyTicketConfirmationReply(text) {
  * بتاعة التذكرة جوه botState.sie.pendingTicketConfirmation، ونعرض سؤال
  * التأكيد للعميل بدل ما نفتح التذكرة على طول.
  */
-async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessionId, nextBotState, port, responseLanguage }) {
+/**
+ * قرار CREATE_TICKET كان بينفّذ فورًا جوه محرك القرار من غير ما يسأل
+ * العميل. دلوقتي أي مرة الـ Decision Engine يوصل لـ CREATE_TICKET، بدل ما
+ * نفتح التذكرة على طول، بنوقف ونسأل العميل الأول ("تحب أفتحلك تذكرة؟")
+ * ولحد ما يوافق صراحة، التذكرة متتفتحش. الحالة المؤقتة دي (اللي بتفضل
+ * لحد رد العميل) بتتخزن جوه botState.sie.pendingTicketConfirmation.
+ *
+ * بنعيد استخدام executeDecision() الموجود بدل ما نضيف مسار كتابة جديد:
+ * أي Decision بـ action مش من TICKET_ACTIONS بيمر على persistBotTurn
+ * العادي، فبنبعتله WAIT_FOR_USER (موجود أصلاً في ACTIONS) مع رسالة
+ * السؤال، وده بيخزن الرسالة وحالة الجلسة بنفس الطريقة العادية من غير ما
+ * يفتح تذكرة فعليًا.
+ */
+async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessionId, nextBotState, port, responseLanguage, prefix = '' }) {
     const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const confirmRendered = { text: TICKET_CONFIRM_TEXT[lang], options: TICKET_CONFIRM_OPTIONS[lang] };
+    const confirmRendered = { text: prefix + TICKET_CONFIRM_TEXT[lang], options: TICKET_CONFIRM_OPTIONS[lang] };
 
     const stateWithPending = {
         ...nextBotState,
@@ -268,9 +451,9 @@ async function escalateImmediately({ reason, responseLanguage, turn, sessionId, 
  * تعداد المحرك. botState.sie بيفضل زي ما هو تمامًا (لو كانت فيه جلسة
  * تشخيص شغّالة فعلاً، بتكمل عادي في الدور اللي بعد كده).
  */
-async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port }) {
+async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port, prefix = '' }) {
     const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const rendered = { text: SMALL_TALK_REPLIES[smallTalk.type][lang], options: [] };
+    const rendered = { text: prefix + SMALL_TALK_REPLIES[smallTalk.type][lang], options: [] };
     const nextBotState = { ...(botState || {}), sie: prevSie ? { ...prevSie } : { turnCount: 0 } };
 
     const actionResult = await executeDecision({
@@ -306,6 +489,15 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
     if (!text || !supabase || !sessionId || !userId) return null;
 
     // 1. Entitlement gate — the one place a SIE turn is authorized and metered.
+    // 0. Settings. Read before anything is spent or written, so turning the
+    //    engine off is immediate and costs the customer nothing — the caller
+    //    simply falls back to the traditional engine as if SIE were absent.
+    const settings = await getSieSettings(supabase);
+    if (!settings.engine_enabled) {
+        console.info('SIE turn skipped: المحرك متوقف من الإعدادات');
+        return null;
+    }
+
     const entitlement = await tryConsumeSieMessage(supabase, userId);
     if (!entitlement.allowed) {
         console.info('SIE turn skipped:', entitlement.reason);
@@ -316,7 +508,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
     const turnStartedAt = Date.now();
 
     try {
-        const prevSie = botState?.sie || null;
+        let prevSie = recallPreviousState(botState?.sie || null, settings);
 
         // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
         // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
@@ -324,7 +516,21 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             return await resolvePendingTicketConfirmation({ text, sessionId, botState, prevSie, port });
         }
 
+        // «يستفيد من المحادثات القديمة». بيتسأل مرة واحدة بس، أول رسالة في
+        // محادثة جديدة — بعد كده السياق الحالي هو الأصح.
+        if (settings.memory_use_past_conversations && !prevSie?.diagnosticState) {
+            const recalled = await recallPreviousSession(
+                supabase, userId, sessionId, settings.memory_context_minutes || 1440
+            );
+            if (recalled) {
+                prevSie = { ...(prevSie || {}), diagnosticState: recalled.diagnosticState, lastScenarioLabel: recalled.lastScenarioLabel };
+            }
+        }
+
         const turn = (prevSie?.turnCount || 0) + 1;
+        // Prepended to whatever the pipeline decides this turn, when the
+        // customer's tone calls for acknowledging before answering.
+        let emotionPrefix = '';
 
         // 2. Language (Module 1)
         const { normalizedTokens, responseLanguage } = await normalize(text, {
@@ -338,14 +544,50 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // هتكمل عادي في الدور اللي بعد كده لأن botState.sie ماتغيرش هنا (ما
         // عدا human_request/frustration، اللي بيسجّلوا تصعيد حقيقي – شايف
         // escalateImmediately فوق).
+        // Detection always runs. «يرد على التحيات» is about pleasantries, so
+        // it must not silently disable "عايز أكلم موظف" — an explicit request
+        // for a person is honoured whatever the settings say.
         const smallTalk = detectSmallTalk(text);
-        if (smallTalk?.type === 'human_request' || smallTalk?.type === 'frustration') {
-            const result = await escalateImmediately({ reason: smallTalk.type, responseLanguage, turn, sessionId, botState, prevSie, port });
+        const wantsHuman = smallTalk?.type === 'human_request';
+
+        // 2.6. الذكاء العاطفي (sie/language/emotion-detector.js). مش زي
+        // small talk: بيشتغل على أي رسالة مهما كان طولها، وبيرافق المشكلة
+        // الحقيقية بدل ما ياخد مكانها.
+        const emotion = settings.emotion_detection
+            ? detectEmotion(text, { enabled: enabledEmotions(settings) })
+            : null;
+
+        // الغضب والسخرية بيروحوا لموظف. الإحباط القديم (اللي كان من
+        // small talk) بقى جزء من نفس القراءة دي.
+        const emotionEscalates = shouldEscalateForEmotion(emotion) && settings.ticket_on_anger;
+        const legacyFrustration = smallTalk?.type === 'frustration' && settings.ticket_on_anger;
+
+        if (wantsHuman || emotionEscalates || legacyFrustration) {
+            const reason = wantsHuman ? 'human_request' : 'frustration';
+            const result = await escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port });
             if (result) return result;
             return null;
         }
-        if (smallTalk) {
-            const result = await respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port });
+
+        // مش هيتصعّد، فبنعترف بحالته ونكمل تشخيص في نفس الدور. تجاهُل
+        // نبرة واضحة أسوأ من إننا نرد عليها ونكمل.
+        if (emotion && settings.emotion_reply && settings.knowledge_empathy_replies) {
+            emotionPrefix = `${acknowledgementFor(emotion.emotion, responseLanguage)}\n\n`;
+        } else if (smallTalk?.type === 'frustration' && settings.knowledge_empathy_replies) {
+            emotionPrefix = `${acknowledgementFor('frustration', responseLanguage)}\n\n`;
+        }
+
+        // الرسايل اللي كلها كلام عادي (تحية، شكر، سؤال هوية) بتترد
+        // مباشرة من غير تشخيص. لو النبرة كانت شكر أو رضا، ده نفس المعنى:
+        // مفيش مشكلة نشخّصها.
+        const isPleasantry = smallTalk && smallTalk.type !== 'frustration' && smallTalk.type !== 'human_request';
+        if (isPleasantry && settings.reply_to_greetings) {
+            // «يفتكر اسم العميل» و«يفتكر آخر مشكلة» — الاتنين بيظهروا في
+            // الترحيب بس، مش في كل رد، عشان مايبقاش تكرار مزعج.
+            const personal = smallTalk.type === 'greeting'
+                ? await buildGreetingPersonalisation({ supabase, userId, prevSie, settings, responseLanguage })
+                : '';
+            const result = await respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port, prefix: personal });
             if (result) return result;
             // لو الكتابة فشلت، منكملش على البايبلاين التشخيصي بنفس normalizedTokens
             // القديمة دي — نرجع null عادي زي أي فشل تاني، والـ caller هيقع للمحرك التقليدي.
@@ -353,11 +595,19 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         }
 
         // 3. Diagnostics (Module 3)
+        // Which catalog answers the customer. Published Supabase rows let an
+        // edit made in the settings panel take effect without a deploy; the
+        // shipped catalog stays the default because it is the reviewed one.
+        const scenarioProvider = settings.use_published_scenarios
+            ? createSupabaseScenarioProvider(supabase)
+            : undefined;
+
         const diagnosticState = await processTurn({
             normalizedTokens,
             turn,
             previousState: prevSie?.diagnosticState,
-            liveEvidenceContext: { userId }
+            liveEvidenceContext: { userId },
+            ...(scenarioProvider ? { scenarioProvider } : {})
         });
 
         // How much genuinely new evidence landed this turn, derived from the
@@ -366,26 +616,82 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             .filter((e) => e.turn === turn).length;
 
         // 4. Ranking (Module 4)
-        const ranking = await rankDiagnosticState(diagnosticState);
+        // «مستوى التشخيص» بيتحوّل هنا لرقم واحد: قد إيه الاحتمال لازم
+        // يكون قوي عشان يتحسب مرشح أصلاً. نفس الرقم بيروح لمحرك القرار
+        // تحت، عشان الاتنين يتكلموا عن نفس المرشحين.
+        const activationThreshold = activationThresholdForLevel(settings.diagnosis_level);
+        const ranking = await rankDiagnosticState(
+            diagnosticState,
+            scenarioProvider || undefined,
+            { activationThreshold }
+        );
 
         // 5. Decision (Module 5)
         const { decision, decisionState } = decide({
             ranking,
             turn,
             previousDecisionState: prevSie?.decisionState,
-            newEvidenceAddedThisTurn
+            newEvidenceAddedThisTurn,
+            policy: {
+                activationThreshold,
+                // «يرد بالحل بنفسه» لو اتقفل، المحرك يفضل يشخّص ويجمع
+                // المعلومات زي ما هو، بس يسلّم الحل لموظف.
+                allowAutoResolution: settings.answer_directly,
+                allowScenarioAnswers: settings.knowledge_use_scenarios,
+                allowEvidenceRequests: settings.auto_request_more_info,
+                ticketOnAmbiguity: settings.ticket_on_low_confidence,
+                includeTicketSummary: settings.ticket_include_summary,
+                resolutionConfidenceThreshold: settings.answer_confidence,
+                maxClarifyingQuestions: settings.max_clarifying_questions,
+                maxTurnsBeforeEscalation: settings.ticket_after_turns,
+                allowSmartGuess: settings.allow_smart_guess,
+                requireCompleteEvidence: settings.inference_mode === 'knowledge_only'
+            }
         });
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
         //    the decision is an ANSWER with a knowledgeSource.
         const decisionWithKnowledge = await composeAnswerDecision({
             decision,
-            liveKnowledgeContext: { userId },
-            turn
+            // قفل «بيانات حساب العميل» معناه إننا مانبعتش السياق أصلاً،
+            // فالمصدر اللحظي مايتسألش — مش بنسأل ونرمي الإجابة.
+            liveKnowledgeContext: settings.knowledge_use_live_data === false ? undefined : { userId },
+            turn,
+            ...(settings.knowledge_use_articles === false ? { staticKnowledgeProvider: EMPTY_KNOWLEDGE_PROVIDER } : {}),
+            ...(settings.knowledge_priority === 'live_first' ? { preferLiveKnowledge: true } : {})
         });
 
-        // 7. Dialogue (Module 6)
-        const rendered = renderDecision(decisionWithKnowledge, responseLanguage);
+        // 6.5. «يدوّر في المقالات قبل ما يفتح تذكرة». المحرك بيوصل لـ
+        //      CREATE_TICKET لما مايكونش عنده حل للحالة — لكن ساعات
+        //      المقالة بترد على السؤال حتى لو الحالة نفسها مالهاش حل
+        //      مخزّن. أرخص من تشغيل موظف، وأسرع للعميل.
+        const articleRescue =
+            decisionWithKnowledge.action === ACTIONS.CREATE_TICKET &&
+            settings.articles_before_ticket &&
+            settings.knowledge_use_articles !== false
+                ? await rescueWithArticle(decisionWithKnowledge, ranking)
+                : null;
+
+        const finalDecision = articleRescue || decisionWithKnowledge;
+
+        // 7. Dialogue (Module 6) — presentation choices are attached here, not
+        //    decided in Module 5: whether to name the likely cause and whether
+        //    to list runners-up are phrasing questions, and the Decision Engine
+        //    stays about what to DO.
+        const decisionForRender = {
+            ...finalDecision,
+            explainRootCause: settings.explain_root_cause !== false,
+            alternatives: settings.suggest_multiple_solutions
+                ? collectAlternatives(ranking, settings.max_suggested_solutions, activationThreshold)
+                : null
+        };
+        // جملة الاعتراف بالنبرة بتتحط على أي رد بيوصل للعميل الدور ده، مش
+        // على رد التشخيص بس — عميل غضبان يستاهل الاعتذار حتى لو الرد
+        // النهائي طلع «تحب أفتحلك تذكرة؟».
+        const withEmotion = (t) => (emotionPrefix ? emotionPrefix + t : t);
+
+        const renderedDecision = renderDecision(decisionForRender, responseLanguage);
+        const rendered = { ...renderedDecision, text: withEmotion(renderedDecision.text) };
 
         // 8. Action (Module 8) — the sole writer. Persists the bot's message +
         //    session state (+ ticket, if this turn created one) in one transaction.
@@ -395,7 +701,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 diagnosticState,
                 decisionState,
                 language: responseLanguage,
-                turnCount: turn
+                turnCount: turn,
+                // بيخلّي «مدة الاحتفاظ بالسياق» تعرف السياق ده قديم قد إيه.
+                lastTurnAt: new Date().toISOString(),
+                // «يفتكر آخر مشكلة» — بيفضل موجود حتى بعد ما السياق ينتهي.
+                lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null
             }
         };
 
@@ -408,14 +718,48 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // بس في حالة تأكيد التذكرة، لأن وقتها بنكتب نسخة زيادة عليها
         // pendingTicketConfirmation.
         let persistedBotState = nextBotState;
-        if (decisionWithKnowledge.action === ACTIONS.CREATE_TICKET) {
+
+        // «يدوّر في تذاكر العميل القديمة قبل ما يرد»: لو فيه تذكرة مفتوحة
+        // في نفس الموضوع، نقول للعميل عليها بدل ما نفتح واحدة مكررة
+        // ونقسّم تاريخ المشكلة على تذكرتين.
+        const duplicateTicket =
+            finalDecision.action === ACTIONS.CREATE_TICKET && settings.search_past_tickets
+                ? await findOpenTicket(supabase, userId, finalDecision.ticketDraft?.category || null)
+                : null;
+
+        if (duplicateTicket) {
+            const lang = responseLanguage === 'en' ? 'en' : 'ar';
+            replyText = withEmotion(lang === 'en'
+                ? `You already have an open ticket about this (#${duplicateTicket.ticketNumber}) and the team is on it — I'll add nothing new rather than split it across two tickets. Anything you add here reaches them on that ticket.`
+                : `فيه تذكرة مفتوحة عندك في نفس الموضوع (رقم ${duplicateTicket.ticketNumber}) والفريق شغّال عليها، فمش هفتح واحدة تانية عشان الموضوع مايتقسمش. أي تفاصيل تزوّدها هنا هتوصلهم على نفس التذكرة.`);
+            replyOptions = [];
+            actionResult = await executeDecision({
+                decision: { action: ACTIONS.WAIT_FOR_USER, turn: finalDecision.turn },
+                rendered: { text: replyText, options: [] },
+                sessionId, nextBotState, port
+            });
+            if (!actionResult?.success) return null;
+        } else if (finalDecision.action === ACTIONS.CREATE_TICKET && !settings.auto_ticket_enabled) {
+            // Tickets are switched off: say so plainly rather than opening one
+            // silently or pretending the request went nowhere.
+            const lang = responseLanguage === 'en' ? 'en' : 'ar';
+            replyText = withEmotion(TICKET_DISABLED_TEXT[lang]);
+            replyOptions = [];
+            actionResult = await executeDecision({
+                decision: { action: ACTIONS.WAIT_FOR_USER, turn: finalDecision.turn },
+                rendered: { text: replyText, options: [] },
+                sessionId, nextBotState, port
+            });
+            if (!actionResult?.success) return null;
+        } else if (finalDecision.action === ACTIONS.CREATE_TICKET && settings.ask_before_ticket) {
             const confirmOutcome = await beginTicketConfirmation({
-                decisionWithKnowledge,
+                decisionWithKnowledge: finalDecision,
                 rendered,
                 sessionId,
                 nextBotState,
                 port,
-                responseLanguage
+                responseLanguage,
+                prefix: emotionPrefix
             });
             if (!confirmOutcome) return null; // caller falls back to the traditional engine
             actionResult = confirmOutcome.actionResult;
@@ -424,7 +768,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             persistedBotState = confirmOutcome.persistedBotState;
         } else {
             actionResult = await executeDecision({
-                decision: decisionWithKnowledge,
+                decision: finalDecision,
                 rendered,
                 sessionId,
                 nextBotState,
@@ -447,7 +791,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 normalizedTokens,
                 diagnosticState,
                 ranking,
-                decision: decisionWithKnowledge,
+                decision: finalDecision,
                 responseText: rendered.text,
                 timestamp: decisionWithKnowledge.timestamp
             });

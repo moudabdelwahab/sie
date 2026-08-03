@@ -271,6 +271,36 @@ export async function adminResetUsage(supabase, userId) {
 }
 
 // ===================================================================
+// Settings
+// ===================================================================
+
+/**
+ * Settings live in sie-entitlement.js rather than here, because the bridge
+ * needs them on every turn and the runtime imports the bridge — reading them
+ * from here would make the two modules import each other. Re-exported so the
+ * public surface is unchanged: callers still only ever touch the runtime.
+ */
+export { SIE_DEFAULT_SETTINGS, getSieSettings, saveSieSetting } from './sie-entitlement.js';
+
+/**
+ * The settings schema — what each control is called in Arabic, what it does,
+ * and what values it accepts. Re-exported so the console renders from the
+ * same definition the engine obeys: a control cannot describe behaviour the
+ * engine does not have, because there is only one description.
+ */
+export {
+    SETTING_GROUPS,
+    SETTINGS,
+    SETTINGS_BY_KEY,
+    BEHAVIOR_PROFILES,
+    behaviorProfileValues,
+    detectBehaviorProfile,
+    validateSetting,
+    isSettingActive,
+    groupedSettings
+} from '../sie/config/settings-schema.js';
+
+// ===================================================================
 // Scenario catalog editing (settings console's "Scenarios" tab)
 // ===================================================================
 
@@ -318,6 +348,51 @@ export async function validateScenarioDraft(scenario) {
  */
 export async function saveScenarioDraft(supabase, params) {
     return _saveScenarioDraft(supabase, params);
+}
+
+/**
+ * Publishes a scenario version, making it live for diagnosis.
+ * Staff-only, enforced by the RPC.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{key: string, version: number, overrideReason?: string|null}} params
+ * @returns {Promise<{success: boolean, error: string|null}>}
+ */
+export async function publishScenarioVersion(supabase, { key, version, overrideReason = null }) {
+    try {
+        const { createRealSupabasePort } = await import('../sie/action/supabase-port.supabase.js');
+        return await createRealSupabasePort(supabase).publishScenario({ key, version, overrideReason });
+    } catch (err) {
+        return { success: false, error: String(err?.message || err) };
+    }
+}
+
+/**
+ * The Arabic name for every evidence token the engine recognises.
+ *
+ * Scenarios are keyed on tokens like `entity_subscription`, which is the
+ * right identifier for the engine and the wrong thing to show a support
+ * agent. The glossary already carries an Arabic label per canonical, so
+ * this reads the same source the language layer does rather than keeping a
+ * second translation table that would drift.
+ *
+ * @returns {Promise<Object<string, string>>} token -> الاسم بالعربي
+ */
+export async function getTokenLabels() {
+    try {
+        const { technicalGlossaryProvider } = await import('../sie/language/technical-glossary.local.js');
+        const entries = await technicalGlossaryProvider.getEntries();
+        return Object.fromEntries(
+            entries
+                .filter((entry) => entry.labels?.ar)
+                .map((entry) => [entry.canonical, entry.labels.ar])
+        );
+    } catch (err) {
+        // The table falls back to raw tokens, which is ugly but readable —
+        // better than an empty column.
+        console.warn('[sie-runtime] failed to load token labels:', err?.message || err);
+        return {};
+    }
 }
 
 // ===================================================================

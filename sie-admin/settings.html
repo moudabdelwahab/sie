@@ -3,13 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إعدادات محرك الدعم الذكي (SIE)</title>
-<link rel="icon" type="image/png" href="/assets/images/logo.png">
-<link rel="stylesheet" href="/styles.css">
-<script src="/theme-manager.js"></script>
+<title>إعدادات محرك الدعم الذكي</title>
+<!-- Inline SVG favicon: replaces /assets/images/logo.png, which lives
+     in the platform repo and 404s from this origin. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234DA3FF'/%3E%3Cstop offset='1' stop-color='%230077CC'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='%23071023'/%3E%3Ccircle cx='50' cy='46' r='26' fill='url(%23g)'/%3E%3Ccircle cx='50' cy='18' r='5' fill='url(%23g)'/%3E%3C/svg%3E">
+
+<!-- Self-contained tokens + toggle, replacing /styles.css + /theme-manager.js -->
+<link rel="stylesheet" href="./base-theme.css">
+<script src="./theme-toggle.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./sie-admin.css">
 </head>
 <body>
@@ -20,127 +24,98 @@
   <header class="topbar">
     <div class="topbar-brand">
       <span class="eyebrow"><span class="dot"></span> محرك الدعم الذكي</span>
-      <h1>الإعدادات الشاملة</h1>
+      <h1>الإعدادات</h1>
     </div>
     <div class="topbar-actions">
       <span class="who" id="whoAmI"></span>
-      <a class="btn-ghost" href="/admin-dashboard.html">لوحة مدعوم</a>
-      <button class="btn-ghost" id="signOutBtn">تسجيل الخروج</button>
+      <a class="btn-ghost" href="https://mad3oom.online/admin-dashboard.html">لوحة مدعوم</a>
+      <button class="btn-ghost" id="signOutBtn">خروج</button>
     </div>
   </header>
 
   <nav class="tabs" id="mainTabs">
-    <button class="tab-btn active" data-target="tab-scenarios">السيناريوهات</button>
-    <button class="tab-btn" data-target="tab-engine">إعدادات المحرك</button>
-    <button class="tab-btn" data-target="tab-users">المستخدمون</button>
+    <button class="tab-btn active" data-target="tab-general">تحكّم المحرك</button>
+    <button class="tab-btn" data-target="tab-scenarios">الحالات اللي بيفهمها</button>
+    <button class="tab-btn" data-target="tab-users">مين مسموح له</button>
   </nav>
 
-  <!-- ══════════════════ SCENARIOS ══════════════════ -->
-  <section class="tab-panel active" id="tab-scenarios">
+  <!-- ══════════════ التشغيل ══════════════ -->
+  <section class="tab-panel active" id="tab-general">
+    <div class="live-banner" id="liveBanner"></div>
+
+    <p class="hint big">
+      أي تغيير هنا بيتحفظ فورًا وبيسري على المحادثات الجديدة على طول —
+      مش محتاج تعمل حاجة تانية.
+    </p>
+
+    <div id="settingGroups"></div>
+
+    <div class="card">
+      <h2>جرّب قبل ما تعتمد</h2>
+      <p class="hint">اكتب رسالة زي ما العميل هيكتبها، وشوف المحرك هيفهمها إزاي. التجربة دي مابتأثرش على أي محادثة حقيقية ومابتستهلكش رصيد.</p>
+      <div class="try-row">
+        <input type="text" id="tryInput" placeholder="مثال: الاشتراك بتاعي منتهي">
+        <button class="btn-primary" id="tryBtn">جرّب</button>
+      </div>
+      <div id="tryResult" class="try-result" hidden></div>
+    </div>
+  </section>
+
+  <!-- ══════════════ الحالات ══════════════ -->
+  <section class="tab-panel" id="tab-scenarios">
     <div class="stat-row" id="scenarioStats"></div>
 
     <div class="toolbar">
-      <input type="search" id="scenarioSearch" placeholder="ابحث بالاسم أو المعرّف أو الكلمة المفتاحية…">
+      <input type="search" id="scenarioSearch" placeholder="دوّر باسم الحالة أو بكلمة فيها…">
       <select id="scenarioCategory"><option value="">كل الأقسام</option></select>
       <select id="scenarioResolution">
-        <option value="">كل الأنواع</option>
-        <option value="auto">بيرد تلقائيًا</option>
-        <option value="manual">بيفتح تذكرة</option>
+        <option value="">الكل</option>
+        <option value="auto">بيرد بحل جاهز</option>
+        <option value="manual">بيجمع معلومات ويسلّم</option>
       </select>
-      <button class="btn-primary" id="newScenarioBtn">+ سيناريو جديد</button>
+      <button class="btn-primary" id="newScenarioBtn">+ حالة جديدة</button>
     </div>
 
     <div class="table-wrap">
       <table class="data-table">
         <thead>
-          <tr>
-            <th>السيناريو</th>
-            <th>القسم</th>
-            <th>الأدلة</th>
-            <th>النوع</th>
-            <th>أسئلة</th>
-            <th></th>
-          </tr>
+          <tr><th>الحالة</th><th>القسم</th><th>بيعرفها من</th><th>بيعمل إيه</th><th></th></tr>
         </thead>
         <tbody id="scenarioRows"></tbody>
       </table>
-      <p class="empty" id="scenarioEmpty" hidden>مفيش سيناريوهات مطابقة للبحث.</p>
+      <p class="empty" id="scenarioEmpty" hidden>مفيش حالات مطابقة.</p>
     </div>
 
     <details class="drafts">
-      <summary>المسودات المحفوظة في قاعدة البيانات <span id="draftCount" class="pill"></span></summary>
+      <summary>الحالات اللي إنت ضفتها <span id="draftCount" class="pill"></span></summary>
       <p class="hint">
-        التعديلات بتتحفظ كمسودة الأول ومابتأثرش على المحرك. المحرك بيقرأ النسخ
-        <strong>المنشورة</strong> بس، عشان أي تعديل يتراجع قبل ما أي عميل يشوف أثره.
+        اللي بتضيفه بيتحفظ كمسودة الأول عشان تراجعه. عشان المحرك يبدأ يستخدمه فعلًا،
+        اضغط «فعّلها» — وساعتها لازم يكون خيار «استخدم الحالات اللي ضفتها» مفتوح من صفحة التشغيل.
       </p>
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>المفتاح</th><th>الإصدار</th><th>الحالة</th><th>ملاحظة</th><th></th></tr></thead>
+          <thead><tr><th>الحالة</th><th>النسخة</th><th>الحالة دلوقتي</th><th>ملاحظة</th><th></th></tr></thead>
           <tbody id="draftRows"></tbody>
         </table>
       </div>
     </details>
   </section>
 
-  <!-- ══════════════════ ENGINE ══════════════════ -->
-  <section class="tab-panel" id="tab-engine">
-    <div class="card">
-      <h2>عتبات القرار</h2>
-      <p class="hint">
-        دي القيم اللي المحرك بيقرر بيها فعلًا دلوقتي، مقروءة من
-        <code class="ltr">decision-policy.js</code> مباشرة. تغييرها بيتم في الكود
-        عشان أي تعديل عليها يعدّي على مراجعة — مش من شاشة.
-      </p>
-      <div class="kv-grid" id="policyGrid"></div>
-    </div>
-
-    <div class="card">
-      <h2>طبقة اللغة</h2>
-      <div class="kv-grid" id="languageGrid"></div>
-    </div>
-
-    <div class="card">
-      <h2>قاعدة المعرفة</h2>
-      <p class="hint">المحتوى اللي بيكمّل ردود السيناريوهات اللي ليها <code class="ltr">knowledgeSource</code>.</p>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>المفتاح</th><th>النص (عربي)</th></tr></thead>
-          <tbody id="knowledgeRows"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>تجربة المحرك</h2>
-      <p class="hint">اكتب رسالة زي ما العميل هيكتبها بالظبط، وشوف المحرك بيشخّصها إزاي — من غير ما تأثر على أي محادثة حقيقية.</p>
-      <div class="try-row">
-        <input type="text" id="tryInput" placeholder="مثال: الاشتراك بتاعي منتهي">
-        <button class="btn-primary" id="tryBtn">شخّص</button>
-      </div>
-      <div id="tryResult" class="try-result" hidden></div>
-    </div>
-  </section>
-
-  <!-- ══════════════════ USERS ══════════════════ -->
+  <!-- ══════════════ المستخدمون ══════════════ -->
   <section class="tab-panel" id="tab-users">
     <div class="stat-row" id="userStats"></div>
-
     <div class="toolbar">
-      <input type="search" id="userSearch" placeholder="ابحث بالاسم أو البريد…">
+      <input type="search" id="userSearch" placeholder="دوّر بالاسم أو البريد…">
       <select id="userFilter">
         <option value="">الكل</option>
-        <option value="enabled">مفعّل</option>
-        <option value="disabled">غير مفعّل</option>
+        <option value="enabled">مسموح لهم</option>
+        <option value="disabled">مش مسموح</option>
       </select>
     </div>
-
     <div id="usersNotice" class="notice" hidden></div>
-
     <div class="table-wrap">
       <table class="data-table">
-        <thead>
-          <tr><th>العميل</th><th>الحالة</th><th>النوع</th><th>الاستخدام</th><th></th></tr>
-        </thead>
+        <thead><tr><th>العميل</th><th>الحالة</th><th>نوع السماح</th><th>استهلك</th><th></th></tr></thead>
         <tbody id="userRows"></tbody>
       </table>
       <p class="empty" id="userEmpty" hidden>مفيش مستخدمين مطابقين.</p>
@@ -152,88 +127,83 @@
   <div class="denied">
     <h2>الصفحة دي لفريق العمل بس</h2>
     <p>حسابك مالوش صلاحية على إعدادات المحرك.</p>
-    <a class="btn-primary" href="/customer-dashboard.html">الرجوع لمنصة مدعوم</a>
+    <a class="btn-primary" href="https://mad3oom.online/customer-dashboard.html">رجوع لمنصة مدعوم</a>
   </div>
 </template>
 
-<!-- Scenario editor -->
+<!-- محرر الحالة -->
 <dialog id="scenarioDialog" class="dialog">
   <form method="dialog" id="scenarioForm">
-    <h2 id="scenarioDialogTitle">سيناريو جديد</h2>
+    <h2 id="scenarioDialogTitle">حالة جديدة</h2>
 
-    <label class="field"><span>المعرّف (إنجليزي، بدون مسافات)</span>
-      <input type="text" id="fId" dir="ltr" required placeholder="whatsapp_number_not_linked"></label>
+    <label class="field"><span>اسم مختصر بالإنجليزي (للنظام)</span>
+      <input type="text" id="fId" dir="ltr" required placeholder="whatsapp_not_linked">
+      <small class="field-hint">حروف إنجليزي صغيرة وشرطة سفلية بدل المسافة. ده اسم داخلي العميل مش هيشوفه.</small></label>
 
-    <div class="two-col">
-      <label class="field"><span>الاسم بالعربي</span>
-        <input type="text" id="fLabelAr" required placeholder="رقم الواتساب مش مربوط"></label>
-      <label class="field"><span>الاسم بالإنجليزي</span>
-        <input type="text" id="fLabelEn" dir="ltr" required placeholder="WhatsApp number not linked"></label>
-    </div>
+    <label class="field"><span>الاسم اللي هيظهر لفريقك</span>
+      <input type="text" id="fLabelAr" required placeholder="رقم الواتساب مش مربوط"></label>
 
     <label class="field"><span>القسم</span>
       <select id="fCategory">
         <option value="whatsapp">واتساب</option>
-        <option value="subscription">اشتراكات</option>
-        <option value="login">تسجيل الدخول</option>
-        <option value="api">API</option>
-        <option value="inquiry">استعلام</option>
+        <option value="subscription">الاشتراكات والفلوس</option>
+        <option value="login">الدخول والحساب</option>
+        <option value="api">الربط البرمجي</option>
+        <option value="inquiry">استفسارات</option>
         <option value="other">أخرى</option>
       </select></label>
 
     <fieldset class="field">
-      <legend>الأدلة (evidence)</legend>
+      <legend>الكلمات اللي المحرك يعرف بيها الحالة دي</legend>
       <p class="hint">
-        الثقة = متوسط <em>مرجّح</em>، يعني كل دليل زيادة <strong>بيخفّف</strong> اللي اتطابق.
-        خلّي الدليل المميِّز أعلى وزن، والباقي تأكيد. المؤشر تحت بيوضح هيوصل لكام.
+        حط الكلمة الأساسية اللي لو العميل كتبها تبقى الحالة دي شبه أكيدة، وبعدين كلمات مساعدة.
+        الأهمية بتنزل من فوق لتحت.
       </p>
       <div id="evidenceList"></div>
-      <button type="button" class="btn-ghost" id="addEvidenceBtn">+ دليل</button>
+      <button type="button" class="btn-ghost" id="addEvidenceBtn">+ كلمة</button>
       <div class="confidence-preview" id="confidencePreview"></div>
     </fieldset>
 
     <label class="field checkbox">
-      <input type="checkbox" id="fHasAuto"> <span>عنده رد تلقائي</span></label>
+      <input type="checkbox" id="fHasAuto"> <span>عندي حل جاهز يرد بيه على طول</span></label>
 
     <div id="autoTextWrap" hidden>
-      <label class="field"><span>الرد بالعربي</span>
-        <textarea id="fTextAr" rows="6" placeholder="اشرح الحل خطوة خطوة…"></textarea></label>
-      <label class="field"><span>الرد بالإنجليزي</span>
-        <textarea id="fTextEn" rows="6" dir="ltr"></textarea></label>
+      <label class="field"><span>الرد اللي هيوصل للعميل</span>
+        <textarea id="fTextAr" rows="7" placeholder="اشرح الحل خطوة خطوة بلغة بسيطة…"></textarea></label>
     </div>
 
     <label class="field checkbox">
       <input type="checkbox" id="fRequiresTicket" checked>
-      <span>يفتح تذكرة لو مااتحلّش</span></label>
+      <span>لو مااتحلّتش، افتح تذكرة لفريق الدعم</span></label>
 
     <label class="field"><span>ملاحظة للمراجعة (اختياري)</span>
-      <input type="text" id="fNote" placeholder="ليه ضفت/عدّلت السيناريو ده"></label>
+      <input type="text" id="fNote" placeholder="ليه ضفت الحالة دي"></label>
 
     <div id="scenarioErrors" class="auth-alert auth-alert--error" hidden></div>
 
     <div class="dialog-actions">
       <button type="button" class="btn-ghost" id="cancelScenarioBtn">إلغاء</button>
-      <button type="button" class="btn-primary" id="saveScenarioBtn">حفظ كمسودة</button>
+      <button type="button" class="btn-primary" id="saveScenarioBtn">احفظ</button>
     </div>
   </form>
 </dialog>
 
-<!-- Access editor -->
+<!-- محرر السماح -->
 <dialog id="accessDialog" class="dialog">
   <form method="dialog" id="accessForm">
-    <h2>صلاحية SIE — <span id="accessUserName"></span></h2>
+    <h2>السماح باستخدام المحرك — <span id="accessUserName"></span></h2>
 
     <label class="field checkbox">
-      <input type="checkbox" id="aEnabled"> <span>مفعّل</span></label>
+      <input type="checkbox" id="aEnabled"> <span>مسموح له يستخدم المحرك</span></label>
 
-    <label class="field"><span>نوع الصلاحية</span>
+    <label class="field"><span>نوع السماح</span>
       <select id="aMode">
-        <option value="unlimited">بلا حدود</option>
+        <option value="unlimited">من غير حدود</option>
         <option value="quota">عدد رسائل محدد</option>
-        <option value="expiration">تاريخ انتهاء</option>
+        <option value="expiration">لحد تاريخ معيّن</option>
       </select></label>
 
-    <label class="field" id="aQuotaWrap" hidden><span>عدد الرسائل</span>
+    <label class="field" id="aQuotaWrap" hidden><span>عدد الرسائل المسموح بيها</span>
       <input type="number" id="aQuota" min="1" dir="ltr"></label>
 
     <label class="field" id="aExpiryWrap" hidden><span>ينتهي في</span>
@@ -245,10 +215,10 @@
     <div id="accessErrors" class="auth-alert auth-alert--error" hidden></div>
 
     <div class="dialog-actions">
-      <button type="button" class="btn-ghost" id="resetUsageBtn">تصفير الاستخدام</button>
+      <button type="button" class="btn-ghost" id="resetUsageBtn">صفّر العدّاد</button>
       <span class="spacer"></span>
       <button type="button" class="btn-ghost" id="cancelAccessBtn">إلغاء</button>
-      <button type="button" class="btn-primary" id="saveAccessBtn">حفظ</button>
+      <button type="button" class="btn-primary" id="saveAccessBtn">احفظ</button>
     </div>
   </form>
 </dialog>

@@ -46,6 +46,10 @@ import { liveKnowledgeProviderStub as defaultLiveKnowledgeProvider } from './liv
  * @param {{getEntryByKey: Function}} [params.staticKnowledgeProvider] - defaults to Module 7's
  *   local provider
  * @param {{getLiveKnowledge: Function}} [params.liveKnowledgeProvider] - defaults to the no-op stub
+ * @param {boolean} [params.preferLiveKnowledge] - «مين الأول لما الاتنين عندهم
+ *   إجابة». Flips the documented resolution order so per-customer data wins
+ *   over the static entry for the same key. Default false, i.e. articles
+ *   first, which is cheaper and is the reviewed content.
  * @param {number} [params.turn]
  * @returns {Promise<import('../decision/decision-types.js').Decision & {knowledgeData?: {source: string, data: *}}>}
  */
@@ -54,6 +58,7 @@ export async function composeAnswerDecision({
     liveKnowledgeContext,
     staticKnowledgeProvider = defaultStaticKnowledgeProvider,
     liveKnowledgeProvider = defaultLiveKnowledgeProvider,
+    preferLiveKnowledge = false,
     turn
 }) {
     if (!decision || decision.action !== ACTIONS.ANSWER) return decision;
@@ -61,21 +66,28 @@ export async function composeAnswerDecision({
     const knowledgeSource = decision.resolution?.knowledgeSource;
     if (!knowledgeSource) return decision;
 
-    const staticEntry = await staticKnowledgeProvider.getEntryByKey(knowledgeSource);
-    if (staticEntry) {
-        return { ...decision, knowledgeData: { source: knowledgeSource, data: { text: staticEntry.text } } };
-    }
+    const readStatic = async () => {
+        const staticEntry = await staticKnowledgeProvider.getEntryByKey(knowledgeSource);
+        return staticEntry ? { source: knowledgeSource, data: { text: staticEntry.text } } : null;
+    };
 
-    if (!liveKnowledgeContext) return decision;
+    const readLive = async () => {
+        if (!liveKnowledgeContext) return null;
+        const liveResult = await liveKnowledgeProvider.getLiveKnowledge({
+            source: knowledgeSource,
+            userId: liveKnowledgeContext.userId,
+            turn: turn ?? decision.turn
+        });
+        return liveResult?.available ? { source: knowledgeSource, data: liveResult.data } : null;
+    };
 
-    const liveResult = await liveKnowledgeProvider.getLiveKnowledge({
-        source: knowledgeSource,
-        userId: liveKnowledgeContext.userId,
-        turn: turn ?? decision.turn
-    });
-
-    if (liveResult?.available) {
-        return { ...decision, knowledgeData: { source: knowledgeSource, data: liveResult.data } };
+    // Whichever source is tried first and has an entry wins; the other is
+    // never consulted. That is what makes the order a real cost decision and
+    // not just a preference — articles-first genuinely avoids the query.
+    const order = preferLiveKnowledge ? [readLive, readStatic] : [readStatic, readLive];
+    for (const read of order) {
+        const knowledgeData = await read();
+        if (knowledgeData) return { ...decision, knowledgeData };
     }
 
     return decision;

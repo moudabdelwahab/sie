@@ -3,12 +3,13 @@
  * ------------------------------------------------------------
  * Styling for the SIE sign-in and settings pages.
  *
- * Builds on the tokens Mad3oom's /styles.css already defines
- * (--color-primary / background / surface / text / text-secondary /
- * border / success / warning / danger), so these pages follow the
- * platform's light/dark switch automatically instead of carrying a second
- * palette that drifts out of sync. Only the few extra tokens these two
- * pages need are declared here.
+ * Builds on the tokens ./base-theme.css defines (--color-background /
+ * surface / text / text-secondary / border / input-bg / danger). These
+ * pages are served from their own origin, so the platform's /styles.css is
+ * not reachable and base-theme.css carries the same token names locally —
+ * which is what keeps the light/dark switch working without a second
+ * palette that drifts. Only the few extra tokens these pages need are
+ * declared here.
  */
 
 :root {
@@ -121,6 +122,10 @@ code { font-family: var(--font-mono); font-size: .9em; }
     color: var(--color-text-secondary); margin: 0 0 1.2rem;
 }
 .pw-wrap { position: relative; display: block; }
+/* The input is dir="ltr" inside an RTL page, so its text starts on the left —
+   which is exactly where inset-inline-end puts the toggle. Without the
+   reserved padding the dots run underneath the word "إظهار". */
+.pw-wrap input { padding-left: 4.2rem; }
 .pw-toggle {
     position: absolute; inset-inline-end: .6rem; top: 50%; transform: translateY(-50%);
     background: none; border: 0; color: var(--sie-accent); font-weight: 700; font-size: .82em;
@@ -282,3 +287,129 @@ fieldset.field { border: 1px solid var(--color-border); border-radius: 12px; pad
     .two-col { grid-template-columns: 1fr; }
     .topbar { flex-direction: column; align-items: flex-start; }
 }
+
+/* ═══════════════ Operation switches ═══════════════ */
+.live-banner {
+    border-radius: 12px; padding: .85rem 1.1rem; margin-bottom: 1.2rem;
+    font-weight: 700; border: 1px solid transparent;
+}
+.live-banner--on { background: rgba(34,197,139,.12); border-color: rgba(34,197,139,.3); color: #14805a; }
+.live-banner--off { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3); color: #b91c1c; }
+[data-theme='dark'] .live-banner--on { color: #34d399; }
+[data-theme='dark'] .live-banner--off { color: #fca5a5; }
+
+.hint.big { font-size: .95rem; margin-bottom: 1.2rem; }
+
+/* ── مجموعات الإعدادات ─────────────────────────────────────────── */
+/* Collapsible sections rather than more tabs: settings in one group are
+   read against each other (how sure, how many questions), and tabs would
+   put one behind the other. */
+.setting-group {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--sie-radius); margin-bottom: .9rem; overflow: hidden;
+}
+.setting-group > summary {
+    cursor: pointer; padding: 1rem 1.2rem; list-style: none;
+    display: grid; grid-template-columns: 1fr auto; gap: .2rem 1rem;
+    align-items: center;
+}
+.setting-group > summary::-webkit-details-marker { display: none; }
+.setting-group > summary::after {
+    content: "⌄"; grid-column: 2; grid-row: 1 / span 2;
+    font-size: 1.3rem; color: var(--color-text-secondary);
+    transition: transform .2s ease;
+}
+.setting-group[open] > summary::after { transform: rotate(180deg); }
+.setting-group[open] > summary { border-bottom: 1px solid var(--color-border); }
+.group-title { font-weight: 800; font-size: 1.05rem; }
+.group-desc {
+    grid-column: 1; font-size: .87rem; color: var(--color-text-secondary);
+}
+.group-count {
+    grid-column: 1; font-size: .8rem; font-weight: 700;
+}
+.group-count.is-changed { color: var(--sie-accent); }
+
+.setting-list { display: grid; gap: .7rem; padding: 1rem 1.2rem; }
+
+.setting-row {
+    display: flex; align-items: flex-start; gap: 1rem;
+    background: var(--color-background); border: 1px solid var(--color-border);
+    border-radius: 12px; padding: .9rem 1rem;
+    transition: border-color .15s ease, opacity .15s ease;
+}
+.setting-row.is-off { border-color: rgba(245,158,11,.4); }
+/* A control whose parent switch is off still shows its value, but must not
+   look like it is doing something. */
+.setting-row.is-inert { opacity: .55; }
+.setting-text { flex: 1; min-width: 0; }
+.setting-text b { display: block; font-size: .98rem; margin-bottom: .15rem; }
+.setting-warn {
+    display: block; margin-top: .45rem; font-size: .84rem; font-weight: 600;
+    color: #b45309; background: rgba(245,158,11,.1);
+    border-radius: 8px; padding: .35rem .6rem;
+}
+[data-theme='dark'] .setting-warn { color: #fbbf24; }
+.setting-inert {
+    display: block; margin-top: .4rem; font-size: .82rem;
+    color: var(--color-text-secondary);
+}
+
+/* ── الأرقام ──────────────────────────────────────────────────── */
+.setting-number { display: flex; align-items: center; gap: .8rem; flex-shrink: 0; }
+.setting-number input[type=range] { width: 140px; accent-color: var(--sie-accent); }
+.setting-number output {
+    min-width: 4.5rem; text-align: center; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: 8px; padding: .3rem .5rem; font-size: .9rem;
+}
+
+/* ── الاختيارات ───────────────────────────────────────────────── */
+.setting-choices { display: grid; gap: .45rem; flex-shrink: 0; max-width: 22rem; }
+.choice {
+    display: grid; gap: .1rem; cursor: pointer;
+    border: 1px solid var(--color-border); border-radius: 10px;
+    padding: .5rem .7rem; background: var(--color-surface);
+    transition: border-color .15s ease, background .15s ease;
+}
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice.is-picked { border-color: var(--sie-accent); background: rgba(99,102,241,.07); }
+.choice-label { font-weight: 700; font-size: .92rem; }
+.choice-desc { font-size: .8rem; color: var(--color-text-secondary); line-height: 1.45; }
+.choice:has(input:disabled) { cursor: not-allowed; opacity: .6; }
+.choice:has(input:focus-visible) { outline: 2px solid var(--sie-accent); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+    .setting-row { flex-direction: column; }
+    .setting-choices, .setting-number { max-width: none; width: 100%; }
+    .setting-number input[type=range] { flex: 1; width: auto; }
+}
+
+/* Track/thumb toggle rather than a bare checkbox: on/off must be readable
+   at a glance across a list of six. */
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; inset: 0; cursor: pointer; border-radius: 99px;
+    /* Solid enough to read as an OFF track on a white card — the border
+       token alone all but disappears against --color-surface. */
+    background: #94a3b8; transition: background .2s ease;
+}
+.slider::before {
+    content: ""; position: absolute; height: 22px; width: 22px; top: 3px;
+    inset-inline-start: 3px; background: #fff; border-radius: 50%;
+    transition: transform .2s ease; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.switch input:checked + .slider { background: var(--sie-accent); }
+.switch input:checked + .slider::before { transform: translateX(-22px); }
+.switch input:disabled + .slider { opacity: .5; cursor: not-allowed; }
+.switch input:focus-visible + .slider { outline: 2px solid var(--sie-accent); outline-offset: 2px; }
+
+.verdict { font-weight: 700; padding: .7rem .9rem; border-radius: 10px; margin-bottom: .8rem; }
+.verdict--ok { background: rgba(34,197,139,.12); color: #14805a; }
+.verdict--ask { background: rgba(245,158,11,.12); color: #b45309; }
+[data-theme='dark'] .verdict--ok { color: #34d399; }
+[data-theme='dark'] .verdict--ask { color: #fbbf24; }
+
+.field-hint { display: block; margin-top: .3rem; font-size: .8rem; color: var(--color-text-secondary); }
