@@ -92,7 +92,87 @@ const deps = {
     dedupe: createMemoryDeduplicator()
 };
 
+/**
+ * GET /  — فحص ذاتي لكل مرحلة في المسار.
+ *
+ * Every stage between "Telegram called us" and "the customer got a reply"
+ * can fail silently, and from the outside they all look identical: no
+ * reply. This runs each one and reports which succeeded, so a single URL
+ * answers "where does it stop" instead of a hunt through logs.
+ *
+ * It is also the honest way to settle the one thing that cannot be tested
+ * before deployment: whether the engine's ~580 KB of scenario and glossary
+ * data actually loads inside Deno. `catalogSize` is that answer.
+ *
+ * Safe to expose: it reports only whether each secret is PRESENT, never a
+ * value, and touches no customer data.
+ */
+async function selfCheck(): Promise<Record<string, unknown>> {
+    const stages: Record<string, unknown> = {
+        env_bot_token: Boolean(BOT_TOKEN),
+        env_webhook_secret: Boolean(WEBHOOK_SECRET),
+        env_supabase_url: Boolean(SUPABASE_URL),
+        env_service_role_key: Boolean(SERVICE_ROLE_KEY)
+    };
+
+    // Does the engine's data load in this runtime? The single most likely
+    // deployment failure, and invisible from outside.
+    try {
+        const { listActiveScenarios } = await import('../../../sie-integration/sie-runtime.js');
+        const scenarios = await listActiveScenarios();
+        stages.engine_loaded = true;
+        stages.catalog_size = scenarios.length;
+        stages.catalog_ok = scenarios.length > 0;
+    } catch (err) {
+        stages.engine_loaded = false;
+        stages.engine_error = err instanceof Error ? err.message : String(err);
+    }
+
+    // Can we read the linking table? Without this every chat looks unlinked.
+    try {
+        const { count, error } = await supabase
+            .from('channel_identities')
+            .select('*', { count: 'exact', head: true })
+            .eq('channel', 'telegram');
+        stages.identity_table = !error;
+        stages.linked_telegram_chats = error ? null : count;
+        if (error) stages.identity_error = error.message;
+    } catch (err) {
+        stages.identity_table = false;
+        stages.identity_error = err instanceof Error ? err.message : String(err);
+    }
+
+    // Is the webhook registered, and did Telegram's last call succeed?
+    // Telegram remembers exactly why it last failed, which is usually the
+    // whole answer.
+    if (BOT_TOKEN) {
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo`);
+            const body = await response.json();
+            stages.webhook_registered = Boolean(body?.result?.url);
+            stages.webhook_url = body?.result?.url ?? null;
+            stages.webhook_pending = body?.result?.pending_update_count ?? 0;
+            stages.webhook_last_error = body?.result?.last_error_message ?? null;
+        } catch (err) {
+            stages.webhook_registered = null;
+            stages.webhook_error = err instanceof Error ? err.message : String(err);
+        }
+    }
+
+    return stages;
+}
+
 Deno.serve(async (req: Request) => {
+    // The self-check is a GET so it can be opened in a browser; the webhook
+    // is always a POST, so the two cannot be confused.
+    if (req.method === 'GET') {
+        const stages = await selfCheck();
+        return new Response(JSON.stringify({ ok: true, stages }, null, 2), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     if (req.method !== 'POST') {
         return new Response('method not allowed', { status: 405 });
     }

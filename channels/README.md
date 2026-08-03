@@ -176,6 +176,32 @@ node scripts/telegram-webhook.mjs info
 
 ---
 
+## تشخيص: لما مفيش رد
+
+```bash
+# محليًا — بيمشي رسالة على كل مرحلة ويقول وقف فين
+node scripts/telegram-trace.mjs
+
+# مع الوصول للسحابة — بيفحص التسجيل والنشر والربط والرصيد كمان
+export TELEGRAM_BOT_TOKEN='...'
+export SUPABASE_URL='https://srnelrdpqkcntbgudyto.supabase.co'
+export SUPABASE_SERVICE_ROLE_KEY='...'
+node scripts/telegram-trace.mjs --chat <your telegram chat id>
+```
+
+وبعد النشر، الدالة نفسها بتفحص نفسها:
+
+```
+GET https://<ref>.supabase.co/functions/v1/sie-channel-telegram
+```
+
+بترجّع JSON فيه كل مرحلة: المتغيّرات موجودة؟ المحرك حمّل؟ كام حالة؟ جدول
+الربط شغّال؟ الويبهوك مسجّل وإيه آخر خطأ شافه تيليجرام؟ — ودي كمان الطريقة
+الوحيدة للإجابة على السؤال اللي مايتجربش قبل النشر: هل الـ ٥٨٠ كيلوبايت بتاعة
+بيانات المحرك بتتحمّل جوه Deno.
+
+---
+
 ## حدود معروفة
 
 - **إزالة التكرار في الذاكرة بس.** بتمسك الحالة اللي بتحصل فعلًا (تيليجرام
