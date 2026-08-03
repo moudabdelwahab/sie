@@ -28,6 +28,7 @@ import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion, detectReso
 import { activationThresholdForLevel } from '../sie/ranking/ranking-engine.js';
 import { recallCustomerName, findOpenTicket, recallPreviousSession, rememberFacts, recallFacts, forgetFacts } from './sie-customer-memory.js';
 import { detectMemoryIntent, MEMORY_REPLIES } from '../sie/language/memory-intent.js';
+import { queueForHumanReview, REVIEW_QUEUED_TEXT, REVIEW_QUEUE_FAILED_TEXT } from './sie-review-queue.js';
 import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
 import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
 import { decide } from '../sie/decision/decision-engine.js';
@@ -395,7 +396,7 @@ async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessio
  * فبنقصّر الطريق ومنعديش على باقي البايبلاين (Language/Diagnostics/
  * Ranking/Decision/Knowledge/Dialogue) خالص في الدور ده.
  */
-async function resolvePendingTicketConfirmation({ text, sessionId, botState, prevSie, port }) {
+async function resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port }) {
     const pending = prevSie.pendingTicketConfirmation;
     const lang = pending.language === 'en' ? 'en' : 'ar';
     const intent = classifyTicketConfirmationReply(text);
@@ -422,7 +423,25 @@ async function resolvePendingTicketConfirmation({ text, sessionId, botState, pre
     delete clearedSie.pendingTicketConfirmation;
 
     if (intent === 'no') {
-        const rendered = { text: TICKET_DECLINE_TEXT[lang], options: [] };
+        // رفض التذكرة مش رفض المساعدة.
+        //
+        // The engine had already judged this conversation worth a human's
+        // time — that judgement does not stop being true because the
+        // customer declined the paperwork. Before, a decline left no trace
+        // at all and the case simply evaporated. Now it goes to the Review
+        // Center, and the customer is told when to expect contact.
+        const { queued } = await queueForHumanReview(supabase, {
+            sessionId,
+            turn: pending.decision.turn,
+            scenarioId: pending.decision.scenarioId ?? null,
+            note: pending.decision.explanation ?? ''
+        });
+
+        // Only promise the follow-up if a row actually exists to honour it.
+        const rendered = {
+            text: queued ? REVIEW_QUEUED_TEXT[lang] : REVIEW_QUEUE_FAILED_TEXT[lang],
+            options: []
+        };
         const nextBotState = { ...botState, sie: clearedSie };
         const actionResult = await executeDecision({
             decision: { action: ACTIONS.WAIT_FOR_USER, turn: pending.decision.turn },
@@ -479,11 +498,28 @@ const ESCALATION_EXPLANATION = {
 /**
  * العميل طلب صراحة إنه يتكلم مع حد بشري، أو بان عليه انزعاج واضح من
  * البوت نفسه (sie/language/small-talk.js's human_request/frustration).
- * مفيش داعي نستنى نأكد معاه زي CREATE_TICKET العادي — الحالتين مفيش
- * فيهم حاجة نتشخصها أكتر، فبننفذ تصعيد حقيقي (ESCALATE_TO_HUMAN) على
- * طول بدل رد كلامي بس. بنحدّث decisionState.ticketAlreadyCreated يدويًا
- * (بدل ما نستدعي decide()) عشان أي دور تشخيصي بعد كده — لو الجلسة كانت
- * أصلاً في نص تشخيص — ميحاولش يفتح تذكرة تانية مكررة.
+ *
+ * ------------------------------------------------------------
+ * التحويل لبشري ≠ فتح تذكرة
+ *
+ * This used to open a ticket outright, on the reasoning that there is
+ * nothing left to diagnose. True — but "I want to talk to a person" is not
+ * "open a ticket in my name". Plenty of customers want a quick word and do
+ * not want a case file, and a ticket they did not ask for is one more thing
+ * they have to close.
+ *
+ * So the hand-off ASKS, exactly like every other route to CREATE_TICKET
+ * does. The two answers are both honoured:
+ *   - نعم  → the pending ESCALATE_TO_HUMAN decision runs and a ticket opens.
+ *   - لأ   → chat_engine_conversation_reviews, and the customer is told the
+ *            team will reach out within 24 hours (sie-review-queue.js).
+ *
+ * Either way a human sees the conversation, which is what the customer
+ * actually asked for. Only the paperwork is optional.
+ *
+ * decisionState.ticketAlreadyCreated is set here rather than by decide(),
+ * so that a session already mid-diagnosis does not circle back and open a
+ * second, duplicate ticket on a later turn.
  */
 async function escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port }) {
     const lang = responseLanguage === 'en' ? 'en' : 'ar';
@@ -518,13 +554,32 @@ async function escalateImmediately({ reason, responseLanguage, turn, sessionId, 
         }
     };
 
-    const actionResult = await executeDecision({ decision, rendered, sessionId, nextBotState, port });
-    if (!actionResult?.success) {
-        console.error(`SIE action-layer write failed (${reason} escalation):`, actionResult);
+    // The escalation sentence is the PREFIX to the confirmation question, so
+    // the customer reads one coherent message — "I'll get you to the team…
+    // want me to open a ticket?" — rather than a promise now and an
+    // unexplained question a beat later.
+    const result = await beginTicketConfirmation({
+        decisionWithKnowledge: decision,
+        rendered,
+        sessionId,
+        nextBotState,
+        port,
+        responseLanguage: lang,
+        prefix: `${rendered.text}\n\n`
+    });
+
+    if (!result) {
+        console.error(`SIE action-layer write failed (${reason} escalation):`, result);
         return null;
     }
 
-    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: actionResult.ticketNumber ?? null, botState: nextBotState };
+    return {
+        reply: result.reply,
+        options: result.options,
+        alreadyPersisted: true,
+        ticketNumber: null,
+        botState: result.persistedBotState
+    };
 }
 
 /**
@@ -596,7 +651,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
         // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
         if (prevSie?.pendingTicketConfirmation) {
-            return await resolvePendingTicketConfirmation({ text, sessionId, botState, prevSie, port });
+            return await resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port });
         }
 
         // «يستفيد من المحادثات القديمة». بيتسأل مرة واحدة بس، أول رسالة في
