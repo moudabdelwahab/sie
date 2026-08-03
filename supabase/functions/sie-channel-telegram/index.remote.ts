@@ -56,15 +56,15 @@
  */
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-import { handleInbound } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/channel-adapter.js';
-import { createTelegramAdapter } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/telegram/telegram-adapter.js';
-import { createInProcessSieClient } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/sie-client.js';
-import { createSessionStore } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/channel-session.js';
-import { createIdentityResolver } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/channel-identity.js';
-import { createEntitlementExplainer } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/channel-entitlement.js';
-import { createMemoryDeduplicator } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/delivery.js';
-import { createLogger } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/channels/core/logger.js';
-import { getSieReply, getSieAccessStatus, evaluateSieAccessRow, listActiveScenarios } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@32237a95869f458d5420759614c5e238802446ae/sie-integration/sie-runtime.js';
+import { handleInbound } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/channel-adapter.js';
+import { createTelegramAdapter } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/telegram/telegram-adapter.js';
+import { createInProcessSieClient } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/sie-client.js';
+import { createSessionStore } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/channel-session.js';
+import { createIdentityResolver } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/channel-identity.js';
+import { createEntitlementExplainer } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/channel-entitlement.js';
+import { createMemoryDeduplicator } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/delivery.js';
+import { createLogger } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/channels/core/logger.js';
+import { getSieReply, getSieAccessStatus, evaluateSieAccessRow, listActiveScenarios } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@9b41298463678ab8867791936d555505e4be711f/sie-integration/sie-runtime.js';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
