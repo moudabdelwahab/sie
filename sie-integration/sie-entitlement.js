@@ -28,6 +28,11 @@
  * `isCurrentUserSieAdmin()` asks the database, which is the one place
  * that check is defined.
  */
+import {
+    SIE_DEFAULT_SETTINGS as SIE_DEFAULTS,
+    mergeStoredSettings,
+    validateSetting
+} from '../sie/config/settings-schema.js';
 
 /**
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
@@ -203,19 +208,11 @@ export async function adminResetUsage(supabase, userId) {
 // ===================================================================
 
 /**
- * What the engine does when nobody has configured anything. These describe
- * today's behaviour exactly, so a missing row never changes how SIE acts —
- * it only means "nobody has touched this yet".
+ * The defaults and the schema both live in sie/config/settings-schema.js so
+ * the console and the engine cannot describe a switch differently. This file
+ * only handles reading and writing them.
  */
-export const SIE_DEFAULT_SETTINGS = Object.freeze({
-    engine_enabled: true,          // المحرك شغّال أصلًا؟
-    answer_directly: true,         // يرد بالحل، أو يجمع المعلومات ويسلّم لموظف
-    ask_before_ticket: true,       // يستأذن قبل ما يفتح تذكرة
-    auto_ticket_enabled: true,     // مسموح له يفتح تذاكر من الأساس
-    escalate_when_upset: true,     // يحوّل لموظف بشري فورًا لو العميل منزعج
-    reply_to_greetings: true,      // يرد على التحيات والكلام العادي
-    use_published_scenarios: false // ياخد السيناريوهات المنشورة من قاعدة البيانات
-});
+export { SIE_DEFAULT_SETTINGS } from '../sie/config/settings-schema.js';
 
 let settingsCache = null;
 
@@ -230,29 +227,32 @@ let settingsCache = null;
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
  * @param {{fresh?: boolean}} [options] - fresh:true bypasses the cache
- * @returns {Promise<typeof SIE_DEFAULT_SETTINGS>}
+ * @returns {Promise<Object>}
  */
 export async function getSieSettings(supabase, { fresh = false } = {}) {
     if (settingsCache && !fresh) return settingsCache;
     try {
         const { data, error } = await supabase.from('sie_settings').select('key, value');
         if (error) {
-            console.warn('[sie-runtime] sie_settings read failed, using defaults:', error.message);
-            return { ...SIE_DEFAULT_SETTINGS };
+            console.warn('[sie] sie_settings read failed, using defaults:', error.message);
+            return { ...SIE_DEFAULTS };
         }
-        const stored = Object.fromEntries((data || []).map((r) => [r.key, r.value]));
-        settingsCache = { ...SIE_DEFAULT_SETTINGS, ...stored };
+        settingsCache = mergeStoredSettings(data || []);
         return settingsCache;
     } catch (err) {
         // Defaults rather than a throw: a settings outage must never stop the
         // engine answering customers.
-        console.warn('[sie-runtime] sie_settings read threw, using defaults:', err?.message || err);
-        return { ...SIE_DEFAULT_SETTINGS };
+        console.warn('[sie] sie_settings read threw, using defaults:', err?.message || err);
+        return { ...SIE_DEFAULTS };
     }
 }
 
 /**
  * Saves one setting. Staff-only, enforced by RLS on the table.
+ *
+ * Validated here as well as in the console because the console is not the
+ * only possible caller, and a value the schema rejects would otherwise sit
+ * in the table being silently ignored on every turn.
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
  * @param {string} key
@@ -260,13 +260,13 @@ export async function getSieSettings(supabase, { fresh = false } = {}) {
  * @returns {Promise<{error: Error|null}>}
  */
 export async function saveSieSetting(supabase, key, value) {
-    if (!(key in SIE_DEFAULT_SETTINGS)) {
-        return { error: new Error(`إعداد غير معروف: ${key}`) };
-    }
+    const check = validateSetting(key, value);
+    if (!check.ok) return { error: new Error(check.error) };
+
     try {
         const { error } = await supabase
             .from('sie_settings')
-            .upsert({ key, value }, { onConflict: 'key' });
+            .upsert({ key, value: check.value }, { onConflict: 'key' });
         if (error) return { error: new Error(error.message) };
         settingsCache = null; // next read reflects the change
         return { error: null };

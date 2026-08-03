@@ -19,6 +19,32 @@ import { scenarioCatalogProvider } from '../scenarios/scenario-catalog.local.js'
 /** How close two candidates' confidence must be to be considered "too close to call". */
 export const AMBIGUITY_MARGIN = 0.1;
 
+/**
+ * «مستوى التشخيص» — قد إيه المحرك يفتح احتمالات كتير للمشكلة الواحدة.
+ *
+ * Diagnosis level is expressed as the bar a hypothesis must clear to be
+ * treated as a real candidate at all. Raising it means fewer contenders,
+ * fewer ambiguous stand-offs, and more hand-offs; lowering it means the
+ * engine keeps weaker readings in play and asks more questions.
+ *
+ * `balanced` is exactly the module's own ACTIVATION_THRESHOLD, so the
+ * default level is not a setting being applied — it is the engine
+ * unchanged.
+ */
+export const DIAGNOSIS_LEVEL_THRESHOLDS = Object.freeze({
+    strict: 0.30,
+    balanced: ACTIVATION_THRESHOLD,
+    broad: 0.08
+});
+
+/**
+ * @param {string} [level]
+ * @returns {number}
+ */
+export function activationThresholdForLevel(level) {
+    return DIAGNOSIS_LEVEL_THRESHOLDS[level] ?? ACTIVATION_THRESHOLD;
+}
+
 /** How many top contenders to surface candidate discriminating questions for. */
 export const MAX_CANDIDATE_QUESTIONS_SCENARIOS = 3;
 
@@ -47,9 +73,13 @@ export const MAX_CANDIDATE_QUESTIONS_SCENARIOS = 3;
  *
  * @param {import('../diagnostics/evidence-types.js').Hypothesis[]} hypotheses
  * @param {import('../scenarios/scenario-types.js').Scenario[]} scenarios
+ * @param {{activationThreshold?: number}} [options] - omit for the module's
+ *   own threshold, i.e. the behaviour this function has always had
  * @returns {RankingResult}
  */
-export function rankHypotheses(hypotheses, scenarios) {
+export function rankHypotheses(hypotheses, scenarios, options = {}) {
+    const activationThreshold =
+        typeof options.activationThreshold === 'number' ? options.activationThreshold : ACTIVATION_THRESHOLD;
     const list = Array.isArray(hypotheses) ? hypotheses : [];
     const scenarioById = new Map((scenarios || []).map((s) => [s.id, s]));
 
@@ -70,7 +100,7 @@ export function rankHypotheses(hypotheses, scenarios) {
     // as real candidates for ambiguity/comparison purposes — a leader at
     // 0.02 confidence with a "runner-up" at 0.01 isn't a meaningful
     // two-horse race, it's just noise.
-    const candidates = ranked.filter((entry) => entry.hypothesis.confidence >= ACTIVATION_THRESHOLD);
+    const candidates = ranked.filter((entry) => entry.hypothesis.confidence >= activationThreshold);
 
     const confidenceGap =
         candidates.length >= 2 ? candidates[0].hypothesis.confidence - candidates[1].hypothesis.confidence : null;
@@ -114,9 +144,10 @@ function buildCandidateDiscriminatingQuestions(topEntries) {
  *
  * @param {import('../diagnostics/evidence-types.js').DiagnosticState} state
  * @param {{getAllScenarios: Function}} [scenarioProvider]
+ * @param {{activationThreshold?: number}} [options]
  * @returns {Promise<RankingResult>}
  */
-export async function rankDiagnosticState(state, scenarioProvider = scenarioCatalogProvider) {
+export async function rankDiagnosticState(state, scenarioProvider = scenarioCatalogProvider, options = {}) {
     const scenarios = await scenarioProvider.getAllScenarios();
-    return rankHypotheses(state?.hypotheses || [], scenarios);
+    return rankHypotheses(state?.hypotheses || [], scenarios, options);
 }

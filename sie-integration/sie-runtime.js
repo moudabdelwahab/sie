@@ -256,6 +256,24 @@ export async function adminResetUsage(supabase, userId) {
  */
 export { SIE_DEFAULT_SETTINGS, getSieSettings, saveSieSetting } from './sie-entitlement.js';
 
+/**
+ * The settings schema — what each control is called in Arabic, what it does,
+ * and what values it accepts. Re-exported so the console renders from the
+ * same definition the engine obeys: a control cannot describe behaviour the
+ * engine does not have, because there is only one description.
+ */
+export {
+    SETTING_GROUPS,
+    SETTINGS,
+    SETTINGS_BY_KEY,
+    BEHAVIOR_PROFILES,
+    behaviorProfileValues,
+    detectBehaviorProfile,
+    validateSetting,
+    isSettingActive,
+    groupedSettings
+} from '../sie/config/settings-schema.js';
+
 // ===================================================================
 // Scenario catalog (admin)
 // ===================================================================
@@ -279,6 +297,34 @@ export async function listActiveScenarios() {
     } catch (err) {
         console.error('[sie-runtime] failed to load the active catalog:', err?.message || err);
         return [];
+    }
+}
+
+/**
+ * The Arabic name for every evidence token the engine recognises.
+ *
+ * Scenarios are keyed on tokens like `entity_subscription`, which is the
+ * right identifier for the engine and the wrong thing to show a support
+ * agent. The glossary already carries an Arabic label per canonical, so
+ * this reads the same source the language layer does rather than keeping a
+ * second translation table that would drift.
+ *
+ * @returns {Promise<Object<string, string>>} token -> الاسم بالعربي
+ */
+export async function getTokenLabels() {
+    try {
+        const { technicalGlossaryProvider } = await import('../sie/language/technical-glossary.local.js');
+        const entries = await technicalGlossaryProvider.getEntries();
+        return Object.fromEntries(
+            entries
+                .filter((entry) => entry.labels?.ar)
+                .map((entry) => [entry.canonical, entry.labels.ar])
+        );
+    } catch (err) {
+        // The table falls back to raw tokens, which is ugly but readable —
+        // better than an empty column.
+        console.warn('[sie-runtime] failed to load token labels:', err?.message || err);
+        return {};
     }
 }
 

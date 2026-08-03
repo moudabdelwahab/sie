@@ -39,64 +39,27 @@ import {
     getSieSettings,
     saveSieSetting,
     publishScenarioVersion,
-    SIE_DEFAULT_SETTINGS
+    getTokenLabels,
+    SIE_DEFAULT_SETTINGS,
+    SETTINGS_BY_KEY,
+    behaviorProfileValues,
+    detectBehaviorProfile,
+    isSettingActive,
+    groupedSettings
 } from '/sie-integration/sie-runtime.js';
 
 const LOGIN_PAGE = './login.html';
 
 /**
- * Each switch says what the customer experiences, not what the code does.
- * "بيفهم المحادثة ويرد بالحل" is a behaviour an operator can reason about;
- * "answer_directly" is an implementation detail they should never have to
- * learn. The `warn` copy appears when a switch is turned OFF, so the
- * consequence is visible at the moment of the decision rather than
- * discovered later from customer complaints.
+ * كل عنصر في اللوحة بيتقرا من sie/config/settings-schema.js — مش مكتوب
+ * هنا تاني.
+ *
+ * That is the point, not a convenience: when the label lived here and the
+ * behaviour lived in the engine, nothing stopped the two from describing
+ * different things. Now a control cannot claim an effect the engine does
+ * not have, because there is only one description of each setting and both
+ * sides read it.
  */
-const SWITCHES = [
-    {
-        key: 'engine_enabled',
-        title: 'المحرك الذكي شغّال',
-        desc: 'لما يكون مقفول، العملاء بيرجعوا للبوت العادي على طول ومحدش بيتأثر.',
-        warn: 'المحرك متوقف دلوقتي — كل العملاء بيرد عليهم البوت العادي.'
-    },
-    {
-        key: 'answer_directly',
-        title: 'يبعت الحل للعميل بنفسه',
-        desc: 'لما يتأكد من المشكلة ويكون عنده حل جاهز، يبعته للعميل على طول من غير انتظار.',
-        warn: 'مش هيبعت حلول بنفسه — هيفهم المشكلة ويجمع التفاصيل ويسلّمها لموظف يرد.'
-    },
-    {
-        key: 'reply_to_greetings',
-        title: 'يرد على التحيات والكلام العادي',
-        desc: 'يرحّب ويرد على «شكرًا» و«في حد؟» بدل ما يعاملها كمشكلة فنية.',
-        warn: 'التحيات مش هيتم الرد عليها، والعميل ممكن يحس إن محدش موجود.'
-    },
-    {
-        key: 'escalate_when_upset',
-        title: 'يحوّل لموظف فورًا لو العميل منزعج',
-        desc: 'أول ما يحس بضيق واضح، يوقف التشخيص ويوصّله بحد من الفريق.',
-        warn: 'العميل المنزعج هيفضل مع المحرك لحد ما يطلب موظف بنفسه.'
-    },
-    {
-        key: 'auto_ticket_enabled',
-        title: 'يقدر يفتح تذاكر دعم',
-        desc: 'لما مايعرفش يحل، يفتح تذكرة فيها تفاصيل المحادثة كاملة.',
-        warn: 'مش هيفتح تذاكر خالص — هيقول للعميل يتواصل مع الفريق بنفسه.'
-    },
-    {
-        key: 'ask_before_ticket',
-        title: 'يستأذن قبل ما يفتح تذكرة',
-        desc: 'يسأل «تحب أفتحلك تذكرة؟» ويستنى موافقة العميل.',
-        warn: 'هيفتح التذاكر من غير ما يسأل، وده بيزوّد عدد التذاكر.'
-    },
-    {
-        key: 'use_published_scenarios',
-        title: 'استخدم الحالات اللي ضفتها',
-        desc: 'يشتغل بالحالات المفعّلة من صفحة «الحالات اللي بيفهمها» بدل الحالات الأساسية.',
-        warn: 'شغّال بالحالات الأساسية بس — اللي ضفته مش مستخدم.'
-    }
-];
-
 const state = {
     settings: { ...SIE_DEFAULT_SETTINGS },
     scenarios: [],
@@ -117,6 +80,20 @@ const CATEGORY_AR = {
     other: 'أخرى'
 };
 const catAr = (c) => CATEGORY_AR[c] || c;
+
+/**
+ * أسماء الأدلة بالعربي، من قاموس المحرك نفسه.
+ *
+ * Filled once on load. Until it is, tokenAr() returns the raw token rather
+ * than blocking the table on a lookup nobody is waiting for.
+ */
+let TOKEN_LABELS = {};
+
+async function loadTokenLabels() {
+    TOKEN_LABELS = await getTokenLabels();
+}
+
+const tokenAr = (token) => TOKEN_LABELS[token] || token;
 
 const DRAFT_STATUS_AR = {
     draft: 'مسودة', validated: 'اتراجعت', published: 'مفعّلة',
@@ -448,52 +425,224 @@ async function loadSettings() {
     // `fresh` so an admin never sees a cached value on a page whose whole
     // purpose is showing the current one.
     state.settings = await getSieSettings(supabase, { fresh: true });
-    renderSwitches();
+    renderSettingGroups();
     renderLiveBanner();
 
     $('tryBtn').addEventListener('click', runDiagnosisPreview);
     $('tryInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runDiagnosisPreview(); });
 }
 
-function renderSwitches() {
-    $('switchList').innerHTML = SWITCHES.map((sw) => {
-        const on = state.settings[sw.key] !== false;
+/** الأرقام اللي «أسلوب المحرك» بيتحكم فيها — أي تعديل بإيد فيها يرجّعه لـ«مخصص». */
+const PROFILE_KEYS = new Set(Object.keys(behaviorProfileValues('balanced') || {}));
+
+/**
+ * كل المجموعات والعناصر، مرسومة من الوصف الواحد.
+ *
+ * Groups are rendered as collapsible sections rather than more tabs: an
+ * operator changing "how sure before answering" usually wants to see the
+ * question cap next to it, and tabs would hide one behind the other.
+ * Only the first group is open on load, so the page opens on the switches
+ * that get touched most.
+ */
+function renderSettingGroups() {
+    const container = $('settingGroups');
+    container.innerHTML = groupedSettings().map((group, i) => `
+        <details class="setting-group" ${i === 0 ? 'open' : ''}>
+          <summary>
+            <span class="group-title">${esc(group.title)}</span>
+            <span class="group-desc">${esc(group.desc)}</span>
+            <span class="group-count" data-group="${esc(group.id)}"></span>
+          </summary>
+          <div class="setting-list">
+            ${group.settings.map(renderSetting).join('')}
+          </div>
+        </details>`).join('');
+
+    wireSettingInputs();
+    renderGroupCounts();
+}
+
+/** One control, chosen by the setting's own declared type. */
+function renderSetting(def) {
+    const value = state.settings[def.key];
+    const active = isSettingActive(def, state.settings);
+    const disabled = !state.isStaff || !active;
+    const cls = `setting-row${active ? '' : ' is-inert'}`;
+
+    if (def.type === 'boolean') {
+        const on = value !== false;
         return `
-        <div class="switch-row ${on ? '' : 'is-off'}" data-key="${esc(sw.key)}">
+        <div class="${cls}${on ? '' : ' is-off'}" data-key="${esc(def.key)}" data-type="boolean">
           <label class="switch">
-            <input type="checkbox" ${on ? 'checked' : ''} ${state.isStaff ? '' : 'disabled'}>
+            <input type="checkbox" ${on ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
             <span class="slider"></span>
           </label>
-          <div class="switch-text">
-            <b>${esc(sw.title)}</b>
-            <span class="sub">${esc(sw.desc)}</span>
-            ${!on ? `<span class="switch-warn">${esc(sw.warn)}</span>` : ''}
+          <div class="setting-text">
+            <b>${esc(def.title)}</b>
+            <span class="sub">${esc(def.desc)}</span>
+            ${!on && def.warn ? `<span class="setting-warn">${esc(def.warn)}</span>` : ''}
+            ${!active ? `<span class="setting-inert">متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>` : ''}
           </div>
         </div>`;
-    }).join('');
+    }
 
-    $('switchList').querySelectorAll('.switch-row input').forEach((input) => {
-        input.addEventListener('change', async (e) => {
-            const key = e.target.closest('.switch-row').dataset.key;
-            const value = e.target.checked;
-            e.target.disabled = true;
+    if (def.type === 'number') {
+        return `
+        <div class="${cls}" data-key="${esc(def.key)}" data-type="number">
+          <div class="setting-text">
+            <b>${esc(def.title)}</b>
+            <span class="sub">${esc(def.desc)}</span>
+            ${!active ? `<span class="setting-inert">متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>` : ''}
+          </div>
+          <div class="setting-number">
+            <input type="range" min="${def.min}" max="${def.max}" step="${def.step || 1}"
+                   value="${value}" ${disabled ? 'disabled' : ''}>
+            <output>${formatNumber(def, value)}</output>
+          </div>
+        </div>`;
+    }
 
-            const { error } = await saveSieSetting(supabase, key, value);
-            e.target.disabled = false;
+    // enum
+    return `
+    <div class="${cls}" data-key="${esc(def.key)}" data-type="enum">
+      <div class="setting-text">
+        <b>${esc(def.title)}</b>
+        <span class="sub">${esc(def.desc)}</span>
+      </div>
+      <div class="setting-choices">
+        ${def.options.map((o) => `
+          <label class="choice ${o.value === value ? 'is-picked' : ''}">
+            <input type="radio" name="${esc(def.key)}" value="${esc(o.value)}"
+                   ${o.value === value ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
+            <span class="choice-label">${esc(o.label)}</span>
+            ${o.desc ? `<span class="choice-desc">${esc(o.desc)}</span>` : ''}
+          </label>`).join('')}
+      </div>
+    </div>`;
+}
 
-            if (error) {
-                // Put the switch back: showing it in a state the database
-                // never accepted is worse than showing the failure.
-                e.target.checked = !value;
-                toast(`مااتحفظش: ${error.message}`, 'err');
-                return;
-            }
-            state.settings[key] = value;
-            renderSwitches();
-            renderLiveBanner();
-            toast('اتحفظ، وشغّال على المحادثات الجديدة على طول.');
+/**
+ * «مستوى التأكد» جواه كسور، والباقي أعداد صحيحة. عرض 0.6 كنسبة أوضح
+ * بكتير لموظف من رقم عشري.
+ */
+function formatNumber(def, value) {
+    if (def.key === 'answer_confidence') return `${Math.round(value * 100)}٪`;
+    if (def.key === 'memory_context_minutes') {
+        return value >= 60 ? `${Math.round((value / 60) * 10) / 10} ساعة` : `${value} دقيقة`;
+    }
+    return String(value);
+}
+
+function wireSettingInputs() {
+    const rows = $('settingGroups').querySelectorAll('.setting-row');
+
+    rows.forEach((row) => {
+        const key = row.dataset.key;
+        const type = row.dataset.type;
+
+        if (type === 'boolean') {
+            row.querySelector('input').addEventListener('change', (e) => {
+                commitSetting(key, e.target.checked, e.target, () => { e.target.checked = !e.target.checked; });
+            });
+            return;
+        }
+
+        if (type === 'number') {
+            const range = row.querySelector('input[type=range]');
+            const out = row.querySelector('output');
+            const def = SETTINGS_BY_KEY[key];
+            // Live label while dragging, one save on release — a save per
+            // pixel would be dozens of writes for one decision.
+            range.addEventListener('input', () => { out.textContent = formatNumber(def, Number(range.value)); });
+            range.addEventListener('change', () => {
+                const previous = state.settings[key];
+                commitSetting(key, Number(range.value), range, () => {
+                    range.value = previous;
+                    out.textContent = formatNumber(def, previous);
+                });
+            });
+            return;
+        }
+
+        row.querySelectorAll('input[type=radio]').forEach((radio) => {
+            radio.addEventListener('change', () => {
+                const previous = state.settings[key];
+                commitSetting(key, radio.value, radio, () => {
+                    const back = row.querySelector(`input[value="${previous}"]`);
+                    if (back) back.checked = true;
+                });
+            });
         });
     });
+}
+
+/**
+ * Saves one value and reconciles the page with what the database accepted.
+ *
+ * `revert` runs on failure: leaving a control showing a value the database
+ * rejected is worse than showing the error, because the next person to look
+ * at the page would believe it.
+ */
+async function commitSetting(key, value, control, revert) {
+    control.disabled = true;
+    const { error } = await saveSieSetting(supabase, key, value);
+    control.disabled = false;
+
+    if (error) {
+        revert();
+        toast(`مااتحفظش: ${error.message}`, 'err');
+        return;
+    }
+
+    state.settings[key] = value;
+
+    // «أسلوب المحرك» بيظبط كذا رقم مرة واحدة، وأي تعديل بإيد على رقم منهم
+    // بيرجّعه لـ«مخصص» — عشان اللوحة ماتقولش أسلوب هو مش شغّال فعلاً.
+    if (key === 'behavior_profile') {
+        await applyBehaviorProfile(value);
+    } else if (PROFILE_KEYS.has(key)) {
+        const detected = detectBehaviorProfile(state.settings);
+        if (detected !== state.settings.behavior_profile) {
+            state.settings.behavior_profile = detected;
+            await saveSieSetting(supabase, 'behavior_profile', detected);
+        }
+    }
+
+    renderSettingGroups();
+    renderLiveBanner();
+    toast('اتحفظ، وشغّال على المحادثات الجديدة على طول.');
+}
+
+/**
+ * «أسلوب المحرك»: بيكتب الأرقام اللي وراه واحدة واحدة.
+ *
+ * Written individually rather than as one blob because each value has to
+ * pass the schema's own validation — a preset is a convenience for the
+ * operator, not a way around the rules.
+ */
+async function applyBehaviorProfile(profile) {
+    const values = behaviorProfileValues(profile);
+    if (!values) return; // «مخصص» معناه ماتلمسش الأرقام
+
+    for (const [key, value] of Object.entries(values)) {
+        const { error } = await saveSieSetting(supabase, key, value);
+        if (error) {
+            toast(`مااتحفظش «${SETTINGS_BY_KEY[key].title}»: ${error.message}`, 'err');
+            return;
+        }
+        state.settings[key] = value;
+    }
+}
+
+/** عدد الإعدادات المتغيّرة عن المعتاد جوه كل مجموعة. */
+function renderGroupCounts() {
+    for (const group of groupedSettings()) {
+        const el = $('settingGroups').querySelector(`.group-count[data-group="${group.id}"]`);
+        if (!el) continue;
+        const changed = group.settings.filter((s) => state.settings[s.key] !== SIE_DEFAULT_SETTINGS[s.key]).length;
+        el.textContent = changed ? `${changed} متغيّر` : '';
+        el.className = `group-count${changed ? ' is-changed' : ''}`;
+    }
 }
 
 function renderLiveBanner() {
@@ -501,18 +650,19 @@ function renderLiveBanner() {
     if (state.settings.engine_enabled === false) {
         banner.className = 'live-banner live-banner--off';
         banner.textContent = 'المحرك الذكي متوقف دلوقتي. العملاء بيرد عليهم البوت العادي.';
-    } else {
-        banner.className = 'live-banner live-banner--on';
-        // Counts what differs from the shipped defaults, not what is merely
-        // off: use_published_scenarios ships off, so counting "off" would
-        // report a changed setting on a console nobody has ever touched.
-        const changed = SWITCHES.filter(
-            (sw) => sw.key !== 'engine_enabled' && state.settings[sw.key] !== SIE_DEFAULT_SETTINGS[sw.key]
-        ).length;
-        banner.textContent = changed === 0
-            ? 'المحرك الذكي شغّال بكل الإعدادات المعتادة.'
-            : `المحرك الذكي شغّال، مع ${changed} إعداد متغيّر عن المعتاد.`;
+        return;
     }
+
+    banner.className = 'live-banner live-banner--on';
+    // Counts what differs from the shipped defaults, not what is merely
+    // off: several settings ship off, so counting "off" would report
+    // changes on a console nobody has ever touched.
+    const changed = Object.keys(SIE_DEFAULT_SETTINGS).filter(
+        (key) => key !== 'engine_enabled' && state.settings[key] !== SIE_DEFAULT_SETTINGS[key]
+    ).length;
+    banner.textContent = changed === 0
+        ? 'المحرك الذكي شغّال بكل الإعدادات المعتادة.'
+        : `المحرك الذكي شغّال، مع ${changed} إعداد متغيّر عن المعتاد.`;
 }
 
 /**

@@ -22,26 +22,32 @@
  */
 import { ACTIONS, createEmptyDecisionState } from './decision-types.js';
 import {
-    RESOLUTION_CONFIDENCE_THRESHOLD,
-    MAX_CLARIFYING_QUESTIONS,
-    MAX_TURNS_BEFORE_ESCALATION,
-    MAX_NO_PROGRESS_TURNS,
     EVIDENCE_REQUEST_ACTION_BY_CATEGORY,
-    DEFAULT_EVIDENCE_REQUEST_ACTION
+    DEFAULT_EVIDENCE_REQUEST_ACTION,
+    resolvePolicy
 } from './decision-policy.js';
-import { ACTIVATION_THRESHOLD } from '../diagnostics/hypothesis-tracker.js';
 
 const defaultClock = () => new Date().toISOString();
 
-function buildTicketDraft(ranking) {
+/**
+ * The trail is what turns a ticket from "customer says it's broken" into
+ * "here is what the engine already ruled in and out", so an agent starts
+ * where the engine stopped instead of re-asking everything.
+ *
+ * Omitting it (policy.includeTicketSummary off) is for deployments whose
+ * agents would rather read the raw conversation.
+ */
+function buildTicketDraft(ranking, policy) {
     return {
         scenarioId: ranking.topHypothesis?.hypothesis.scenarioId ?? null,
         category: ranking.topHypothesis?.scenario?.category ?? 'other',
-        diagnosticTrail: ranking.ranked.slice(0, 5).map((r) => ({
-            scenarioId: r.hypothesis.scenarioId,
-            confidence: r.hypothesis.confidence,
-            status: r.hypothesis.status
-        }))
+        diagnosticTrail: policy?.includeTicketSummary === false
+            ? []
+            : ranking.ranked.slice(0, 5).map((r) => ({
+                scenarioId: r.hypothesis.scenarioId,
+                confidence: r.hypothesis.confidence,
+                status: r.hypothesis.status
+            }))
     };
 }
 
@@ -68,23 +74,22 @@ function findUnaskedCandidateQuestion(candidateQuestions, askedQuestionIds, scen
 
 /**
  * @param {Object} params
- * @param {Object} [params.policy] - operator-set switches. The only one today
- *   is `allowAutoResolution` (default true): when false the engine still
- *   diagnoses normally but never hands the customer a stored solution, falling
- *   through R7's existing "gather supplementary evidence, then ticket" path so
- *   a human delivers the answer. It is a parameter rather than a module
- *   constant because it is a per-deployment operator choice, not a property of
- *   the decision rules.
+ * @param {Object} [params.policy] - operator-set switches, resolved against
+ *   this module's constants by resolvePolicy(). These are per-deployment
+ *   choices (how sure before answering, how many questions, when to hand
+ *   off), not properties of the decision rules, which is why they arrive as
+ *   an argument rather than living as constants. Omitting `policy` entirely
+ *   reproduces the pre-policy behaviour exactly.
  */
-export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy = {} }) {
+export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy: rawPolicy = {} }) {
     const prevState = previousDecisionState || createEmptyDecisionState();
     const noNewEvidence = !newEvidenceAddedThisTurn || newEvidenceAddedThisTurn === 0;
     const consecutiveNoNewEvidenceTurns = noNewEvidence ? prevState.consecutiveNoNewEvidenceTurns + 1 : 0;
-    const allowAutoResolution = policy.allowAutoResolution !== false;
+    const policy = resolvePolicy(rawPolicy);
 
     const evaluatedRules = [];
     let decision = decideAction(
-        { ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, allowAutoResolution },
+        { ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy },
         evaluatedRules,
         clock
     );
@@ -109,7 +114,7 @@ export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedT
 }
 
 function finalize(action, opts, turn, evaluatedRules, clock) {
-    const { scenarioId = null, scenarioLabel = null, confidence = null, explanation, targetQuestion = null, resolution = null, ticketDraft = null, attemptNumber = null } = opts;
+    const { scenarioId = null, scenarioLabel = null, confidence = null, explanation, targetQuestion = null, resolution = null, ticketDraft = null, attemptNumber = null, hedged = false } = opts;
     return {
         action,
         scenarioId,
@@ -122,11 +127,12 @@ function finalize(action, opts, turn, evaluatedRules, clock) {
         resolution,
         ticketDraft,
         turn,
-        attemptNumber
+        attemptNumber,
+        hedged
     };
 }
 
-function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, allowAutoResolution = true }, evaluatedRules, clock) {
+function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy }, evaluatedRules, clock) {
     const { topHypothesis, runnerUp, isAmbiguous, candidateDiscriminatingQuestions } = ranking;
 
     const rule0Matches = noNewEvidence && !topHypothesis && prevState.lastAction === null;
@@ -145,8 +151,8 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         );
     }
 
-    const rule1Matches = turn >= MAX_TURNS_BEFORE_ESCALATION;
-    evaluatedRules.push({ rule: 'R1_TURN_BUDGET', matched: rule1Matches, detail: `turn=${turn}, cap=${MAX_TURNS_BEFORE_ESCALATION}` });
+    const rule1Matches = turn >= policy.maxTurnsBeforeEscalation;
+    evaluatedRules.push({ rule: 'R1_TURN_BUDGET', matched: rule1Matches, detail: `turn=${turn}, cap=${policy.maxTurnsBeforeEscalation}` });
     if (rule1Matches) {
         return finalize(
             ACTIONS.ESCALATE_TO_HUMAN,
@@ -154,8 +160,8 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 scenarioId: topHypothesis?.hypothesis.scenarioId ?? null,
                 scenarioLabel: topHypothesis?.scenario?.label ?? null,
                 confidence: topHypothesis?.hypothesis.confidence ?? null,
-                explanation: `Turn ${turn} reached the maximum turn budget (${MAX_TURNS_BEFORE_ESCALATION}) without a confident, resolved diagnosis.`,
-                ticketDraft: buildTicketDraft(ranking)
+                explanation: `Turn ${turn} reached the maximum turn budget (${policy.maxTurnsBeforeEscalation}) without a confident, resolved diagnosis.`,
+                ticketDraft: buildTicketDraft(ranking, policy)
             },
             turn, evaluatedRules, clock
         );
@@ -184,8 +190,8 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         );
     }
 
-    const rule3Matches = consecutiveNoNewEvidenceTurns >= MAX_NO_PROGRESS_TURNS;
-    evaluatedRules.push({ rule: 'R3_NO_PROGRESS_FALLBACK', matched: rule3Matches, detail: `consecutiveNoNewEvidenceTurns=${consecutiveNoNewEvidenceTurns}, cap=${MAX_NO_PROGRESS_TURNS}` });
+    const rule3Matches = consecutiveNoNewEvidenceTurns >= policy.maxNoProgressTurns;
+    evaluatedRules.push({ rule: 'R3_NO_PROGRESS_FALLBACK', matched: rule3Matches, detail: `consecutiveNoNewEvidenceTurns=${consecutiveNoNewEvidenceTurns}, cap=${policy.maxNoProgressTurns}` });
     if (rule3Matches) {
         return finalize(
             ACTIONS.FALLBACK,
@@ -205,18 +211,18 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         return finalize(ACTIONS.FALLBACK, { explanation: 'No ranked hypotheses are available to reason about.' }, turn, evaluatedRules, clock);
     }
 
-    const rule5Matches = topHypothesis.hypothesis.confidence < ACTIVATION_THRESHOLD;
+    const rule5Matches = topHypothesis.hypothesis.confidence < policy.activationThreshold;
     evaluatedRules.push({
         rule: 'R5_BELOW_ACTIVATION',
         matched: rule5Matches,
-        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, activationThreshold=${ACTIVATION_THRESHOLD}`
+        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, activationThreshold=${policy.activationThreshold}`
     });
     if (rule5Matches) {
-        if (prevState.questionsAskedCount < MAX_CLARIFYING_QUESTIONS) {
+        if (prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
             return finalize(
                 ACTIONS.ASK_CLARIFYING_QUESTION,
                 {
-                    explanation: `Top hypothesis "${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the activation threshold (${ACTIVATION_THRESHOLD}); no scenario is a real candidate yet, requesting more detail.`,
+                    explanation: `Top hypothesis "${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the activation threshold (${policy.activationThreshold}); no scenario is a real candidate yet, requesting more detail.`,
                     attemptNumber: prevState.questionsAskedCount
                 },
                 turn, evaluatedRules, clock
@@ -224,7 +230,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         }
         return finalize(
             ACTIONS.ESCALATE_TO_HUMAN,
-            { explanation: `No scenario reached the activation threshold after ${prevState.questionsAskedCount} clarifying questions.`, ticketDraft: buildTicketDraft(ranking) },
+            { explanation: `No scenario reached the activation threshold after ${prevState.questionsAskedCount} clarifying questions.`, ticketDraft: buildTicketDraft(ranking, policy) },
             turn, evaluatedRules, clock
         );
     }
@@ -238,7 +244,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
     });
     if (isAmbiguous) {
         const unasked = findUnaskedCandidateQuestion(candidateDiscriminatingQuestions, prevState.askedQuestionIds);
-        if (unasked && prevState.questionsAskedCount < MAX_CLARIFYING_QUESTIONS) {
+        if (unasked && prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
             const entry = ranking.ranked.find((r) => r.hypothesis.scenarioId === unasked.scenarioId);
             return finalize(
                 ACTIONS.ASK_CLARIFYING_QUESTION,
@@ -252,7 +258,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 turn, evaluatedRules, clock
             );
         }
-        if (prevState.questionsAskedCount >= MAX_CLARIFYING_QUESTIONS) {
+        if (prevState.questionsAskedCount >= policy.maxClarifyingQuestions) {
             return finalize(
                 ACTIONS.ESCALATE_TO_HUMAN,
                 {
@@ -260,12 +266,12 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                     scenarioLabel: topHypothesis.scenario?.label ?? null,
                     confidence: topHypothesis.hypothesis.confidence,
                     explanation: `Ambiguity between "${topHypothesis.hypothesis.scenarioId}" and "${runnerUp.hypothesis.scenarioId}" remains unresolved after ${prevState.questionsAskedCount} clarifying questions.`,
-                    ticketDraft: buildTicketDraft(ranking)
+                    ticketDraft: buildTicketDraft(ranking, policy)
                 },
                 turn, evaluatedRules, clock
             );
         }
-        if (hasMissingLiveEvidence(topHypothesis) && !prevState.accountDetailsRequested) {
+        if (hasMissingLiveEvidence(topHypothesis) && !prevState.accountDetailsRequested && policy.allowEvidenceRequests) {
             return finalize(
                 ACTIONS.REQUEST_ACCOUNT_DETAILS,
                 {
@@ -277,51 +283,77 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 turn, evaluatedRules, clock
             );
         }
-        return finalize(
-            ACTIONS.CREATE_TICKET,
-            {
-                scenarioId: topHypothesis.hypothesis.scenarioId,
-                scenarioLabel: topHypothesis.scenario?.label ?? null,
-                confidence: topHypothesis.hypothesis.confidence,
-                explanation: `Ambiguity between "${topHypothesis.hypothesis.scenarioId}" and "${runnerUp.hypothesis.scenarioId}" cannot be further resolved automatically (no unasked discriminating questions available); escalating with the current diagnostic trail.`,
-                ticketDraft: buildTicketDraft(ranking)
-            },
-            turn, evaluatedRules, clock
-        );
+        if (policy.ticketOnAmbiguity) {
+            return finalize(
+                ACTIONS.CREATE_TICKET,
+                {
+                    scenarioId: topHypothesis.hypothesis.scenarioId,
+                    scenarioLabel: topHypothesis.scenario?.label ?? null,
+                    confidence: topHypothesis.hypothesis.confidence,
+                    explanation: `Ambiguity between "${topHypothesis.hypothesis.scenarioId}" and "${runnerUp.hypothesis.scenarioId}" cannot be further resolved automatically (no unasked discriminating questions available); escalating with the current diagnostic trail.`,
+                    ticketDraft: buildTicketDraft(ranking, policy)
+                },
+                turn, evaluatedRules, clock
+            );
+        }
+        // Handing off on unresolvable ambiguity is switched off, so keep
+        // asking instead. R8 below still has the question budget and the
+        // turn cap to stop this running forever.
+        evaluatedRules.push({
+            rule: 'R6_TICKET_ON_AMBIGUITY_DISABLED',
+            matched: true,
+            detail: 'Ambiguity is unresolvable but policy.ticketOnAmbiguity is off; continuing to refine instead of handing off.'
+        });
     }
 
-    const rule7Matches = topHypothesis.hypothesis.confidence >= RESOLUTION_CONFIDENCE_THRESHOLD;
+    const rule7Matches = topHypothesis.hypothesis.confidence >= policy.resolutionConfidenceThreshold;
     evaluatedRules.push({
         rule: 'R7_CONFIDENT_LEADER',
         matched: rule7Matches,
-        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, resolutionThreshold=${RESOLUTION_CONFIDENCE_THRESHOLD}`
+        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, resolutionThreshold=${policy.resolutionConfidenceThreshold}`
     });
     if (rule7Matches) {
         // The recorded reason distinguishes "this scenario has no stored
         // solution" from "solutions are switched off", which otherwise look
         // identical in a trace.
-        const autoResolutionAvailable = Boolean(topHypothesis.scenario?.resolution?.hasAutoResolution);
-        if (autoResolutionAvailable && !allowAutoResolution) {
+        // «المكتوب عنده بس»: الحالة لازم تكون مكتملة الأدلة، مش مستنتجة
+        // من أجزاء. Confidence alone can clear the threshold while tokens
+        // are still missing — that is inference, and this mode forbids it.
+        const evidenceIncomplete =
+            policy.requireCompleteEvidence &&
+            (topHypothesis.hypothesis.missingEvidenceTokens || []).length > 0;
+        if (evidenceIncomplete) {
+            evaluatedRules.push({
+                rule: 'R7_INCOMPLETE_EVIDENCE',
+                matched: true,
+                detail: `"${topHypothesis.hypothesis.scenarioId}" is still missing ${topHypothesis.hypothesis.missingEvidenceTokens.length} evidence token(s) and policy.requireCompleteEvidence is on; not answering from a partial match.`
+            });
+        }
+        const autoResolutionAvailable =
+            Boolean(topHypothesis.scenario?.resolution?.hasAutoResolution) &&
+            policy.allowScenarioAnswers &&
+            !evidenceIncomplete;
+        if (autoResolutionAvailable && !policy.allowAutoResolution) {
             evaluatedRules.push({
                 rule: 'R7_AUTO_RESOLUTION_DISABLED',
                 matched: true,
                 detail: `"${topHypothesis.hypothesis.scenarioId}" has an automatic resolution, but policy.allowAutoResolution is off; handing off to a human instead.`
             });
         }
-        if (autoResolutionAvailable && allowAutoResolution) {
+        if (autoResolutionAvailable && policy.allowAutoResolution) {
             return finalize(
                 ACTIONS.ANSWER,
                 {
                     scenarioId: topHypothesis.hypothesis.scenarioId,
                     scenarioLabel: topHypothesis.scenario?.label ?? null,
                     confidence: topHypothesis.hypothesis.confidence,
-                    explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} clears the resolution threshold (${RESOLUTION_CONFIDENCE_THRESHOLD}) and has an automatic resolution available.`,
+                    explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} clears the resolution threshold (${policy.resolutionConfidenceThreshold}) and has an automatic resolution available.`,
                     resolution: topHypothesis.scenario.resolution
                 },
                 turn, evaluatedRules, clock
             );
         }
-        if (!prevState.supplementaryEvidenceRequested) {
+        if (!prevState.supplementaryEvidenceRequested && policy.allowEvidenceRequests) {
             const action = pickEvidenceRequestAction(topHypothesis.scenario?.category);
             return finalize(
                 ACTIONS[action],
@@ -341,7 +373,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 scenarioLabel: topHypothesis.scenario?.label ?? null,
                 confidence: topHypothesis.hypothesis.confidence,
                 explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} clears the resolution threshold, has no automatic resolution, and supplementary evidence was already requested; creating a ticket.`,
-                ticketDraft: buildTicketDraft(ranking)
+                ticketDraft: buildTicketDraft(ranking, policy)
             },
             turn, evaluatedRules, clock
         );
@@ -353,14 +385,14 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} is active but below resolution threshold, and not ambiguous.`
     });
     const ownUnasked = findUnaskedCandidateQuestion(candidateDiscriminatingQuestions, prevState.askedQuestionIds, topHypothesis.hypothesis.scenarioId);
-    if (ownUnasked && prevState.questionsAskedCount < MAX_CLARIFYING_QUESTIONS) {
+    if (ownUnasked && prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
         return finalize(
             ACTIONS.ASK_CLARIFYING_QUESTION,
             {
                 scenarioId: topHypothesis.hypothesis.scenarioId,
                 scenarioLabel: topHypothesis.scenario?.label ?? null,
                 confidence: topHypothesis.hypothesis.confidence,
-                explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the resolution threshold (${RESOLUTION_CONFIDENCE_THRESHOLD}); asking a discriminating question to confirm it.`,
+                explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the resolution threshold (${policy.resolutionConfidenceThreshold}); asking a discriminating question to confirm it.`,
                 targetQuestion: ownUnasked.question
             },
             turn, evaluatedRules, clock
@@ -378,7 +410,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
             turn, evaluatedRules, clock
         );
     }
-    if (prevState.questionsAskedCount < MAX_CLARIFYING_QUESTIONS) {
+    if (prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
         return finalize(
             ACTIONS.ASK_CLARIFYING_QUESTION,
             {
@@ -398,11 +430,50 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 scenarioId: topHypothesis.hypothesis.scenarioId,
                 scenarioLabel: topHypothesis.scenario?.label ?? null,
                 confidence: topHypothesis.hypothesis.confidence,
-                explanation: `Question budget (${MAX_CLARIFYING_QUESTIONS}) exhausted without reaching the resolution threshold for "${topHypothesis.hypothesis.scenarioId}"; confirming current understanding before escalating.`
+                explanation: `Question budget (${policy.maxClarifyingQuestions}) exhausted without reaching the resolution threshold for "${topHypothesis.hypothesis.scenarioId}"; confirming current understanding before escalating.`
             },
             turn, evaluatedRules, clock
         );
     }
+    // R9 — smart guess. Everything else is exhausted: questions are spent,
+    // verification is done, and the next step is a hand-off. If the leader is
+    // only just short of the threshold and does have a stored solution, offer
+    // it as a likelihood rather than making the customer wait for a human.
+    //
+    // Gated on a NARROW margin, and only here at the very end, because a
+    // wrong answer costs more than a slow one — a customer who acts on a bad
+    // guess is worse off than one who waited. `hedged` tells the Dialogue
+    // Engine to phrase it as "most likely", never as a diagnosis.
+    const guessGap = policy.resolutionConfidenceThreshold - topHypothesis.hypothesis.confidence;
+    const canGuess =
+        policy.smartGuessMargin > 0 &&
+        guessGap <= policy.smartGuessMargin &&
+        policy.allowScenarioAnswers &&
+        policy.allowAutoResolution &&
+        Boolean(topHypothesis.scenario?.resolution?.hasAutoResolution);
+
+    evaluatedRules.push({
+        rule: 'R9_SMART_GUESS',
+        matched: canGuess,
+        detail: policy.smartGuessMargin > 0
+            ? `gapToThreshold=${guessGap.toFixed(3)}, guessMargin=${policy.smartGuessMargin}, hasAutoResolution=${Boolean(topHypothesis.scenario?.resolution?.hasAutoResolution)}`
+            : 'policy.allowSmartGuess is off.'
+    });
+    if (canGuess) {
+        return finalize(
+            ACTIONS.ANSWER,
+            {
+                scenarioId: topHypothesis.hypothesis.scenarioId,
+                scenarioLabel: topHypothesis.scenario?.label ?? null,
+                confidence: topHypothesis.hypothesis.confidence,
+                explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is within the smart-guess margin (${policy.smartGuessMargin}) of the threshold and every other avenue is exhausted; offering its resolution as a likelihood.`,
+                resolution: topHypothesis.scenario.resolution,
+                hedged: true
+            },
+            turn, evaluatedRules, clock
+        );
+    }
+
     return finalize(
         ACTIONS.CREATE_TICKET,
         {
@@ -410,7 +481,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
             scenarioLabel: topHypothesis.scenario?.label ?? null,
             confidence: topHypothesis.hypothesis.confidence,
             explanation: `Confidence for "${topHypothesis.hypothesis.scenarioId}" plateaued at ${topHypothesis.hypothesis.confidence.toFixed(2)} with no further automated disambiguation available; creating a ticket.`,
-            ticketDraft: buildTicketDraft(ranking)
+            ticketDraft: buildTicketDraft(ranking, policy)
         },
         turn, evaluatedRules, clock
     );
