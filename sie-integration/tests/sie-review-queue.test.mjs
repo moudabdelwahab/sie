@@ -8,99 +8,83 @@ import {
 } from '../sie-review-queue.js';
 
 /**
- * A Supabase double that records what was asked of it. Only the two shapes
- * this module actually uses are modelled — the duplicate lookup
- * (select/eq/in/limit) and the insert (insert/select/single).
+ * A Supabase double that records the RPC call. Only `rpc` is modelled,
+ * because a direct table write is exactly what this module must NOT do —
+ * the table's RLS is staff-only, so an insert would work for the bot and
+ * be refused for a customer on the website.
  */
-function fakeSupabase({ existing = [], insertResult = { data: { id: 'rev-1' }, error: null }, onInsert } = {}) {
-    const calls = { selects: 0, inserts: [] };
-
+function fakeSupabase({ result = { data: 'rev-1', error: null } } = {}) {
+    const calls = [];
     return {
         calls,
-        from(table) {
-            calls.table = table;
-            return {
-                select() { return this; },
-                eq() { return this; },
-                in() { return this; },
-                limit() {
-                    calls.selects += 1;
-                    return Promise.resolve({ data: existing, error: null });
-                },
-                insert(row) {
-                    calls.inserts.push(row);
-                    onInsert?.(row);
-                    return {
-                        select() { return this; },
-                        single() { return Promise.resolve(insertResult); }
-                    };
-                }
-            };
+        rpc(name, params) {
+            calls.push({ name, params });
+            return Promise.resolve(result);
+        },
+        from() {
+            throw new Error('لازم يعدي على الـ RPC، مش على الجدول مباشرة');
         }
     };
 }
 
-test('queueForHumanReview: بيكتب صف في مركز المراجعة', async () => {
+test('queueForHumanReview: بينادي الـ RPC مش الجدول', async () => {
     const supabase = fakeSupabase();
-    const result = await queueForHumanReview(supabase, { sessionId: 's-1', turn: 3 });
+    const out = await queueForHumanReview(supabase, { sessionId: 's-1', turn: 3 });
 
-    assert.equal(result.queued, true);
-    assert.equal(result.id, 'rev-1');
-    assert.equal(supabase.calls.table, 'chat_engine_conversation_reviews');
-    assert.equal(supabase.calls.inserts.length, 1);
-    assert.equal(supabase.calls.inserts[0].session_id, 's-1');
-    assert.equal(supabase.calls.inserts[0].status, 'open');
+    assert.equal(out.queued, true);
+    assert.equal(out.id, 'rev-1');
+    assert.equal(supabase.calls.length, 1);
+    assert.equal(supabase.calls[0].name, 'queue_conversation_for_review');
 });
 
-test('queueForHumanReview: بيكتب بأعمدة الجدول الحقيقي بس', async () => {
-    // الجدول اللايف مافيهوش reason ولا triggered_by_turn — لو اتبعتوا،
-    // الـ insert بيفشل والعميل بياخد وعد مالوش أساس.
+test('queueForHumanReview: بيبعت البارامترات اللي الدالة مستنياها بالظبط', async () => {
     const supabase = fakeSupabase();
     await queueForHumanReview(supabase, { sessionId: 's-1', turn: 3, scenarioId: 'sc-9', note: 'حاجة' });
 
-    const row = supabase.calls.inserts[0];
-    assert.deepEqual(
-        Object.keys(row).sort(),
-        ['corrected_scenario_id', 'notes', 'session_id', 'status']
-    );
+    const { params } = supabase.calls[0];
+    assert.deepEqual(Object.keys(params).sort(), ['p_notes', 'p_scenario_id', 'p_session_id']);
+    assert.equal(params.p_session_id, 's-1');
+    assert.equal(params.p_scenario_id, 'sc-9');
 });
 
-test('queueForHumanReview: الرفض مرتين في نفس المحادثة = حالة واحدة', async () => {
-    const supabase = fakeSupabase({ existing: [{ id: 'rev-existing' }] });
-    const result = await queueForHumanReview(supabase, { sessionId: 's-1', turn: 5 });
-
-    assert.equal(result.queued, true, 'الصف الموجود بيتحسب مسجّل');
-    assert.equal(result.id, 'rev-existing');
-    assert.equal(supabase.calls.inserts.length, 0, 'مالازمش يتكرر');
+test('queueForHumanReview: من غير سيناريو بيبعت null مش undefined', async () => {
+    // undefined بيختفي من الـ JSON، والدالة ساعتها بتاخد قيمتها
+    // الافتراضية بدل ما تسجّل «مافيش تخمين».
+    const supabase = fakeSupabase();
+    await queueForHumanReview(supabase, { sessionId: 's-1', turn: 1 });
+    assert.equal(supabase.calls[0].params.p_scenario_id, null);
 });
 
-test('queueForHumanReview: فشل الكتابة بيترجع queued=false', async () => {
-    const supabase = fakeSupabase({ insertResult: { data: null, error: { message: 'nope' } } });
-    const result = await queueForHumanReview(supabase, { sessionId: 's-1', turn: 1 });
+test('queueForHumanReview: فشل الـ RPC بيترجع queued=false', async () => {
+    const supabase = fakeSupabase({ result: { data: null, error: { message: 'nope' } } });
+    const out = await queueForHumanReview(supabase, { sessionId: 's-1', turn: 1 });
 
-    assert.equal(result.queued, false);
-    assert.equal(result.id, null);
+    assert.equal(out.queued, false);
+    assert.equal(out.id, null);
+});
+
+test('queueForHumanReview: من غير id مابنعتبرش إنها اتسجّلت', async () => {
+    // مافيش صف = مافيش وعد. الوعد بـ ٢٤ ساعة مربوط بوجود الصف.
+    const supabase = fakeSupabase({ result: { data: null, error: null } });
+    assert.equal((await queueForHumanReview(supabase, { sessionId: 's-1', turn: 1 })).queued, false);
 });
 
 test('queueForHumanReview: الاستثناء مابيرميش برّه', async () => {
-    // الذاكرة أو المراجعة مالهاش الحق تكسر دور العميل.
-    const exploding = { from() { throw new Error('connection lost'); } };
-    const result = await queueForHumanReview(exploding, { sessionId: 's-1', turn: 1 });
-    assert.equal(result.queued, false);
+    const exploding = { rpc() { throw new Error('connection lost'); } };
+    assert.equal((await queueForHumanReview(exploding, { sessionId: 's-1', turn: 1 })).queued, false);
 });
 
-test('queueForHumanReview: من غير sessionId مافيش كتابة', async () => {
+test('queueForHumanReview: من غير sessionId مافيش نداء أصلاً', async () => {
     const supabase = fakeSupabase();
-    const result = await queueForHumanReview(supabase, { sessionId: '', turn: 1 });
-    assert.equal(result.queued, false);
-    assert.equal(supabase.calls.inserts.length, 0);
+    assert.equal((await queueForHumanReview(supabase, { sessionId: '', turn: 1 })).queued, false);
+    assert.equal(supabase.calls.length, 0);
 });
 
 test('الملاحظة بالعربي وفيها الوقت المتفق عليه', async () => {
     const supabase = fakeSupabase();
     await queueForHumanReview(supabase, { sessionId: 's-1', turn: 7, note: 'العميل طلب موظف' });
 
-    const notes = supabase.calls.inserts[0].notes;
+    const notes = supabase.calls[0].params.p_notes;
     assert.ok(notes.includes('العميل طلب موظف'), 'السبب لازم يوصل لفريق الدعم');
     assert.ok(notes.includes('7'), 'رقم الدور لازم يبان');
     assert.ok(notes.includes(String(HUMAN_FOLLOWUP_HOURS)));
@@ -109,7 +93,7 @@ test('الملاحظة بالعربي وفيها الوقت المتفق علي�
 // ── اللي بيتقال للعميل ───────────────────────────────────────────────
 
 test('رد النجاح بيوعد بالتواصل، ورد الفشل لأ', async () => {
-    // ده أهم فرق في الملف: وعد بـ 24 ساعة من غير صف مكتوب معناه عميل
+    // ده أهم فرق في الملف: وعد بـ ٢٤ ساعة من غير صف مكتوب معناه عميل
     // مستني حد مش هييجي.
     for (const lang of ['ar', 'en']) {
         assert.ok(REVIEW_QUEUED_TEXT[lang].includes(String(HUMAN_FOLLOWUP_HOURS)));

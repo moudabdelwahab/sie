@@ -30,11 +30,29 @@
  * conversation". Adding a second queue would split the one place staff
  * check into two.
  *
- * ⚠️ Written against the LIVE schema, which differs from the migration file
- * in this repo: live has (session_id, status, corrected_scenario_id,
- * reviewed_by, reviewed_at, notes, created_at) and has no `reason` or
- * `triggered_by_turn` column. Verified against information_schema, not
- * assumed from the migration.
+ * ------------------------------------------------------------
+ * WHY AN RPC AND NOT A DIRECT INSERT
+ *
+ * The table's only policy is `is_chat_engine_staff()`. On Telegram this
+ * code runs as service_role and an insert would succeed; on the website it
+ * runs as the customer, who is not staff, and the insert is refused. The
+ * customer would then be told a human will be in touch within 24 hours
+ * with nothing recorded to make that true — and the bug would only ever
+ * appear on the platform, never on the bot.
+ *
+ * queue_conversation_for_review (migration 0007) is SECURITY DEFINER and
+ * derives its authority from ownership of the session, so both callers
+ * work and neither can write a row for someone else's conversation.
+ *
+ * ⚠️ Three things about the LIVE table that the repo's older migration
+ * file does not say, all verified against the catalog rather than assumed:
+ *   - columns are (session_id, status, corrected_scenario_id, reviewed_by,
+ *     reviewed_at, notes, created_at) — no `reason`, no `triggered_by_turn`
+ *   - status is CHECKed against ('unresolved', 'reviewed', 'corrected').
+ *     There is no 'open'; writing one is rejected outright.
+ *   - UNIQUE (session_id) — one review per conversation, which is what
+ *     makes a second decline in the same chat a no-op rather than a
+ *     duplicate.
  */
 
 /** الوعد اللي بنقوله للعميل — لازم يطابق اللي فريق الدعم بيقدر يلتزم بيه. */
@@ -60,36 +78,21 @@ export async function queueForHumanReview(supabase, { sessionId, turn, scenarioI
     if (!sessionId) return { queued: false, id: null };
 
     try {
-        // Already queued and still open? Do not stack duplicates — a customer
-        // who declines twice in one conversation is one case, not two, and a
-        // review list full of repeats is a review list nobody reads.
-        const { data: existing } = await supabase
-            .from('chat_engine_conversation_reviews')
-            .select('id')
-            .eq('session_id', sessionId)
-            .in('status', ['open', 'in_review'])
-            .limit(1);
-
-        if (existing && existing.length > 0) {
-            return { queued: true, id: existing[0].id };
-        }
-
-        const { data, error } = await supabase
-            .from('chat_engine_conversation_reviews')
-            .insert({
-                session_id: sessionId,
-                status: 'open',
-                corrected_scenario_id: scenarioId,
-                notes: buildNote({ turn, note })
-            })
-            .select('id')
-            .single();
+        // Deduplication is the table's UNIQUE (session_id) plus the RPC's
+        // ON CONFLICT, not a read-then-write here: a customer who declines
+        // twice in one conversation is one case, and checking first would
+        // race with itself on a double tap.
+        const { data, error } = await supabase.rpc('queue_conversation_for_review', {
+            p_session_id: sessionId,
+            p_scenario_id: scenarioId,
+            p_notes: buildNote({ turn, note })
+        });
 
         if (error) {
             console.error('[sie] could not queue the conversation for review:', error.message);
             return { queued: false, id: null };
         }
-        return { queued: true, id: data.id };
+        return { queued: Boolean(data), id: data ?? null };
     } catch (err) {
         console.error('[sie] queueing for review threw:', err?.message || err);
         return { queued: false, id: null };
