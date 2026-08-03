@@ -240,22 +240,38 @@ export async function adminResetUsage(supabase, userId) {
 export { SIE_DEFAULT_SETTINGS } from '../sie/config/settings-schema.js';
 
 let settingsCache = null;
+let settingsCachedAt = 0;
+
+/**
+ * How long a cached settings read stays good.
+ *
+ * A page load is short-lived, so caching for the life of the module was
+ * fine when the browser was the only caller. A channel webhook is not: an
+ * Edge Function instance stays warm for hours, and an operator who
+ * switched the engine off would have gone on answering Telegram customers
+ * until it recycled — with no way to tell how long that would take.
+ *
+ * A minute bounds that staleness without putting a round trip on every
+ * customer message. saveSieSetting() still clears the cache outright, so
+ * the admin's own tab is immediate as before.
+ */
+export const SETTINGS_CACHE_TTL_MS = 60 * 1000;
 
 /**
  * Current settings, merged over the defaults.
  *
- * Cached for the life of the page: these are read on every customer turn,
- * and a round trip per message would add latency to every single reply for
- * values that change perhaps monthly. saveSieSetting() clears the cache, so
- * an admin editing them sees the effect immediately in their own tab, and
- * other tabs pick it up on their next load.
+ * Cached because these are read on every customer turn and a round trip
+ * per message would add latency to every reply for values that change
+ * perhaps monthly — but only for SETTINGS_CACHE_TTL_MS, so a change
+ * reaches every caller within a minute whether or not it restarts.
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
  * @param {{fresh?: boolean}} [options] - fresh:true bypasses the cache
  * @returns {Promise<Object>}
  */
 export async function getSieSettings(supabase, { fresh = false } = {}) {
-    if (settingsCache && !fresh) return settingsCache;
+    const expired = Date.now() - settingsCachedAt > SETTINGS_CACHE_TTL_MS;
+    if (settingsCache && !fresh && !expired) return settingsCache;
     try {
         const { data, error } = await supabase.from('sie_settings').select('key, value');
         if (error) {
@@ -263,6 +279,7 @@ export async function getSieSettings(supabase, { fresh = false } = {}) {
             return { ...SIE_DEFAULTS };
         }
         settingsCache = mergeStoredSettings(data || []);
+        settingsCachedAt = Date.now();
         return settingsCache;
     } catch (err) {
         // Defaults rather than a throw: a settings outage must never stop the
@@ -294,6 +311,7 @@ export async function saveSieSetting(supabase, key, value) {
             .upsert({ key, value: check.value }, { onConflict: 'key' });
         if (error) return { error: new Error(error.message) };
         settingsCache = null; // next read reflects the change
+        settingsCachedAt = 0;
         return { error: null };
     } catch (err) {
         return { error: err instanceof Error ? err : new Error(String(err)) };
