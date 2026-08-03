@@ -9,8 +9,9 @@
  * Every call into SIE goes through `/sie-integration/sie-runtime.js` and
  * nothing else. This page never imports an engine module directly, so
  * the nine modules stay free to change shape behind the runtime. The
- * only non-SIE import is Mad3oom's Supabase client, because Mad3oom owns
- * authentication and sessions — SIE has no identity system of its own.
+ * only non-SIE import is the standalone Supabase client (./supabase-client.js),
+ * which points at the same Supabase project — these pages are served from
+ * their own origin, so the platform's /api-config.js is not reachable.
  *
  * ── AUTHORIZATION ───────────────────────────────────────────
  * Both gates are answered by the database, never by inspecting a role in
@@ -24,7 +25,7 @@
  * These are deliberately different: catalog editing is a team role,
  * while entitlement is a single accountable address.
  */
-import { supabase } from '/api-config.js';
+import { supabase } from './supabase-client.js';
 import {
     listActiveScenarios,
     validateScenarioDraft,
@@ -46,7 +47,7 @@ import {
     detectBehaviorProfile,
     isSettingActive,
     groupedSettings
-} from '/sie-integration/sie-runtime.js';
+} from '../sie-integration/sie-runtime.js';
 
 const LOGIN_PAGE = './login.html';
 

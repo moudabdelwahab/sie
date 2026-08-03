@@ -3,12 +3,13 @@
  * ------------------------------------------------------------
  * Styling for the SIE sign-in and settings pages.
  *
- * Builds on the tokens Mad3oom's /styles.css already defines
- * (--color-primary / background / surface / text / text-secondary /
- * border / success / warning / danger), so these pages follow the
- * platform's light/dark switch automatically instead of carrying a second
- * palette that drifts out of sync. Only the few extra tokens these two
- * pages need are declared here.
+ * Builds on the tokens ./base-theme.css defines (--color-background /
+ * surface / text / text-secondary / border / input-bg / danger). These
+ * pages are served from their own origin, so the platform's /styles.css is
+ * not reachable and base-theme.css carries the same token names locally —
+ * which is what keeps the light/dark switch working without a second
+ * palette that drifts. Only the few extra tokens these pages need are
+ * declared here.
  */
 
 :root {
@@ -333,7 +334,7 @@ fieldset.field { border: 1px solid var(--color-border); border-radius: 12px; pad
 
 .setting-row {
     display: flex; align-items: flex-start; gap: 1rem;
-    background: var(--color-bg); border: 1px solid var(--color-border);
+    background: var(--color-background); border: 1px solid var(--color-border);
     border-radius: 12px; padding: .9rem 1rem;
     transition: border-color .15s ease, opacity .15s ease;
 }

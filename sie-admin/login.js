@@ -1,24 +1,19 @@
 /**
- * login.js — SIE admin sign-in
+ * login.js — SIE admin sign-in (standalone)
  * ------------------------------------------------------------
- * SIE has NO identity system of its own. Authentication belongs to
- * Mad3oom, which is why this page signs in through Mad3oom's own Supabase
- * client (`/api-config.js`) against the same `auth.users` — the same
- * credentials, the same session, the same cookie. There is no second
- * account to create and no password to keep in sync.
+ * Identical auth/authorization logic to the original sie-admin/login.js
+ * (same is_chat_engine_staff()/is_sie_admin() checks via
+ * sie-integration/sie-runtime.js, same fail-closed posture). The only
+ * change: the Supabase client comes from ./supabase-client.js (a local
+ * client pointed at the same project) instead of the platform's
+ * /api-config.js, which isn't reachable from this origin.
  *
- * What this page adds on top of signing in is the AUTHORIZATION step:
- * being a Mad3oom user is not the same as being allowed to configure the
- * engine. Both checks below are answered by the database
- * (`is_chat_engine_staff()` / `is_sie_admin()`), never by comparing a
- * role or an email in JavaScript, because a client-side check is both a
- * duplicate of the real rule and trivially bypassable from devtools.
- *
- * A customer who signs in here is sent to Mad3oom rather than shown an
- * error: they are not doing anything wrong, they are simply in the wrong
- * place.
+ * sie-integration/sie-runtime.js is imported with a relative path
+ * on purpose — it lives in the same `sie` repo/deployment as this file,
+ * so that import resolves fine on this origin. It's only imports that
+ * reach OUTSIDE the `sie` repo (platform files) that needed replacing.
  */
-import { supabase } from '/api-config.js';
+import { supabase } from './supabase-client.js';
 import { isCurrentUserEngineStaff, isCurrentUserSieAdmin } from '/sie-integration/sie-runtime.js';
 
 const form = document.getElementById('loginForm');
@@ -29,7 +24,11 @@ const alertBox = document.getElementById('authAlert');
 const pwToggle = document.getElementById('pwToggle');
 
 const SETTINGS_PAGE = './settings.html';
-const PLATFORM_HOME = '/customer-dashboard.html';
+// Absolute URL on purpose: the platform's customer dashboard lives on a
+// different origin than this standalone admin page, so a relative path
+// here would 404 on THIS origin instead of reaching the real page.
+// TODO: confirm this is the correct live platform domain.
+const PLATFORM_HOME = 'https://mad3oom.com/customer-dashboard.html';
 
 function showAlert(message, kind = 'error') {
     alertBox.textContent = message;

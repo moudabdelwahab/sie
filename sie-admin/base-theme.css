@@ -1,0 +1,37 @@
+/**
+ * base-theme.css — minimal, self-contained color tokens for sie-admin
+ * ------------------------------------------------------------
+ * sie-admin.css (and every sie-admin page) reads a handful of
+ * --color-* custom properties that used to come from the platform's
+ * /styles.css. Since sie-admin pages must not depend on that file
+ * (different origin, 404s), this supplies just the ones actually
+ * referenced — nothing else changes in sie-admin.css itself.
+ *
+ * Toggled by ./theme-toggle.js, a self-contained stand-in for the
+ * platform's /theme-manager.js.
+ */
+:root,
+[data-theme='light'] {
+    --color-background: #F5F7FA;
+    --color-surface: #FFFFFF;
+    --color-text: #0B1220;
+    --color-text-secondary: #5A6A82;
+    --color-border: #E2E8F0;
+    --color-danger: #DC2626;
+    --color-input-bg: #FFFFFF;
+}
+
+[data-theme='dark'] {
+    --color-background: #0B1220;
+    --color-surface: #121F30;
+    --color-text: #F3F6FB;
+    --color-text-secondary: #94A6C2;
+    --color-border: rgba(255, 255, 255, .12);
+    --color-danger: #FF6B6B;
+    --color-input-bg: #0D1622;
+}
+
+body {
+    background: var(--color-background);
+    color: var(--color-text);
+}

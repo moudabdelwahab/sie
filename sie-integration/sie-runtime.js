@@ -18,6 +18,7 @@
  *        ↓
  *   sie-chat-bridge.js        ← INTERNAL: turn orchestration
  *   sie-entitlement.js        ← INTERNAL: customer_sie_access access
+ *   sie-scenario-editor.js    ← INTERNAL: settings console's catalog editing
  *        ↓
  *   /sie/**                   ← INTERNAL: the nine engine modules
  *
@@ -54,18 +55,25 @@
 import { runSieTurn } from './sie-chat-bridge.js';
 import {
     isCurrentUserSieAdmin as _isCurrentUserSieAdmin,
+    isCurrentUserEngineStaff as _isCurrentUserEngineStaff,
     getSieAccessStatus as _getSieAccessStatus,
     adminSetAccess as _adminSetAccess,
     adminResetUsage as _adminResetUsage,
     evaluateSieAccessRow
 } from './sie-entitlement.js';
+import {
+    listActiveScenarios as _listActiveScenarios,
+    listStoredScenarioVersions as _listStoredScenarioVersions,
+    validateScenarioDraft as _validateScenarioDraft,
+    saveScenarioDraft as _saveScenarioDraft
+} from './sie-scenario-editor.js';
 
 /**
  * Bumped whenever the shape of anything exported here changes.
  * Mad3oom never needs to read this; it exists so a support engineer
  * looking at a console log can tell which runtime a tab is running.
  */
-export const SIE_RUNTIME_VERSION = '2.0.0';
+export const SIE_RUNTIME_VERSION = '2.1.0';
 
 // ===================================================================
 // Chat
@@ -195,7 +203,8 @@ export { evaluateSieAccessRow };
 // ===================================================================
 
 /**
- * Is the CURRENT session an SIE admin?
+ * Is the CURRENT session an SIE admin? (entitlement grant/revoke —
+ * customer_sie_access.)
  *
  * Answered by the database (`is_sie_admin()`), never by comparing an
  * email in JavaScript — the database is the single source of truth for
@@ -207,6 +216,23 @@ export { evaluateSieAccessRow };
  */
 export async function isCurrentUserSieAdmin(supabase) {
     return _isCurrentUserSieAdmin(supabase);
+}
+
+/**
+ * Is the CURRENT session allowed to read/edit the Scenario & Knowledge
+ * catalog (settings console, Review Center, Validation Lab)?
+ *
+ * Answered by the database (`is_chat_engine_staff()`) — a broader group
+ * than isCurrentUserSieAdmin (any 'admin'/'support'/'super_user'
+ * profile), since catalog editing is a team role while SIE entitlement
+ * is a single accountable address. Never checked by inspecting a role
+ * in JavaScript.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<boolean>} false on any error (fail closed).
+ */
+export async function isCurrentUserEngineStaff(supabase) {
+    return _isCurrentUserEngineStaff(supabase);
 }
 
 /**
@@ -275,28 +301,69 @@ export {
 } from '../sie/config/settings-schema.js';
 
 // ===================================================================
-// Scenario catalog (admin)
+// Scenario catalog editing (settings console's "Scenarios" tab)
 // ===================================================================
 
 /**
- * The catalog the engine is actually running right now.
+ * The currently published Scenario catalog — exactly what the live
+ * engine diagnoses against right now.
  *
- * Deliberately reads through the same provider the diagnostic pipeline
- * uses, rather than fetching the JSON directly, so the admin screen can
- * never show a catalog that differs from the one answering customers —
- * including the provider's own validate-and-skip behaviour, which means
- * a malformed scenario is absent here exactly as it is absent in
- * diagnosis.
- *
- * @returns {Promise<Array<import('../sie/scenarios/scenario-types.js').Scenario>>}
+ * @returns {Promise<import('../sie/scenarios/scenario-types.js').Scenario[]>}
  */
 export async function listActiveScenarios() {
+    return _listActiveScenarios();
+}
+
+/**
+ * Every stored version (draft/validated/published/rejected/archived) of
+ * every scenario, newest first. Staff-only by RLS; degrades to an empty
+ * list for a non-staff caller rather than throwing.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<Array<{scenario_key: string, version: number, status: string, notes: string|null, created_at: string}>>}
+ */
+export async function listStoredScenarioVersions(supabase) {
+    return _listStoredScenarioVersions(supabase);
+}
+
+/**
+ * Validates a proposed scenario against the exact schema the running
+ * engine's catalog provider enforces.
+ *
+ * @param {*} scenario
+ * @returns {Promise<{valid: boolean, errors: string[]}>}
+ */
+export async function validateScenarioDraft(scenario) {
+    return _validateScenarioDraft(scenario);
+}
+
+/**
+ * Saves a proposed scenario as a new draft version. Never publishes —
+ * see sie/observability/publish-gate.js for the separate, gated publish
+ * step that promotes a draft to what the live engine actually uses.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{key: string, definition: *, authorNote?: string|null}} params
+ * @returns {Promise<{success: boolean, error: string|null, draftVersion: number|null}>}
+ */
+export async function saveScenarioDraft(supabase, params) {
+    return _saveScenarioDraft(supabase, params);
+}
+
+/**
+ * Publishes a scenario version, making it live for diagnosis.
+ * Staff-only, enforced by the RPC.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{key: string, version: number, overrideReason?: string|null}} params
+ * @returns {Promise<{success: boolean, error: string|null}>}
+ */
+export async function publishScenarioVersion(supabase, { key, version, overrideReason = null }) {
     try {
-        const { scenarioCatalogProvider } = await import('../sie/scenarios/scenario-catalog.local.js');
-        return await scenarioCatalogProvider.getAllScenarios();
+        const { createRealSupabasePort } = await import('../sie/action/supabase-port.supabase.js');
+        return await createRealSupabasePort(supabase).publishScenario({ key, version, overrideReason });
     } catch (err) {
-        console.error('[sie-runtime] failed to load the active catalog:', err?.message || err);
-        return [];
+        return { success: false, error: String(err?.message || err) };
     }
 }
 
@@ -325,113 +392,6 @@ export async function getTokenLabels() {
         // better than an empty column.
         console.warn('[sie-runtime] failed to load token labels:', err?.message || err);
         return {};
-    }
-}
-
-/**
- * Validates a scenario object against the engine's own schema, without
- * saving anything.
- *
- * The admin form calls this before it offers to save, so an editor sees
- * the same errors the catalog provider would raise — rather than saving
- * something that is silently skipped at runtime and wondering why the
- * engine ignores it.
- *
- * @param {*} scenario
- * @returns {Promise<{valid: boolean, errors: string[]}>}
- */
-export async function validateScenarioDraft(scenario) {
-    try {
-        const { validateScenario } = await import('../sie/scenarios/scenario-types.js');
-        return validateScenario(scenario);
-    } catch (err) {
-        return { valid: false, errors: [String(err?.message || err)] };
-    }
-}
-
-/**
- * Saves a new scenario as a DRAFT in `chat_engine_scenarios`.
- *
- * Drafts never affect live diagnosis: the engine reads published rows
- * only. That separation is the point — an edit can be written, reviewed
- * and validated before any customer sees its effect.
- *
- * Staff-only, enforced by RLS (`is_chat_engine_staff()`), so a non-staff
- * caller gets a database rejection rather than a client-side one.
- *
- * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @param {{key: string, definition: object, authorNote?: string|null}} params
- * @returns {Promise<{success: boolean, error: string|null, draftVersion: number|null}>}
- */
-export async function saveScenarioDraft(supabase, { key, definition, authorNote = null }) {
-    try {
-        const { createRealSupabasePort } = await import('../sie/action/supabase-port.supabase.js');
-        return await createRealSupabasePort(supabase).createScenarioDraft({ key, definition, authorNote });
-    } catch (err) {
-        return { success: false, error: String(err?.message || err), draftVersion: null };
-    }
-}
-
-/**
- * Publishes a scenario version, making it live for diagnosis.
- * Staff-only, enforced by the RPC.
- *
- * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @param {{key: string, version: number, overrideReason?: string|null}} params
- * @returns {Promise<{success: boolean, error: string|null}>}
- */
-export async function publishScenarioVersion(supabase, { key, version, overrideReason = null }) {
-    try {
-        const { createRealSupabasePort } = await import('../sie/action/supabase-port.supabase.js');
-        return await createRealSupabasePort(supabase).publishScenario({ key, version, overrideReason });
-    } catch (err) {
-        return { success: false, error: String(err?.message || err) };
-    }
-}
-
-/**
- * Draft/published scenario rows stored in Supabase, newest first.
- * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @returns {Promise<Array<object>>}
- */
-export async function listStoredScenarioVersions(supabase) {
-    try {
-        const { data, error } = await supabase
-            .from('chat_engine_scenarios')
-            .select('id, scenario_key, version, status, notes, created_at, published_at')
-            .order('created_at', { ascending: false });
-        if (error) {
-            console.warn('[sie-runtime] chat_engine_scenarios read failed:', error.message);
-            return [];
-        }
-        return data || [];
-    } catch (err) {
-        console.warn('[sie-runtime] chat_engine_scenarios read threw:', err?.message || err);
-        return [];
-    }
-}
-
-/**
- * Is the current session allowed to edit engine content?
- *
- * Distinct from isCurrentUserSieAdmin(): SIE admin is one address and
- * governs customer entitlement, while chat-engine staff is a role and
- * governs the catalog. Both are answered by the database.
- *
- * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @returns {Promise<boolean>} false on any error (fail closed).
- */
-export async function isCurrentUserEngineStaff(supabase) {
-    try {
-        const { data, error } = await supabase.rpc('is_chat_engine_staff');
-        if (error) {
-            console.warn('[sie-runtime] is_chat_engine_staff() failed:', error.message);
-            return false;
-        }
-        return data === true;
-    } catch (err) {
-        console.warn('[sie-runtime] is_chat_engine_staff() threw:', err?.message || err);
-        return false;
     }
 }
 

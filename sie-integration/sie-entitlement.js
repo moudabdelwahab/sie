@@ -22,11 +22,12 @@
  * exactly, including which condition is reported when more than one
  * would fail.
  *
- * Authorization for the admin-only calls is NOT re-checked in JavaScript.
- * It lives entirely inside `is_sie_admin()` within the RPCs (and in RLS
- * on direct reads). This file never hardcodes the admin address;
- * `isCurrentUserSieAdmin()` asks the database, which is the one place
- * that check is defined.
+ * Also home to isCurrentUserEngineStaff() / isCurrentUserSieAdmin() — the
+ * two authorization checks used by sie-admin (login, settings console,
+ * Review Center). Both are answered by the database (is_chat_engine_
+ * staff() / is_sie_admin()), never by inspecting a role or email in
+ * JavaScript. This file never hardcodes the admin address or the staff
+ * role list; the RPCs are the one place either check is defined.
  */
 import {
     SIE_DEFAULT_SETTINGS as SIE_DEFAULTS,
@@ -48,6 +49,30 @@ export async function isCurrentUserSieAdmin(supabase) {
         return data === true;
     } catch (err) {
         console.warn('[sie] is_sie_admin() RPC threw:', err?.message || err);
+        return false;
+    }
+}
+
+/**
+ * Is the current session allowed to read/edit the Scenario & Knowledge
+ * catalog (Review Center, Validation Lab, settings console)? Answered
+ * by is_chat_engine_staff() — a broader group than isCurrentUserSieAdmin
+ * (any 'admin'/'support'/'super_user' profile), since catalog editing is
+ * a team role while SIE entitlement is a single accountable address.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<boolean>}
+ */
+export async function isCurrentUserEngineStaff(supabase) {
+    try {
+        const { data, error } = await supabase.rpc('is_chat_engine_staff');
+        if (error) {
+            console.warn('[sie] is_chat_engine_staff() RPC failed:', error.message);
+            return false;
+        }
+        return data === true;
+    } catch (err) {
+        console.warn('[sie] is_chat_engine_staff() RPC threw:', err?.message || err);
         return false;
     }
 }
