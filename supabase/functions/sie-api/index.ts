@@ -114,8 +114,9 @@ Deno.serve(async (req: Request) => {
     }
 
     try {
-        // verify_jwt=true means a request only reaches here with a
-        // platform-validated Authorization header already present.
+        // Scoped to the caller's own token. An unauthenticated request
+        // reaches here (see the note above), and every route below either
+        // checks the identity itself or calls an RPC that does.
         const supabase = buildUserClient(req);
 
         if (path === '/v1/admin/is-admin' && req.method === 'GET') {
