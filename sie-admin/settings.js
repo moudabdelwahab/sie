@@ -40,6 +40,8 @@ import {
     getSieSettings,
     saveSieSetting,
     publishScenarioVersion,
+    saveKnowledgeDraft,
+    parseContentDocument,
     getTokenLabels,
     SIE_DEFAULT_SETTINGS,
     SETTINGS_BY_KEY,
@@ -68,8 +70,19 @@ const state = {
     users: [],
     isStaff: false,
     isSieAdmin: false,
-    editingUserId: null
+    editingUserId: null,
+    scenarioPage: 1,
+    /** آخر ملف اتقرا، جاهز للحفظ. */
+    importParsed: null
 };
+
+/**
+ * A catalog runs to hundreds of scenarios, and a table that renders all of
+ * them at once is a page an operator scrolls past rather than reads. 25 is
+ * about a screen and a half — enough to scan, short enough to reach the
+ * end of.
+ */
+const SCENARIOS_PER_PAGE = 25;
 
 /** Stored category codes are English because tickets.category is; never show them raw. */
 const CATEGORY_AR = {
@@ -143,6 +156,7 @@ function toast(message, kind = 'ok') {
 
     wireChrome();
     wireScenarioEditor();
+    wireImportDialog();
     wireAccessEditor();
 
     await Promise.all([loadSettings(), loadScenarios(), loadUsers()]);
@@ -179,44 +193,109 @@ async function loadScenarios() {
     const auto = state.scenarios.filter((s) => s.resolution.hasAutoResolution).length;
     const withQ = state.scenarios.filter((s) => s.discriminatingQuestions?.length).length;
     $('scenarioStats').innerHTML = [
-        ['حالة بيفهمها', state.scenarios.length],
-        ['بيرد عليها بحل', auto],
+        ['سيناريو بيفهمه', state.scenarios.length],
+        ['بيرد عليه بحل', auto],
         ['بيجمع معلومات ويسلّم', state.scenarios.length - auto],
-        ['بيسأل فيها سؤال توضيحي', withQ]
+        ['بيسأل فيه سؤال توضيحي', withQ]
     ].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
 
     $('draftCount').textContent = state.drafts.length;
     renderDrafts();
     renderScenarios();
+    wireScenarioToolbar();
 
-    ['scenarioSearch', 'scenarioCategory', 'scenarioResolution']
-        .forEach((id) => $(id).addEventListener('input', renderScenarios));
     $('newScenarioBtn').addEventListener('click', () => openScenarioDialog(null));
     if (!state.isStaff) {
-        $('newScenarioBtn').disabled = true;
-        $('newScenarioBtn').title = 'إضافة الحالات متاحة لفريق العمل بس';
+        for (const id of ['newScenarioBtn', 'importScenarioBtn']) {
+            $(id).disabled = true;
+            $(id).title = 'إضافة السيناريوهات متاحة لفريق العمل بس';
+        }
     }
 }
 
-function renderScenarios() {
+/**
+ * Any filter change resets to page one. Staying on page 7 of a result set
+ * that now has two pages shows an empty table and reads as "the search
+ * found nothing", which is the opposite of what happened.
+ */
+function wireScenarioToolbar() {
+    for (const id of ['scenarioSearch', 'scenarioCategory', 'scenarioResolution', 'scenarioSort']) {
+        $(id).addEventListener('input', () => { state.scenarioPage = 1; renderScenarios(); });
+    }
+    $('scenarioSearchClear').addEventListener('click', () => {
+        $('scenarioSearch').value = '';
+        state.scenarioPage = 1;
+        renderScenarios();
+        $('scenarioSearch').focus();
+    });
+    $('scenarioResetFilters').addEventListener('click', () => {
+        $('scenarioSearch').value = '';
+        $('scenarioCategory').value = '';
+        $('scenarioResolution').value = '';
+        state.scenarioPage = 1;
+        renderScenarios();
+    });
+}
+
+const COLLATOR = new Intl.Collator('ar');
+
+function filteredScenarios() {
     const q = $('scenarioSearch').value.trim().toLowerCase();
     const cat = $('scenarioCategory').value;
     const res = $('scenarioResolution').value;
+    const sort = $('scenarioSort').value;
 
     const rows = state.scenarios.filter((s) => {
         if (cat && s.category !== cat) return false;
         if (res === 'auto' && !s.resolution.hasAutoResolution) return false;
         if (res === 'manual' && s.resolution.hasAutoResolution) return false;
         if (!q) return true;
-        const hay = [s.id, s.label.ar, s.label.en, ...s.evidenceSignature.map((e) => e.token)]
-            .join(' ').toLowerCase();
+        // The Arabic evidence LABELS are searched too, not just the tokens:
+        // an agent looking for the WhatsApp cases types «واتساب», not
+        // `entity_whatsapp`.
+        const hay = [
+            s.id, s.label.ar, s.label.en, catAr(s.category),
+            ...s.evidenceSignature.flatMap((e) => [e.token, tokenAr(e.token)])
+        ].join(' ').toLowerCase();
         return hay.includes(q);
     });
 
-    $('scenarioEmpty').hidden = rows.length > 0;
-    $('scenarioRows').innerHTML = rows.map((s) => `
+    if (sort === 'category') {
+        rows.sort((a, b) => COLLATOR.compare(catAr(a.category), catAr(b.category))
+            || COLLATOR.compare(a.label.ar, b.label.ar));
+    } else if (sort === 'evidence') {
+        rows.sort((a, b) => b.evidenceSignature.length - a.evidenceSignature.length);
+    } else {
+        rows.sort((a, b) => COLLATOR.compare(a.label.ar, b.label.ar));
+    }
+
+    return rows;
+}
+
+function renderScenarios() {
+    const rows = filteredScenarios();
+    const total = rows.length;
+    const pageCount = Math.max(1, Math.ceil(total / SCENARIOS_PER_PAGE));
+
+    // Deleting a filter can shrink the result set under the current page.
+    state.scenarioPage = Math.min(Math.max(1, state.scenarioPage), pageCount);
+    const start = (state.scenarioPage - 1) * SCENARIOS_PER_PAGE;
+    const page = rows.slice(start, start + SCENARIOS_PER_PAGE);
+
+    const filtering = Boolean($('scenarioSearch').value.trim()
+        || $('scenarioCategory').value || $('scenarioResolution').value);
+    $('scenarioSearchClear').hidden = !$('scenarioSearch').value;
+    $('scenarioResetFilters').hidden = !filtering;
+    $('scenarioCount').textContent = total === 0
+        ? ''
+        : total <= SCENARIOS_PER_PAGE
+            ? `${total} سيناريو`
+            : `${start + 1}–${start + page.length} من ${total} سيناريو`;
+
+    $('scenarioEmpty').hidden = total > 0;
+    $('scenarioRows').innerHTML = page.map((s) => `
         <tr>
-          <td><b>${esc(s.label.ar)}</b></td>
+          <td><b>${esc(s.label.ar)}</b><div class="row-sub ltr">${esc(s.id)}</div></td>
           <td><span class="pill">${esc(catAr(s.category))}</span></td>
           <td class="sub">${s.evidenceSignature.map((e) => esc(tokenAr(e.token))).join(' + ')}</td>
           <td>${s.resolution.hasAutoResolution
@@ -228,6 +307,54 @@ function renderScenarios() {
     $('scenarioRows').querySelectorAll('[data-view]').forEach((b) =>
         b.addEventListener('click', () => openScenarioDialog(
             state.scenarios.find((s) => s.id === b.dataset.view))));
+
+    renderPager(pageCount);
+}
+
+/**
+ * Page numbers around the current one, with the first and last always
+ * reachable. A catalog of 400 scenarios is 16 pages, and printing all 16
+ * turns the control into a wall of digits.
+ */
+function pageWindow(current, pageCount) {
+    if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
+
+    const pages = new Set([1, pageCount, current, current - 1, current + 1]);
+    const sorted = [...pages].filter((p) => p >= 1 && p <= pageCount).sort((a, b) => a - b);
+
+    const withGaps = [];
+    sorted.forEach((p, i) => {
+        if (i > 0 && p - sorted[i - 1] > 1) withGaps.push('…');
+        withGaps.push(p);
+    });
+    return withGaps;
+}
+
+function renderPager(pageCount) {
+    const pager = $('scenarioPager');
+    if (pageCount <= 1) { pager.hidden = true; pager.innerHTML = ''; return; }
+    pager.hidden = false;
+
+    const current = state.scenarioPage;
+    const step = (label, target, disabled) =>
+        `<button type="button" class="pager-btn" data-page="${target}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+
+    pager.innerHTML = [
+        step('السابق', current - 1, current === 1),
+        ...pageWindow(current, pageCount).map((p) => p === '…'
+            ? '<span class="pager-gap">…</span>'
+            : `<button type="button" class="pager-btn ${p === current ? 'is-current' : ''}" data-page="${p}"${p === current ? ' aria-current="page"' : ''}>${p}</button>`),
+        step('التالي', current + 1, current === pageCount)
+    ].join('');
+
+    pager.querySelectorAll('[data-page]').forEach((b) =>
+        b.addEventListener('click', () => {
+            state.scenarioPage = Number(b.dataset.page);
+            renderScenarios();
+            // Paging without this leaves the reader at the bottom of the
+            // page they just left, looking at row 25 of the new one.
+            document.getElementById('tab-scenarios').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }));
 }
 
 function renderDrafts() {
@@ -242,11 +369,11 @@ function renderDrafts() {
                   ? '<span class="sub">شغّالة</span>'
                   : `<button class="btn-ghost btn-sm" data-publish="${esc(d.scenario_key)}" data-version="${d.version}">فعّلها</button>`}</td>
             </tr>`).join('')
-        : '<tr><td colspan="5" class="sub">لسه مضفتش أي حالة.</td></tr>';
+        : '<tr><td colspan="5" class="sub">لسه مضفتش أي سيناريو.</td></tr>';
 
     $('draftRows').querySelectorAll('[data-publish]').forEach((b) =>
         b.addEventListener('click', async () => {
-            if (!confirm('تفعيل الحالة دي معناها إن المحرك يبدأ يستخدمها مع العملاء. تمام؟')) return;
+            if (!confirm('تفعيل السيناريو ده معناها إن المحرك يبدأ يستخدمه مع العملاء. تمام؟')) return;
             b.disabled = true;
             const { success, error } = await publishScenarioVersion(supabase, {
                 key: b.dataset.publish,
@@ -359,14 +486,23 @@ function collectScenario() {
         }))
         .filter((e) => e.token);
 
+    // The schema requires a non-empty English label and answer. This
+    // console is deliberately Arabic-only, so an Arabic-first team would
+    // otherwise be unable to save anything at all. The Arabic falls in,
+    // and the field itself says so — an English-writing customer gets
+    // Arabic, which is a degradation the author chose and can see, not a
+    // silent one.
+    const labelAr = $('fLabelAr').value.trim();
+    const textAr = $('fTextAr').value.trim();
+
     const scenario = {
         id: $('fId').value.trim(),
-        label: { ar: $('fLabelAr').value.trim(), en: $('fLabelEn').value.trim() },
+        label: { ar: labelAr, en: $('fLabelEn').value.trim() || labelAr },
         category: $('fCategory').value,
         evidenceSignature: evidence,
         discriminatingQuestions: [],
         resolution: $('fHasAuto').checked
-            ? { hasAutoResolution: true, text: { ar: $('fTextAr').value.trim(), en: $('fTextEn').value.trim() } }
+            ? { hasAutoResolution: true, text: { ar: textAr, en: $('fTextEn').value.trim() || textAr } }
             : { hasAutoResolution: false },
         requiresTicketIfUnresolved: $('fRequiresTicket').checked
     };
@@ -417,6 +553,278 @@ async function submitScenario() {
     state.drafts = await listStoredScenarioVersions(supabase);
     $('draftCount').textContent = state.drafts.length;
     renderDrafts();
+}
+
+// ═════════════════════════════════════════════════════════════
+// رفع ملف سيناريوهات
+// ═════════════════════════════════════════════════════════════
+/**
+ * ── WHY A FILE AT ALL ───────────────────────────────────────
+ * The dialog above is the right shape for editing one scenario and the
+ * wrong shape for the way support knowledge actually arrives: already
+ * written down, forty at a time, in a doc or a PDF from whoever ran
+ * support before. Retyping that into a modal is how a catalog stays
+ * half-finished.
+ *
+ * ── WHY IT IS STILL SAFE ────────────────────────────────────
+ * Nothing imported goes live. Every entry is saved as a DRAFT through
+ * the same saveScenarioDraft() the dialog uses, so the running engine
+ * keeps answering from the published catalog until someone presses
+ * «فعّلها» on a specific version. A bad file costs a review, not an
+ * incident.
+ *
+ * Parsing is done by the engine-side parser (sie-content-import.js) and
+ * validated by the engine's own validators, so this file decides nothing
+ * about what a valid scenario is — it only shows the verdict.
+ */
+const TEMPLATE_PATH = '../docs/نموذج-إضافة-سيناريو.md';
+
+/** jsDelivr, pinned. Loaded only when a PDF is actually picked. */
+const PDFJS_VERSION = '4.10.38';
+const PDFJS_BASE = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build`;
+
+function wireImportDialog() {
+    const dlg = $('importDialog');
+
+    // `method="dialog"` means an Enter keypress in the token search would
+    // close the dialog and throw away a parsed file.
+    $('importForm').addEventListener('submit', (e) => e.preventDefault());
+
+    $('importScenarioBtn').addEventListener('click', () => {
+        resetImportDialog();
+        dlg.showModal();
+    });
+    $('cancelImportBtn').addEventListener('click', () => dlg.close());
+    $('confirmImportBtn').addEventListener('click', saveImportedEntries);
+    $('downloadTemplateBtn').addEventListener('click', downloadTemplate);
+
+    $('showTokensBtn').addEventListener('click', () => {
+        const box = $('tokenCatalog');
+        box.hidden = !box.hidden;
+        if (!box.hidden) renderTokenCatalog('');
+    });
+    $('tokenSearch').addEventListener('input', (e) => renderTokenCatalog(e.target.value));
+
+    const zone = $('importDropzone');
+    const file = $('importFile');
+    file.addEventListener('change', () => { if (file.files[0]) readImportFile(file.files[0]); });
+
+    // The label already opens the picker on click; these only add drag.
+    ['dragenter', 'dragover'].forEach((type) =>
+        zone.addEventListener(type, (e) => { e.preventDefault(); zone.classList.add('is-over'); }));
+    ['dragleave', 'drop'].forEach((type) =>
+        zone.addEventListener(type, () => zone.classList.remove('is-over')));
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const dropped = e.dataTransfer?.files?.[0];
+        if (dropped) readImportFile(dropped);
+    });
+}
+
+function resetImportDialog() {
+    state.importParsed = null;
+    $('importFile').value = '';
+    $('importStatus').hidden = true;
+    $('importPreview').hidden = true;
+    $('importPreview').innerHTML = '';
+    $('importSummary').textContent = '';
+    $('confirmImportBtn').disabled = true;
+    $('tokenCatalog').hidden = true;
+}
+
+function importStatus(message, kind = 'info') {
+    const box = $('importStatus');
+    box.className = `notice notice--${kind}`;
+    box.textContent = message;
+    box.hidden = false;
+}
+
+/**
+ * Fetched rather than linked so a missing file is reported instead of
+ * silently downloading a 404 page named like the template.
+ */
+async function downloadTemplate(e) {
+    e.preventDefault();
+    try {
+        const response = await fetch(TEMPLATE_PATH);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const url = URL.createObjectURL(await response.blob());
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'نموذج-إضافة-سيناريو.md';
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        importStatus(`مقدرتش أنزّل النموذج (${err.message}).`, 'err');
+    }
+}
+
+function renderTokenCatalog(query) {
+    const q = query.trim().toLowerCase();
+    const rows = Object.entries(TOKEN_LABELS)
+        .filter(([token, label]) => !q || token.toLowerCase().includes(q) || label.toLowerCase().includes(q))
+        .slice(0, 200);
+
+    $('tokenList').innerHTML = rows.length
+        ? rows.map(([token, label]) =>
+            `<div class="token-item"><code class="ltr">${esc(token)}</code><span>${esc(label)}</span></div>`).join('')
+        : '<p class="sub">مفيش كلمة مطابقة.</p>';
+}
+
+/**
+ * Lets an author write «واتساب» where the engine wants
+ * `entity_whatsapp`. Built from the engine's own glossary labels, so it
+ * cannot drift from what the tokens actually mean.
+ */
+function buildTokenResolver() {
+    const byLabel = new Map();
+    for (const [token, label] of Object.entries(TOKEN_LABELS)) {
+        byLabel.set(label.trim().toLowerCase(), token);
+    }
+    return (written) => {
+        const raw = String(written).trim();
+        if (TOKEN_LABELS[raw]) return raw;           // already a token
+        return byLabel.get(raw.toLowerCase()) || raw;
+    };
+}
+
+async function readImportFile(file) {
+    resetImportDialog();
+    importStatus(`بقرا «${file.name}»…`);
+
+    let text;
+    try {
+        text = /\.pdf$/i.test(file.name) || file.type === 'application/pdf'
+            ? await extractPdfText(file)
+            : await file.text();
+    } catch (err) {
+        importStatus(`مقدرتش أقرا الملف: ${err.message}`, 'err');
+        return;
+    }
+
+    const parsed = parseContentDocument(text, { resolveToken: buildTokenResolver() });
+    if (parsed.errors.length) {
+        importStatus(parsed.errors.join(' '), 'err');
+        return;
+    }
+
+    state.importParsed = parsed;
+    renderImportPreview(parsed);
+}
+
+/**
+ * pdf.js is ~1 MB and most imports are markdown, so it is fetched only
+ * when a PDF is actually chosen — never on page load.
+ */
+async function extractPdfText(file) {
+    importStatus('بحمّل قارئ الـ PDF…');
+    const pdfjs = await import(/* @vite-ignore */ `${PDFJS_BASE}/pdf.min.mjs`);
+    pdfjs.GlobalWorkerOptions.workerSrc = `${PDFJS_BASE}/pdf.worker.min.mjs`;
+
+    const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+    const pages = [];
+    for (let i = 1; i <= doc.numPages; i += 1) {
+        importStatus(`بقرا صفحة ${i} من ${doc.numPages}…`);
+        const content = await (await doc.getPage(i)).getTextContent();
+        // hasEOL is what preserves the line structure the parser reads
+        // headings and list items from. Joining on spaces alone would
+        // flatten the whole document into one unparseable line.
+        let line = '';
+        const lines = [];
+        for (const item of content.items) {
+            line += item.str;
+            if (item.hasEOL) { lines.push(line); line = ''; }
+        }
+        if (line) lines.push(line);
+        pages.push(lines.join('\n'));
+    }
+    return pages.join('\n\n');
+}
+
+function renderImportPreview(parsed) {
+    const good = parsed.entries.filter((e) => e.valid);
+    const bad = parsed.entries.filter((e) => !e.valid);
+
+    const verdict = (entry) => entry.valid
+        ? (entry.warnings.length
+            ? '<span class="pill pill--warn">فيه ملاحظة</span>'
+            : '<span class="pill pill--ok">جاهز</span>')
+        : '<span class="pill pill--err">فيه غلط</span>';
+
+    $('importPreview').innerHTML = parsed.entries.map((entry) => `
+        <div class="import-item ${entry.valid ? '' : 'is-invalid'}">
+          <div class="import-item-head">
+            <b>${esc(entry.title)}</b>
+            <span class="sub">${entry.kind === 'knowledge' ? 'معرفة' : 'سيناريو'} · سطر ${entry.line}</span>
+            ${verdict(entry)}
+          </div>
+          ${entry.errors.length ? `<ul class="import-errors">${entry.errors.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+          ${entry.warnings.length ? `<ul class="import-warnings">${entry.warnings.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+        </div>`).join('');
+    $('importPreview').hidden = false;
+
+    // A file with one bad entry still imports the rest — an all-or-nothing
+    // rule would mean a typo on scenario 3 blocks the other 29.
+    $('importSummary').textContent = bad.length
+        ? `${good.length} هيتحفظوا، و${bad.length} فيهم غلط مش هيتحفظوا.`
+        : `${good.length} جاهزين للحفظ.`;
+    $('confirmImportBtn').disabled = good.length === 0;
+    importStatus(
+        bad.length
+            ? 'راجع اللي فيه غلط تحت. اللي جاهز هيتحفظ عادي كمسودة.'
+            : 'كله سليم. اضغط «احفظ المسودات».',
+        bad.length ? 'warn' : 'ok'
+    );
+}
+
+async function saveImportedEntries() {
+    const parsed = state.importParsed;
+    if (!parsed) return;
+
+    const btn = $('confirmImportBtn');
+    btn.disabled = true;
+
+    const pending = parsed.entries.filter((e) => e.valid);
+    const failures = [];
+    let saved = 0;
+
+    // Sequential on purpose: each draft insert reads the current max
+    // version for its key, and the RLS-checked writes are cheap. Firing
+    // thirty at once buys nothing and makes a partial failure harder to
+    // report honestly.
+    for (const [i, entry] of pending.entries()) {
+        importStatus(`بحفظ ${i + 1} من ${pending.length}…`);
+        const params = {
+            key: entry.value.id || entry.value.key,
+            definition: entry.value,
+            authorNote: `اترفع من ملف — سطر ${entry.line}`
+        };
+        const result = entry.kind === 'knowledge'
+            ? await saveKnowledgeDraft(supabase, params)
+            : await saveScenarioDraft(supabase, params);
+
+        if (result.success) saved += 1;
+        else failures.push(`${entry.title}: ${result.error}`);
+    }
+
+    state.drafts = await listStoredScenarioVersions(supabase);
+    $('draftCount').textContent = state.drafts.length;
+    renderDrafts();
+
+    if (failures.length) {
+        importStatus(`اتحفظ ${saved}، وفشل ${failures.length}: ${failures.join(' — ')}`, 'err');
+        btn.disabled = false;
+        return;
+    }
+
+    $('importDialog').close();
+    // The drafts panel below the table lists scenarios only, so pointing
+    // at it after a knowledge-only import would send someone looking for
+    // something that is not there.
+    const anyScenario = pending.some((e) => e.kind === 'scenario');
+    toast(anyScenario
+        ? `اتحفظ ${saved} كمسودات. افتح «السيناريوهات اللي إنت ضفتها» عشان تفعّلهم.`
+        : `اتحفظ ${saved} مدخل معرفة كمسودات، مستنيين التفعيل.`);
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -690,7 +1098,7 @@ async function runDiagnosisPreview() {
 
         if (top.length === 0) {
             box.innerHTML = '<span class="sub">المحرك مافهمش الرسالة دي، وهيسأل العميل يوضّح أكتر. '
-                + 'لو دي حالة متكررة عندك، ضيفها من صفحة «الحالات اللي بيفهمها».</span>';
+                + 'لو دي حالة متكررة عندك، ضيفها من صفحة «السيناريوهات».</span>';
             return;
         }
 
@@ -703,7 +1111,7 @@ async function runDiagnosisPreview() {
               : 'مش متأكد كفاية، فهيسأل العميل سؤال توضيحي الأول'}
           </div>
           <table class="data-table">
-            <thead><tr><th>أقرب الحالات</th><th>درجة التأكد</th></tr></thead>
+            <thead><tr><th>أقرب السيناريوهات</th><th>درجة التأكد</th></tr></thead>
             <tbody>${top.map((r) => `
               <tr>
                 <td>${esc(r.scenario?.label.ar || r.hypothesis.scenarioId)}</td>

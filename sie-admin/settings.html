@@ -35,7 +35,7 @@
 
   <nav class="tabs" id="mainTabs">
     <button class="tab-btn active" data-target="tab-general">تحكّم المحرك</button>
-    <button class="tab-btn" data-target="tab-scenarios">الحالات اللي بيفهمها</button>
+    <button class="tab-btn" data-target="tab-scenarios">السيناريوهات</button>
     <button class="tab-btn" data-target="tab-users">مين مسموح له</button>
   </nav>
 
@@ -61,40 +61,67 @@
     </div>
   </section>
 
-  <!-- ══════════════ الحالات ══════════════ -->
+  <!-- ══════════════ السيناريوهات ══════════════ -->
   <section class="tab-panel" id="tab-scenarios">
     <div class="stat-row" id="scenarioStats"></div>
 
-    <div class="toolbar">
-      <input type="search" id="scenarioSearch" placeholder="دوّر باسم الحالة أو بكلمة فيها…">
-      <select id="scenarioCategory"><option value="">كل الأقسام</option></select>
-      <select id="scenarioResolution">
-        <option value="">الكل</option>
-        <option value="auto">بيرد بحل جاهز</option>
-        <option value="manual">بيجمع معلومات ويسلّم</option>
-      </select>
-      <button class="btn-primary" id="newScenarioBtn">+ حالة جديدة</button>
+    <div class="toolbar toolbar--split">
+      <div class="toolbar-filters">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="search" id="scenarioSearch" placeholder="دوّر باسم السيناريو أو بكلمة فيه…" autocomplete="off">
+          <button type="button" class="search-clear" id="scenarioSearchClear" aria-label="امسح البحث" hidden>✕</button>
+        </div>
+        <select id="scenarioCategory" aria-label="القسم"><option value="">كل الأقسام</option></select>
+        <select id="scenarioResolution" aria-label="نوع الرد">
+          <option value="">كل الأنواع</option>
+          <option value="auto">بيرد بحل جاهز</option>
+          <option value="manual">بيجمع معلومات ويسلّم</option>
+        </select>
+        <select id="scenarioSort" aria-label="الترتيب">
+          <option value="label">ترتيب أبجدي</option>
+          <option value="category">حسب القسم</option>
+          <option value="evidence">الأكتر كلمات دالة</option>
+        </select>
+      </div>
+      <div class="toolbar-actions">
+        <button class="btn-ghost" id="importScenarioBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5-5 5 5"/><path d="M12 5v12"/></svg>
+          رفع ملف
+        </button>
+        <button class="btn-primary" id="newScenarioBtn">+ سيناريو جديد</button>
+      </div>
+    </div>
+
+    <div class="result-bar">
+      <span id="scenarioCount" class="result-count"></span>
+      <button type="button" class="btn-link" id="scenarioResetFilters" hidden>امسح الفلاتر</button>
     </div>
 
     <div class="table-wrap">
       <table class="data-table">
         <thead>
-          <tr><th>الحالة</th><th>القسم</th><th>بيعرفها من</th><th>بيعمل إيه</th><th></th></tr>
+          <tr><th>السيناريو</th><th>القسم</th><th>بيعرفه من</th><th>بيعمل إيه</th><th></th></tr>
         </thead>
         <tbody id="scenarioRows"></tbody>
       </table>
-      <p class="empty" id="scenarioEmpty" hidden>مفيش حالات مطابقة.</p>
+      <div class="empty-state" id="scenarioEmpty" hidden>
+        <p class="empty-title">مفيش سيناريو مطابق</p>
+        <p class="hint">جرّب كلمة أقل، أو امسح الفلاتر وابدأ من الأول.</p>
+      </div>
     </div>
 
+    <nav class="pager" id="scenarioPager" hidden aria-label="صفحات السيناريوهات"></nav>
+
     <details class="drafts">
-      <summary>الحالات اللي إنت ضفتها <span id="draftCount" class="pill"></span></summary>
+      <summary>السيناريوهات اللي إنت ضفتها <span id="draftCount" class="pill"></span></summary>
       <p class="hint">
         اللي بتضيفه بيتحفظ كمسودة الأول عشان تراجعه. عشان المحرك يبدأ يستخدمه فعلًا،
         اضغط «فعّلها» — وساعتها لازم يكون خيار «استخدم الحالات اللي ضفتها» مفتوح من صفحة التشغيل.
       </p>
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>الحالة</th><th>النسخة</th><th>الحالة دلوقتي</th><th>ملاحظة</th><th></th></tr></thead>
+          <thead><tr><th>السيناريو</th><th>النسخة</th><th>الحالة دلوقتي</th><th>ملاحظة</th><th></th></tr></thead>
           <tbody id="draftRows"></tbody>
         </table>
       </div>
@@ -143,6 +170,10 @@
     <label class="field"><span>الاسم اللي هيظهر لفريقك</span>
       <input type="text" id="fLabelAr" required placeholder="رقم الواتساب مش مربوط"></label>
 
+    <label class="field"><span>الاسم بالإنجليزي <em class="optional">اختياري</em></span>
+      <input type="text" id="fLabelEn" dir="ltr" placeholder="WhatsApp number not linked">
+      <small class="field-hint">لو سِبته فاضي هيتحط الاسم العربي مكانه.</small></label>
+
     <label class="field"><span>القسم</span>
       <select id="fCategory">
         <option value="whatsapp">واتساب</option>
@@ -170,6 +201,12 @@
     <div id="autoTextWrap" hidden>
       <label class="field"><span>الرد اللي هيوصل للعميل</span>
         <textarea id="fTextAr" rows="7" placeholder="اشرح الحل خطوة خطوة بلغة بسيطة…"></textarea></label>
+
+      <label class="field"><span>الرد بالإنجليزي <em class="optional">اختياري</em></span>
+        <textarea id="fTextEn" rows="5" dir="ltr" placeholder="Same answer, in English…"></textarea>
+        <small class="field-hint">
+          لو سِبته فاضي، العميل اللي بيكتب إنجليزي هيوصله الرد العربي.
+        </small></label>
     </div>
 
     <label class="field checkbox">
@@ -184,6 +221,46 @@
     <div class="dialog-actions">
       <button type="button" class="btn-ghost" id="cancelScenarioBtn">إلغاء</button>
       <button type="button" class="btn-primary" id="saveScenarioBtn">احفظ</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- رفع ملف سيناريوهات -->
+<dialog id="importDialog" class="dialog dialog--wide">
+  <form method="dialog" id="importForm">
+    <h2>رفع ملف سيناريوهات</h2>
+    <p class="hint">
+      ارفع ملف <b>Markdown</b> أو <b>PDF</b> فيه سيناريوهاتك مكتوبة. كل اللي هيترفع
+      بيتحفظ <b>كمسودة</b> — المحرك مش هيستخدمه مع العملاء غير لما تفعّله بنفسك.
+    </p>
+
+    <div class="import-help">
+      <a class="btn-ghost btn-sm" id="downloadTemplateBtn" download="نموذج-إضافة-سيناريو.md" href="#">
+        نزّل النموذج
+      </a>
+      <button type="button" class="btn-ghost btn-sm" id="showTokensBtn">شوف الكلمات الدالة المتاحة</button>
+    </div>
+
+    <div class="token-catalog" id="tokenCatalog" hidden>
+      <input type="search" id="tokenSearch" placeholder="دوّر على كلمة…" autocomplete="off">
+      <div class="token-list" id="tokenList"></div>
+    </div>
+
+    <label class="dropzone" id="importDropzone">
+      <input type="file" id="importFile" accept=".md,.markdown,.txt,.pdf,text/markdown,text/plain,application/pdf" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5-5 5 5"/><path d="M12 5v12"/></svg>
+      <span class="dropzone-title">اسحب الملف هنا أو اضغط للاختيار</span>
+      <span class="dropzone-sub">md · markdown · txt · pdf</span>
+    </label>
+
+    <div id="importStatus" class="notice" hidden></div>
+    <div id="importPreview" class="import-preview" hidden></div>
+
+    <div class="dialog-actions">
+      <span id="importSummary" class="sub"></span>
+      <span class="spacer"></span>
+      <button type="button" class="btn-ghost" id="cancelImportBtn">إلغاء</button>
+      <button type="button" class="btn-primary" id="confirmImportBtn" disabled>احفظ المسودات</button>
     </div>
   </form>
 </dialog>

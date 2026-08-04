@@ -67,13 +67,19 @@ import {
     validateScenarioDraft as _validateScenarioDraft,
     saveScenarioDraft as _saveScenarioDraft
 } from './sie-scenario-editor.js';
+import {
+    listStoredKnowledgeVersions as _listStoredKnowledgeVersions,
+    validateKnowledgeDraft as _validateKnowledgeDraft,
+    saveKnowledgeDraft as _saveKnowledgeDraft
+} from './sie-knowledge-editor.js';
+import { parseContentDocument as _parseContentDocument, topTwoShare as _topTwoShare } from './sie-content-import.js';
 
 /**
  * Bumped whenever the shape of anything exported here changes.
  * Mad3oom never needs to read this; it exists so a support engineer
  * looking at a console log can tell which runtime a tab is running.
  */
-export const SIE_RUNTIME_VERSION = '2.1.0';
+export const SIE_RUNTIME_VERSION = '2.2.0';
 
 // ===================================================================
 // Chat
@@ -348,6 +354,89 @@ export async function validateScenarioDraft(scenario) {
  */
 export async function saveScenarioDraft(supabase, params) {
     return _saveScenarioDraft(supabase, params);
+}
+
+// ===================================================================
+// Knowledge entries
+// ===================================================================
+
+/**
+ * Every stored version of every knowledge entry, newest first. Staff-only
+ * by RLS; a non-staff caller simply gets an empty list.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<Array<{knowledge_key: string, version: number, status: string, notes: string|null, created_at: string}>>}
+ */
+export async function listStoredKnowledgeVersions(supabase) {
+    return _listStoredKnowledgeVersions(supabase);
+}
+
+/**
+ * @param {*} entry
+ * @returns {Promise<{valid: boolean, errors: string[]}>}
+ */
+export async function validateKnowledgeDraft(entry) {
+    return _validateKnowledgeDraft(entry);
+}
+
+/**
+ * Saves a proposed knowledge entry as a new draft version. Never publishes.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{key: string, definition: *, authorNote?: string|null}} params
+ * @returns {Promise<{success: boolean, error: string|null, draftVersion: number|null}>}
+ */
+export async function saveKnowledgeDraft(supabase, params) {
+    return _saveKnowledgeDraft(supabase, params);
+}
+
+/**
+ * Publishes a knowledge version, making it live for answers.
+ * Staff-only, enforced by the RPC.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{key: string, version: number, overrideReason?: string|null}} params
+ * @returns {Promise<{success: boolean, error: string|null}>}
+ */
+export async function publishKnowledgeVersion(supabase, { key, version, overrideReason = null }) {
+    try {
+        const { createRealSupabasePort } = await import('../sie/action/supabase-port.supabase.js');
+        return await createRealSupabasePort(supabase).publishKnowledge({ key, version, overrideReason });
+    } catch (err) {
+        return { success: false, error: String(err?.message || err) };
+    }
+}
+
+// ===================================================================
+// Importing a written document
+// ===================================================================
+
+/**
+ * Reads a Markdown document — or text extracted from a PDF — into
+ * engine-shaped scenarios and knowledge entries, each with its own
+ * validation verdict and the line it came from.
+ *
+ * Pure and synchronous: it touches no network and no database, so a
+ * console can parse on every keystroke and preview the result before
+ * anything is saved. See docs/نموذج-إضافة-سيناريو.md for the format.
+ *
+ * @param {string} text
+ * @param {{resolveToken?: (token: string) => string}} [options]
+ * @returns {{entries: Array, scenarios: Array, knowledge: Array, errors: string[]}}
+ */
+export function parseContentDocument(text, options) {
+    return _parseContentDocument(text, options);
+}
+
+/**
+ * The share of a signature's weight carried by its two strongest tokens —
+ * the number that decides whether a scenario can ever resolve.
+ *
+ * @param {number[]} weights
+ * @returns {number}
+ */
+export function topTwoShare(weights) {
+    return _topTwoShare(weights);
 }
 
 /**

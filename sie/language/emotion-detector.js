@@ -169,6 +169,35 @@ const CATEGORIES = [
     }
 ];
 
+/**
+ * بيوحّد النص قبل المطابقة: بيشيل التشكيل والتطويل، ويوحّد الألف والياء
+ * والتاء المربوطة وعلامات الترقيم.
+ *
+ * Without this the detector matched raw text, so «تم، شكرًا» missed a
+ * phrase list containing «تم، شكرا» — the tanween alone was enough. Real
+ * customers type with and without diacritics interchangeably, and the
+ * Telegram keyboard sends the label verbatim, tanween included. Folding
+ * both sides is the only way the lists stay small AND match.
+ *
+ * Deliberately lighter than the full normalizer in normalizer.js: these
+ * are conversational phrases, and stripping clitics or resolving synonyms
+ * here would make short phrases collide with each other.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+export function foldForMatch(text) {
+    return String(text ?? '')
+        .replace(/[\u064B-\u0652\u0670]/g, '')   // tashkeel and tanween
+        .replace(/\u0640/g, '')                    // tatweel
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/ة/g, 'ه')
+        .replace(/[،,.!؟?]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 /** علامات نبرة في الكتابة نفسها، بتزوّد شدة الحالة. */
 function toneBoost(text) {
     let boost = 0;
@@ -191,10 +220,13 @@ export function detectEmotion(rawText, { enabled } = {}) {
 
     const allowed = enabled ? (enabled instanceof Set ? enabled : new Set(enabled)) : null;
     const boost = toneBoost(text);
+    // Tone markers are read off the RAW text (they are punctuation), but
+    // phrase matching happens on the folded form.
+    const folded = foldForMatch(text);
 
     for (const category of CATEGORIES) {
         if (allowed && !allowed.has(category.emotion)) continue;
-        const matched = category.phrases.find((phrase) => text.includes(phrase));
+        const matched = category.phrases.find((phrase) => folded.includes(foldForMatch(phrase)));
         if (!matched) continue;
         return {
             emotion: category.emotion,
@@ -250,6 +282,53 @@ export function acknowledgementFor(emotion, language = 'ar') {
     const entry = EMOTION_ACKNOWLEDGEMENT[emotion];
     if (!entry) return null;
     return entry[language === 'en' ? 'en' : 'ar'];
+}
+
+/**
+ * «المشكلة خلصت» ولا «لسه موجودة»؟
+ *
+ * The engine cannot read this off the evidence: a thank-you and a complaint
+ * both produce tokens, and confidence in the diagnosed scenario is
+ * identical either way. It has to come from the words themselves.
+ *
+ * This matters more than it looks. Without it the engine kept re-answering
+ * an already-answered scenario, because "تم الحل" looked exactly like new
+ * evidence for the same problem.
+ *
+ * Deliberately narrow: only phrases that unambiguously mean one or the
+ * other. Anything else returns null, and the engine falls back to its
+ * normal reasoning rather than acting on a guess about how the customer
+ * feels.
+ */
+const RESOLVED_PHRASES = [
+    'تم الحل', 'اتحلت', 'المشكلة اتحلت', 'خلاص اتحلت', 'حلت', 'تمت',
+    'تم، شكرا', 'تم شكرا', 'تمام شكرا', 'شكرا تم', 'تمام كده',
+    'اشتغلت', 'اشتغل', 'ضبطت', 'ظبطت', 'تظبطت', 'بقى شغال', 'شغال دلوقتي',
+    'الحمد لله اشتغلت', 'الحمد لله ضبطت', 'ماشي كده', 'كده تمام', 'كده مظبوط'
+];
+
+const UNRESOLVED_PHRASES = [
+    'المشكلة لسه موجودة', 'لسه عندي نفس المشكلة', 'لسه نفس المشكلة',
+    'لسه المشكلة موجودة', 'لسه مش شغال', 'برضه مش شغال', 'مازالت المشكلة',
+    'لسه مش ظابط', 'لسه مش ضابط', 'الحل مانفعش', 'مانفعش', 'ماظبطش',
+    'جربت ومانفعش', 'عملت كده ومانفعش'
+];
+
+/**
+ * @param {string} rawText
+ * @returns {'resolved'|'unresolved'|null}
+ */
+export function detectResolutionSignal(rawText) {
+    const text = String(rawText || '').trim();
+    if (!text) return null;
+
+    // Unresolved is checked FIRST because "لسه عندي نفس المشكلة" and
+    // "الحل مانفعش" both contain words that also appear in resolved
+    // phrases. The customer saying it is still broken must always win.
+    const folded = foldForMatch(text);
+    if (UNRESOLVED_PHRASES.some((phrase) => folded.includes(foldForMatch(phrase)))) return 'unresolved';
+    if (RESOLVED_PHRASES.some((phrase) => folded.includes(foldForMatch(phrase)))) return 'resolved';
+    return null;
 }
 
 /** الحالات اللي المفروض توصّل العميل لموظف بشري على طول. */

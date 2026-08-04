@@ -173,3 +173,49 @@ test('ردود الاعتراف مش بتسأل العميل سؤال', () => {
         assert.ok(!texts.en.includes('?'), `رد ${emotion} الإنجليزي بيسأل سؤال`);
     }
 });
+
+// ── إشارة «اتحلّت» / «لسه» ───────────────────────────────────────────
+// السبب المباشر في إن المحرك كان بيكرر نفس الرد للأبد: مافيش طريقة
+// يعرف بيها إن العميل قال خلاص.
+
+import { detectResolutionSignal, foldForMatch } from '../emotion-detector.js';
+
+test('detectResolutionSignal: بيعرف إن المشكلة اتحلّت', () => {
+    assert.equal(detectResolutionSignal('تم الحل'), 'resolved');
+    assert.equal(detectResolutionSignal('المشكلة اتحلت'), 'resolved');
+    assert.equal(detectResolutionSignal('اشتغلت خلاص'), 'resolved');
+});
+
+test('detectResolutionSignal: بيعرف إن المشكلة لسه موجودة', () => {
+    assert.equal(detectResolutionSignal('لسه عندي نفس المشكلة'), 'unresolved');
+    assert.equal(detectResolutionSignal('الحل مانفعش'), 'unresolved');
+});
+
+test('detectResolutionSignal: «لسه» بتكسب حتى لو الجملة فيها كلمات إيجابية', () => {
+    // «لسه مش شغال» فيها «شغال» اللي في قايمة الحلول. العميل اللي بيقول
+    // إنها لسه بايظة لازم يكسب دايمًا.
+    assert.equal(detectResolutionSignal('لسه مش شغال'), 'unresolved');
+});
+
+test('detectResolutionSignal: التنوين والفاصلة العربية مابيكسروش المطابقة', () => {
+    // ده بالظبط اللي حصل: زرار تيليجرام بيبعت «تم، شكرًا» بالتنوين،
+    // والقايمة فيها «تم، شكرا» — فالمطابقة فشلت والمحرك كرر الرد.
+    assert.equal(detectResolutionSignal('تم، شكرًا'), 'resolved');
+    assert.equal(detectResolutionSignal('تم شكرا'), 'resolved');
+});
+
+test('detectResolutionSignal: الرسالة العادية مالهاش إشارة', () => {
+    assert.equal(detectResolutionSignal('الرسايل مش بتتبعت للجروبات'), null);
+    assert.equal(detectResolutionSignal('انا محمود'), null);
+    assert.equal(detectResolutionSignal(''), null);
+});
+
+test('foldForMatch: بيوحّد التشكيل والهمزات والترقيم', () => {
+    assert.equal(foldForMatch('شكرًا'), foldForMatch('شكرا'));
+    assert.equal(foldForMatch('أهلاً'), foldForMatch('اهلا'));
+    assert.equal(foldForMatch('تم، شكرا'), 'تم شكرا');
+});
+
+test('detectEmotion: التشكيل مابيمنعش قراءة النبرة', () => {
+    assert.equal(detectEmotion('شكرًا جدًا')?.emotion, 'thanks');
+});

@@ -58,7 +58,10 @@ export function createTelegramAdapter({ botToken, secretToken, api, logger = nul
          * a gap the customer has already tried to answer into.
          */
         async send(chatId, message) {
-            const chunks = splitMessage(message.text);
+            // Applied to the BODY as well as the keyboard: the engine's copy
+            // carries icon markers throughout, and Telegram renders none of
+            // them.
+            const chunks = splitMessage(stripIconMarkers(message.text));
 
             for (let i = 0; i < chunks.length; i += 1) {
                 const isLast = i === chunks.length - 1;
@@ -117,9 +120,43 @@ export function buildReplyMarkup(options) {
 }
 
 /**
- * @param {string} label
+ * علامات الأيقونات بتتحول إيموجي، مش بتتشال ولا بتتعرض نص خام.
+ *
+ * The engine writes `[[icon:name]]` markers that Mad3oom's web widget
+ * swaps for inline SVGs. Telegram has no such mechanism, so an unhandled
+ * marker reaches the customer verbatim — «... ونكمل [[icon:smile]]» is
+ * exactly what shipped, on every small-talk reply.
+ *
+ * Emoji rather than deletion: the marker is there because the sentence was
+ * written expecting something at that spot, and Telegram renders emoji
+ * natively. Anything unmapped is removed, so a new marker degrades to
+ * clean text instead of leaking.
+ */
+const ICON_EMOJI = {
+    smile: '🙂',
+    check: '✅',
+    cancel: '❌',
+    ticket: '🎫',
+    note: '📝',
+    search: '🔎',
+    warning: '⚠️',
+    clock: '⏱️',
+    info: 'ℹ️',
+    attach: '📎',
+    image: '🖼️',
+    logs: '📄'
+};
+
+/**
+ * @param {string} text
  * @returns {string}
  */
-export function stripIconMarkers(label) {
-    return String(label ?? '').replace(/\[\[icon:[a-z_-]+\]\]/gi, '').trim();
+export function stripIconMarkers(text) {
+    return String(text ?? '')
+        .replace(/\[\[icon:([a-z_-]+)\]\]/gi, (_match, name) => ICON_EMOJI[String(name).toLowerCase()] ?? '')
+        // Collapse the double space a removed marker leaves behind, without
+        // touching the newlines the engine uses to structure an answer.
+        .replace(/[ \t]{2,}/g, ' ')
+        .replace(/[ \t]+$/gm, '')
+        .trim();
 }

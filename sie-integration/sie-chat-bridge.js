@@ -24,9 +24,11 @@
  */
 import { normalize } from '../sie/language/normalizer.js';
 import { detectSmallTalk, SMALL_TALK_REPLIES } from '../sie/language/small-talk.js';
-import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion } from '../sie/language/emotion-detector.js';
+import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion, detectResolutionSignal } from '../sie/language/emotion-detector.js';
 import { activationThresholdForLevel } from '../sie/ranking/ranking-engine.js';
-import { recallCustomerName, findOpenTicket, recallPreviousSession } from './sie-customer-memory.js';
+import { recallCustomerName, findOpenTicket, recallPreviousSession, rememberFacts, recallFacts, forgetFacts } from './sie-customer-memory.js';
+import { detectMemoryIntent, MEMORY_REPLIES } from '../sie/language/memory-intent.js';
+import { queueForHumanReview, REVIEW_QUEUED_TEXT, REVIEW_QUEUE_FAILED_TEXT } from './sie-review-queue.js';
 import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
 import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
 import { decide } from '../sie/decision/decision-engine.js';
@@ -161,6 +163,88 @@ async function rescueWithArticle(decision, ranking) {
         console.warn('[sie] article lookup before ticket failed:', err?.message || err);
         return null;
     }
+}
+
+/**
+ * رد إقفال المحادثة لما العميل يقول إن المشكلة اتحلّت.
+ *
+ * Resets botState.sie entirely rather than marking a flag. The accumulated
+ * evidence belongs to a problem that is now over; carrying it forward is
+ * exactly what made the engine answer the same scenario again on the next
+ * message, whatever that message said.
+ */
+const CONVERSATION_CLOSED_TEXT = {
+    ar: 'تمام، مبسوط إنها اتظبطت معاك 🙌\nلو احتجت أي حاجة تانية أنا موجود في أي وقت.',
+    en: "Great — glad that sorted it. I'm here whenever you need anything else."
+};
+
+async function closeConversation({ responseLanguage, sessionId, botState, port }) {
+    const lang = responseLanguage === 'en' ? 'en' : 'ar';
+    const rendered = { text: CONVERSATION_CLOSED_TEXT[lang], options: [] };
+
+    // A clean slate: the next problem this customer raises starts from
+    // nothing, which is what "the last one is finished" means.
+    const nextBotState = { ...(botState || {}), sie: { turnCount: 0, language: lang } };
+
+    const actionResult = await executeDecision({
+        decision: { action: ACTIONS.WAIT_FOR_USER, turn: 0 },
+        rendered,
+        sessionId,
+        nextBotState,
+        port
+    });
+    if (!actionResult?.success) return null;
+
+    return { reply: rendered.text, options: [], alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
+}
+
+/**
+ * الذاكرة: حفظ / استرجاع / مسح.
+ *
+ * Runs before diagnosis and returns a finished turn, because these are
+ * instructions ABOUT the conversation rather than problems to diagnose.
+ * Feeding «احفظ ده في ذاكرتك» into the pipeline is what produced an
+ * unrelated WhatsApp answer.
+ *
+ * Returns null when there is nothing to do, so the caller falls through to
+ * the normal pipeline rather than swallowing the turn.
+ */
+async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage }) {
+    const lang = responseLanguage === 'en' ? 'en' : 'ar';
+    let replyText;
+
+    if (intent.kind === 'forget') {
+        await forgetFacts(supabase, userId);
+        replyText = MEMORY_REPLIES.forgotten;
+    } else if (intent.kind === 'recall') {
+        const facts = await recallFacts(supabase, userId);
+        replyText = MEMORY_REPLIES.recalled(facts);
+    } else if (intent.facts.length === 0) {
+        replyText = MEMORY_REPLIES.nothingToSave;
+    } else {
+        const { saved } = await rememberFacts(supabase, userId, intent.facts);
+        // A failed write must not be reported as a success — the customer
+        // would rely on a fact the engine does not actually hold.
+        replyText = saved > 0 ? MEMORY_REPLIES.saved(intent.facts) : MEMORY_REPLIES.nothingToSave;
+    }
+
+    // Diagnostic state is carried through untouched: saving a fact is not
+    // progress on a problem, and must not reset one in flight either.
+    const nextBotState = {
+        ...(botState || {}),
+        sie: { ...(prevSie || { turnCount: 0 }), language: lang, lastCustomerText: intent.raw.slice(0, 500) }
+    };
+
+    const actionResult = await executeDecision({
+        decision: { action: ACTIONS.WAIT_FOR_USER, turn: prevSie?.turnCount || 0 },
+        rendered: { text: replyText, options: [] },
+        sessionId,
+        nextBotState,
+        port
+    });
+    if (!actionResult?.success) return null;
+
+    return { reply: replyText, options: [], alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
 }
 
 const EMOTION_SETTING_KEYS = [
@@ -312,7 +396,7 @@ async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessio
  * فبنقصّر الطريق ومنعديش على باقي البايبلاين (Language/Diagnostics/
  * Ranking/Decision/Knowledge/Dialogue) خالص في الدور ده.
  */
-async function resolvePendingTicketConfirmation({ text, sessionId, botState, prevSie, port }) {
+async function resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port }) {
     const pending = prevSie.pendingTicketConfirmation;
     const lang = pending.language === 'en' ? 'en' : 'ar';
     const intent = classifyTicketConfirmationReply(text);
@@ -339,7 +423,25 @@ async function resolvePendingTicketConfirmation({ text, sessionId, botState, pre
     delete clearedSie.pendingTicketConfirmation;
 
     if (intent === 'no') {
-        const rendered = { text: TICKET_DECLINE_TEXT[lang], options: [] };
+        // رفض التذكرة مش رفض المساعدة.
+        //
+        // The engine had already judged this conversation worth a human's
+        // time — that judgement does not stop being true because the
+        // customer declined the paperwork. Before, a decline left no trace
+        // at all and the case simply evaporated. Now it goes to the Review
+        // Center, and the customer is told when to expect contact.
+        const { queued } = await queueForHumanReview(supabase, {
+            sessionId,
+            turn: pending.decision.turn,
+            scenarioId: pending.decision.scenarioId ?? null,
+            note: pending.decision.explanation ?? ''
+        });
+
+        // Only promise the follow-up if a row actually exists to honour it.
+        const rendered = {
+            text: queued ? REVIEW_QUEUED_TEXT[lang] : REVIEW_QUEUE_FAILED_TEXT[lang],
+            options: []
+        };
         const nextBotState = { ...botState, sie: clearedSie };
         const actionResult = await executeDecision({
             decision: { action: ACTIONS.WAIT_FOR_USER, turn: pending.decision.turn },
@@ -396,11 +498,28 @@ const ESCALATION_EXPLANATION = {
 /**
  * العميل طلب صراحة إنه يتكلم مع حد بشري، أو بان عليه انزعاج واضح من
  * البوت نفسه (sie/language/small-talk.js's human_request/frustration).
- * مفيش داعي نستنى نأكد معاه زي CREATE_TICKET العادي — الحالتين مفيش
- * فيهم حاجة نتشخصها أكتر، فبننفذ تصعيد حقيقي (ESCALATE_TO_HUMAN) على
- * طول بدل رد كلامي بس. بنحدّث decisionState.ticketAlreadyCreated يدويًا
- * (بدل ما نستدعي decide()) عشان أي دور تشخيصي بعد كده — لو الجلسة كانت
- * أصلاً في نص تشخيص — ميحاولش يفتح تذكرة تانية مكررة.
+ *
+ * ------------------------------------------------------------
+ * التحويل لبشري ≠ فتح تذكرة
+ *
+ * This used to open a ticket outright, on the reasoning that there is
+ * nothing left to diagnose. True — but "I want to talk to a person" is not
+ * "open a ticket in my name". Plenty of customers want a quick word and do
+ * not want a case file, and a ticket they did not ask for is one more thing
+ * they have to close.
+ *
+ * So the hand-off ASKS, exactly like every other route to CREATE_TICKET
+ * does. The two answers are both honoured:
+ *   - نعم  → the pending ESCALATE_TO_HUMAN decision runs and a ticket opens.
+ *   - لأ   → chat_engine_conversation_reviews, and the customer is told the
+ *            team will reach out within 24 hours (sie-review-queue.js).
+ *
+ * Either way a human sees the conversation, which is what the customer
+ * actually asked for. Only the paperwork is optional.
+ *
+ * decisionState.ticketAlreadyCreated is set here rather than by decide(),
+ * so that a session already mid-diagnosis does not circle back and open a
+ * second, duplicate ticket on a later turn.
  */
 async function escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port }) {
     const lang = responseLanguage === 'en' ? 'en' : 'ar';
@@ -435,13 +554,32 @@ async function escalateImmediately({ reason, responseLanguage, turn, sessionId, 
         }
     };
 
-    const actionResult = await executeDecision({ decision, rendered, sessionId, nextBotState, port });
-    if (!actionResult?.success) {
-        console.error(`SIE action-layer write failed (${reason} escalation):`, actionResult);
+    // The escalation sentence is the PREFIX to the confirmation question, so
+    // the customer reads one coherent message — "I'll get you to the team…
+    // want me to open a ticket?" — rather than a promise now and an
+    // unexplained question a beat later.
+    const result = await beginTicketConfirmation({
+        decisionWithKnowledge: decision,
+        rendered,
+        sessionId,
+        nextBotState,
+        port,
+        responseLanguage: lang,
+        prefix: `${rendered.text}\n\n`
+    });
+
+    if (!result) {
+        console.error(`SIE action-layer write failed (${reason} escalation):`, result);
         return null;
     }
 
-    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: actionResult.ticketNumber ?? null, botState: nextBotState };
+    return {
+        reply: result.reply,
+        options: result.options,
+        alreadyPersisted: true,
+        ticketNumber: null,
+        botState: result.persistedBotState
+    };
 }
 
 /**
@@ -513,7 +651,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
         // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
         if (prevSie?.pendingTicketConfirmation) {
-            return await resolvePendingTicketConfirmation({ text, sessionId, botState, prevSie, port });
+            return await resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port });
         }
 
         // «يستفيد من المحادثات القديمة». بيتسأل مرة واحدة بس، أول رسالة في
@@ -566,6 +704,30 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             const reason = wantsHuman ? 'human_request' : 'frustration';
             const result = await escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port });
             if (result) return result;
+            return null;
+        }
+
+        // «تم الحل» / «شكرًا» بعد ما المحرك رد فعلاً: المحادثة خلصت.
+        //
+        // بنقفلها ونصفّر حالة التشخيص، فأي مشكلة جديدة بعد كده بتبدأ من
+        // نضيف. من غير ده الأدلة القديمة بتفضل متراكمة والمحرك بيرجع يرد
+        // بنفس الحل على أي رسالة بعدها — وده بالظبط اللي كان بيحصل.
+        // 2.4. «احفظ ده في ذاكرتك» / «انت فاكر إيه عني» — تعليمات عن
+        //      المحادثة نفسها، مش مشكلة نشخّصها. لو عدّت على التشخيص،
+        //      المحرك بيرد بحل مالوش علاقة — وده اللي كان بيحصل.
+        const memoryIntent = detectMemoryIntent(text, prevSie?.lastCustomerText || '');
+        if (memoryIntent) {
+            const handled = await handleMemoryIntent({
+                intent: memoryIntent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage
+            });
+            if (handled) return handled;
+        }
+
+        const resolutionSignal = detectResolutionSignal(text);
+        const alreadyAnswered = (prevSie?.decisionState?.answeredScenarioIds || []).length > 0;
+        if (resolutionSignal === 'resolved' && alreadyAnswered) {
+            const closed = await closeConversation({ responseLanguage, sessionId, botState, port });
+            if (closed) return closed;
             return null;
         }
 
@@ -646,7 +808,10 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 maxTurnsBeforeEscalation: settings.ticket_after_turns,
                 allowSmartGuess: settings.allow_smart_guess,
                 requireCompleteEvidence: settings.inference_mode === 'knowledge_only'
-            }
+            },
+            // المحرك مايقدرش يستنتج دي من الأدلة: «تم الحل» و«لسه مش شغال»
+            // الاتنين بيدّوا توكنز وبيسيبوا الثقة زي ما هي.
+            customerSignal: resolutionSignal
         });
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
@@ -705,7 +870,9 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 // بيخلّي «مدة الاحتفاظ بالسياق» تعرف السياق ده قديم قد إيه.
                 lastTurnAt: new Date().toISOString(),
                 // «يفتكر آخر مشكلة» — بيفضل موجود حتى بعد ما السياق ينتهي.
-                lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null
+                lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null,
+                // بيخلّي «احفظ ده» في الرسالة الجاية يعرف «ده» دي إيه.
+                lastCustomerText: text.slice(0, 500)
             }
         };
 
