@@ -135,7 +135,7 @@ test('«status» و«set» و«reset» مايتقروش كمعرّف مستخد�
     assert.equal(match('GET', '/v1/access/status'), 'access-status');
 });
 
-test('الفحص الصحي مابيطلبش تسجيل دخول', async () => {
+test('الفحص الصحي بيترد عليه قبل ما يتبني عميل بالتوكن', async () => {
     // فحص بيحتاج توكن سليم مايقدرش يفرّق بين «SIE واقع» و«التوكن بتاعي
     // خلص» — وده الفرق الوحيد اللي هو موجود عشانه.
     const { source } = await loadRouter();
@@ -144,6 +144,34 @@ test('الفحص الصحي مابيطلبش تسجيل دخول', async () => {
 
     assert.ok(healthAt > 0 && clientAt > 0);
     assert.ok(healthAt < clientAt, 'الفحص الصحي لازم يترد عليه قبل ما يتبني عميل بالتوكن');
+});
+
+test('الفحص الصحي بيقول هل بيانات المحرك حمّلت', async () => {
+    // «الدالة شغالة» و«الـ ٥٨٠ كيلو بتاعة المحرك حمّلت من الـ CDN» سؤالين
+    // مختلفين، والتاني بس هو اللي وقع قبل كده.
+    const { source } = await loadRouter();
+    assert.ok(source.includes('listActiveScenarios'), 'الفحص مابيلمسش المحرك');
+    assert.ok(source.includes('catalogSize'));
+});
+
+test('كل مسار بيقرا بيانات بيتحقق من الهوية بنفسه', async () => {
+    // الدالة شغّالة بـ verify_jwt=false عشان الفحص الصحي، فالبوابة
+    // مابتحميش حاجة. أي معالج بيقرا لازم يسأل عن الهوية بنفسه — ولو مسار
+    // جديد نسي، المنطق ده بيقع من غير ما حد ياخد باله.
+    for (const [file, guard] of [
+        ['access-status.ts', 'supabase.auth.getUser()'],
+        ['chat-reply.ts', 'supabase.auth.getUser()']
+    ]) {
+        const source = await readFile(here(`../handlers/${file}`), 'utf8');
+        assert.ok(source.includes(guard), `${file} مابيتحققش من الهوية`);
+        assert.ok(source.includes("'unauthorized'"), `${file} مابيرفضش الطلب المجهول`);
+    }
+
+    // ودول الاتنين حمايتهم في الـ RPC نفسها، فبيكفي إنهم بيترجموا رفضها.
+    for (const file of ['access-set.ts', 'access-reset.ts']) {
+        const source = await readFile(here(`../handlers/${file}`), 'utf8');
+        assert.ok(source.includes("'forbidden'"), `${file} مابيترجمش رفض الـ RPC`);
+    }
 });
 
 test('المسار المجهول بيرجّع 404 مش حاجة تانية', async () => {

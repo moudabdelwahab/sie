@@ -33,6 +33,7 @@ import { handleAccessStatus } from './handlers/access-status.ts';
 import { handleAccessSet } from './handlers/access-set.ts';
 import { handleAccessReset } from './handlers/access-reset.ts';
 import { handleChatReply } from './handlers/chat-reply.ts';
+import { listActiveScenarios } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@39d6d702ecd30a9a19c58dca68312a35bd2dd341/sie-integration/sie-runtime.js';
 
 const MOUNT_PREFIXES = ['/functions/v1/sie-api', '/sie-api'];
 
@@ -73,11 +74,43 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
     const path = normalizePath(url.pathname);
 
-    // Reachability, answered before the client is built. A health check
-    // that needs a valid session cannot tell "SIE is down" from "my token
-    // expired", which is the one thing it exists to distinguish.
+    // ------------------------------------------------------------
+    // WHY THIS FUNCTION IS verify_jwt = false
+    //
+    // Answered before the client is built, and deliberately reachable
+    // without a token — `checkSieHealth()` in sie-client.js sends none,
+    // and a check that needs a valid session cannot tell "SIE is down"
+    // from "my token expired", which is the one thing it exists to say.
+    // With the gateway gate on, this route answered 401 and the check
+    // would trip its own circuit breaker.
+    //
+    // Dropping the gateway gate is safe HERE because every other route
+    // is identity-bound in the database, not by this function — verified
+    // against the live catalog, not assumed:
+    //
+    //   is_sie_admin, sie_admin_set_access, sie_admin_reset_usage and
+    //   sie_consume_message are all SECURITY DEFINER and all resolve the
+    //   caller from auth.uid(). With no token, auth.uid() is NULL:
+    //   is_sie_admin() returns false, the two admin RPCs raise "access
+    //   denied", and the two customer routes fail on auth.getUser().
+    //
+    // Confirmed live on the deployed function: an unauthenticated
+    // /v1/chat/reply returns 401 and /v1/admin/is-admin returns
+    // {isAdmin:false}. Nothing leaks. Adding a route that reads data
+    // WITHOUT an identity check would break that reasoning — don't.
+    //
+    // The engine is loaded here too, because "the function is up" and
+    // "the engine's 580 KB of data resolved from the CDN" are different
+    // questions and only the second one has ever failed.
     if ((path === '/v1/health' || path === '/health') && req.method === 'GET') {
-        return json({ status: 'ok', service: 'sie-api', version: 'v1' }, 200, cors);
+        let engine: Record<string, unknown>;
+        try {
+            const scenarios = await listActiveScenarios();
+            engine = { loaded: true, catalogSize: scenarios.length };
+        } catch (err) {
+            engine = { loaded: false, error: err instanceof Error ? err.message : String(err) };
+        }
+        return json({ status: 'ok', service: 'sie-api', version: 'v1', engine }, 200, cors);
     }
 
     try {
