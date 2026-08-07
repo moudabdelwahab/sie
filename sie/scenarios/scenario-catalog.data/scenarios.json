@@ -4169,17 +4169,17 @@
       "category": "whatsapp",
       "evidenceSignature": [
         {
+          "token": "entity_meta_policy",
+          "weight": 3,
+          "source": "text"
+        },
+        {
           "token": "symptom_account_locked",
-          "weight": 4,
+          "weight": 2,
           "source": "text"
         },
         {
           "token": "entity_whatsapp_number",
-          "weight": 1,
-          "source": "text"
-        },
-        {
-          "token": "entity_whatsapp",
           "weight": 1,
           "source": "text"
         }
@@ -4569,12 +4569,12 @@
       "category": "subscription",
       "evidenceSignature": [
         {
-          "token": "entity_wallet",
+          "token": "entity_payment",
           "weight": 3,
           "source": "text"
         },
         {
-          "token": "entity_payment",
+          "token": "entity_invoice",
           "weight": 2,
           "source": "text"
         },
@@ -9588,11 +9588,6 @@
           "token": "social_need_help",
           "weight": 1,
           "source": "text"
-        },
-        {
-          "token": "social_has_question",
-          "weight": 1,
-          "source": "text"
         }
       ],
       "discriminatingQuestions": [],
@@ -12797,6 +12792,6459 @@
         "text": {
           "ar": "متقلقش، إحنا هنوصل لحل [[icon:note]]\n\nأغلب اللي بيوصلني بيتحل في نفس المحادثة، واللي مابيتحلش بيروح للفريق بسياق كامل. في الحالتين مش هتفضل مستني من غير ما تعرف إيه اللي بيحصل.",
           "en": "Don't worry, we'll get to a solution. Most issues are resolved in the same conversation, and those that aren't go to the team with full context. Either way you won't be left in the dark."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "app_crashes_on_open",
+      "label": {
+        "ar": "التطبيق بيقفل لوحده",
+        "en": "Mobile app closes by itself"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_mobile_app",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_crash",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_after_update",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "app_crash_when",
+          "prompt": {
+            "ar": "التطبيق بيقفل من أول ما تفتحه، ولا بعد ما تدخل على شاشة معينة؟",
+            "en": "Does it close right at launch, or after you open a particular screen?"
+          },
+          "resolvesEvidence": [
+            "symptom_crash",
+            "symptom_stuck_loading",
+            "symptom_after_update"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "من أول ما بفتحه",
+                "en": "Right at launch"
+              },
+              "value": "on_launch",
+              "impliesEvidence": [
+                "symptom_crash"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بعد ما بدخل على شاشة معينة",
+                "en": "After a specific screen"
+              },
+              "value": "on_screen",
+              "impliesEvidence": [
+                "symptom_stuck_loading"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بدأ بعد آخر تحديث بس",
+                "en": "Only since the last update"
+              },
+              "value": "after_update",
+              "impliesEvidence": [
+                "symptom_after_update"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "app_push_not_arriving",
+      "label": {
+        "ar": "إشعارات التطبيق مش بتوصل",
+        "en": "App push notifications not arriving"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_push_notification",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_mobile_app",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "push_scope",
+          "prompt": {
+            "ar": "الإشعارات واقفة على كل الأجهزة عندك ولا على جهاز واحد بس؟",
+            "en": "Are notifications missing on every device, or just one?"
+          },
+          "resolvesEvidence": [
+            "qualifier_all_users",
+            "entity_device_permission",
+            "entity_mobile_app"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "على كل الأجهزة والموظفين",
+                "en": "On every device and agent"
+              },
+              "value": "all",
+              "impliesEvidence": [
+                "qualifier_all_users"
+              ]
+            },
+            {
+              "label": {
+                "ar": "على جهازي أنا بس",
+                "en": "Only on my device"
+              },
+              "value": "mine",
+              "impliesEvidence": [
+                "entity_device_permission"
+              ]
+            },
+            {
+              "label": {
+                "ar": "على الموبايل بس، والويب شغال",
+                "en": "Only mobile — web is fine"
+              },
+              "value": "mobile_only",
+              "impliesEvidence": [
+                "entity_mobile_app"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الإشعارات بتتوقف غالبًا لسبب من تلاتة، جرّبهم بالترتيب ده:\n١. افتح إعدادات الموبايل ← التطبيقات ← مدعوم ← الإشعارات، واتأكد إنها مفعّلة.\n٢. من داخل التطبيق: الإعدادات ← الإشعارات، واتأكد إن نوع الإشعار اللي محتاجه متفعّل.\n٣. لو الموبايل مفعّل عليه وضع توفير البطارية، شيل مدعوم من قايمة التطبيقات المقيّدة — ده أكتر سبب بيوقف الإشعارات من غير ما حد ياخد باله.\nلو الـتلاتة مظبوطين وبرضه مش بتوصل، قولّي ونشوفها مع بعض [[icon:note]]",
+          "en": "Push usually stops for one of three reasons. Check them in order:\n1. Phone Settings > Apps > Mad3oom > Notifications — make sure they are enabled.\n2. Inside the app: Settings > Notifications — make sure the specific type you need is on.\n3. If battery saver is on, remove Mad3oom from the restricted-apps list — this is the most common cause.\nIf all three are correct and they still do not arrive, tell me and we will look together."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "app_version_outdated",
+      "label": {
+        "ar": "نسخة التطبيق قديمة",
+        "en": "App version is out of date"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_app_version",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_mobile_app",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "app_update_state",
+          "prompt": {
+            "ar": "لما تفتح المتجر بيقولك «تحديث» ولا «فتح»؟",
+            "en": "In the app store, does it say Update or Open?"
+          },
+          "resolvesEvidence": [
+            "entity_app_version",
+            "entity_subscription",
+            "symptom_not_visible"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بيقولي «تحديث»",
+                "en": "It says Update"
+              },
+              "value": "update_available",
+              "impliesEvidence": [
+                "entity_app_version"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيقولي «فتح» يعني محدّث",
+                "en": "It says Open — already current"
+              },
+              "value": "current",
+              "impliesEvidence": [
+                "entity_subscription"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش لاقي التطبيق في المتجر أصلاً",
+                "en": "I cannot find the app at all"
+              },
+              "value": "not_found",
+              "impliesEvidence": [
+                "symptom_not_visible"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المميزات الجديدة بتنزل على آخر إصدار الأول، فلو التطبيق عندك نسخة قديمة هتلاقي حاجات ناقصة في الشاشة.\n١. افتح المتجر (جوجل بلاي أو آب ستور) ودوّر على مدعوم.\n٢. لو لقيت زرار «تحديث» اضغطه واستنى لحد ما يخلص.\n٣. اقفل التطبيق تمامًا وافتحه تاني.\nلو التطبيق بيقول إنه محدّث وبرضه المميزة مش ظاهرة، غالبًا هي متاحة لخطة أعلى — قولّي اسم المميزة وأشوفهالك [[icon:note]]",
+          "en": "New features ship to the latest build first, so an old version will be missing things.\n1. Open your app store and find Mad3oom.\n2. If there is an Update button, tap it and wait.\n3. Fully close the app and reopen it.\nIf the app says it is up to date and the feature is still missing, it is probably limited to a higher plan — tell me which feature and I will check."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "app_login_loop",
+      "label": {
+        "ar": "التطبيق بيطلع من الحساب كل شوية",
+        "en": "App keeps signing me out"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_mobile_app",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_session",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_login_failed",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "app_logout_trigger",
+          "prompt": {
+            "ar": "بيطلّعك من الحساب إمتى بالظبط؟",
+            "en": "When exactly does it sign you out?"
+          },
+          "resolvesEvidence": [
+            "entity_session",
+            "entity_2fa",
+            "symptom_token_expired"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "كل ما أقفل التطبيق وأفتحه",
+                "en": "Every time I close and reopen"
+              },
+              "value": "on_reopen",
+              "impliesEvidence": [
+                "entity_session"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بعد فترة وأنا شغال",
+                "en": "After a while mid-use"
+              },
+              "value": "mid_use",
+              "impliesEvidence": [
+                "symptom_token_expired"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بعد ما أدخل الكود مباشرة",
+                "en": "Right after I enter the code"
+              },
+              "value": "after_otp",
+              "impliesEvidence": [
+                "entity_2fa"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "app_permission_blocked",
+      "label": {
+        "ar": "التطبيق مش بياخد إذن الكاميرا أو الميكروفون",
+        "en": "App cannot get camera or mic permission"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_device_permission",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_permission_denied",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_mobile_app",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "permission_which",
+          "prompt": {
+            "ar": "أنهي إذن اللي مش شغال؟",
+            "en": "Which permission is the problem?"
+          },
+          "resolvesEvidence": [
+            "entity_device_permission",
+            "entity_wa_media",
+            "entity_file_upload"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "الكاميرا",
+                "en": "Camera"
+              },
+              "value": "camera",
+              "impliesEvidence": [
+                "entity_device_permission"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الميكروفون للرسايل الصوتية",
+                "en": "Microphone for voice notes"
+              },
+              "value": "mic",
+              "impliesEvidence": [
+                "entity_wa_media"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الوصول للصور والملفات",
+                "en": "Photos and files"
+              },
+              "value": "files",
+              "impliesEvidence": [
+                "entity_file_upload"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الإذن ده بيتاخد من إعدادات الموبايل نفسه مش من جوّه التطبيق:\n١. إعدادات الموبايل ← التطبيقات ← مدعوم ← الأذونات.\n٢. فعّل الإذن اللي محتاجه (الكاميرا للمسح، الميكروفون للرسايل الصوتية، الصور للمرفقات).\n٣. اقفل التطبيق وافتحه تاني عشان ياخد الإذن الجديد.\nلو رفضت الإذن قبل كده مرتين، أندرويد بيوقف السؤال خالص — ساعتها الطريقة الوحيدة هي الخطوات اللي فوق [[icon:note]]",
+          "en": "This permission is granted from the phone settings, not inside the app:\n1. Phone Settings > Apps > Mad3oom > Permissions.\n2. Enable what you need (camera for scanning, microphone for voice notes, photos for attachments).\n3. Close and reopen the app so it picks up the new permission.\nIf you declined twice before, Android stops asking entirely — the steps above are then the only way."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "app_offline_data_missing",
+      "label": {
+        "ar": "التطبيق مش بيشتغل من غير إنترنت",
+        "en": "App does not work without internet"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_offline_mode",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_mobile_app",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "offline_expectation",
+          "prompt": {
+            "ar": "محتاج تقرا المحادثات القديمة وانت من غير نت، ولا محتاج تبعت رسايل كمان؟",
+            "en": "Do you need to read old conversations offline, or also to send?"
+          },
+          "resolvesEvidence": [
+            "entity_offline_mode",
+            "symptom_not_sending",
+            "symptom_not_updating"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أقرا القديم بس",
+                "en": "Read only"
+              },
+              "value": "read",
+              "impliesEvidence": [
+                "entity_offline_mode"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أبعت وهي تتبعت لما النت يرجع",
+                "en": "Send and queue until online"
+              },
+              "value": "queue",
+              "impliesEvidence": [
+                "symptom_not_sending"
+              ]
+            },
+            {
+              "label": {
+                "ar": "النت عندي بيقطع كل شوية وبيضيع اللي كتبته",
+                "en": "My connection drops and I lose what I typed"
+              },
+              "value": "flaky",
+              "impliesEvidence": [
+                "symptom_not_updating"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_instagram_not_connecting",
+      "label": {
+        "ar": "إنستجرام مش بيتربط",
+        "en": "Instagram will not connect"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_instagram",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_linked",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_channel",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "ig_account_type",
+          "prompt": {
+            "ar": "حساب الإنستجرام بتاعك من نوع «أعمال» ومربوط بصفحة فيسبوك؟",
+            "en": "Is the Instagram account a Business account linked to a Facebook page?"
+          },
+          "resolvesEvidence": [
+            "entity_instagram",
+            "entity_facebook_page",
+            "symptom_permission_denied"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه، أعمال ومربوط بصفحة",
+                "en": "Yes — business, linked to a page"
+              },
+              "value": "business_linked",
+              "impliesEvidence": [
+                "entity_instagram"
+              ]
+            },
+            {
+              "label": {
+                "ar": "حساب شخصي عادي",
+                "en": "A personal account"
+              },
+              "value": "personal",
+              "impliesEvidence": [
+                "symptom_not_linked"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أعمال بس مش مربوط بصفحة",
+                "en": "Business but not linked to a page"
+              },
+              "value": "unlinked",
+              "impliesEvidence": [
+                "entity_facebook_page"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_facebook_page_linking",
+      "label": {
+        "ar": "صفحة الفيسبوك مش بتتربط",
+        "en": "Facebook page will not link"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_facebook_page",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_linked",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_permission_denied",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "fb_admin_role",
+          "prompt": {
+            "ar": "إنت دورك إيه على الصفحة؟",
+            "en": "What is your role on the page?"
+          },
+          "resolvesEvidence": [
+            "entity_role",
+            "symptom_permission_denied",
+            "entity_facebook_page"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مدير كامل للصفحة",
+                "en": "Full admin"
+              },
+              "value": "admin",
+              "impliesEvidence": [
+                "entity_facebook_page"
+              ]
+            },
+            {
+              "label": {
+                "ar": "محرّر أو معدّل",
+                "en": "Editor or moderator"
+              },
+              "value": "editor",
+              "impliesEvidence": [
+                "symptom_permission_denied"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف، حد تاني عامل الصفحة",
+                "en": "Not sure — someone else made it"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_role"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_telegram_token_invalid",
+      "label": {
+        "ar": "توكن بوت تيليجرام مرفوض",
+        "en": "Telegram bot token rejected"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_telegram",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_token",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "tg_token_source",
+          "prompt": {
+            "ar": "التوكن ده جبته منين؟",
+            "en": "Where did you get the token from?"
+          },
+          "resolvesEvidence": [
+            "entity_token",
+            "entity_telegram",
+            "symptom_token_expired"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "من BotFather دلوقتي",
+                "en": "From BotFather just now"
+              },
+              "value": "fresh",
+              "impliesEvidence": [
+                "entity_telegram"
+              ]
+            },
+            {
+              "label": {
+                "ar": "توكن قديم كان محفوظ عندي",
+                "en": "An old saved token"
+              },
+              "value": "old",
+              "impliesEvidence": [
+                "symptom_token_expired"
+              ]
+            },
+            {
+              "label": {
+                "ar": "حد من الفريق بعتهولي",
+                "en": "A teammate sent it to me"
+              },
+              "value": "shared",
+              "impliesEvidence": [
+                "entity_token"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_replies_on_wrong_channel",
+      "label": {
+        "ar": "الرد بيروح على القناة الغلط",
+        "en": "Replies go out on the wrong channel"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_wrong_channel",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_channel",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_handoff",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "wrong_channel_when",
+          "prompt": {
+            "ar": "ده بيحصل مع العملاء اللي كلموك على أكتر من قناة، ولا مع أي عميل؟",
+            "en": "Does this happen only for customers who wrote on more than one channel?"
+          },
+          "resolvesEvidence": [
+            "entity_contact",
+            "symptom_wrong_channel",
+            "entity_channel"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "اللي كلمونا على أكتر من قناة بس",
+                "en": "Only multi-channel customers"
+              },
+              "value": "multi",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مع أي عميل",
+                "en": "Any customer"
+              },
+              "value": "any",
+              "impliesEvidence": [
+                "symptom_wrong_channel"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بعد ما التذكرة تتحوّل لموظف تاني",
+                "en": "After the ticket is transferred"
+              },
+              "value": "after_handoff",
+              "impliesEvidence": [
+                "entity_channel"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_same_customer_two_identities",
+      "label": {
+        "ar": "العميل الواحد بيتكرر كأنه اتنين",
+        "en": "One customer appears as two"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_contact",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_channel",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "identity_key",
+          "prompt": {
+            "ar": "العميل بيكلمك برقم واحد على القناتين ولا برقمين مختلفين؟",
+            "en": "Does the customer use one number across channels, or two?"
+          },
+          "resolvesEvidence": [
+            "entity_contact",
+            "entity_channel",
+            "symptom_duplicated"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "نفس الرقم",
+                "en": "The same number"
+              },
+              "value": "same_number",
+              "impliesEvidence": [
+                "symptom_duplicated"
+              ]
+            },
+            {
+              "label": {
+                "ar": "رقمين مختلفين",
+                "en": "Two different numbers"
+              },
+              "value": "two_numbers",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            },
+            {
+              "label": {
+                "ar": "واحد على الواتساب وواحد على الشات",
+                "en": "One on WhatsApp, one on web chat"
+              },
+              "value": "cross",
+              "impliesEvidence": [
+                "entity_channel"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_disconnects_randomly",
+      "label": {
+        "ar": "القناة بتفصل من نفسها",
+        "en": "Channel disconnects on its own"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_channel",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_session",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "disconnect_pattern",
+          "prompt": {
+            "ar": "بتفصل في وقت معيّن كل يوم ولا من غير ترتيب؟",
+            "en": "Does it drop at a set time each day, or unpredictably?"
+          },
+          "resolvesEvidence": [
+            "entity_session",
+            "entity_channel",
+            "symptom_timeout"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "في وقت تقريبًا ثابت",
+                "en": "Around the same time daily"
+              },
+              "value": "scheduled",
+              "impliesEvidence": [
+                "entity_session"
+              ]
+            },
+            {
+              "label": {
+                "ar": "من غير ترتيب خالص",
+                "en": "Completely random"
+              },
+              "value": "random",
+              "impliesEvidence": [
+                "symptom_timeout"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بعد ما نبعت عدد كبير رسايل",
+                "en": "After sending a large batch"
+              },
+              "value": "after_volume",
+              "impliesEvidence": [
+                "entity_channel"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_limit_reached",
+      "label": {
+        "ar": "وصلت لأقصى عدد قنوات",
+        "en": "Channel limit reached"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_channel",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_limit_reached",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "channel_need",
+          "prompt": {
+            "ar": "محتاج تزوّد قناة جديدة ولا تستبدل واحدة موجودة؟",
+            "en": "Do you need an extra channel, or to swap one out?"
+          },
+          "resolvesEvidence": [
+            "intent_upgrade",
+            "entity_channel",
+            "entity_subscription"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أزوّد قناة زيادة",
+                "en": "Add another channel"
+              },
+              "value": "add",
+              "impliesEvidence": [
+                "intent_upgrade"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أشيل واحدة وأحط غيرها",
+                "en": "Replace one"
+              },
+              "value": "swap",
+              "impliesEvidence": [
+                "entity_channel"
+              ]
+            },
+            {
+              "label": {
+                "ar": "عايز أعرف الحد كام في خطتي",
+                "en": "I just want to know my limit"
+              },
+              "value": "ask",
+              "impliesEvidence": [
+                "entity_subscription"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "channel_history_missing_after_link",
+      "label": {
+        "ar": "المحادثات القديمة مظهرتش بعد الربط",
+        "en": "Old conversations missing after linking"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_channel",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_archive",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "history_scope",
+          "prompt": {
+            "ar": "مش ظاهر خالص ولا ظاهر جزء بس؟",
+            "en": "Is nothing showing, or only part of it?"
+          },
+          "resolvesEvidence": [
+            "entity_archive",
+            "symptom_not_visible",
+            "symptom_partially_working"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مفيش أي محادثة قديمة",
+                "en": "Nothing at all"
+              },
+              "value": "none",
+              "impliesEvidence": [
+                "symptom_not_visible"
+              ]
+            },
+            {
+              "label": {
+                "ar": "جزء ظاهر وجزء لأ",
+                "en": "Some of it"
+              },
+              "value": "partial",
+              "impliesEvidence": [
+                "symptom_partially_working"
+              ]
+            },
+            {
+              "label": {
+                "ar": "ظاهر بس من تاريخ الربط وبعده",
+                "en": "Only from the link date onward"
+              },
+              "value": "since_link",
+              "impliesEvidence": [
+                "entity_archive"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "email_going_to_spam",
+      "label": {
+        "ar": "الإيميلات بتروح في السبام",
+        "en": "Emails land in spam"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_spam_folder",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_email_authentication",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "spam_scope",
+          "prompt": {
+            "ar": "بتروح سبام عند كل العملاء ولا عند شركة معيّنة؟",
+            "en": "Does it happen for every recipient, or one company?"
+          },
+          "resolvesEvidence": [
+            "entity_email_authentication",
+            "entity_spam_folder",
+            "qualifier_all_users"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "عند الكل",
+                "en": "Everyone"
+              },
+              "value": "all",
+              "impliesEvidence": [
+                "entity_email_authentication"
+              ]
+            },
+            {
+              "label": {
+                "ar": "عند شركة أو نطاق معيّن",
+                "en": "One company or domain"
+              },
+              "value": "one_domain",
+              "impliesEvidence": [
+                "entity_spam_folder"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بدأت فجأة بعد ما كانت شغالة",
+                "en": "It started suddenly"
+              },
+              "value": "regression",
+              "impliesEvidence": [
+                "qualifier_all_users"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "email_authentication_setup",
+      "label": {
+        "ar": "إعداد توثيق البريد للنطاق",
+        "en": "Setting up email authentication"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_email_authentication",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_dns",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "dns_access",
+          "prompt": {
+            "ar": "عندك وصول للوحة النطاق عشان تضيف السجلات؟",
+            "en": "Do you have access to the domain panel to add records?"
+          },
+          "resolvesEvidence": [
+            "entity_dns",
+            "entity_email_authentication",
+            "entity_agent"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه عندي",
+                "en": "Yes"
+              },
+              "value": "yes",
+              "impliesEvidence": [
+                "entity_dns"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ، ده عند حد تاني",
+                "en": "No — someone else manages it"
+              },
+              "value": "no",
+              "impliesEvidence": [
+                "entity_agent"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف أصلاً النطاق فين",
+                "en": "I do not know where the domain is"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_email_authentication"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "توثيق البريد بيخلّي إيميلاتك توصل الوارد بدل السبام، وبيتظبط من لوحة النطاق بتاعك مش من مدعوم:\n١. من الإعدادات ← البريد ← نطاق المرسل، هتلاقي السجلات المطلوبة معروضة قدامك.\n٢. ادخل على مزوّد النطاق (اللي مشتري منه الدومين) وضيف السجلات دي زي ما هي بالظبط.\n٣. ارجع لنفس الصفحة واضغط «تحقّق».\nالانتشار بياخد من ساعة لـ٢٤ ساعة، فلو التحقق فشل أول مرة استنى وجرّب تاني قبل ما تشيل حاجة [[icon:note]]",
+          "en": "Email authentication is what keeps your mail out of spam, and it is configured at your domain provider, not in Mad3oom:\n1. Settings > Email > Sender domain shows the exact records you need.\n2. Add those records at your domain provider exactly as shown.\n3. Come back and press Verify.\nPropagation takes 1-24 hours, so if the first check fails, wait and retry before changing anything."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "email_sender_domain_wrong",
+      "label": {
+        "ar": "المرسل مش بيظهر باسم شركتنا",
+        "en": "Sender does not show our company name"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_sender_domain",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "sender_shows",
+          "prompt": {
+            "ar": "بيظهر إيه للعميل دلوقتي؟",
+            "en": "What does the customer currently see?"
+          },
+          "resolvesEvidence": [
+            "entity_sender_domain",
+            "entity_email_authentication",
+            "symptom_wrong_data"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "اسم مدعوم بدل اسمنا",
+                "en": "Mad3oom instead of us"
+              },
+              "value": "platform_name",
+              "impliesEvidence": [
+                "entity_sender_domain"
+              ]
+            },
+            {
+              "label": {
+                "ar": "اسمنا بس النطاق غلط",
+                "en": "Our name but the wrong domain"
+              },
+              "value": "wrong_domain",
+              "impliesEvidence": [
+                "entity_email_authentication"
+              ]
+            },
+            {
+              "label": {
+                "ar": "إيميل قديم اتشال من زمان",
+                "en": "An old address we removed"
+              },
+              "value": "stale",
+              "impliesEvidence": [
+                "symptom_wrong_data"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "email_bouncing_back",
+      "label": {
+        "ar": "الإيميلات بترجع مرتدة",
+        "en": "Emails bounce back"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_bounce",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "bounce_kind",
+          "prompt": {
+            "ar": "الرسالة اللي بترجعلك بتقول إيه تقريبًا؟",
+            "en": "Roughly what does the bounce message say?"
+          },
+          "resolvesEvidence": [
+            "entity_bounce",
+            "entity_email_authentication",
+            "symptom_limit_reached"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "إن العنوان مش موجود",
+                "en": "The address does not exist"
+              },
+              "value": "no_such_address",
+              "impliesEvidence": [
+                "entity_bounce"
+              ]
+            },
+            {
+              "label": {
+                "ar": "إن الرسالة اترفضت لأسباب أمان",
+                "en": "Rejected for security reasons"
+              },
+              "value": "policy",
+              "impliesEvidence": [
+                "entity_email_authentication"
+              ]
+            },
+            {
+              "label": {
+                "ar": "إن الصندوق ممتلي",
+                "en": "The mailbox is full"
+              },
+              "value": "full",
+              "impliesEvidence": [
+                "symptom_limit_reached"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "email_thread_splitting",
+      "label": {
+        "ar": "كل رد بالإيميل بيفتح تذكرة جديدة",
+        "en": "Each email reply opens a new ticket"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_email_thread",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "thread_reply_path",
+          "prompt": {
+            "ar": "العميل بيرد على نفس الإيميل ولا بيبعت إيميل جديد؟",
+            "en": "Does the customer reply to the same email or send a fresh one?"
+          },
+          "resolvesEvidence": [
+            "entity_email_thread",
+            "entity_ticket",
+            "symptom_duplicated"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بيرد على نفس الرسالة",
+                "en": "Replies to the same message"
+              },
+              "value": "reply",
+              "impliesEvidence": [
+                "entity_email_thread"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيبعت إيميل جديد كل مرة",
+                "en": "Sends a new email each time"
+              },
+              "value": "new",
+              "impliesEvidence": [
+                "entity_ticket"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الاتنين بيحصلوا",
+                "en": "Both happen"
+              },
+              "value": "both",
+              "impliesEvidence": [
+                "symptom_duplicated"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "email_signature_broken",
+      "label": {
+        "ar": "التوقيع بيظهر مكسور في الإيميل",
+        "en": "Signature renders broken in email"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_profile_picture",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "signature_part",
+          "prompt": {
+            "ar": "الناقص إيه في التوقيع؟",
+            "en": "What is missing from the signature?"
+          },
+          "resolvesEvidence": [
+            "entity_profile_picture",
+            "symptom_not_visible",
+            "entity_email"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "اللوجو مش ظاهر",
+                "en": "The logo does not show"
+              },
+              "value": "logo",
+              "impliesEvidence": [
+                "entity_profile_picture"
+              ]
+            },
+            {
+              "label": {
+                "ar": "التنسيق كله باظ",
+                "en": "The whole layout is broken"
+              },
+              "value": "layout",
+              "impliesEvidence": [
+                "symptom_not_visible"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الروابط مش شغالة",
+                "en": "The links do not work"
+              },
+              "value": "links",
+              "impliesEvidence": [
+                "entity_email"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_suspicious_login",
+      "label": {
+        "ar": "تنبيه دخول مشبوه للحساب",
+        "en": "Suspicious sign-in alert"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_login_alert",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "login_alert_recognised",
+          "prompt": {
+            "ar": "الدخول اللي في التنبيه ده بتاعك ولا مش عارفه؟",
+            "en": "Do you recognise the sign-in in the alert?"
+          },
+          "resolvesEvidence": [
+            "entity_login_alert",
+            "entity_password",
+            "entity_agent"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مش بتاعي خالص",
+                "en": "Not mine at all"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_password"
+              ]
+            },
+            {
+              "label": {
+                "ar": "ده أنا بس من جهاز تاني",
+                "en": "Me, from another device"
+              },
+              "value": "mine",
+              "impliesEvidence": [
+                "entity_login_alert"
+              ]
+            },
+            {
+              "label": {
+                "ar": "غالبًا واحد من الفريق",
+                "en": "Probably a teammate"
+              },
+              "value": "teammate",
+              "impliesEvidence": [
+                "entity_agent"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_2fa_device_lost",
+      "label": {
+        "ar": "ضاع الجهاز اللي عليه التحقق بخطوتين",
+        "en": "Lost the two-factor device"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_2fa",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_recover",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_account_locked",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "twofa_backup",
+          "prompt": {
+            "ar": "عندك أكواد احتياطية اتحفظت وقت التفعيل؟",
+            "en": "Do you have the backup codes from setup?"
+          },
+          "resolvesEvidence": [
+            "entity_2fa",
+            "entity_agent",
+            "symptom_account_locked"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه لقيتهم",
+                "en": "Yes, I have them"
+              },
+              "value": "have_codes",
+              "impliesEvidence": [
+                "entity_2fa"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ مش موجودين",
+                "en": "No"
+              },
+              "value": "no_codes",
+              "impliesEvidence": [
+                "symptom_account_locked"
+              ]
+            },
+            {
+              "label": {
+                "ar": "فيه مدير تاني للحساب يقدر يساعد",
+                "en": "Another admin can help"
+              },
+              "value": "other_admin",
+              "impliesEvidence": [
+                "entity_agent"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_ip_restriction_blocking",
+      "label": {
+        "ar": "تقييد العناوين مانع الدخول",
+        "en": "IP restriction is blocking access"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_ip_restriction",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_permission_denied",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_vpn",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "ip_context",
+          "prompt": {
+            "ar": "بتحاول تدخل من فين دلوقتي؟",
+            "en": "Where are you connecting from?"
+          },
+          "resolvesEvidence": [
+            "entity_ip_restriction",
+            "entity_vpn",
+            "qualifier_mobile"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "من المكتب زي كل يوم",
+                "en": "The office, as usual"
+              },
+              "value": "office",
+              "impliesEvidence": [
+                "entity_ip_restriction"
+              ]
+            },
+            {
+              "label": {
+                "ar": "من البيت أو السفر",
+                "en": "Home or travelling"
+              },
+              "value": "remote",
+              "impliesEvidence": [
+                "entity_vpn"
+              ]
+            },
+            {
+              "label": {
+                "ar": "من بيانات الموبايل",
+                "en": "On mobile data"
+              },
+              "value": "mobile",
+              "impliesEvidence": [
+                "qualifier_mobile"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_password_policy_strict",
+      "label": {
+        "ar": "شروط كلمة المرور صعبة",
+        "en": "Password policy too strict"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_password_policy",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "policy_owner",
+          "prompt": {
+            "ar": "إنت مدير الحساب اللي بيظبط السياسة دي؟",
+            "en": "Are you the admin who controls this policy?"
+          },
+          "resolvesEvidence": [
+            "entity_password_policy",
+            "entity_role",
+            "entity_password"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه أنا المدير",
+                "en": "Yes"
+              },
+              "value": "admin",
+              "impliesEvidence": [
+                "entity_password_policy"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ أنا موظف",
+                "en": "No, I am an agent"
+              },
+              "value": "agent",
+              "impliesEvidence": [
+                "entity_role"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الشرط اللي واقفني مش فاهمه",
+                "en": "I do not understand which rule blocks me"
+              },
+              "value": "unclear",
+              "impliesEvidence": [
+                "entity_password"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_data_privacy_question",
+      "label": {
+        "ar": "أسئلة عن خصوصية بيانات العملاء",
+        "en": "Questions about customer data privacy"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_data_privacy",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "trigger_is_data_safe",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_audit_log",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "privacy_angle",
+          "prompt": {
+            "ar": "قلقان من أنهي ناحية بالظبط؟",
+            "en": "Which part are you concerned about?"
+          },
+          "resolvesEvidence": [
+            "entity_data_privacy",
+            "entity_audit_log",
+            "entity_export"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مين من فريقي بيشوف إيه",
+                "en": "Who on my team sees what"
+              },
+              "value": "internal",
+              "impliesEvidence": [
+                "entity_audit_log"
+              ]
+            },
+            {
+              "label": {
+                "ar": "البيانات محفوظة فين",
+                "en": "Where the data is stored"
+              },
+              "value": "location",
+              "impliesEvidence": [
+                "entity_data_privacy"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أقدر أسحب بياناتي وأمسحها إزاي",
+                "en": "How I export and delete my data"
+              },
+              "value": "export",
+              "impliesEvidence": [
+                "entity_export"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_session_not_expiring",
+      "label": {
+        "ar": "الجلسة مش بتنتهي بعد الخروج",
+        "en": "Session does not end after sign-out"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_session",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "session_where",
+          "prompt": {
+            "ar": "الجلسة اللي فاضلة مفتوحة على إيه؟",
+            "en": "Where is the session still open?"
+          },
+          "resolvesEvidence": [
+            "entity_session",
+            "entity_mobile_app",
+            "entity_browser"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "على متصفح تاني",
+                "en": "Another browser"
+              },
+              "value": "browser",
+              "impliesEvidence": [
+                "entity_browser"
+              ]
+            },
+            {
+              "label": {
+                "ar": "على تطبيق الموبايل",
+                "en": "The mobile app"
+              },
+              "value": "app",
+              "impliesEvidence": [
+                "entity_mobile_app"
+              ]
+            },
+            {
+              "label": {
+                "ar": "على جهاز موظف ساب الشركة",
+                "en": "A device of an agent who left"
+              },
+              "value": "ex_agent",
+              "impliesEvidence": [
+                "entity_session"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "security_api_key_too_broad",
+      "label": {
+        "ar": "صلاحيات مفتاح الواجهة واسعة زيادة",
+        "en": "API key permissions too broad"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_api_permission",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_api_key",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "key_use",
+          "prompt": {
+            "ar": "المفتاح ده بيستخدم في إيه؟",
+            "en": "What is this key used for?"
+          },
+          "resolvesEvidence": [
+            "entity_api_permission",
+            "entity_webhook",
+            "entity_integration"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "قراءة بيانات بس",
+                "en": "Reading data only"
+              },
+              "value": "read",
+              "impliesEvidence": [
+                "entity_api_permission"
+              ]
+            },
+            {
+              "label": {
+                "ar": "إرسال رسايل",
+                "en": "Sending messages"
+              },
+              "value": "send",
+              "impliesEvidence": [
+                "entity_integration"
+              ]
+            },
+            {
+              "label": {
+                "ar": "استقبال أحداث",
+                "en": "Receiving events"
+              },
+              "value": "events",
+              "impliesEvidence": [
+                "entity_webhook"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "notif_browser_permission_blocked",
+      "label": {
+        "ar": "المتصفح مانع إشعارات المنصة",
+        "en": "Browser is blocking notifications"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_browser_permission",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_permission_denied",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_notification",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "browser_which",
+          "prompt": {
+            "ar": "بتستخدم أنهي متصفح؟",
+            "en": "Which browser are you using?"
+          },
+          "resolvesEvidence": [
+            "entity_browser",
+            "entity_browser_permission",
+            "entity_extension"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "كروم أو إيدج",
+                "en": "Chrome or Edge"
+              },
+              "value": "chromium",
+              "impliesEvidence": [
+                "entity_browser_permission"
+              ]
+            },
+            {
+              "label": {
+                "ar": "سفاري",
+                "en": "Safari"
+              },
+              "value": "safari",
+              "impliesEvidence": [
+                "entity_browser"
+              ]
+            },
+            {
+              "label": {
+                "ar": "فيه إضافات حماية مركّبة عندي",
+                "en": "I have privacy extensions installed"
+              },
+              "value": "extensions",
+              "impliesEvidence": [
+                "entity_extension"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيسأل عن إذن الإشعارات مرة واحدة بس، ولو اترفض مبيسألش تاني — لازم تفكّه بإيدك:\n١. اضغط على علامة القفل جنب عنوان الموقع في شريط العنوان.\n٢. دوّر على «الإشعارات» وخليها «مسموح».\n٣. اعمل تحديث للصفحة.\nلو مش لاقي الخيار ده، غالبًا المتصفح شغال في وضع التصفح المتخفّي — الإشعارات مبتشتغلش فيه أصلاً [[icon:note]]",
+          "en": "The browser asks for notification permission only once, and never asks again after a refusal — you have to undo it manually:\n1. Click the padlock next to the site address.\n2. Find Notifications and set it to Allow.\n3. Refresh the page.\nIf that option is missing, you are probably in private browsing, where notifications do not work at all."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "notif_desktop_not_showing",
+      "label": {
+        "ar": "إشعارات سطح المكتب مش بتظهر",
+        "en": "Desktop notifications do not appear"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_desktop_notification",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_notification",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "desktop_focus",
+          "prompt": {
+            "ar": "بتيجي وإنت في تبويب تاني ولا حتى والمنصة مفتوحة قدامك؟",
+            "en": "Do they fail while you are in another tab, or even with the app open?"
+          },
+          "resolvesEvidence": [
+            "entity_desktop_notification",
+            "entity_browser_permission",
+            "entity_notification_sound"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "مش بتيجي خالص",
+                "en": "Never at all"
+              },
+              "value": "never",
+              "impliesEvidence": [
+                "entity_browser_permission"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بتيجي والمنصة مفتوحة بس",
+                "en": "Only when the app is open"
+              },
+              "value": "focused_only",
+              "impliesEvidence": [
+                "entity_desktop_notification"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بتظهر بس من غير صوت",
+                "en": "They appear but silently"
+              },
+              "value": "silent",
+              "impliesEvidence": [
+                "entity_notification_sound"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "notif_digest_wrong_time",
+      "label": {
+        "ar": "الملخص اليومي بيوصل في وقت غلط",
+        "en": "Daily digest arrives at the wrong time"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_digest_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_timezone",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "digest_offset",
+          "prompt": {
+            "ar": "بيوصل بفارق ساعات ثابت ولا في وقت عشوائي؟",
+            "en": "Is it off by a fixed number of hours, or random?"
+          },
+          "resolvesEvidence": [
+            "entity_timezone",
+            "entity_digest_email",
+            "symptom_wrong_data"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "فارق ساعات ثابت",
+                "en": "A fixed offset"
+              },
+              "value": "fixed",
+              "impliesEvidence": [
+                "entity_timezone"
+              ]
+            },
+            {
+              "label": {
+                "ar": "وقت مختلف كل يوم",
+                "en": "Different each day"
+              },
+              "value": "random",
+              "impliesEvidence": [
+                "entity_digest_email"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيوصل مرتين",
+                "en": "It arrives twice"
+              },
+              "value": "twice",
+              "impliesEvidence": [
+                "symptom_wrong_data"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "notif_mention_not_notifying",
+      "label": {
+        "ar": "الإشارة للزميل مش بتوصله",
+        "en": "Mentions do not notify the teammate"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_mention",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "mention_context",
+          "prompt": {
+            "ar": "بتمنشنه فين؟",
+            "en": "Where are you mentioning them?"
+          },
+          "resolvesEvidence": [
+            "entity_mention",
+            "entity_ticket_note",
+            "entity_team_chat"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "في ملاحظة داخلية على التذكرة",
+                "en": "In an internal note"
+              },
+              "value": "note",
+              "impliesEvidence": [
+                "entity_ticket_note"
+              ]
+            },
+            {
+              "label": {
+                "ar": "في رد عادي للعميل",
+                "en": "In a normal customer reply"
+              },
+              "value": "reply",
+              "impliesEvidence": [
+                "entity_mention"
+              ]
+            },
+            {
+              "label": {
+                "ar": "في دردشة الفريق",
+                "en": "In team chat"
+              },
+              "value": "team",
+              "impliesEvidence": [
+                "entity_team_chat"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "notif_sound_only_first",
+      "label": {
+        "ar": "الصوت بيرن لأول رسالة بس",
+        "en": "Sound plays only for the first message"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_notification_sound",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_partially_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_notification",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "sound_reset",
+          "prompt": {
+            "ar": "الصوت بيرجع يشتغل لو عملت تحديث للصفحة؟",
+            "en": "Does the sound come back after a page refresh?"
+          },
+          "resolvesEvidence": [
+            "entity_notification_sound",
+            "entity_browser",
+            "entity_cache"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه بيرجع بعد التحديث",
+                "en": "Yes, after refreshing"
+              },
+              "value": "refresh_fixes",
+              "impliesEvidence": [
+                "entity_browser"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ فضل ساكت",
+                "en": "No, it stays silent"
+              },
+              "value": "stays_silent",
+              "impliesEvidence": [
+                "entity_notification_sound"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيرن لو التبويب قدامي بس",
+                "en": "Only when the tab is focused"
+              },
+              "value": "focus_only",
+              "impliesEvidence": [
+                "entity_cache"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "analytics_csat_not_collected",
+      "label": {
+        "ar": "تقييم رضا العملاء مش بيتجمع",
+        "en": "Customer satisfaction ratings not collected"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_csat",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_rating",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "csat_trigger",
+          "prompt": {
+            "ar": "طلب التقييم بيتبعت للعميل إمتى في إعداداتك؟",
+            "en": "When is the rating request sent to the customer?"
+          },
+          "resolvesEvidence": [
+            "entity_csat",
+            "entity_ticket",
+            "entity_automation_rule"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أول ما التذكرة تتقفل",
+                "en": "As soon as the ticket closes"
+              },
+              "value": "on_close",
+              "impliesEvidence": [
+                "entity_ticket"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بعد فترة من القفل",
+                "en": "A while after closing"
+              },
+              "value": "delayed",
+              "impliesEvidence": [
+                "entity_automation_rule"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف، مظبطتوش",
+                "en": "I never configured it"
+              },
+              "value": "unset",
+              "impliesEvidence": [
+                "entity_csat"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "analytics_response_time_wrong",
+      "label": {
+        "ar": "زمن الرد في التقرير مش منطقي",
+        "en": "Response time in the report looks wrong"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_response_time",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "response_time_definition",
+          "prompt": {
+            "ar": "بتقارن الرقم ده بإيه؟",
+            "en": "What are you comparing the number against?"
+          },
+          "resolvesEvidence": [
+            "entity_response_time",
+            "entity_working_hours",
+            "entity_timezone"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بحساب يدوي عملته بنفسي",
+                "en": "A manual calculation of mine"
+              },
+              "value": "manual",
+              "impliesEvidence": [
+                "entity_response_time"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الرقم بيحسب ساعات برّه الدوام",
+                "en": "It counts hours outside working time"
+              },
+              "value": "after_hours",
+              "impliesEvidence": [
+                "entity_working_hours"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الأرقام بتفرق حسب المنطقة الزمنية",
+                "en": "It shifts with the timezone"
+              },
+              "value": "timezone",
+              "impliesEvidence": [
+                "entity_timezone"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "analytics_agent_numbers_disputed",
+      "label": {
+        "ar": "الموظف معترض على أرقامه",
+        "en": "Agent disputes their own numbers"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_agent_ranking",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "agent_dispute_what",
+          "prompt": {
+            "ar": "الخلاف على إيه بالظبط؟",
+            "en": "What exactly is disputed?"
+          },
+          "resolvesEvidence": [
+            "entity_agent_ranking",
+            "entity_ticket_assignment",
+            "entity_response_time"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "عدد التذاكر المحسوبة عليه",
+                "en": "The ticket count"
+              },
+              "value": "count",
+              "impliesEvidence": [
+                "entity_ticket_assignment"
+              ]
+            },
+            {
+              "label": {
+                "ar": "متوسط زمن رده",
+                "en": "The average response time"
+              },
+              "value": "time",
+              "impliesEvidence": [
+                "entity_response_time"
+              ]
+            },
+            {
+              "label": {
+                "ar": "ترتيبه بين الفريق",
+                "en": "Their ranking on the team"
+              },
+              "value": "rank",
+              "impliesEvidence": [
+                "entity_agent_ranking"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "analytics_export_mismatch",
+      "label": {
+        "ar": "الملف المصدَّر مش زي الشاشة",
+        "en": "Exported file does not match the screen"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_mismatch",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "export_diff_kind",
+          "prompt": {
+            "ar": "الفرق في إيه؟",
+            "en": "Where is the difference?"
+          },
+          "resolvesEvidence": [
+            "entity_filter",
+            "entity_timezone",
+            "entity_export"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "عدد الصفوف مختلف",
+                "en": "The row count differs"
+              },
+              "value": "rows",
+              "impliesEvidence": [
+                "entity_filter"
+              ]
+            },
+            {
+              "label": {
+                "ar": "التواريخ مزحزحة",
+                "en": "Dates are shifted"
+              },
+              "value": "dates",
+              "impliesEvidence": [
+                "entity_timezone"
+              ]
+            },
+            {
+              "label": {
+                "ar": "فيه أعمدة ناقصة",
+                "en": "Columns are missing"
+              },
+              "value": "columns",
+              "impliesEvidence": [
+                "entity_export"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "analytics_dashboard_timezone",
+      "label": {
+        "ar": "لوحة الإحصائيات بتوقيت مختلف",
+        "en": "Dashboard shows a different timezone"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_dashboard",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_timezone",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_mismatch",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "timezone_where_set",
+          "prompt": {
+            "ar": "المنطقة الزمنية مظبوطة فين عندك؟",
+            "en": "Where is your timezone configured?"
+          },
+          "resolvesEvidence": [
+            "entity_timezone",
+            "entity_profile_picture",
+            "entity_dashboard"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "في إعدادات الحساب",
+                "en": "In account settings"
+              },
+              "value": "account",
+              "impliesEvidence": [
+                "entity_timezone"
+              ]
+            },
+            {
+              "label": {
+                "ar": "في ملفي الشخصي",
+                "en": "In my personal profile"
+              },
+              "value": "profile",
+              "impliesEvidence": [
+                "entity_profile_picture"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف إنها موجودة أصلاً",
+                "en": "I did not know it existed"
+              },
+              "value": "unset",
+              "impliesEvidence": [
+                "entity_dashboard"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "automation_rule_not_firing",
+      "label": {
+        "ar": "قاعدة الأتمتة مش بتشتغل",
+        "en": "Automation rule does not fire"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_automation_rule",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_activated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "rule_condition_scope",
+          "prompt": {
+            "ar": "القاعدة بتشتغل على إيه؟",
+            "en": "What triggers the rule?"
+          },
+          "resolvesEvidence": [
+            "entity_automation_rule",
+            "entity_keyword_trigger",
+            "entity_working_hours"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "على كلمة معيّنة في الرسالة",
+                "en": "A keyword in the message"
+              },
+              "value": "keyword",
+              "impliesEvidence": [
+                "entity_keyword_trigger"
+              ]
+            },
+            {
+              "label": {
+                "ar": "على وقت أو مدة",
+                "en": "A time or duration"
+              },
+              "value": "time",
+              "impliesEvidence": [
+                "entity_working_hours"
+              ]
+            },
+            {
+              "label": {
+                "ar": "على تصنيف أو وسم",
+                "en": "A category or tag"
+              },
+              "value": "tag",
+              "impliesEvidence": [
+                "entity_automation_rule"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "automation_round_robin_uneven",
+      "label": {
+        "ar": "التوزيع مش عادل بين الموظفين",
+        "en": "Work is not distributed evenly"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_round_robin",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_uneven_distribution",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_assignment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "round_robin_state",
+          "prompt": {
+            "ar": "الموظفين اللي مش بياخدوا تذاكر حالتهم إيه في المنصة؟",
+            "en": "What is the status of the agents who get nothing?"
+          },
+          "resolvesEvidence": [
+            "entity_round_robin",
+            "entity_agent",
+            "entity_working_hours"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "متاحين وشغالين عادي",
+                "en": "Available and online"
+              },
+              "value": "available",
+              "impliesEvidence": [
+                "entity_round_robin"
+              ]
+            },
+            {
+              "label": {
+                "ar": "حالتهم «مشغول» أو «بعيد»",
+                "en": "Marked busy or away"
+              },
+              "value": "away",
+              "impliesEvidence": [
+                "entity_agent"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مواعيد شغلهم مختلفة",
+                "en": "Different working hours"
+              },
+              "value": "hours",
+              "impliesEvidence": [
+                "entity_working_hours"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "automation_escalation_not_triggering",
+      "label": {
+        "ar": "التصعيد التلقائي مش بيحصل",
+        "en": "Automatic escalation not happening"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_escalation_rule",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_activated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_sla",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "escalation_clock",
+          "prompt": {
+            "ar": "مدة التصعيد بتتحسب بالساعات الفعلية ولا بساعات الشغل بس؟",
+            "en": "Is the escalation clock real hours or working hours?"
+          },
+          "resolvesEvidence": [
+            "entity_sla",
+            "entity_working_hours",
+            "entity_escalation_rule"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "المفروض ساعات فعلية",
+                "en": "It should be real hours"
+              },
+              "value": "real",
+              "impliesEvidence": [
+                "entity_sla"
+              ]
+            },
+            {
+              "label": {
+                "ar": "المفروض ساعات الشغل",
+                "en": "It should be working hours"
+              },
+              "value": "business",
+              "impliesEvidence": [
+                "entity_working_hours"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف الفرق",
+                "en": "I do not know the difference"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_escalation_rule"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "automation_holiday_not_respected",
+      "label": {
+        "ar": "الأجازات الرسمية مش متحسوبة",
+        "en": "Public holidays are ignored"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_holiday_schedule",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_working_hours",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_activated",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "holiday_source",
+          "prompt": {
+            "ar": "الأجازات مضافة عندك إزاي؟",
+            "en": "How are the holidays configured?"
+          },
+          "resolvesEvidence": [
+            "entity_holiday_schedule",
+            "entity_working_hours",
+            "entity_timezone"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "ضفتهم يدوي واحدة واحدة",
+                "en": "Added manually"
+              },
+              "value": "manual",
+              "impliesEvidence": [
+                "entity_holiday_schedule"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مضفتش حاجة",
+                "en": "Not configured at all"
+              },
+              "value": "none",
+              "impliesEvidence": [
+                "entity_working_hours"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أجازات بلد تانية",
+                "en": "Another country calendar"
+              },
+              "value": "wrong_country",
+              "impliesEvidence": [
+                "entity_timezone"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "automation_rules_conflict",
+      "label": {
+        "ar": "قاعدتين أتمتة بيضربوا في بعض",
+        "en": "Two automation rules conflict"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_conflict",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_automation_rule",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_tag",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "conflict_result",
+          "prompt": {
+            "ar": "النتيجة اللي بتحصل إيه؟",
+            "en": "What is the observed result?"
+          },
+          "resolvesEvidence": [
+            "symptom_conflict",
+            "entity_ticket_assignment",
+            "entity_ticket_tag"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "التذكرة بتتنقل بين اتنين",
+                "en": "The ticket bounces between two agents"
+              },
+              "value": "bounce",
+              "impliesEvidence": [
+                "entity_ticket_assignment"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الوسم بيتحط وبيتشال",
+                "en": "A tag is added then removed"
+              },
+              "value": "tag_flip",
+              "impliesEvidence": [
+                "entity_ticket_tag"
+              ]
+            },
+            {
+              "label": {
+                "ar": "واحدة بس بتشتغل والتانية لأ",
+                "en": "Only one rule ever runs"
+              },
+              "value": "one_wins",
+              "impliesEvidence": [
+                "symptom_conflict"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "automation_assigns_offline_agent",
+      "label": {
+        "ar": "التذاكر بتتوزع على موظف مش موجود",
+        "en": "Tickets assigned to an offline agent"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_ticket_assignment",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_round_robin",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "offline_definition",
+          "prompt": {
+            "ar": "الموظف ده بيسيب حالته إيه لما يمشي؟",
+            "en": "What status does the agent leave behind?"
+          },
+          "resolvesEvidence": [
+            "entity_agent",
+            "entity_working_hours",
+            "entity_round_robin"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بينسى يغيّرها",
+                "en": "They forget to change it"
+              },
+              "value": "forgets",
+              "impliesEvidence": [
+                "entity_agent"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيسجل خروج عادي",
+                "en": "They sign out normally"
+              },
+              "value": "signs_out",
+              "impliesEvidence": [
+                "entity_round_robin"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مواعيده انتهت بس حالته لسه متاح",
+                "en": "Their shift ended but status stayed"
+              },
+              "value": "shift_ended",
+              "impliesEvidence": [
+                "entity_working_hours"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "contacts_duplicates_need_merge",
+      "label": {
+        "ar": "جهات اتصال مكررة محتاجة دمج",
+        "en": "Duplicate contacts need merging"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_contact",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_merge",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "duplicate_cause",
+          "prompt": {
+            "ar": "المكرر بيتعمل إمتى؟",
+            "en": "When do the duplicates appear?"
+          },
+          "resolvesEvidence": [
+            "entity_import",
+            "entity_channel",
+            "entity_contact"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بعد كل استيراد ملف",
+                "en": "After each import"
+              },
+              "value": "import",
+              "impliesEvidence": [
+                "entity_import"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لما العميل يكلمنا من قناة تانية",
+                "en": "When a customer writes from another channel"
+              },
+              "value": "channel",
+              "impliesEvidence": [
+                "entity_channel"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الموظفين بيضيفوهم يدوي",
+                "en": "Agents add them manually"
+              },
+              "value": "manual",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "contacts_custom_field_not_saving",
+      "label": {
+        "ar": "الحقل المخصص مش بيتحفظ",
+        "en": "Custom field does not save"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_custom_field",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_saving",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_contact",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "custom_field_type",
+          "prompt": {
+            "ar": "الحقل ده نوعه إيه؟",
+            "en": "What type is the field?"
+          },
+          "resolvesEvidence": [
+            "entity_custom_field",
+            "entity_filter",
+            "symptom_not_saving"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "نص عادي",
+                "en": "Plain text"
+              },
+              "value": "text",
+              "impliesEvidence": [
+                "symptom_not_saving"
+              ]
+            },
+            {
+              "label": {
+                "ar": "قايمة اختيارات",
+                "en": "A dropdown list"
+              },
+              "value": "select",
+              "impliesEvidence": [
+                "entity_custom_field"
+              ]
+            },
+            {
+              "label": {
+                "ar": "تاريخ أو رقم",
+                "en": "A date or number"
+              },
+              "value": "typed",
+              "impliesEvidence": [
+                "entity_filter"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "contacts_segment_not_updating",
+      "label": {
+        "ar": "شريحة العملاء مش بتتحدث",
+        "en": "Customer segment does not refresh"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_segment",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_filter",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "segment_kind",
+          "prompt": {
+            "ar": "الشريحة دي اتعملت إزاي؟",
+            "en": "How was the segment built?"
+          },
+          "resolvesEvidence": [
+            "entity_segment",
+            "entity_filter",
+            "entity_import"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بشروط بتتطبق لوحدها",
+                "en": "From conditions, updating itself"
+              },
+              "value": "dynamic",
+              "impliesEvidence": [
+                "entity_filter"
+              ]
+            },
+            {
+              "label": {
+                "ar": "قايمة ثابتة اخترتها بإيدي",
+                "en": "A fixed list I picked"
+              },
+              "value": "static",
+              "impliesEvidence": [
+                "entity_segment"
+              ]
+            },
+            {
+              "label": {
+                "ar": "اترفعت من ملف",
+                "en": "Uploaded from a file"
+              },
+              "value": "imported",
+              "impliesEvidence": [
+                "entity_import"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "contacts_import_mapping_wrong",
+      "label": {
+        "ar": "الأعمدة اتحطت في الخانات الغلط",
+        "en": "Import put columns in the wrong fields"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_field_mapping",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_import",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "mapping_stage",
+          "prompt": {
+            "ar": "وقت الرفع ظهرتلك شاشة بتربط الأعمدة بالخانات؟",
+            "en": "Did you see a column-mapping screen during upload?"
+          },
+          "resolvesEvidence": [
+            "entity_field_mapping",
+            "entity_spreadsheet",
+            "entity_import"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه وعديتها بسرعة",
+                "en": "Yes, I clicked through it"
+              },
+              "value": "skipped",
+              "impliesEvidence": [
+                "entity_field_mapping"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ مشفتش حاجة زي كده",
+                "en": "No, I never saw it"
+              },
+              "value": "not_shown",
+              "impliesEvidence": [
+                "entity_import"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الملف نفسه أعمدته مش مترتبة",
+                "en": "The file columns are out of order"
+              },
+              "value": "file",
+              "impliesEvidence": [
+                "entity_spreadsheet"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "contacts_deleted_by_mistake",
+      "label": {
+        "ar": "جهات اتصال اتمسحت بالغلط",
+        "en": "Contacts deleted by mistake"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_contact",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_recover",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_audit_log",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "delete_scale",
+          "prompt": {
+            "ar": "اتمسح كام واحد تقريبًا؟",
+            "en": "Roughly how many were deleted?"
+          },
+          "resolvesEvidence": [
+            "entity_backup",
+            "entity_audit_log",
+            "entity_contact"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "واحد أو اتنين",
+                "en": "One or two"
+              },
+              "value": "few",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            },
+            {
+              "label": {
+                "ar": "قايمة كبيرة دفعة واحدة",
+                "en": "A large batch at once"
+              },
+              "value": "bulk",
+              "impliesEvidence": [
+                "entity_backup"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف مين مسحهم أصلاً",
+                "en": "I do not know who deleted them"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_audit_log"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "widget_appearance_not_applying",
+      "label": {
+        "ar": "شكل الودجة مش بيتغير",
+        "en": "Widget appearance changes do not apply"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_widget_appearance",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_cache",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "widget_style_where",
+          "prompt": {
+            "ar": "جربت تفتح الموقع في نافذة متخفّية؟",
+            "en": "Have you tried a private window?"
+          },
+          "resolvesEvidence": [
+            "entity_cache",
+            "entity_widget_appearance",
+            "entity_chat_widget"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه والتغيير ظهر",
+                "en": "Yes, and it showed"
+              },
+              "value": "shows_private",
+              "impliesEvidence": [
+                "entity_cache"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أيوه وبرضه مظهرش",
+                "en": "Yes, and it still did not"
+              },
+              "value": "still_missing",
+              "impliesEvidence": [
+                "entity_chat_widget"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لسه مجربتش",
+                "en": "Not yet"
+              },
+              "value": "not_tried",
+              "impliesEvidence": [
+                "entity_widget_appearance"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكل الودجة بيتخزّن مؤقتًا في متصفح الزائر، فالتغيير بياخد وقت لحد ما يتحدّث:\n١. بعد ما تحفظ الشكل، افتح موقعك في نافذة تصفح متخفّي — دي بتتجاهل النسخة المخزّنة.\n٢. لو ظهر التغيير هناك، فالإعداد مظبوط والباقي وقت بس.\n٣. لو مظهرش حتى في المتخفّي، غالبًا الكود المركّب في الموقع نسخة قديمة — رجّعه من الإعدادات ← الودجة ← كود التركيب.\nلو الموقع ورا خدمة تسريع، امسح الكاش من عندها كمان [[icon:note]]",
+          "en": "The widget style is cached in the visitor browser, so changes take time to appear:\n1. After saving, open your site in a private window — that ignores the cache.\n2. If the change shows there, the setting is correct and it is only a matter of time.\n3. If it does not show even there, the embed code on your site is an old copy — re-copy it from Settings > Widget > Embed code.\nIf your site sits behind a CDN, clear its cache too."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "widget_position_on_mobile",
+      "label": {
+        "ar": "الودجة بتغطي المحتوى على الموبايل",
+        "en": "Widget covers content on mobile"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_widget_position",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_mobile",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_chat_widget",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "widget_overlap",
+          "prompt": {
+            "ar": "بتغطي إيه في الموبايل؟",
+            "en": "What does it cover on mobile?"
+          },
+          "resolvesEvidence": [
+            "entity_widget_position",
+            "qualifier_mobile",
+            "entity_chat_widget"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "زرار مهم في الصفحة",
+                "en": "An important button"
+              },
+              "value": "button",
+              "impliesEvidence": [
+                "entity_widget_position"
+              ]
+            },
+            {
+              "label": {
+                "ar": "شريط التنقل تحت",
+                "en": "The bottom navigation bar"
+              },
+              "value": "nav",
+              "impliesEvidence": [
+                "qualifier_mobile"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بتاخد الشاشة كلها لما تتفتح",
+                "en": "It takes the whole screen when opened"
+              },
+              "value": "fullscreen",
+              "impliesEvidence": [
+                "entity_chat_widget"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "widget_prechat_form_skipped",
+      "label": {
+        "ar": "الاستمارة قبل الدردشة بتتخطى",
+        "en": "Pre-chat form is skipped"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_prechat_form",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_chat_widget",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "prechat_who",
+          "prompt": {
+            "ar": "بتتخطى لمين؟",
+            "en": "Who does it skip for?"
+          },
+          "resolvesEvidence": [
+            "entity_prechat_form",
+            "entity_contact",
+            "entity_session"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "للزوار الجدد كمان",
+                "en": "Even for new visitors"
+              },
+              "value": "everyone",
+              "impliesEvidence": [
+                "entity_prechat_form"
+              ]
+            },
+            {
+              "label": {
+                "ar": "للي كلمونا قبل كده بس",
+                "en": "Only for returning visitors"
+              },
+              "value": "returning",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لما يفتحوا من نفس الجهاز تاني",
+                "en": "When they reopen on the same device"
+              },
+              "value": "same_device",
+              "impliesEvidence": [
+                "entity_session"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "widget_not_loading_some_pages",
+      "label": {
+        "ar": "الودجة مش بتظهر في صفحات معيّنة",
+        "en": "Widget missing on some pages"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_chat_widget",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_partially_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_widget_position",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "widget_missing_where",
+          "prompt": {
+            "ar": "الصفحات اللي مش ظاهرة فيها مشتركة في إيه؟",
+            "en": "What do the affected pages have in common?"
+          },
+          "resolvesEvidence": [
+            "entity_chat_widget",
+            "entity_domain",
+            "entity_extension"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "كلها صفحات جديدة",
+                "en": "They are all new pages"
+              },
+              "value": "new_pages",
+              "impliesEvidence": [
+                "entity_chat_widget"
+              ]
+            },
+            {
+              "label": {
+                "ar": "كلها على نطاق فرعي مختلف",
+                "en": "They are on a different subdomain"
+              },
+              "value": "subdomain",
+              "impliesEvidence": [
+                "entity_domain"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش لاقي حاجة مشتركة",
+                "en": "Nothing in common"
+              },
+              "value": "none",
+              "impliesEvidence": [
+                "entity_extension"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "widget_language_not_switching",
+      "label": {
+        "ar": "لغة الودجة مش بتتغير",
+        "en": "Widget language does not switch"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_chat_widget",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "widget_lang_source",
+          "prompt": {
+            "ar": "المفروض اللغة تتحدد إزاي؟",
+            "en": "How should the language be decided?"
+          },
+          "resolvesEvidence": [
+            "entity_language_setting",
+            "entity_browser",
+            "entity_chat_widget"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "حسب لغة متصفح الزائر",
+                "en": "From the visitor browser"
+              },
+              "value": "browser",
+              "impliesEvidence": [
+                "entity_browser"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لغة واحدة ثابتة اخترتها",
+                "en": "One fixed language I chose"
+              },
+              "value": "fixed",
+              "impliesEvidence": [
+                "entity_language_setting"
+              ]
+            },
+            {
+              "label": {
+                "ar": "حسب صفحة الموقع اللي هو فيها",
+                "en": "From the page he is on"
+              },
+              "value": "per_page",
+              "impliesEvidence": [
+                "entity_chat_widget"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "integration_external_automation_not_triggering",
+      "label": {
+        "ar": "منصة الربط الخارجية مش بتشتغل",
+        "en": "External automation platform not triggering"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_automation_platform",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_activated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_webhook",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "external_trigger_side",
+          "prompt": {
+            "ar": "الربط ده بيبدأ من عندنا ولا من عندهم؟",
+            "en": "Does the flow start on our side or theirs?"
+          },
+          "resolvesEvidence": [
+            "entity_webhook",
+            "entity_api_key",
+            "entity_automation_platform"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "من مدعوم لما يحصل حدث",
+                "en": "From Mad3oom on an event"
+              },
+              "value": "outbound",
+              "impliesEvidence": [
+                "entity_webhook"
+              ]
+            },
+            {
+              "label": {
+                "ar": "منهم بيبعتولنا",
+                "en": "From them, calling us"
+              },
+              "value": "inbound",
+              "impliesEvidence": [
+                "entity_api_key"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش فاهم الاتجاه أصلاً",
+                "en": "I am not sure"
+              },
+              "value": "unsure",
+              "impliesEvidence": [
+                "entity_automation_platform"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "integration_spreadsheet_not_syncing",
+      "label": {
+        "ar": "الجدول مش بيتحدّث",
+        "en": "Spreadsheet is not syncing"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_spreadsheet_sync",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_updating",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "sheet_direction",
+          "prompt": {
+            "ar": "المفروض البيانات تمشي في أنهي اتجاه؟",
+            "en": "Which direction should the data flow?"
+          },
+          "resolvesEvidence": [
+            "entity_spreadsheet_sync",
+            "entity_import",
+            "entity_export"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "من مدعوم للجدول",
+                "en": "Mad3oom to the sheet"
+              },
+              "value": "out",
+              "impliesEvidence": [
+                "entity_export"
+              ]
+            },
+            {
+              "label": {
+                "ar": "من الجدول لمدعوم",
+                "en": "The sheet to Mad3oom"
+              },
+              "value": "in",
+              "impliesEvidence": [
+                "entity_import"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الاتجاهين",
+                "en": "Both ways"
+              },
+              "value": "both",
+              "impliesEvidence": [
+                "entity_spreadsheet_sync"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "integration_team_chat_notifications",
+      "label": {
+        "ar": "إشعارات دردشة الفريق مش بتوصل",
+        "en": "Team chat notifications not arriving"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_team_chat",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "team_chat_scope",
+          "prompt": {
+            "ar": "الإشعارات دي المفروض توصل فين؟",
+            "en": "Where should these notifications land?"
+          },
+          "resolvesEvidence": [
+            "entity_team_chat",
+            "entity_agent",
+            "entity_notification"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "قناة واحدة للفريق كله",
+                "en": "One shared team channel"
+              },
+              "value": "channel",
+              "impliesEvidence": [
+                "entity_team_chat"
+              ]
+            },
+            {
+              "label": {
+                "ar": "رسالة خاصة لكل موظف",
+                "en": "A direct message per agent"
+              },
+              "value": "dm",
+              "impliesEvidence": [
+                "entity_agent"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الاتنين",
+                "en": "Both"
+              },
+              "value": "both",
+              "impliesEvidence": [
+                "entity_notification"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "integration_store_orders_missing",
+      "label": {
+        "ar": "طلبات المتجر مش ظاهرة مع العميل",
+        "en": "Store orders not showing on the customer"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_store_platform",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_contact",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "store_match_key",
+          "prompt": {
+            "ar": "بنطابق العميل بالمتجر بإيه؟",
+            "en": "What matches the customer to the store record?"
+          },
+          "resolvesEvidence": [
+            "entity_contact",
+            "entity_email",
+            "entity_whatsapp_number"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بالإيميل",
+                "en": "Email"
+              },
+              "value": "email",
+              "impliesEvidence": [
+                "entity_email"
+              ]
+            },
+            {
+              "label": {
+                "ar": "برقم الموبايل",
+                "en": "Phone number"
+              },
+              "value": "phone",
+              "impliesEvidence": [
+                "entity_whatsapp_number"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف",
+                "en": "I do not know"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "integration_crm_creates_duplicates",
+      "label": {
+        "ar": "التكامل بيعمل عملاء مكررين",
+        "en": "Integration creates duplicate customers"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_integration",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_field_mapping",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "crm_dedupe_key",
+          "prompt": {
+            "ar": "التكامل بيعرف إن ده نفس العميل إزاي؟",
+            "en": "How does the integration recognise the same customer?"
+          },
+          "resolvesEvidence": [
+            "entity_field_mapping",
+            "entity_contact",
+            "entity_custom_field"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بحقل واحد محدد",
+                "en": "By one specific field"
+              },
+              "value": "one_field",
+              "impliesEvidence": [
+                "entity_field_mapping"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش مظبوط عندي حاجة",
+                "en": "Nothing is configured"
+              },
+              "value": "none",
+              "impliesEvidence": [
+                "entity_contact"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بحقل مخصص عملته أنا",
+                "en": "By a custom field I created"
+              },
+              "value": "custom",
+              "impliesEvidence": [
+                "entity_custom_field"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_duplicate_sends",
+      "label": {
+        "ar": "نفس الرسالة اتبعتت مرتين من الواجهة",
+        "en": "The same message was sent twice via the API"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_idempotency",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "duplicate_retry",
+          "prompt": {
+            "ar": "الكود بتاعك بيعيد المحاولة لو الطلب اتأخر؟",
+            "en": "Does your code retry when a request is slow?"
+          },
+          "resolvesEvidence": [
+            "entity_idempotency",
+            "symptom_timeout",
+            "entity_batch_request"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه بيعيد تلقائي",
+                "en": "Yes, automatically"
+              },
+              "value": "auto_retry",
+              "impliesEvidence": [
+                "entity_idempotency"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الطلب بياخد وقت وبيقطع",
+                "en": "The request times out"
+              },
+              "value": "timeout",
+              "impliesEvidence": [
+                "symptom_timeout"
+              ]
+            },
+            {
+              "label": {
+                "ar": "ببعت دفعة كبيرة مرة واحدة",
+                "en": "I send a large batch at once"
+              },
+              "value": "batch",
+              "impliesEvidence": [
+                "entity_batch_request"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_sandbox_vs_production_keys",
+      "label": {
+        "ar": "خلط بين مفتاح التجربة والإنتاج",
+        "en": "Sandbox and production keys mixed up"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_environment_mixup",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_api_key",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_sandbox",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "key_environment",
+          "prompt": {
+            "ar": "الرسايل بتوصل فعلاً للعملاء ولا لأ؟",
+            "en": "Do messages actually reach real customers?"
+          },
+          "resolvesEvidence": [
+            "entity_sandbox",
+            "entity_api_key",
+            "symptom_not_sending"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "بتتسجل بس مش بتوصل",
+                "en": "Recorded but never delivered"
+              },
+              "value": "recorded_only",
+              "impliesEvidence": [
+                "entity_sandbox"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بتوصل رغم إني بجرب",
+                "en": "They arrive even though I am testing"
+              },
+              "value": "live_by_mistake",
+              "impliesEvidence": [
+                "entity_api_key"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مفيش حاجة بتحصل خالص",
+                "en": "Nothing happens at all"
+              },
+              "value": "nothing",
+              "impliesEvidence": [
+                "symptom_not_sending"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_version_breaking_change",
+      "label": {
+        "ar": "تغيير في إصدار الواجهة كسر التكامل",
+        "en": "API version change broke the integration"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_api_version",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_after_update",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_endpoint",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "version_pin",
+          "prompt": {
+            "ar": "بتحدّد إصدار الواجهة في الطلبات بتاعتك؟",
+            "en": "Do you pin an API version in your requests?"
+          },
+          "resolvesEvidence": [
+            "entity_api_version",
+            "entity_endpoint",
+            "entity_api_docs"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه بحدّده",
+                "en": "Yes"
+              },
+              "value": "pinned",
+              "impliesEvidence": [
+                "entity_api_version"
+              ]
+            },
+            {
+              "label": {
+                "ar": "لأ ببعت من غير تحديد",
+                "en": "No"
+              },
+              "value": "unpinned",
+              "impliesEvidence": [
+                "entity_endpoint"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف يعني إيه",
+                "en": "I do not know what that means"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_api_docs"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_batch_partial_failure",
+      "label": {
+        "ar": "الإرسال المجمع نجح جزئيًا",
+        "en": "Batch send partially failed"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_batch_request",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_partially_working",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "batch_error_detail",
+          "prompt": {
+            "ar": "الرد بيرجعلك تفاصيل عن اللي فشل؟",
+            "en": "Does the response tell you which items failed?"
+          },
+          "resolvesEvidence": [
+            "entity_batch_request",
+            "http_status_422",
+            "entity_api_docs"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أيوه بيرجع قايمة بالفاشل",
+                "en": "Yes, a list of failures"
+              },
+              "value": "detailed",
+              "impliesEvidence": [
+                "http_status_422"
+              ]
+            },
+            {
+              "label": {
+                "ar": "بيرجع نجاح عام بس",
+                "en": "Just a generic success"
+              },
+              "value": "generic",
+              "impliesEvidence": [
+                "entity_batch_request"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش بقرا الرد أصلاً",
+                "en": "I do not read the response"
+              },
+              "value": "ignored",
+              "impliesEvidence": [
+                "entity_api_docs"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "api_webhook_replay_needed",
+      "label": {
+        "ar": "محتاج إعادة إرسال أحداث فاتت",
+        "en": "Need missed webhook events resent"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_webhook_replay",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_received",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_webhook",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "replay_window",
+          "prompt": {
+            "ar": "الأحداث اللي فاتت من إمتى؟",
+            "en": "How far back are the missed events?"
+          },
+          "resolvesEvidence": [
+            "entity_webhook_replay",
+            "entity_audit_log",
+            "entity_webhook"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "من ساعات قليلة",
+                "en": "A few hours"
+              },
+              "value": "hours",
+              "impliesEvidence": [
+                "entity_webhook_replay"
+              ]
+            },
+            {
+              "label": {
+                "ar": "من كام يوم",
+                "en": "A few days"
+              },
+              "value": "days",
+              "impliesEvidence": [
+                "entity_audit_log"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش عارف بالظبط",
+                "en": "I am not sure"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_webhook"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_proration_confusion",
+      "label": {
+        "ar": "مش فاهم حساب فرق الترقية",
+        "en": "Confused by the upgrade proration"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_proration",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_upgrade",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "proration_moment",
+          "prompt": {
+            "ar": "الترقية حصلت إمتى بالنسبة لدورة الفوترة؟",
+            "en": "When in the billing cycle did you upgrade?"
+          },
+          "resolvesEvidence": [
+            "entity_proration",
+            "entity_auto_renewal",
+            "entity_invoice"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "في نص الشهر",
+                "en": "Mid-cycle"
+              },
+              "value": "mid",
+              "impliesEvidence": [
+                "entity_proration"
+              ]
+            },
+            {
+              "label": {
+                "ar": "قبل التجديد بيوم",
+                "en": "A day before renewal"
+              },
+              "value": "before_renewal",
+              "impliesEvidence": [
+                "entity_auto_renewal"
+              ]
+            },
+            {
+              "label": {
+                "ar": "مش فاكر",
+                "en": "I do not remember"
+              },
+              "value": "unknown",
+              "impliesEvidence": [
+                "entity_invoice"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_currency_change_request",
+      "label": {
+        "ar": "طلب تغيير عملة الفاتورة",
+        "en": "Request to change invoice currency"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_currency",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_change",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "currency_reason",
+          "prompt": {
+            "ar": "محتاج تغيّر العملة ليه؟",
+            "en": "Why do you need the currency changed?"
+          },
+          "resolvesEvidence": [
+            "entity_currency",
+            "entity_vat_invoice",
+            "entity_local_payment"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "المحاسبة عندنا بتطلب عملة معيّنة",
+                "en": "Our accounting requires it"
+              },
+              "value": "accounting",
+              "impliesEvidence": [
+                "entity_vat_invoice"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الكارت بتاعي بيرفض العملة دي",
+                "en": "My card rejects this currency"
+              },
+              "value": "card",
+              "impliesEvidence": [
+                "entity_local_payment"
+              ]
+            },
+            {
+              "label": {
+                "ar": "عشان أعرف التكلفة الحقيقية",
+                "en": "To understand the real cost"
+              },
+              "value": "clarity",
+              "impliesEvidence": [
+                "entity_currency"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_purchase_order_required",
+      "label": {
+        "ar": "الشركة محتاجة أمر شراء",
+        "en": "Company requires a purchase order"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_purchase_order",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [
+        {
+          "id": "po_stage",
+          "prompt": {
+            "ar": "إنت فين في إجراءات الشراء دلوقتي؟",
+            "en": "Where are you in the purchasing process?"
+          },
+          "resolvesEvidence": [
+            "entity_purchase_order",
+            "entity_vat_invoice",
+            "entity_subscription"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "محتاج عرض سعر الأول",
+                "en": "I need a quote first"
+              },
+              "value": "quote",
+              "impliesEvidence": [
+                "entity_purchase_order"
+              ]
+            },
+            {
+              "label": {
+                "ar": "عندي أمر الشراء ومحتاج فاتورة",
+                "en": "I have the PO and need an invoice"
+              },
+              "value": "invoice",
+              "impliesEvidence": [
+                "entity_vat_invoice"
+              ]
+            },
+            {
+              "label": {
+                "ar": "الاشتراك شغال والمحاسبة بتطلب ورق",
+                "en": "Already subscribed, accounting wants paperwork"
+              },
+              "value": "paperwork",
+              "impliesEvidence": [
+                "entity_subscription"
+              ]
+            }
+          ]
+        }
+      ],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_ramadan_greeting",
+      "label": {
+        "ar": "تهنئة برمضان",
+        "en": "Ramadan greeting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_ramadan",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رمضان كريم عليك وعلى أهلك [[icon:smile]] كل سنة وإنت طيب. لو محتاج أي حاجة في أي وقت أنا موجود.",
+          "en": "Ramadan Kareem to you and your family. If you need anything at any time, I am here."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_eid_greeting",
+      "label": {
+        "ar": "تهنئة بالعيد",
+        "en": "Eid greeting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_eid",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "عيد مبارك عليك وعلى الأهل [[icon:smile]] كل سنة وإنتم بخير. أتمنى تقضوه بأحسن حال.",
+          "en": "Eid Mubarak to you and your family. I hope you have a wonderful one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_friday_blessing",
+      "label": {
+        "ar": "جمعة مباركة",
+        "en": "Friday blessing"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_friday",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "جمعة مباركة عليك [[icon:smile]] لو احتجت حاجة أنا هنا.",
+          "en": "Blessed Friday to you. I am here if you need anything."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_new_year_greeting",
+      "label": {
+        "ar": "تهنئة بالسنة الجديدة",
+        "en": "New year greeting"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_new_year",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كل سنة وإنت طيب [[icon:smile]] سنة سعيدة عليك وعلى شغلك، ونتمنى تكون سنة نجاح ليك.",
+          "en": "Happy new year to you and your business — may it be a successful one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_congratulates_company",
+      "label": {
+        "ar": "بيهنّي الشركة",
+        "en": "Congratulates the company"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_congratulates_company",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الله يبارك فيك، وشكرًا إن كلامك وصلنا [[icon:smile]] ده بيفرق مع الفريق فعلاً.",
+          "en": "Thank you — it genuinely means a lot to the team to hear that."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_condolence",
+      "label": {
+        "ar": "تعزية",
+        "en": "Condolences"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_condolence",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "البقاء لله، وعظّم الله أجرك. خد وقتك، وأي حاجة تحتاجها من ناحية الحساب هتفضل مستنياك من غير أي ضغط [[icon:note]]",
+          "en": "My condolences. Take your time — anything on the account side will wait for you, with no pressure."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_weekend_wish",
+      "label": {
+        "ar": "يتمنى إجازة سعيدة",
+        "en": "Wishes a good weekend"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "trigger_weekend",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وإنت من أهله [[icon:smile]] إجازة سعيدة، ولو طرأ أي حاجة إحنا موجودين.",
+          "en": "You too — enjoy the break. We are around if anything comes up."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_bot_name",
+      "label": {
+        "ar": "بيسأل عن اسم المساعد",
+        "en": "Asks the assistant name"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_bot_name",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أنا المساعد الآلي بتاع مدعوم — تقدر تناديني كده وخلاص [[icon:smile]] المهم إني أعرف أساعدك في إيه.",
+          "en": "I am the Mad3oom assistant — that is all you need to call me. What matters is what I can help you with."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_bot_tired",
+      "label": {
+        "ar": "بيسأل لو المساعد بيتعب",
+        "en": "Asks if the assistant gets tired"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_bot_tired",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مبتعبش ومبنامش، فأنا موجود ٢٤ ساعة [[icon:smile]] لو محتاج حاجة في أي وقت اكتبلي.",
+          "en": "I do not get tired and I do not sleep, so I am here around the clock. Write any time."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_who_built",
+      "label": {
+        "ar": "بيسأل مين عمل المساعد",
+        "en": "Asks who built the assistant"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_who_built",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فريق مدعوم هو اللي عملني ودرّبني على أسئلة العملاء الحقيقية [[icon:smile]] وكل ما نلاقي حاجة مبفهمهاش، الفريق بيضيفها.",
+          "en": "The Mad3oom team built and trained me on real customer questions — and whenever I miss something, they add it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_if_ai",
+      "label": {
+        "ar": "بيسأل عن الذكاء الاصطناعي",
+        "en": "Asks about the AI"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_if_ai",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه، بشتغل بمحرك ذكي بيفهم اللهجة المصرية والعربي عمومًا، وبيوصل للحل من غير ما تضطر تشرح مرتين [[icon:smile]] ولو المسألة محتاجة إنسان، بحوّلك على طول.",
+          "en": "Yes — I run on an engine that understands Egyptian and Arabic generally, so you do not have to explain twice. And when a case needs a human, I hand it over."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_bot_learns",
+      "label": {
+        "ar": "بيسأل لو المساعد بيتعلم",
+        "en": "Asks if the assistant learns"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_bot_learns",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_if_recorded",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مبحفظش كلامك عشان أتدرب عليه. المحادثة بتتسجل عشان فريق الدعم يقدر يكمّل معاك لو احتجت، وبس [[icon:note]]",
+          "en": "I do not keep what you say in order to train on it. The conversation is stored only so the support team can pick it up if you need them."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_bot_improved",
+      "label": {
+        "ar": "بيقول إن المساعد اتحسن",
+        "en": "Says the assistant improved"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_bot_improved",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكرًا! فعلاً بيتضاف ليا فهم جديد كل فترة [[icon:smile]] ولو لقيت حاجة لسه مش بفهمها، قولّي وهي هتتظبط.",
+          "en": "Thank you! I do get new understanding added regularly — and if you find something I still miss, tell me and it gets fixed."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_unrelated_opinion",
+      "label": {
+        "ar": "بيسأل في حاجة بعيدة عن الشغل",
+        "en": "Asks something unrelated"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_unrelated_opinion",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده خارج تخصصي شوية [[icon:smile]] أنا بفهم في مدعوم وحسابك وأي مشكلة تقنية. تحب أساعدك في حاجة من دول؟",
+          "en": "That is a bit outside my area. I know Mad3oom, your account, and technical issues — want help with any of those?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_joke",
+      "label": {
+        "ar": "بيطلب نكتة",
+        "en": "Asks for a joke"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_joke",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أحسن نكتة أعرفها إن فيه ناس لسه بترد على العملاء من تلات تطبيقات مختلفة [[icon:smile]] المهم، محتاج مساعدة في حاجة؟",
+          "en": "The best joke I know is that people still answer customers across three different apps. Anyway — need help with anything?"
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_bot_feelings",
+      "label": {
+        "ar": "بيسأل عن مشاعر المساعد",
+        "en": "Asks about the assistant feelings"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_bot_feelings",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مليش مشاعر بجد، بس مبرمج إني أخد بالي من نبرة كلامك — فلو إنت متضايق، ده بيغيّر طريقة ردي عليك فعلاً [[icon:smile]]",
+          "en": "I do not really have feelings, but I am built to notice your tone — so if you are upset, that genuinely changes how I answer."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_answer_too_long",
+      "label": {
+        "ar": "بيقول إن الرد طويل",
+        "en": "Says the answer is too long"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_answer_too_long",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معاك حق، هختصر [[icon:smile]] قولّي المشكلة وهرد عليك في سطرين بالمفيد.",
+          "en": "Fair enough — I will keep it short. Tell me the issue and I will answer in a couple of lines."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_if_recorded",
+      "label": {
+        "ar": "بيسأل لو المحادثة متسجلة",
+        "en": "Asks if the chat is recorded"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_if_recorded",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه المحادثة بتتحفظ مع تذكرتك، عشان لو فريق الدعم كمّل معاك ميطلبش منك تعيد الكلام من الأول [[icon:note]] ولو حابب تتطمن على تفاصيل الخصوصية أكتر، أوصلك بحد من الفريق.",
+          "en": "Yes, the conversation is stored with your ticket so that if the support team picks it up, they do not ask you to repeat everything. If you want more detail on privacy, I can connect you with the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_who_reads",
+      "label": {
+        "ar": "بيسأل مين بيقرا المحادثة",
+        "en": "Asks who reads the chat"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_who_reads",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اللي بيشوف المحادثة هما موظفين الدعم في حسابك بس، ومحدش برّه دول [[icon:note]] لو عايز تعرف مين بالظبط اتفرّج، ده بيتسجل في سجل النشاط.",
+          "en": "Only the support agents on your account can see it — nobody outside that. If you want to know exactly who viewed it, that is recorded in the activity log."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_delete_chat",
+      "label": {
+        "ar": "بيطلب مسح المحادثة",
+        "en": "Asks to delete the chat"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_delete_chat",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_delete",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "حذف المحادثة بياخده حد من الفريق عشان يتأكد إن مفيش تذكرة مفتوحة معتمدة عليها [[icon:note]] قولّي إنك عايز كده وأنا أوصّلها لهم بنفسي.",
+          "en": "Deleting a conversation is handled by a team member, to make sure no open ticket depends on it. Say the word and I will pass the request on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_transcript",
+      "label": {
+        "ar": "بيطلب نسخة من المحادثة",
+        "en": "Asks for a transcript"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_transcript",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تاخد نسخة من المحادثة من صفحة التذكرة نفسها — فيه خيار «تصدير المحادثة» فوق [[icon:note]] ولو مش لاقيه، قولّي وأبعتهالك.",
+          "en": "You can get a copy from the ticket page itself — there is an Export conversation option at the top. If you cannot find it, tell me and I will send it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_chat_by_email",
+      "label": {
+        "ar": "عايز يكمل على الإيميل",
+        "en": "Wants to continue by email"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_chat_by_email",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ماشي، نقدر نكمّل على الإيميل [[icon:note]] هفتحلك تذكرة والردود هتوصلك على البريد المسجّل في حسابك، وترد عليها عادي من الإيميل.",
+          "en": "Sure, we can continue by email. I will open a ticket and replies will reach the address on your account — you can just reply from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_to_wait",
+      "label": {
+        "ar": "بيطلب يستنى شوية",
+        "en": "Asks to wait a moment"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_to_wait",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد وقتك براحتك، أنا مش هروح حتة [[icon:smile]] لما تجهز اكتبلي.",
+          "en": "Take your time, I am not going anywhere. Write when you are ready."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_returned",
+      "label": {
+        "ar": "رجع بعد غياب",
+        "en": "Back after a pause"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_returned",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أهلاً بيك تاني [[icon:smile]] كنا واقفين فين؟ كمّل من حيث ما سبنا.",
+          "en": "Welcome back. Where were we? Pick up right where we left off."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_late_reply_apology",
+      "label": {
+        "ar": "بيعتذر إنه اتأخر",
+        "en": "Apologises for replying late"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_late_reply",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك خالص، مفيش أي مشكلة [[icon:smile]] المحادثة زي ما هي وكل حاجة محفوظة، كمّل عادي.",
+          "en": "Not a problem at all. The conversation is exactly as you left it — go ahead."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wrong_message",
+      "label": {
+        "ar": "بعت رسالة غلط",
+        "en": "Sent the wrong message"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_wrong_message",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفيش مشكلة، اعتبرها مروحتش [[icon:smile]] اكتبلي اللي كنت قاصده وهكمّل معاك.",
+          "en": "No problem, consider it unsent. Write what you meant and we will carry on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_ignore_previous",
+      "label": {
+        "ar": "بيطلب تجاهل اللي فات",
+        "en": "Asks to ignore the previous message"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_ignore_previous",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "trigger_start_over",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، اتجاهلتها [[icon:smile]] احكيلي من الأول وأنا معاك.",
+          "en": "Done, ignored. Start over and I am with you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_will_send_screenshot",
+      "label": {
+        "ar": "هيبعت صورة للشاشة",
+        "en": "Will send a screenshot"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_will_send_proof",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_to_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، مستنيها [[icon:smile]] وياريت الصورة تكون واضحة وباينة فيها رسالة الخطأ كاملة لو فيه.",
+          "en": "Great, I will wait. If there is an error message, try to capture all of it clearly."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_continue_tomorrow",
+      "label": {
+        "ar": "عايز يكمل بكرة",
+        "en": "Wants to continue tomorrow"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_continue_tomorrow",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ماشي، المحادثة هتفضل محفوظة زي ما هي [[icon:note]] ارجعلي في أي وقت ومش هتحتاج تعيد أي حاجة.",
+          "en": "Sure — the conversation stays saved exactly as it is. Come back any time and you will not need to repeat anything."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_call_later",
+      "label": {
+        "ar": "هيتواصل بعدين",
+        "en": "Will get in touch later"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_call_later",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_goodbye",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، إحنا موجودين في أي وقت [[icon:smile]] ولو المشكلة اتكررت قبل ما ترجع، اكتبلي على طول.",
+          "en": "Fine, we are here whenever. And if the issue recurs before you are back, just write."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_sent_by_mistake",
+      "label": {
+        "ar": "بعت من غير قصد",
+        "en": "Sent by mistake"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_sent_by_mistake",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك [[icon:smile]] لو محتاج حاجة قولّي، ولو لأ سيبها عادي.",
+          "en": "No worries. If you need something, tell me — otherwise, no problem at all."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_slow_down",
+      "label": {
+        "ar": "بيطلب نمشي بالراحة",
+        "en": "Asks to slow down"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_slow_down",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، هروح خطوة خطوة [[icon:smile]] هقولّك خطوة واحدة بس، وما نعديش للي بعدها غير لما تقولّي خلصت.",
+          "en": "Alright, one step at a time. I will give you a single step and we will not move on until you say you are done."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_arabic_reply",
+      "label": {
+        "ar": "بيطلب الرد بالعربي",
+        "en": "Asks for Arabic replies"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_arabic",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من عينيا، هكمّل معاك بالعربي [[icon:smile]] اسأل براحتك.",
+          "en": "Of course, I will continue in Arabic. Go ahead."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_simpler_words",
+      "label": {
+        "ar": "بيطلب كلام أبسط",
+        "en": "Asks for simpler wording"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_simpler",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، هبعد عن المصطلحات [[icon:smile]] قولّي إنت شايف إيه على الشاشة بالظبط وأنا هقولّك تعمل إيه بكلام عادي.",
+          "en": "Sure, no jargon. Tell me what you see on the screen and I will tell you what to do in plain words."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_shorter_answer",
+      "label": {
+        "ar": "بيطلب رد مختصر",
+        "en": "Asks for a shorter answer"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_shorter",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام — سطر واحد لكل رد [[icon:smile]] اسأل.",
+          "en": "Done — one line per answer. Ask away."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_more_detail",
+      "label": {
+        "ar": "بيطلب تفاصيل أكتر",
+        "en": "Asks for more detail"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_more_detail",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، هفصّلها [[icon:smile]] قولّي الجزء اللي محتاج تفاصيل فيه بالظبط عشان مضيّعش وقتك في اللي إنت عارفه.",
+          "en": "Sure, I will go deeper. Tell me which part specifically, so I do not waste your time on what you already know."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_numbered_steps",
+      "label": {
+        "ar": "بيطلب خطوات مرقّمة",
+        "en": "Asks for numbered steps"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_steps",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ماشي، هكتبها خطوات مرقّمة [[icon:note]] قولّي إنت عايز تعمل إيه وأنا أرتّبهالك من أول خطوة.",
+          "en": "Alright, numbered steps it is. Tell me what you want to do and I will lay it out from step one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_dialect",
+      "label": {
+        "ar": "بيطلب لهجة معيّنة",
+        "en": "Asks for a specific dialect"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_dialect",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أنا بفهم المصري والخليجي والشامي والعربي الفصيح، واتكلم اللي يريحك [[icon:smile]] اكتب براحتك بأي لهجة.",
+          "en": "I understand Egyptian, Gulf, Levantine and standard Arabic, and I will speak whichever suits you. Write however is comfortable."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wrong_company",
+      "label": {
+        "ar": "كلمنا بالغلط",
+        "en": "Reached us by mistake"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_wrong_company",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، بيحصل [[icon:smile]] ده حساب مدعوم — منصة إدارة خدمة العملاء. لو كنت قاصد جهة تانية، تقدر تقفل المحادثة عادي، ولو محتاج حاجة مننا أنا موجود.",
+          "en": "No problem, it happens. This is Mad3oom — a customer support platform. If you meant someone else, feel free to close this; if you need us, I am here."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_message_not_for_you",
+      "label": {
+        "ar": "الرسالة كانت لحد تاني",
+        "en": "Message was for someone else"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_not_for_you",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_wrong_message",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فهمت، هعتبرها مروحتش [[icon:smile]] لو محتاج حاجة مني اكتبلي عادي.",
+          "en": "Understood, I will treat it as unsent. If you need anything from me, just write."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_testing_message",
+      "label": {
+        "ar": "بيجرب الشات",
+        "en": "Testing the chat"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_testing_message",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_testing_bot",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة وصلت تمام، فالشات شغال [[icon:check]] لو بتجرّب قبل ما تحطه للعملاء، جرّب تكتبلي مشكلة حقيقية بلهجتك وشوف هرد إزاي.",
+          "en": "Your message arrived, so the chat is working. If you are testing before rolling it out, try writing a real issue in your own words and see how I answer."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_emoji_only",
+      "label": {
+        "ar": "بعت رموز بس",
+        "en": "Sent only emoji"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_emoji_only",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وصلتني [[icon:smile]] بس عشان أقدر أساعدك، اكتبلي بكلمات إيه اللي محتاجه.",
+          "en": "Got it — but so I can actually help, tell me in words what you need."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_voice_note",
+      "label": {
+        "ar": "بعت رسالة صوتية",
+        "en": "Sent a voice note"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_voice_note",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_media",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معلش، أنا بقرا الكتابة بس ومش بسمع الصوت لسه [[icon:note]] لو تكتبلي المشكلة في سطرين هقدر أساعدك على طول، أو أوصّلك بحد من الفريق يسمعها.",
+          "en": "Sorry — I read text but cannot listen to audio yet. Write the issue in a line or two and I can help immediately, or I can pass you to a team member who will listen."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_still_there",
+      "label": {
+        "ar": "بيسأل لو لسه موجود",
+        "en": "Asks if anyone is still there"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_still_there",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_anyone_there",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه أنا هنا [[icon:smile]] اتفضل كمّل.",
+          "en": "Yes, I am here. Go ahead."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_about_team",
+      "label": {
+        "ar": "بيسأل عن الفريق",
+        "en": "Asks about the team"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_about_team",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ورا مدعوم فريق مصري بيشتغل على المنصة والدعم [[icon:smile]] لو حابب تعرف تفاصيل أكتر عن الشركة، أقدر أوصّلك بحد يحكيلك.",
+          "en": "There is an Egyptian team behind Mad3oom building the platform and running support. If you want more about the company, I can connect you with someone."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_location",
+      "label": {
+        "ar": "بيسأل عن مقر الشركة",
+        "en": "Asks where the company is"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_location",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مدعوم شركة مصرية وبتخدم عملاء في مصر والخليج [[icon:smile]] لو محتاج بيانات رسمية للتعاقد أو الفواتير، أقدر أوصّلك بالفريق.",
+          "en": "Mad3oom is an Egyptian company serving customers in Egypt and the Gulf. If you need official details for contracts or invoicing, I can connect you with the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_nationality",
+      "label": {
+        "ar": "بيسأل عن جنسية الشركة",
+        "en": "Asks about the company nationality"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_nationality",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_location",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه، مدعوم منصة عربية اتعملت بإيد مصرية، وده السبب إن المساعد بيفهم اللهجة العامية مش العربي الفصيح بس [[icon:smile]]",
+          "en": "Yes — Mad3oom is an Arabic platform built by an Egyptian team, which is exactly why the assistant understands everyday dialect and not just formal Arabic."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wishes_success",
+      "label": {
+        "ar": "بيتمنى للشركة النجاح",
+        "en": "Wishes the company success"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_wishes_success",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكرًا من قلبي، ودي كلمة بتفرق فعلاً [[icon:smile]] ولو فيه أي حاجة تحب تشوفها في المنصة، قولّي وهوصّلها للفريق.",
+          "en": "Thank you, genuinely — that means a lot. And if there is anything you would like to see in the platform, tell me and I will pass it on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_jobs",
+      "label": {
+        "ar": "بيسأل عن وظايف",
+        "en": "Asks about jobs"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_jobs",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التوظيف مش من اختصاصي، بس أقدر أوصّل طلبك للفريق المسؤول [[icon:note]] قولّي إنت بتشتغل في إيه وأنا أبعتها لهم.",
+          "en": "Hiring is not my area, but I can pass your interest to the right team. Tell me what you do and I will forward it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_partnership_offer",
+      "label": {
+        "ar": "عرض شراكة",
+        "en": "Partnership offer"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_partnership",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده موضوع بيتاخد مع فريق الشراكات مباشرة [[icon:note]] احكيلي في سطرين إنت شايف الشراكة تكون إزاي، وأنا أفتحلك تذكرة توصلهم.",
+          "en": "Partnerships go straight to the relevant team. Describe in a couple of lines what you have in mind and I will open a ticket that reaches them."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_updates",
+      "label": {
+        "ar": "بيسأل عن الجديد في المنصة",
+        "en": "Asks what is new"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_updates",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_app_version",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المنصة بيتضاف لها حاجات كل فترة، والجديد بيظهرلك في صفحة «آخر التحديثات» جوّه لوحة التحكم [[icon:note]] لو فيه مميزة معيّنة مستنيها، قولّي اسمها وأقولّك هي فين.",
+          "en": "New things ship regularly, and you will find them on the Latest updates page inside the dashboard. If there is a specific feature you are waiting for, name it and I will tell you where it stands."
         }
       },
       "requiresTicketIfUnresolved": false
