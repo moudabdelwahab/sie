@@ -1,4 +1,4 @@
-import { sieQuotaService, quotaStatus } from "../../quota-ui/sie-quota-service.js";
+import { sieQuotaService, quotaStatus } from "../../quota-ui/sie-quota-service.js?v=quota-auth-2";
 const $ = (id) => document.getElementById(id); const number = new Intl.NumberFormat("en-US"); const date = new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" });
 let rows = []; let selected = null; let canManage = false;
 const escape = (value) => String(value ?? "—").replace(/[&<>"']/g, (char) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[char]));

@@ -3,7 +3,7 @@
  * Uses only existing tables and stable SIE runtime functions. No schemas,
  * RPCs, RLS policies, Edge Functions, or backend behavior are created here.
  */
-import { supabase } from "./sie-supabase-client.js";
+import { supabase } from "./sie-supabase-client.js?v=quota-auth-2";
 import { adminResetUsage, adminSetAccess, getSieAccessStatus, isCurrentUserSieAdmin } from "/sie-integration/sie-runtime.js";
 import { quotaMetrics, quotaStatus } from "./quota-metrics.js";
 
@@ -28,9 +28,9 @@ export class SIEQuotaService {
   constructor(client = supabase) { this.client = client; }
 
   async getCurrentUser() {
-    const { data, error } = await this.client.auth.getUser();
+    const { data, error } = await this.client.auth.getSession();
     if (error) throw friendlyError(error, "تعذر قراءة جلسة المستخدم.");
-    return data.user || null;
+    return data.session?.user || null;
   }
 
   async getTokensUsed(userId) {
