@@ -17,6 +17,13 @@ function sumTokens(events) {
   return (events || []).reduce((sum, event) => sum + (Number(event.total_tokens) || 0), 0);
 }
 
+function withinTimeout(promise, milliseconds) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(() => resolve(null), milliseconds)),
+  ]);
+}
+
 export class SIEQuotaService {
   constructor(client = supabase) { this.client = client; }
 
@@ -40,24 +47,31 @@ export class SIEQuotaService {
   }
 
   async getUsersQuotas() {
-    const [{ data: accesses, error: accessError }, { data: profiles, error: profilesError }, { data: events, error: eventsError }] = await Promise.all([
-      this.client.from("customer_sie_access").select("id,user_id,is_enabled,access_mode,message_quota,messages_used,expires_at,last_used_at,notes,updated_at").order("updated_at", { ascending: false }),
-      this.client.from("profiles").select("id,full_name,email"),
-      this.client.from("ai_usage_events").select("user_id,total_tokens").limit(1000),
-    ]);
+    const { data: accesses, error: accessError } = await this.client
+      .from("customer_sie_access")
+      .select("id,user_id,is_enabled,access_mode,message_quota,messages_used,expires_at,last_used_at,notes,updated_at")
+      .order("updated_at", { ascending: false });
     if (accessError) throw friendlyError(accessError, "تعذر قراءة حصص SIE.");
-    if (profilesError) throw friendlyError(profilesError, "تعذر قراءة ملفات المستخدمين.");
-    const profilesById = new Map((profiles || []).map((profile) => [profile.id, profile]));
+
+    // الملفات وسجلات Tokens بيانات مساندة؛ لا يجب أن تمنع جدول الحصص إذا أخفاها RLS
+    // أو تأخرت. جدول customer_sie_access هو مصدر البيانات الأساسي لهذه الصفحة.
+    const [profilesResult, eventsResult] = await Promise.all([
+      withinTimeout(this.client.from("profiles").select("id,full_name,email"), 4500),
+      withinTimeout(this.client.from("ai_usage_events").select("user_id,total_tokens").limit(1000), 4500),
+    ]);
+    const profiles = profilesResult?.error ? [] : (profilesResult?.data || []);
+    const events = eventsResult?.error ? [] : (eventsResult?.data || []);
+    const profilesById = new Map(profiles.map((profile) => [profile.id, profile]));
     const tokensByUser = new Map();
-    if (!eventsError) for (const event of events || []) tokensByUser.set(event.user_id, (tokensByUser.get(event.user_id) || 0) + (Number(event.total_tokens) || 0));
+    for (const event of events) tokensByUser.set(event.user_id, (tokensByUser.get(event.user_id) || 0) + (Number(event.total_tokens) || 0));
     return (accesses || []).map((access) => ({
-      ...quotaMetrics(access, eventsError ? null : (tokensByUser.get(access.user_id) || 0)),
-      user: profilesById.get(access.user_id) || { full_name: "مستخدم غير معروف", email: "—" },
+      ...quotaMetrics(access, eventsResult ? (tokensByUser.get(access.user_id) || 0) : null),
+      user: profilesById.get(access.user_id) || { full_name: `مستخدم ${access.user_id.slice(0, 8)}`, email: "بيانات الملف غير متاحة" },
     }));
   }
 
-  async getDashboardStats() {
-    const rows = await this.getUsersQuotas();
+  async getDashboardStats(existingRows) {
+    const rows = existingRows || await this.getUsersQuotas();
     return {
       totalUsers: rows.length,
       quotaUsers: rows.filter((row) => row.total !== null).length,
