@@ -30,6 +30,21 @@ const SETTINGS_PAGE = './settings.html';
 // TODO: confirm this is the correct live platform domain.
 const PLATFORM_HOME = 'https://mad3oom.com/customer-dashboard.html';
 
+function safeNextDestination() {
+    const requested = new URLSearchParams(window.location.search).get('next');
+    if (!requested) return null;
+    try {
+        const destination = new URL(requested, window.location.origin);
+        const allowed = destination.origin === window.location.origin
+            && destination.pathname.startsWith('/sie/observability/admin-ui/');
+        return allowed ? destination.href : null;
+    } catch {
+        return null;
+    }
+}
+
+const NEXT_DESTINATION = safeNextDestination();
+
 function showAlert(message, kind = 'error') {
     alertBox.textContent = message;
     alertBox.className = `auth-alert auth-alert--${kind}`;
@@ -70,7 +85,7 @@ async function routeAfterSignIn() {
     ]);
 
     if (isStaff || isSieAdmin) {
-        window.location.replace(SETTINGS_PAGE);
+        window.location.replace(NEXT_DESTINATION || SETTINGS_PAGE);
         return true;
     }
 

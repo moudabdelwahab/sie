@@ -3,7 +3,7 @@
  * Uses only existing tables and stable SIE runtime functions. No schemas,
  * RPCs, RLS policies, Edge Functions, or backend behavior are created here.
  */
-import { supabase } from "./sie-supabase-client.js?v=quota-auth-2";
+import { supabase } from "../../sie-admin/supabase-client.js";
 import { adminResetUsage, adminSetAccess, getSieAccessStatus, isCurrentUserSieAdmin } from "/sie-integration/sie-runtime.js";
 import { quotaMetrics, quotaStatus } from "./quota-metrics.js";
 
@@ -91,12 +91,10 @@ export class SIEQuotaService {
 
   async canManageQuotas() { return isCurrentUserSieAdmin(this.client); }
 
-  async signInWithGoogle() {
-    const { error } = await this.client.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.href },
-    });
-    if (error) throw friendlyError(error, "تعذر بدء تسجيل الدخول عبر Google.");
+  goToAdminLogin(returnTo = window.location.href) {
+    const loginUrl = new URL("/sie-admin/login.html", window.location.origin);
+    loginUrl.searchParams.set("next", returnTo);
+    window.location.assign(loginUrl.toString());
   }
 
   async signOut() {
