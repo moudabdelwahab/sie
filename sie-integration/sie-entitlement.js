@@ -229,6 +229,122 @@ export async function adminResetUsage(supabase, userId) {
 }
 
 // ===================================================================
+// Rate limits
+// ===================================================================
+//
+// Kept in this file rather than a new one for the same reason quota's
+// read and write paths sit together above: an admin screen that explains
+// a customer's ceiling and an engine that enforces it must not be able to
+// disagree. Quota answers "how many messages may they ever send"; the
+// rate limit answers "how fast". They are different questions about the
+// same customer, so they belong behind the same door.
+//
+// Nothing here computes a limit. The effective value (after global ->
+// per-customer inheritance) is resolved by sie_admin_rate_limit_status()
+// in SQL, which is the same resolution sie_rate_limit_hit() performs when
+// enforcing, so the console cannot display a number that is not the one
+// being applied.
+
+/**
+ * Effective rate limit plus live usage for one customer, or every
+ * customer when userId is omitted. Staff-readable.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} [userId]
+ * @returns {Promise<Array<Object>>}
+ */
+export async function getRateLimitStatus(supabase, userId) {
+    try {
+        const { data, error } = await supabase.rpc('sie_admin_rate_limit_status', {
+            p_user_id: userId ?? null
+        });
+        if (error) {
+            console.warn('[sie] sie_admin_rate_limit_status() failed:', error.message);
+            return [];
+        }
+        return Array.isArray(data) ? data : (data ? [data] : []);
+    } catch (err) {
+        console.warn('[sie] sie_admin_rate_limit_status() threw:', err?.message || err);
+        return [];
+    }
+}
+
+/**
+ * Admin-only: set a customer's rate-limit exception.
+ *
+ * null in any field means "inherit the global setting" — it is not the
+ * same as zero, and passing undefined for a field the admin left blank is
+ * what keeps "no opinion" distinct from "explicitly unlimited".
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {{userId: string, isEnabled?: boolean|null, requestsPerMinute?: number|null, burst?: number|null, notes?: string|null}} params
+ * @returns {Promise<{error: Error|null}>}
+ */
+export async function adminSetRateLimit(supabase, { userId, isEnabled, requestsPerMinute, burst, notes }) {
+    if (!userId) return { error: new Error('userId is required') };
+    try {
+        const { error } = await supabase.rpc('sie_admin_set_rate_limit', {
+            p_user_id: userId,
+            p_is_enabled: isEnabled ?? null,
+            p_requests_per_minute: requestsPerMinute ?? null,
+            p_burst: burst ?? null,
+            p_notes: notes ?? null
+        });
+        return { error: error ? new Error(error.message) : null };
+    } catch (err) {
+        return { error: err instanceof Error ? err : new Error(String(err)) };
+    }
+}
+
+/**
+ * Admin-only: empty a customer's bucket so they can call again now.
+ *
+ * Separate from adminSetRateLimit on purpose — "this customer deserves a
+ * higher ceiling" and "this customer is wedged behind a 429 right now"
+ * are different decisions, and conflating them means every unblock
+ * silently rewrites the policy.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} userId
+ * @returns {Promise<{error: Error|null}>}
+ */
+export async function adminResetRateLimit(supabase, userId) {
+    if (!userId) return { error: new Error('userId is required') };
+    try {
+        const { error } = await supabase.rpc('sie_admin_reset_rate_limit', { p_user_id: userId });
+        return { error: error ? new Error(error.message) : null };
+    } catch (err) {
+        return { error: err instanceof Error ? err : new Error(String(err)) };
+    }
+}
+
+/**
+ * How close a customer is to their ceiling, as a display concern.
+ *
+ * The thresholds live here rather than in the console so the chat widget
+ * and the admin table agree on what "nearly out" means — a warning that
+ * appears in one surface and not the other is worse than no warning.
+ *
+ * @param {{effective_limit?: number, effective_burst?: number, tokens_remaining?: number, effective_enabled?: boolean}} status
+ * @returns {{level: 'off'|'ok'|'warning'|'critical'|'exhausted', ratio: number, label: string}}
+ */
+export function describeRateLimitPressure(status) {
+    if (!status || status.effective_enabled === false) {
+        return { level: 'off', ratio: 0, label: 'الحد مقفول' };
+    }
+    const capacity = Number(status.effective_limit ?? 0) + Number(status.effective_burst ?? 0);
+    const remaining = Number(status.tokens_remaining ?? capacity);
+    if (!Number.isFinite(capacity) || capacity <= 0) {
+        return { level: 'ok', ratio: 1, label: 'مساحة متاحة' };
+    }
+    const ratio = Math.max(Math.min(remaining / capacity, 1), 0);
+    if (remaining <= 0) return { level: 'exhausted', ratio: 0, label: 'وصل للحد' };
+    if (ratio <= 0.1) return { level: 'critical', ratio, label: 'على وشك الوصول للحد' };
+    if (ratio <= 0.25) return { level: 'warning', ratio, label: 'قرّب من الحد' };
+    return { level: 'ok', ratio, label: 'مساحة متاحة' };
+}
+
+// ===================================================================
 // Engine settings
 // ===================================================================
 

@@ -89,6 +89,36 @@ export const SETTINGS = Object.freeze([
         effect: 'sie-chat-bridge: scenario provider selection'
     },
 
+    // ── حد معدل الطلبات ────────────────────────────────────────────
+    // These three are read by sie_rate_limit_hit() in the database, not by
+    // JavaScript, which is what makes a change here take effect on the very
+    // next API call with no deployment and no cache to wait out.
+    {
+        key: 'rate_limit_enabled', group: 'operation', type: 'boolean', default: true,
+        title: 'حد لعدد الطلبات في الدقيقة',
+        desc: 'يمنع أي عميل أو تكامل من إغراق الواجهة بطلبات كتير أوي في وقت قصير.',
+        warn: 'الحد مقفول — أي عميل يقدر يبعت أي عدد طلبات، وده بيأثر على سرعة الخدمة للباقيين.',
+        effect: 'sie_rate_limit_hit(): returns allowed without spending a token'
+    },
+    {
+        key: 'rate_limit_requests_per_minute', group: 'operation', type: 'number', default: 100,
+        min: 1, max: 100000, step: 10,
+        title: 'عدد الطلبات المسموحة في الدقيقة',
+        desc: 'المعدل المستمر لكل عميل. الافتراضي ١٠٠ طلب في الدقيقة، وتقدر تحدد رقم مختلف لعميل بعينه من مركز المراجعة.',
+        warn: 'رقم منخفض جدًا ممكن يوقف استخدام عادي — كل فتحة شاشة بتعمل أكتر من طلب.',
+        effect: 'sie_rate_limit_hit(): bucket refill rate',
+        dependsOn: 'rate_limit_enabled'
+    },
+    {
+        key: 'rate_limit_burst', group: 'operation', type: 'number', default: 20,
+        min: 0, max: 100000, step: 5,
+        title: 'السماح بدفعة مفاجئة',
+        desc: 'كام طلب زيادة مسموح فوق المعدل لو العميل كان ساكت شوية. ده اللي بيمنع الواجهة تحس إنها متضايقة من استخدام عادي — شاشة واحدة ممكن تعمل عشر طلبات مرة واحدة.',
+        warn: 'صفر معناه إن أي دفعة سريعة هتترفض حتى لو العميل مستخدمش حاجة من ساعة.',
+        effect: 'sie_rate_limit_hit(): bucket capacity above the sustained rate',
+        dependsOn: 'rate_limit_enabled'
+    },
+
     // ── الذكاء العاطفي ─────────────────────────────────────────────
     {
         key: 'emotion_detection', group: 'emotion', type: 'boolean', default: true,

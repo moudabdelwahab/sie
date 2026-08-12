@@ -11,11 +11,29 @@
 const ALLOWED_METHODS = 'GET, POST, OPTIONS';
 const ALLOWED_HEADERS = 'authorization, apikey, x-client-info, content-type';
 
+/**
+ * A cross-origin response only lets JavaScript read a short safelist of
+ * headers unless the server names the others here. The RateLimit-* set is
+ * therefore not readable by fetch() without this line, even though it
+ * arrives on the wire — the chat client would warn about nothing and the
+ * headers would look like they were never sent.
+ */
+const EXPOSED_HEADERS = [
+    'RateLimit-Limit',
+    'RateLimit-Remaining',
+    'RateLimit-Reset',
+    'X-RateLimit-Limit',
+    'X-RateLimit-Remaining',
+    'X-RateLimit-Reset',
+    'Retry-After'
+].join(', ');
+
 export function corsHeaders(origin: string | null): HeadersInit {
     return {
         'Access-Control-Allow-Origin': origin ?? '*',
         'Access-Control-Allow-Methods': ALLOWED_METHODS,
         'Access-Control-Allow-Headers': ALLOWED_HEADERS,
+        'Access-Control-Expose-Headers': EXPOSED_HEADERS,
         'Access-Control-Max-Age': '86400',
         Vary: 'Origin'
     };
