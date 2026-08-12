@@ -1,9 +1,9 @@
 /**
- * settings.js — SIE settings console
+ * settings.js — SIE control console
  * ------------------------------------------------------------
- * Three things an operator needs in one place: what the engine knows
- * (scenarios), how it decides (engine settings), and who is allowed to
- * use it (users).
+ * كل اللي مسؤول التشغيل محتاجه في مكان واحد: المحرك بيعرف إيه
+ * (السيناريوهات والمعرفة)، بيقرر إزاي (الإعدادات)، ومين مسموح له
+ * يستخدمه (المستخدمون والاستهلاك).
  *
  * ── ARCHITECTURE ────────────────────────────────────────────
  * Every call into SIE goes through `/sie-integration/sie-runtime.js` and
@@ -12,6 +12,11 @@
  * only non-SIE import is the standalone Supabase client (./supabase-client.js),
  * which points at the same Supabase project — these pages are served from
  * their own origin, so the platform's /api-config.js is not reachable.
+ *
+ * The 2026 redesign changed the surface, not the wiring: the shell,
+ * the components and the styling live in ./ui/* and ./design-system.css,
+ * while every read, write and authorization path below is the same one
+ * the console has always used.
  *
  * ── AUTHORIZATION ───────────────────────────────────────────
  * Both gates are answered by the database, never by inspecting a role in
@@ -36,6 +41,8 @@ import {
     validateScenarioDraft,
     saveScenarioDraft,
     listStoredScenarioVersions,
+    listStoredKnowledgeVersions,
+    publishKnowledgeVersion,
     isCurrentUserEngineStaff,
     isCurrentUserSieAdmin,
     getSieAccessStatus,
@@ -60,6 +67,14 @@ import {
     groupedSettings
 } from '../sie-integration/sie-runtime.js';
 
+import { icon } from './ui/icons.js';
+import { createAppShell } from './ui/app-shell.js';
+import {
+    esc, toast, confirmAction, openDialog, closeDialog, guardUnsaved, closeOnBackdrop,
+    renderPager, emptyState, errorState, skeletonRows, skeletonCards, badge, meter, avatar,
+    fmtNumber, fmtDate, fmtRelative, withBusy, debounce
+} from './ui/components.js';
+
 const LOGIN_PAGE = './login.html';
 
 /**
@@ -76,13 +91,21 @@ const state = {
     settings: { ...SIE_DEFAULT_SETTINGS },
     scenarios: [],
     drafts: [],
+    knowledge: [],
+    knowledgeError: null,
     users: [],
     isStaff: false,
     isSieAdmin: false,
     editingUserId: null,
     scenarioPage: 1,
+    userPage: 1,
+    usagePage: 1,
+    /** قسم الإعدادات المفتوح دلوقتي. */
+    settingsGroup: null,
     /** آخر ملف اتقرا، جاهز للحفظ. */
-    importParsed: null
+    importParsed: null,
+    /** لقطة من نموذج مفتوح، عشان نعرف لو فيه تغيير مش متحفوظ. */
+    dirtySnapshot: null
 };
 
 /**
@@ -92,6 +115,7 @@ const state = {
  * end of.
  */
 const SCENARIOS_PER_PAGE = 25;
+const USERS_PER_PAGE = 20;
 
 /** Stored category codes are English because tickets.category is; never show them raw. */
 const CATEGORY_AR = {
@@ -103,6 +127,8 @@ const CATEGORY_AR = {
     other: 'أخرى'
 };
 const catAr = (c) => CATEGORY_AR[c] || c;
+
+const ACCESS_MODE_AR = { unlimited: 'من غير حدود', quota: 'عدد رسائل', expiration: 'لحد تاريخ' };
 
 /**
  * أسماء الأدلة بالعربي، من قاموس المحرك نفسه.
@@ -122,19 +148,52 @@ const DRAFT_STATUS_AR = {
     draft: 'مسودة', validated: 'اتراجعت', published: 'مفعّلة',
     rejected: 'مرفوضة', archived: 'قديمة'
 };
+const DRAFT_STATUS_TONE = {
+    draft: 'warning', validated: 'info', published: 'success',
+    rejected: 'danger', archived: 'neutral'
+};
 
 const $ = (id) => document.getElementById(id);
-const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-function toast(message, kind = 'ok') {
-    const el = $('toast');
-    el.textContent = message;
-    el.className = `toast toast--${kind}`;
-    el.hidden = false;
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => { el.hidden = true; }, 4000);
-}
+/** أقسام اللوحة زي ما بتظهر في القائمة الجانبية. */
+const VIEWS = [
+    {
+        id: 'dashboard', label: 'لوحة التحكم', iconName: 'dashboard', group: 'نظرة عامة',
+        title: 'لوحة التحكم', desc: 'حالة المحرك والكتالوج والعملاء في شاشة واحدة.'
+    },
+    {
+        id: 'scenarios', label: 'السيناريوهات', iconName: 'scenarios', group: 'المعرفة',
+        title: 'السيناريوهات', desc: 'الحالات اللي المحرك بيشخّصها، والمسودات المستنية تفعيل.',
+        searchId: 'scenarioSearch'
+    },
+    {
+        id: 'knowledge', label: 'المعرفة', iconName: 'knowledge', group: 'المعرفة',
+        title: 'مداخل المعرفة', desc: 'الإجابات الجاهزة اللي المحرك بيرد منها.',
+        searchId: 'knowledgeSearch'
+    },
+    {
+        id: 'diagnostics', label: 'التشخيص', iconName: 'diagnostics', group: 'المعرفة',
+        title: 'التشخيص', desc: 'جرّب رسالة وشوف المحرك هيفهمها إزاي — من غير أي أثر على العملاء.'
+    },
+    {
+        id: 'users', label: 'المستخدمون', iconName: 'users', group: 'العملاء',
+        title: 'المستخدمون والصلاحيات', desc: 'مين مسموح له يستخدم المحرك، وبأي شروط.',
+        searchId: 'userSearch'
+    },
+    {
+        id: 'usage', label: 'الاستهلاك والحدود', iconName: 'usage', group: 'العملاء',
+        title: 'الاستهلاك والحدود', desc: 'الرصيد المستهلك وحد معدل الطلبات لكل عميل.',
+        searchId: 'usageSearch'
+    },
+    {
+        id: 'settings', label: 'الإعدادات', iconName: 'settings', group: 'المحرك',
+        title: 'إعدادات المحرك', desc: 'أي تغيير هنا بيتحفظ فورًا وبيسري على المحادثات الجديدة على طول.',
+        searchId: 'settingSearch'
+    }
+];
+
+/** @type {ReturnType<typeof createAppShell>} */
+let shell;
 
 // ═════════════════════════════════════════════════════════════
 // Boot
@@ -161,30 +220,303 @@ function toast(message, kind = 'ok') {
     }
 
     root.appendChild($('pageTemplate').content.cloneNode(true));
-    $('whoAmI').textContent = session.user.email;
+
+    const email = session.user.email || '';
+    $('whoAmI').textContent = email;
+    $('accountMenuEmail').textContent = email;
+    $('accountAvatar').textContent = email.slice(0, 2).toUpperCase();
+    $('accountRole').textContent = state.isSieAdmin ? 'مسؤول المحرك' : 'فريق العمل';
+
+    shell = createAppShell({ views: VIEWS, onNavigate: onNavigate });
 
     wireChrome();
     wireScenarioEditor();
     wireImportDialog();
     wireAccessEditor();
+    wireDiagnostics();
+    wireKnowledge();
+    paintLoadingStates();
 
+    shell.start();
+
+    // الأقسام التلاتة بتتحمّل مع بعض: كل واحد بيرسم نفسه أول ما يوصل،
+    // فالصفحة مابتستناش أبطأ طلب عشان تبان.
     await Promise.all([loadSettings(), loadScenarios(), loadUsers()]);
+    renderDashboard();
+    // المعرفة بتتأخر شوية عن الباقي، والبطاقة بتاعتها بتتحدّث لما توصل.
+    loadKnowledge().then(renderDashboard);
 })();
+
+/** هياكل عظمية بدل شاشة فاضية أثناء أول تحميل. */
+function paintLoadingStates() {
+    $('dashboardStats').innerHTML = skeletonCards(4);
+    $('scenarioStats').innerHTML = skeletonCards(4);
+    $('userStats').innerHTML = skeletonCards(4);
+    $('usageStats').innerHTML = skeletonCards(4);
+    $('scenarioRows').innerHTML = skeletonRows(6, 7);
+    $('userRows').innerHTML = skeletonRows(5, 7);
+    $('usageRows').innerHTML = skeletonRows(5, 7);
+    $('knowledgeRows').innerHTML = skeletonRows(4, 6);
+    $('draftRows').innerHTML = skeletonRows(3, 6);
+    $('healthList').innerHTML = '<div class="skeleton skeleton-line" style="width:80%"></div>'
+        + '<div class="skeleton skeleton-line" style="width:60%"></div>'
+        + '<div class="skeleton skeleton-line" style="width:70%"></div>';
+}
+
+function onNavigate(view) {
+    // الجداول الكبيرة بتترسم عند فتح قسمها بس — القسم اللي محدش فتحه
+    // مش محتاج يستهلك رسم.
+    if (view.id === 'usage' && state.users.length) renderUsage();
+    if (view.id === 'dashboard') renderDashboard();
+}
 
 function wireChrome() {
     $('signOutBtn').addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.replace(LOGIN_PAGE);
     });
+}
 
-    const tabs = $('mainTabs');
-    tabs.addEventListener('click', (e) => {
-        const btn = e.target.closest('.tab-btn');
-        if (!btn) return;
-        tabs.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
-        document.querySelectorAll('.tab-panel').forEach((p) =>
-            p.classList.toggle('active', p.id === btn.dataset.target));
-    });
+// ═════════════════════════════════════════════════════════════
+// لوحة التحكم — كلها مبنية من بيانات موجودة فعلاً
+// ═════════════════════════════════════════════════════════════
+function statCard({ label, value, meta = '', iconName = 'sparkles', tone = 'primary', href = '' }) {
+    const body = `
+        <div class="stat-card-top">
+          <span class="stat-label">${esc(label)}</span>
+          <span class="stat-icon stat-icon--${esc(tone)}">${icon(iconName)}</span>
+        </div>
+        <span class="stat-value">${esc(value)}</span>
+        ${meta ? `<span class="stat-meta">${meta}</span>` : ''}`;
+    return href
+        ? `<a class="stat-card" href="${esc(href)}">${body}</a>`
+        : `<div class="stat-card">${body}</div>`;
+}
+
+/** مجموع رقم من كل صفوف الوصول/المعدل، مع تجاهل الناقص بدل تصفيره. */
+const sumBy = (rows, pick) => rows.reduce((total, row) => total + (Number(pick(row)) || 0), 0);
+
+function renderDashboard() {
+    const auto = state.scenarios.filter((s) => s.resolution.hasAutoResolution).length;
+    const pendingDrafts = state.drafts.filter((d) => d.status !== 'published').length;
+    const enabled = state.users.filter((u) => evaluateSieAccessRow(u.access).available).length;
+    const attention = state.users.filter((u) => ['warning', 'almost', 'exhausted'].includes(u.quota?.status));
+    const messagesUsed = sumBy(state.users, (u) => u.access?.messages_used);
+    const requests = sumBy(state.users, (u) => u.rateLimit?.total_requests);
+    const rejected = sumBy(state.users, (u) => u.rateLimit?.total_rejected);
+    const quotaUsers = state.users.filter((u) => u.access?.access_mode === 'quota');
+    const remaining = sumBy(quotaUsers, (u) => u.quota?.remaining);
+    const engineOn = state.settings.engine_enabled !== false;
+    const changed = changedSettingsCount();
+
+    $('dashboardStats').innerHTML = [
+        statCard({
+            label: 'حالة المحرك',
+            value: engineOn ? 'شغّال' : 'متوقف',
+            meta: engineOn
+                ? (changed ? `${changed} إعداد متغيّر عن المعتاد` : 'كل الإعدادات على المعتاد')
+                : 'العملاء بيرد عليهم البوت العادي',
+            iconName: 'power',
+            tone: engineOn ? 'success' : 'danger',
+            href: '#/settings'
+        }),
+        statCard({
+            label: 'سيناريوهات شغّالة',
+            value: fmtNumber(state.scenarios.length),
+            meta: `<b class="num">${fmtNumber(auto)}</b> بيردوا بحل جاهز`,
+            iconName: 'scenarios',
+            href: '#/scenarios'
+        }),
+        statCard({
+            label: 'مستنية تفعيل',
+            value: fmtNumber(pendingDrafts),
+            meta: pendingDrafts ? 'مسودات المحرك لسه مابيستخدمهاش' : 'مفيش مسودات معلّقة',
+            iconName: 'inbox',
+            tone: pendingDrafts ? 'warning' : 'neutral',
+            href: '#/scenarios'
+        }),
+        statCard({
+            label: 'المستخدمون',
+            value: fmtNumber(state.users.length),
+            meta: `<b class="num">${fmtNumber(enabled)}</b> مسموح لهم يستخدموا المحرك`,
+            iconName: 'users',
+            href: '#/users'
+        }),
+        statCard({
+            label: 'رسائل مستهلكة',
+            value: fmtNumber(messagesUsed),
+            meta: quotaUsers.length
+                ? `<b class="num">${fmtNumber(remaining)}</b> متبقية على ${fmtNumber(quotaUsers.length)} حساب برصيد`
+                : 'مفيش حسابات برصيد محدد',
+            iconName: 'message',
+            href: '#/usage'
+        }),
+        statCard({
+            label: 'طلبات على الواجهة',
+            value: fmtNumber(requests),
+            meta: rejected
+                ? `<b class="num">${fmtNumber(rejected)}</b> اترفضوا لتجاوز الحد`
+                : 'مفيش طلبات مرفوضة',
+            iconName: 'gauge',
+            tone: rejected ? 'warning' : 'neutral',
+            href: '#/usage'
+        }),
+        statCard({
+            label: 'محتاجين متابعة',
+            value: fmtNumber(attention.length),
+            meta: attention.length ? 'قرّبوا من الحد أو استنفدوه' : 'مفيش حد قرّب من حدّه',
+            iconName: 'alert',
+            tone: attention.length ? 'warning' : 'success',
+            href: '#/usage'
+        }),
+        statCard({
+            label: 'مداخل معرفة',
+            value: state.knowledgeError ? '—' : fmtNumber(state.knowledge.length),
+            meta: state.knowledgeError
+                ? 'مقدرناش نقراها'
+                : `<b class="num">${fmtNumber(state.knowledge.filter((k) => k.status !== 'published').length)}</b> مستنية تفعيل`,
+            iconName: 'knowledge',
+            tone: 'neutral',
+            href: '#/knowledge'
+        })
+    ].join('');
+
+    renderHealth();
+    renderDraftsPreview(pendingDrafts);
+    renderAttention(attention);
+    renderSystemAlerts({ pendingDrafts, attention, rejected });
+}
+
+/** المفاتيح اللي بتغيّر سلوك المحرك جذريًا، بحالتها الحالية. */
+const HEALTH_KEYS = [
+    'engine_enabled', 'answer_directly', 'use_published_scenarios',
+    'knowledge_use_articles', 'auto_ticket_enabled', 'rate_limit_enabled'
+];
+
+function renderHealth() {
+    $('healthList').innerHTML = HEALTH_KEYS
+        .filter((key) => SETTINGS_BY_KEY[key])
+        .map((key) => {
+            const def = SETTINGS_BY_KEY[key];
+            const on = state.settings[key] !== false;
+            return `
+              <div class="health-row">
+                <span class="health-dot health-dot--${on ? 'on' : 'off'}"></span>
+                <span class="health-text">
+                  <b>${esc(def.title)}</b>
+                  <span class="sub">${esc(def.desc)}</span>
+                </span>
+                ${badge(on ? 'مفتوح' : 'مقفول', on ? 'success' : 'neutral')}
+              </div>`;
+        }).join('');
+}
+
+function renderDraftsPreview(pendingDrafts) {
+    const pending = state.drafts.filter((d) => d.status !== 'published').slice(0, 5);
+    $('draftsPreview').innerHTML = pending.length === 0
+        ? emptyState({
+            iconName: 'checkCircle',
+            title: 'مفيش حاجة مستنية',
+            text: pendingDrafts === 0 && state.drafts.length === 0
+                ? 'لسه مضفتش أي سيناريو من اللوحة.'
+                : 'كل المسودات اتفعّلت.'
+        })
+        : `<ul class="mini-list">${pending.map((draft) => `
+            <li class="mini-row">
+              <span class="mini-main">
+                <b class="ltr">${esc(draft.scenario_key)}</b>
+                <span class="sub">نسخة ${draft.version} · ${esc(fmtRelative(draft.created_at))}</span>
+              </span>
+              ${badge(DRAFT_STATUS_AR[draft.status] || draft.status, DRAFT_STATUS_TONE[draft.status] || 'neutral')}
+            </li>`).join('')}</ul>`;
+}
+
+function renderAttention(attention) {
+    const rows = [...attention]
+        .sort((a, b) => (b.quota?.percentage || 0) - (a.quota?.percentage || 0))
+        .slice(0, 5);
+
+    $('attentionList').innerHTML = rows.length === 0
+        ? emptyState({ iconName: 'checkCircle', title: 'كله تمام', text: 'مفيش عميل قرّب من حدّه دلوقتي.' })
+        : `<ul class="mini-list">${rows.map((user) => `
+            <li class="mini-row">
+              ${avatar(user.name, user.email, { size: 'sm' })}
+              <span class="mini-main">
+                <b>${esc(user.name)}</b>
+                <span class="sub ltr">${esc(user.email)}</span>
+              </span>
+              <span class="mini-meter">
+                ${meter(user.quota.percentage, quotaTone(user.quota.status))}
+                <span class="sub num">${fmtNumber(user.quota.used)} / ${fmtNumber(user.quota.total ?? 0)}</span>
+              </span>
+              <button type="button" class="btn btn--secondary btn--sm" data-open-user="${esc(user.id)}">افتح</button>
+            </li>`).join('')}</ul>`;
+
+    $('attentionList').querySelectorAll('[data-open-user]').forEach((button) =>
+        button.addEventListener('click', () => openAccessDialog(button.dataset.openUser)));
+}
+
+/**
+ * التنبيهات في الشريط العلوي مشتقة من الحالة الحقيقية بس: محرك متوقف،
+ * عملاء استنفدوا رصيدهم، مسودات مستنية، طلبات اترفضت. مفيش إشعار
+ * بيتخلق من فراغ.
+ */
+function renderSystemAlerts({ pendingDrafts, attention, rejected }) {
+    const alerts = [];
+
+    if (state.settings.engine_enabled === false) {
+        alerts.push({
+            tone: 'danger', title: 'المحرك الذكي متوقف',
+            body: 'كل العملاء بيرد عليهم البوت العادي دلوقتي.', viewId: 'settings'
+        });
+    }
+    const exhausted = attention.filter((u) => u.quota?.status === 'exhausted').length;
+    if (exhausted) {
+        alerts.push({
+            tone: 'danger', title: `${exhausted} عميل استنفد رصيده`,
+            body: 'مش قادرين يبعتوا لحد ما تزوّد الرصيد أو تصفّر العدّاد.', viewId: 'usage'
+        });
+    }
+    const near = attention.length - exhausted;
+    if (near > 0) {
+        alerts.push({
+            tone: 'warning', title: `${near} عميل قرّب من حدّه`,
+            body: 'راجع رصيدهم قبل ما يتقفل عليهم.', viewId: 'usage'
+        });
+    }
+    if (pendingDrafts) {
+        alerts.push({
+            tone: 'warning', title: `${pendingDrafts} مسودة مستنية تفعيل`,
+            body: 'المحرك لسه مابيستخدمهاش مع العملاء.', viewId: 'scenarios'
+        });
+    }
+    if (pendingDrafts && state.settings.use_published_scenarios === false) {
+        alerts.push({
+            tone: 'warning', title: 'خيار «استخدم الحالات اللي ضفتها» مقفول',
+            body: 'حتى لو فعّلت مسودة، المحرك مش هيستعملها وهي مقفولة.', viewId: 'settings'
+        });
+    }
+    if (rejected) {
+        alerts.push({
+            tone: 'warning', title: `${fmtNumber(rejected)} طلب اترفض لتجاوز حد المعدل`,
+            body: 'راجع الحدود لو ده متكرر مع عميل بعينه.', viewId: 'usage'
+        });
+    }
+
+    shell.setAlerts(alerts);
+    shell.setBadge('scenarios', pendingDrafts, 'warning');
+    shell.setBadge('usage', attention.length, attention.length ? 'danger' : 'neutral');
+
+    const banner = alerts.find((a) => a.tone === 'danger') || alerts[0];
+    $('dashboardAlerts').innerHTML = !banner ? '' : `
+        <div class="alert alert--${banner.tone === 'danger' ? 'danger' : 'warning'}">
+          ${icon('alert')}
+          <div class="alert-body">
+            <span class="alert-title">${esc(banner.title)}</span>
+            ${esc(banner.body || '')}
+          </div>
+          ${banner.viewId ? `<a class="btn btn--secondary btn--sm" href="#/${esc(banner.viewId)}">افتح</a>` : ''}
+        </div>`;
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -196,17 +528,17 @@ async function loadScenarios() {
     state.drafts = state.isStaff ? await listStoredScenarioVersions(supabase) : [];
 
     const categories = [...new Set(state.scenarios.map((s) => s.category))].sort();
-    $('scenarioCategory').insertAdjacentHTML('beforeend',
-        categories.map((c) => `<option value="${esc(c)}">${esc(catAr(c))}</option>`).join(''));
+    $('scenarioCategory').innerHTML = '<option value="">كل الأقسام</option>'
+        + categories.map((c) => `<option value="${esc(c)}">${esc(catAr(c))}</option>`).join('');
 
     const auto = state.scenarios.filter((s) => s.resolution.hasAutoResolution).length;
     const withQ = state.scenarios.filter((s) => s.discriminatingQuestions?.length).length;
     $('scenarioStats').innerHTML = [
-        ['سيناريو بيفهمه', state.scenarios.length],
-        ['بيرد عليه بحل', auto],
-        ['بيجمع معلومات ويسلّم', state.scenarios.length - auto],
-        ['بيسأل فيه سؤال توضيحي', withQ]
-    ].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+        statCard({ label: 'سيناريو بيفهمه', value: fmtNumber(state.scenarios.length), iconName: 'scenarios' }),
+        statCard({ label: 'بيرد عليه بحل', value: fmtNumber(auto), iconName: 'zap', tone: 'success' }),
+        statCard({ label: 'بيجمع معلومات ويسلّم', value: fmtNumber(state.scenarios.length - auto), iconName: 'inbox', tone: 'neutral' }),
+        statCard({ label: 'بيسأل فيه سؤال توضيحي', value: fmtNumber(withQ), iconName: 'message', tone: 'neutral' })
+    ].join('');
 
     $('draftCount').textContent = state.drafts.length;
     renderDrafts();
@@ -215,7 +547,7 @@ async function loadScenarios() {
 
     $('newScenarioBtn').addEventListener('click', () => openScenarioDialog(null));
     if (!state.isStaff) {
-        for (const id of ['newScenarioBtn', 'importScenarioBtn']) {
+        for (const id of ['newScenarioBtn', 'importScenarioBtn', 'importKnowledgeBtn']) {
             $(id).disabled = true;
             $(id).title = 'إضافة السيناريوهات متاحة لفريق العمل بس';
         }
@@ -228,8 +560,10 @@ async function loadScenarios() {
  * found nothing", which is the opposite of what happened.
  */
 function wireScenarioToolbar() {
-    for (const id of ['scenarioSearch', 'scenarioCategory', 'scenarioResolution', 'scenarioSort']) {
-        $(id).addEventListener('input', () => { state.scenarioPage = 1; renderScenarios(); });
+    const rerender = () => { state.scenarioPage = 1; renderScenarios(); };
+    $('scenarioSearch').addEventListener('input', debounce(rerender));
+    for (const id of ['scenarioCategory', 'scenarioResolution', 'scenarioSort']) {
+        $(id).addEventListener('input', rerender);
     }
     $('scenarioSearchClear').addEventListener('click', () => {
         $('scenarioSearch').value = '';
@@ -281,6 +615,33 @@ function filteredScenarios() {
     return rows;
 }
 
+/**
+ * آخر نسخة مخزّنة لكل سيناريو.
+ *
+ * The live catalog has no timestamp of its own — it is a file the engine
+ * loads. The stored versions do, so a scenario that someone has since
+ * drafted against can honestly show both "there is a newer draft" and
+ * when it landed. A scenario with no stored version shows neither rather
+ * than an invented date.
+ */
+function latestVersionByKey() {
+    const map = new Map();
+    for (const row of state.drafts) {
+        const seen = map.get(row.scenario_key);
+        if (!seen || new Date(row.created_at) > new Date(seen.created_at)) map.set(row.scenario_key, row);
+    }
+    return map;
+}
+
+/** حالة السيناريو الشغّال: نشط، ولا فيه مسودة أحدث مستنية مراجعة. */
+function scenarioStatusBadge(latest) {
+    if (!latest) return badge('نشط', 'success');
+    if (latest.status === 'published') return badge('نشط', 'success');
+    if (latest.status === 'rejected') return badge('مسودة مرفوضة', 'danger');
+    if (latest.status === 'archived') return badge('نشط', 'success');
+    return badge('فيه مسودة جديدة', 'warning');
+}
+
 function renderScenarios() {
     const rows = filteredScenarios();
     const total = rows.length;
@@ -301,100 +662,186 @@ function renderScenarios() {
             ? `${total} سيناريو`
             : `${start + 1}–${start + page.length} من ${total} سيناريو`;
 
+    const latest = latestVersionByKey();
+
     $('scenarioEmpty').hidden = total > 0;
-    $('scenarioRows').innerHTML = page.map((s) => `
+    $('scenarioEmpty').innerHTML = total > 0 ? '' : emptyState({
+        iconName: 'search',
+        title: 'مفيش سيناريو مطابق',
+        text: 'جرّب كلمة أقل، أو امسح الفلاتر وابدأ من الأول.',
+        action: '<button type="button" class="btn btn--secondary btn--sm" data-clear-filters>امسح الفلاتر</button>'
+    });
+    $('scenarioEmpty').querySelector('[data-clear-filters]')
+        ?.addEventListener('click', () => $('scenarioResetFilters').click());
+
+    $('scenarioRows').innerHTML = page.map((s) => {
+        const stored = latest.get(s.id);
+        return `
         <tr>
-          <td><b>${esc(s.label.ar)}</b><div class="row-sub ltr">${esc(s.id)}</div></td>
-          <td><span class="pill">${esc(catAr(s.category))}</span></td>
-          <td class="sub">${s.evidenceSignature.map((e) => esc(tokenAr(e.token))).join(' + ')}</td>
-          <td>${s.resolution.hasAutoResolution
-              ? '<span class="pill pill--ok">بيرد بحل</span>'
-              : '<span class="pill pill--warn">بيسلّم لفريق</span>'}</td>
-          <td><button class="btn-ghost btn-sm" data-view="${esc(s.id)}">افتح</button></td>
-        </tr>`).join('');
+          <td>
+            <span class="cell-title">${esc(s.label.ar)}</span>
+            <span class="cell-sub">${esc(s.id)}</span>
+          </td>
+          <td data-label="القسم">${badge(catAr(s.category), 'neutral', { plain: true })}</td>
+          <td data-label="بيعرفه من" class="cell-evidence">${s.evidenceSignature.slice(0, 3).map((e) =>
+              `<span class="chip">${esc(tokenAr(e.token))}</span>`).join('')}
+            ${s.evidenceSignature.length > 3 ? `<span class="chip chip--more">+${s.evidenceSignature.length - 3}</span>` : ''}</td>
+          <td data-label="بيعمل إيه">${s.resolution.hasAutoResolution
+              ? badge('بيرد بحل', 'success')
+              : badge('بيسلّم لفريق', 'info')}</td>
+          <td data-label="الحالة">${scenarioStatusBadge(stored)}</td>
+          <td data-label="آخر تحديث" class="sub">${stored ? esc(fmtDate(stored.created_at)) : '—'}</td>
+          <td class="cell-actions">
+            <button class="btn btn--ghost btn--sm" data-view="${esc(s.id)}">
+              ${icon('eye')} افتح
+            </button>
+          </td>
+        </tr>`;
+    }).join('');
 
     $('scenarioRows').querySelectorAll('[data-view]').forEach((b) =>
         b.addEventListener('click', () => openScenarioDialog(
             state.scenarios.find((s) => s.id === b.dataset.view))));
 
-    renderPager(pageCount);
-}
-
-/**
- * Page numbers around the current one, with the first and last always
- * reachable. A catalog of 400 scenarios is 16 pages, and printing all 16
- * turns the control into a wall of digits.
- */
-function pageWindow(current, pageCount) {
-    if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
-
-    const pages = new Set([1, pageCount, current, current - 1, current + 1]);
-    const sorted = [...pages].filter((p) => p >= 1 && p <= pageCount).sort((a, b) => a - b);
-
-    const withGaps = [];
-    sorted.forEach((p, i) => {
-        if (i > 0 && p - sorted[i - 1] > 1) withGaps.push('…');
-        withGaps.push(p);
-    });
-    return withGaps;
-}
-
-function renderPager(pageCount) {
-    const pager = $('scenarioPager');
-    if (pageCount <= 1) { pager.hidden = true; pager.innerHTML = ''; return; }
-    pager.hidden = false;
-
-    const current = state.scenarioPage;
-    const step = (label, target, disabled) =>
-        `<button type="button" class="pager-btn" data-page="${target}" ${disabled ? 'disabled' : ''}>${label}</button>`;
-
-    pager.innerHTML = [
-        step('السابق', current - 1, current === 1),
-        ...pageWindow(current, pageCount).map((p) => p === '…'
-            ? '<span class="pager-gap">…</span>'
-            : `<button type="button" class="pager-btn ${p === current ? 'is-current' : ''}" data-page="${p}"${p === current ? ' aria-current="page"' : ''}>${p}</button>`),
-        step('التالي', current + 1, current === pageCount)
-    ].join('');
-
-    pager.querySelectorAll('[data-page]').forEach((b) =>
-        b.addEventListener('click', () => {
-            state.scenarioPage = Number(b.dataset.page);
+    renderPager($('scenarioPager'), {
+        page: state.scenarioPage,
+        pageCount,
+        onSelect: (target) => {
+            state.scenarioPage = target;
             renderScenarios();
             // Paging without this leaves the reader at the bottom of the
             // page they just left, looking at row 25 of the new one.
-            document.getElementById('tab-scenarios').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }));
+            $('pageScroll').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
 }
 
 function renderDrafts() {
     $('draftRows').innerHTML = state.drafts.length
         ? state.drafts.map((d) => `
             <tr>
-              <td><b>${esc(d.scenario_key)}</b></td>
-              <td class="ltr">${d.version}</td>
-              <td><span class="pill ${d.status === 'published' ? 'pill--ok' : ''}">${esc(DRAFT_STATUS_AR[d.status] || d.status)}</span></td>
-              <td class="sub">${esc(d.notes || '—')}</td>
-              <td>${d.status === 'published'
+              <td><span class="cell-title ltr">${esc(d.scenario_key)}</span></td>
+              <td data-label="النسخة" class="num">${d.version}</td>
+              <td data-label="الحالة">${badge(DRAFT_STATUS_AR[d.status] || d.status, DRAFT_STATUS_TONE[d.status] || 'neutral')}</td>
+              <td data-label="ملاحظة" class="sub">${esc(d.notes || '—')}</td>
+              <td data-label="اتضاف" class="sub" title="${esc(fmtDate(d.created_at, { withTime: true }))}">${esc(fmtRelative(d.created_at))}</td>
+              <td class="cell-actions">${d.status === 'published'
                   ? '<span class="sub">شغّالة</span>'
-                  : `<button class="btn-ghost btn-sm" data-publish="${esc(d.scenario_key)}" data-version="${d.version}">فعّلها</button>`}</td>
+                  : `<button class="btn btn--secondary btn--sm" data-publish="${esc(d.scenario_key)}" data-version="${d.version}">فعّلها</button>`}</td>
             </tr>`).join('')
-        : '<tr><td colspan="5" class="sub">لسه مضفتش أي سيناريو.</td></tr>';
+        : `<tr><td colspan="6">${emptyState({
+            iconName: 'file', title: 'لسه مضفتش أي سيناريو',
+            text: 'ابدأ من «سيناريو جديد» أو ارفع ملف فيه سيناريوهاتك.'
+        })}</td></tr>`;
 
     $('draftRows').querySelectorAll('[data-publish]').forEach((b) =>
         b.addEventListener('click', async () => {
-            if (!confirm('تفعيل السيناريو ده معناها إن المحرك يبدأ يستخدمه مع العملاء. تمام؟')) return;
-            b.disabled = true;
-            const { success, error } = await publishScenarioVersion(supabase, {
+            const ok = await confirmAction({
+                title: 'تفعيل السيناريو ده؟',
+                body: 'معناها إن المحرك يبدأ يستخدمه مع العملاء في المحادثات الجديدة.',
+                confirmLabel: 'فعّلها'
+            });
+            if (!ok) return;
+
+            const result = await withBusy(b, () => publishScenarioVersion(supabase, {
                 key: b.dataset.publish,
                 version: Number(b.dataset.version)
-            });
-            b.disabled = false;
-            if (!success) { toast(`مااتفعلتش: ${error}`, 'err'); return; }
+            }));
+            if (!result.success) { toast(`مااتفعلتش: ${result.error}`, 'err'); return; }
+
             toast(state.settings.use_published_scenarios
                 ? 'اتفعّلت، والمحرك هيستخدمها في المحادثات الجديدة.'
-                : 'اتفعّلت. عشان تشتغل فعلًا، افتح خيار «استخدم الحالات اللي ضفتها» من صفحة التشغيل.');
+                : 'اتفعّلت. عشان تشتغل فعلًا، افتح خيار «استخدم الحالات اللي ضفتها» من الإعدادات.');
             state.drafts = await listStoredScenarioVersions(supabase);
+            $('draftCount').textContent = state.drafts.length;
             renderDrafts();
+            renderScenarios();
+            renderDashboard();
+        }));
+}
+
+// ═════════════════════════════════════════════════════════════
+// المعرفة — نفس دورة المسودة/التفعيل بتاعة السيناريوهات
+// ═════════════════════════════════════════════════════════════
+function wireKnowledge() {
+    $('knowledgeSearch').addEventListener('input', debounce(renderKnowledge));
+    $('knowledgeFilter').addEventListener('input', renderKnowledge);
+    $('knowledgeRefreshBtn').addEventListener('click', (event) =>
+        withBusy(event.currentTarget, loadKnowledge));
+    $('importKnowledgeBtn').addEventListener('click', () => {
+        resetImportDialog();
+        openDialog($('importDialog'));
+    });
+}
+
+async function loadKnowledge() {
+    if (!state.isStaff) {
+        state.knowledge = [];
+        renderKnowledge();
+        return;
+    }
+    try {
+        state.knowledge = await listStoredKnowledgeVersions(supabase);
+        state.knowledgeError = null;
+    } catch (err) {
+        state.knowledgeError = err?.message || String(err);
+        state.knowledge = [];
+    }
+    renderKnowledge();
+}
+
+function renderKnowledge() {
+    const query = $('knowledgeSearch').value.trim().toLowerCase();
+    const filter = $('knowledgeFilter').value;
+
+    const rows = state.knowledge.filter((entry) => {
+        if (filter === 'published' && entry.status !== 'published') return false;
+        if (filter === 'pending' && entry.status === 'published') return false;
+        if (!query) return true;
+        return `${entry.knowledge_key} ${entry.notes || ''}`.toLowerCase().includes(query);
+    });
+
+    $('knowledgeCount').textContent = rows.length ? `${rows.length} مدخل` : '';
+    $('knowledgeEmpty').hidden = rows.length > 0;
+    $('knowledgeEmpty').innerHTML = rows.length > 0 ? '' : (state.knowledgeError
+        ? errorState(state.knowledgeError)
+        : emptyState({
+            iconName: 'knowledge',
+            title: state.knowledge.length ? 'مفيش مدخل مطابق' : 'مفيش مداخل معرفة لسه',
+            text: state.knowledge.length
+                ? 'جرّب كلمة تانية أو غيّر الفلتر.'
+                : 'ارفع ملف فيه أسئلة وإجاباتها، وهتتحفظ كمسودات مستنية تفعيلك.'
+        }));
+
+    $('knowledgeRows').innerHTML = rows.map((entry) => `
+        <tr>
+          <td><span class="cell-title ltr">${esc(entry.knowledge_key)}</span></td>
+          <td data-label="النسخة" class="num">${entry.version}</td>
+          <td data-label="الحالة">${badge(DRAFT_STATUS_AR[entry.status] || entry.status, DRAFT_STATUS_TONE[entry.status] || 'neutral')}</td>
+          <td data-label="ملاحظة" class="sub">${esc(entry.notes || '—')}</td>
+          <td data-label="اتضاف" class="sub" title="${esc(fmtDate(entry.created_at, { withTime: true }))}">${esc(fmtRelative(entry.created_at))}</td>
+          <td class="cell-actions">${entry.status === 'published'
+              ? '<span class="sub">شغّالة</span>'
+              : `<button class="btn btn--secondary btn--sm" data-publish-knowledge="${esc(entry.knowledge_key)}" data-version="${entry.version}">فعّلها</button>`}</td>
+        </tr>`).join('');
+
+    $('knowledgeRows').querySelectorAll('[data-publish-knowledge]').forEach((button) =>
+        button.addEventListener('click', async () => {
+            const ok = await confirmAction({
+                title: 'تفعيل مدخل المعرفة ده؟',
+                body: 'المحرك هيبدأ يرد منه في المحادثات الجديدة.',
+                confirmLabel: 'فعّله'
+            });
+            if (!ok) return;
+
+            const result = await withBusy(button, () => publishKnowledgeVersion(supabase, {
+                key: button.dataset.publishKnowledge,
+                version: Number(button.dataset.version)
+            }));
+            if (!result.success) { toast(`مااتفعلش: ${result.error}`, 'err'); return; }
+            toast('اتفعّل، والمحرك هيرد منه في المحادثات الجديدة.');
+            await loadKnowledge();
+            renderDashboard();
         }));
 }
 
@@ -403,9 +850,9 @@ function evidenceRow(token = '', weight = 3) {
     const el = document.createElement('div');
     el.className = 'evidence-row';
     el.innerHTML = `
-        <input type="text" class="ev-token ltr" placeholder="entity_whatsapp" value="${esc(token)}">
-        <input type="number" class="ev-weight" min="1" max="10" value="${weight}">
-        <button type="button" class="btn-ghost btn-sm ev-del">حذف</button>`;
+        <input type="text" class="input ev-token ltr" placeholder="entity_whatsapp" value="${esc(token)}" aria-label="الكلمة الدالة">
+        <input type="number" class="input ev-weight" min="1" max="10" value="${weight}" aria-label="الوزن">
+        <button type="button" class="icon-btn ev-del" aria-label="احذف الكلمة">${icon('trash')}</button>`;
     el.querySelector('.ev-del').addEventListener('click', () => { el.remove(); previewConfidence(); });
     el.querySelectorAll('input').forEach((i) => i.addEventListener('input', previewConfidence));
     return el;
@@ -432,13 +879,17 @@ function previewConfidence() {
     const total = weights.reduce((a, b) => a + b, 0);
     const share = (n) => weights.slice(0, n).reduce((a, b) => a + b, 0) / total;
     const verdict = (v) => v >= 0.6
-        ? '<b class="ok">يحسم</b>'
-        : '<b class="warn">يسأل سؤال توضيحي</b>';
+        ? badge('يحسم', 'success')
+        : badge('يسأل سؤال توضيحي', 'warning');
 
     box.innerHTML = `
-      <div>الدليل الأول لوحده — لو اتطابق من مصطلح إنجليزي: ${(share(1)).toFixed(2)} ${verdict(share(1))}</div>
-      <div>نفسه لو اتطابق من كلمة عربية (×0.80): ${(share(1) * 0.8).toFixed(2)} ${verdict(share(1) * 0.8)}</div>
-      <div>أول دليلين مع بعض: ${(share(2)).toFixed(2)} ${verdict(share(2))}</div>`;
+      <p class="confidence-title">${icon('gauge')} السيناريو ده هيحسم امتى؟</p>
+      <div class="confidence-row"><span>الدليل الأول لوحده — لو اتطابق من مصطلح إنجليزي</span>
+        <b class="num">${share(1).toFixed(2)}</b> ${verdict(share(1))}</div>
+      <div class="confidence-row"><span>نفسه لو اتطابق من كلمة عربية (×0.80)</span>
+        <b class="num">${(share(1) * 0.8).toFixed(2)}</b> ${verdict(share(1) * 0.8)}</div>
+      <div class="confidence-row"><span>أول دليلين مع بعض</span>
+        <b class="num">${share(2).toFixed(2)}</b> ${verdict(share(2))}</div>`;
 }
 
 function wireScenarioEditor() {
@@ -446,17 +897,42 @@ function wireScenarioEditor() {
     $('addEvidenceBtn').addEventListener('click', () => {
         $('evidenceList').appendChild(evidenceRow());
         previewConfidence();
+        $('evidenceList').lastElementChild.querySelector('.ev-token').focus();
     });
     $('fHasAuto').addEventListener('change', (e) => {
         $('autoTextWrap').hidden = !e.target.checked;
     });
-    $('cancelScenarioBtn').addEventListener('click', () => dlg.close());
+
+    const isDirty = () => state.dirtySnapshot !== null && snapshotOf(dlg) !== state.dirtySnapshot;
+    for (const id of ['cancelScenarioBtn', 'closeScenarioBtn']) {
+        $(id).addEventListener('click', () => tryClose(dlg, isDirty));
+    }
+    guardUnsaved(dlg, isDirty);
+    closeOnBackdrop(dlg, { guardDirty: isDirty });
     $('saveScenarioBtn').addEventListener('click', submitScenario);
+}
+
+/** كل قيم النموذج في نص واحد — أرخص طريقة نعرف بيها إن فيه تغيير. */
+function snapshotOf(root) {
+    return [...root.querySelectorAll('input, select, textarea')]
+        .map((el) => (el.type === 'checkbox' ? String(el.checked) : el.value))
+        .join('');
+}
+
+async function tryClose(dialog, isDirty) {
+    if (!isDirty()) { closeDialog(dialog); return; }
+    const leave = await confirmAction({
+        title: 'تسيب التغييرات؟',
+        body: 'فيه تعديلات مااتحفظتش. لو قفلت دلوقتي هتضيع.',
+        confirmLabel: 'اقفل من غير حفظ',
+        tone: 'danger'
+    });
+    if (leave) closeDialog(dialog);
 }
 
 function openScenarioDialog(scenario) {
     const editing = Boolean(scenario);
-    $('scenarioDialogTitle').textContent = editing ? `عرض: ${scenario.label.ar}` : 'سيناريو جديد';
+    $('scenarioDialogTitle').textContent = editing ? scenario.label.ar : 'سيناريو جديد';
     $('scenarioErrors').hidden = true;
 
     $('fId').value = scenario?.id || '';
@@ -483,7 +959,8 @@ function openScenarioDialog(scenario) {
     $('saveScenarioBtn').textContent = editing ? 'حفظ كنسخة جديدة (مسودة)' : 'حفظ كمسودة';
     $('saveScenarioBtn').disabled = !state.isStaff;
 
-    $('scenarioDialog').showModal();
+    openDialog($('scenarioDialog'));
+    state.dirtySnapshot = snapshotOf($('scenarioDialog'));
 }
 
 function collectScenario() {
@@ -518,50 +995,55 @@ function collectScenario() {
     return scenario;
 }
 
+function showFormError(boxId, html) {
+    const box = $(boxId);
+    box.innerHTML = `${icon('alert')}<div class="alert-body">${html}</div>`;
+    box.hidden = false;
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 async function submitScenario() {
     const scenario = collectScenario();
-    const errBox = $('scenarioErrors');
 
     // Validated against the engine's own schema, so the editor sees exactly
     // the errors the catalog provider would raise rather than saving
     // something the engine will silently skip.
     const { valid, errors } = await validateScenarioDraft(scenario);
     if (!valid) {
-        errBox.innerHTML = '<b>السيناريو مش صالح:</b><br>' + errors.map(esc).join('<br>');
-        errBox.hidden = false;
+        showFormError('scenarioErrors',
+            '<span class="alert-title">السيناريو مش صالح</span>' + errors.map(esc).join('<br>'));
         return;
     }
 
     const weights = scenario.evidenceSignature.map((e) => e.weight).sort((a, b) => b - a);
     const topTwo = weights.slice(0, 2).reduce((a, b) => a + b, 0) / weights.reduce((a, b) => a + b, 0);
     if (topTwo < 0.6) {
-        errBox.innerHTML =
-            '<b>التوقيع ده مش هيحسم أبدًا.</b><br>' +
-            `أقوى دليلين مع بعض بيوصلوا ${topTwo.toFixed(2)} بس، والحد المطلوب 0.60. ` +
-            'قلّل عدد الأدلة أو زوّد وزن الدليل المميِّز.';
-        errBox.hidden = false;
+        showFormError('scenarioErrors',
+            '<span class="alert-title">التوقيع ده مش هيحسم أبدًا</span>'
+            + `أقوى دليلين مع بعض بيوصلوا ${topTwo.toFixed(2)} بس، والحد المطلوب 0.60. `
+            + 'قلّل عدد الأدلة أو زوّد وزن الدليل المميِّز.');
         return;
     }
 
-    $('saveScenarioBtn').disabled = true;
-    const result = await saveScenarioDraft(supabase, {
+    const result = await withBusy($('saveScenarioBtn'), () => saveScenarioDraft(supabase, {
         key: scenario.id,
         definition: scenario,
         authorNote: $('fNote').value.trim() || null
-    });
-    $('saveScenarioBtn').disabled = false;
+    }));
 
     if (!result.success) {
-        errBox.textContent = `تعذّر الحفظ: ${result.error}`;
-        errBox.hidden = false;
+        showFormError('scenarioErrors', `<span class="alert-title">تعذّر الحفظ</span>${esc(result.error)}`);
         return;
     }
 
-    $('scenarioDialog').close();
+    state.dirtySnapshot = null;
+    closeDialog($('scenarioDialog'));
     toast(`اتحفظت كمسودة (إصدار ${result.draftVersion}). المحرك لسه بيستخدم النسخة المنشورة.`);
     state.drafts = await listStoredScenarioVersions(supabase);
     $('draftCount').textContent = state.drafts.length;
     renderDrafts();
+    renderScenarios();
+    renderDashboard();
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -601,16 +1083,19 @@ function wireImportDialog() {
 
     $('importScenarioBtn').addEventListener('click', () => {
         resetImportDialog();
-        dlg.showModal();
+        openDialog(dlg);
     });
-    $('cancelImportBtn').addEventListener('click', () => dlg.close());
+    for (const id of ['cancelImportBtn', 'closeImportBtn']) {
+        $(id).addEventListener('click', () => closeDialog(dlg));
+    }
+    closeOnBackdrop(dlg);
     $('confirmImportBtn').addEventListener('click', saveImportedEntries);
     $('downloadTemplateBtn').addEventListener('click', downloadTemplate);
 
     $('showTokensBtn').addEventListener('click', () => {
         const box = $('tokenCatalog');
         box.hidden = !box.hidden;
-        if (!box.hidden) renderTokenCatalog('');
+        if (!box.hidden) { renderTokenCatalog(''); $('tokenSearch').focus(); }
     });
     $('tokenSearch').addEventListener('input', (e) => renderTokenCatalog(e.target.value));
 
@@ -643,8 +1128,8 @@ function resetImportDialog() {
 
 function importStatus(message, kind = 'info') {
     const box = $('importStatus');
-    box.className = `notice notice--${kind}`;
-    box.textContent = message;
+    box.className = `alert alert--${kind === 'err' ? 'danger' : kind === 'warn' ? 'warning' : kind === 'ok' ? 'success' : 'info'}`;
+    box.innerHTML = `${icon(kind === 'err' ? 'alert' : kind === 'ok' ? 'checkCircle' : 'info')}<div class="alert-body">${esc(message)}</div>`;
     box.hidden = false;
 }
 
@@ -676,7 +1161,7 @@ function renderTokenCatalog(query) {
 
     $('tokenList').innerHTML = rows.length
         ? rows.map(([token, label]) =>
-            `<div class="token-item"><code class="ltr">${esc(token)}</code><span>${esc(label)}</span></div>`).join('')
+            `<div class="token-item"><code>${esc(token)}</code><span>${esc(label)}</span></div>`).join('')
         : '<p class="sub">مفيش كلمة مطابقة.</p>';
 }
 
@@ -755,10 +1240,8 @@ function renderImportPreview(parsed) {
     const bad = parsed.entries.filter((e) => !e.valid);
 
     const verdict = (entry) => entry.valid
-        ? (entry.warnings.length
-            ? '<span class="pill pill--warn">فيه ملاحظة</span>'
-            : '<span class="pill pill--ok">جاهز</span>')
-        : '<span class="pill pill--err">فيه غلط</span>';
+        ? (entry.warnings.length ? badge('فيه ملاحظة', 'warning') : badge('جاهز', 'success'))
+        : badge('فيه غلط', 'danger');
 
     $('importPreview').innerHTML = parsed.entries.map((entry) => `
         <div class="import-item ${entry.valid ? '' : 'is-invalid'}">
@@ -819,6 +1302,7 @@ async function saveImportedEntries() {
     state.drafts = await listStoredScenarioVersions(supabase);
     $('draftCount').textContent = state.drafts.length;
     renderDrafts();
+    renderScenarios();
 
     if (failures.length) {
         importStatus(`اتحفظ ${saved}، وفشل ${failures.length}: ${failures.join(' — ')}`, 'err');
@@ -826,7 +1310,7 @@ async function saveImportedEntries() {
         return;
     }
 
-    $('importDialog').close();
+    closeDialog($('importDialog'));
     // The drafts panel below the table lists scenarios only, so pointing
     // at it after a knowledge-only import would send someone looking for
     // something that is not there.
@@ -834,6 +1318,8 @@ async function saveImportedEntries() {
     toast(anyScenario
         ? `اتحفظ ${saved} كمسودات. افتح «السيناريوهات اللي إنت ضفتها» عشان تفعّلهم.`
         : `اتحفظ ${saved} مدخل معرفة كمسودات، مستنيين التفعيل.`);
+    if (pending.some((e) => e.kind === 'knowledge')) await loadKnowledge();
+    renderDashboard();
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -843,41 +1329,124 @@ async function loadSettings() {
     // `fresh` so an admin never sees a cached value on a page whose whole
     // purpose is showing the current one.
     state.settings = await getSieSettings(supabase, { fresh: true });
+    state.settingsGroup = state.settingsGroup || groupedSettings()[0].id;
+
+    renderSettingsNav();
     renderSettingGroups();
     renderLiveBanner();
 
-    $('tryBtn').addEventListener('click', runDiagnosisPreview);
-    $('tryInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runDiagnosisPreview(); });
+    $('settingSearch').addEventListener('input', debounce(() => {
+        renderSettingsNav();
+        renderSettingGroups();
+    }, 140));
 }
 
 /** الأرقام اللي «أسلوب المحرك» بيتحكم فيها — أي تعديل بإيد فيها يرجّعه لـ«مخصص». */
 const PROFILE_KEYS = new Set(Object.keys(behaviorProfileValues('balanced') || {}));
 
+const changedInGroup = (group) =>
+    group.settings.filter((s) => state.settings[s.key] !== SIE_DEFAULT_SETTINGS[s.key]).length;
+
+function changedSettingsCount() {
+    return Object.keys(SIE_DEFAULT_SETTINGS).filter(
+        (key) => key !== 'engine_enabled' && state.settings[key] !== SIE_DEFAULT_SETTINGS[key]
+    ).length;
+}
+
+const settingsQuery = () => $('settingSearch').value.trim().toLowerCase();
+
+/** الإعدادات اللي بتطابق البحث، عبر كل المجموعات. */
+function matchingSettings(group) {
+    const q = settingsQuery();
+    if (!q) return group.settings;
+    return group.settings.filter((def) =>
+        `${def.title} ${def.desc} ${def.key}`.toLowerCase().includes(q));
+}
+
+/**
+ * قائمة أقسام الإعدادات.
+ *
+ * Sections rather than one long page of accordions: an operator changing
+ * "how sure before answering" is deciding one thing, and a page that shows
+ * all forty-five switches at once makes them scroll past forty-four of
+ * them to reach it.
+ */
+function renderSettingsNav() {
+    const groups = groupedSettings();
+    const searching = Boolean(settingsQuery());
+
+    $('settingsNav').innerHTML = groups.map((group) => {
+        const matches = matchingSettings(group).length;
+        const changed = changedInGroup(group);
+        const disabled = searching && matches === 0;
+        return `
+          <button type="button" class="settings-nav-item${group.id === state.settingsGroup && !searching ? ' is-active' : ''}"
+                  data-group="${esc(group.id)}" ${disabled ? 'disabled' : ''}>
+            <span class="settings-nav-text">
+              <b>${esc(group.title)}</b>
+              <span class="sub">${esc(group.desc)}</span>
+            </span>
+            ${searching
+                ? `<span class="badge badge--count badge--neutral">${matches}</span>`
+                : changed ? `<span class="badge badge--count badge--primary">${changed}</span>` : ''}
+          </button>`;
+    }).join('');
+
+    $('settingsNav').querySelectorAll('[data-group]').forEach((button) =>
+        button.addEventListener('click', () => {
+            state.settingsGroup = button.dataset.group;
+            $('settingSearch').value = '';
+            renderSettingsNav();
+            renderSettingGroups();
+        }));
+
+    const changed = changedSettingsCount();
+    $('settingsSummary').innerHTML = changed
+        ? `${icon('info')} <span><b class="num">${changed}</b> إعداد متغيّر عن المعتاد.</span>`
+        : `${icon('checkCircle')} <span>كل الإعدادات على القيم المعتادة.</span>`;
+}
+
 /**
  * كل المجموعات والعناصر، مرسومة من الوصف الواحد.
  *
- * Groups are rendered as collapsible sections rather than more tabs: an
- * operator changing "how sure before answering" usually wants to see the
- * question cap next to it, and tabs would hide one behind the other.
- * Only the first group is open on load, so the page opens on the switches
- * that get touched most.
+ * أثناء البحث بترسم كل النتائج عبر المجموعات؛ من غير بحث بترسم القسم
+ * المفتوح بس.
  */
 function renderSettingGroups() {
     const container = $('settingGroups');
-    container.innerHTML = groupedSettings().map((group, i) => `
-        <details class="setting-group" ${i === 0 ? 'open' : ''}>
-          <summary>
-            <span class="group-title">${esc(group.title)}</span>
-            <span class="group-desc">${esc(group.desc)}</span>
-            <span class="group-count" data-group="${esc(group.id)}"></span>
-          </summary>
+    const searching = Boolean(settingsQuery());
+    const groups = searching
+        ? groupedSettings().filter((group) => matchingSettings(group).length)
+        : groupedSettings().filter((group) => group.id === state.settingsGroup);
+
+    if (groups.length === 0) {
+        container.innerHTML = emptyState({
+            iconName: 'search', title: 'مفيش إعداد مطابق',
+            text: 'جرّب كلمة أقصر، أو امسح البحث وافتح القسم من القائمة.'
+        });
+        return;
+    }
+
+    container.innerHTML = groups.map((group) => `
+        <section class="settings-section" id="settings-${esc(group.id)}">
+          <header class="settings-section-head">
+            <div>
+              <h2>${esc(group.title)}</h2>
+              <p class="hint">${esc(group.desc)}</p>
+            </div>
+            ${changedInGroup(group)
+                ? `<span class="badge badge--primary">${changedInGroup(group)} متغيّر</span>` : ''}
+          </header>
           <div class="setting-list">
-            ${group.settings.map(renderSetting).join('')}
+            ${matchingSettings(group).map(renderSetting).join('')}
           </div>
-        </details>`).join('');
+        </section>`).join('');
 
     wireSettingInputs();
-    renderGroupCounts();
+
+    if (!state.isStaff) {
+        container.querySelectorAll('input, select').forEach((el) => { el.disabled = true; });
+    }
 }
 
 /** One control, chosen by the setting's own declared type. */
@@ -886,20 +1455,28 @@ function renderSetting(def) {
     const active = isSettingActive(def, state.settings);
     const disabled = !state.isStaff || !active;
     const cls = `setting-row${active ? '' : ' is-inert'}`;
+    const inert = !active
+        ? `<span class="setting-inert">${icon('lock')} متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>`
+        : '';
+    const changed = value !== SIE_DEFAULT_SETTINGS[def.key]
+        ? '<span class="setting-changed" title="متغيّر عن القيمة المعتادة"></span>' : '';
 
     if (def.type === 'boolean') {
         const on = value !== false;
         return `
         <div class="${cls}${on ? '' : ' is-off'}" data-key="${esc(def.key)}" data-type="boolean">
-          <label class="switch">
-            <input type="checkbox" ${on ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
-            <span class="slider"></span>
-          </label>
           <div class="setting-text">
-            <b>${esc(def.title)}</b>
+            <b>${changed}${esc(def.title)}</b>
             <span class="sub">${esc(def.desc)}</span>
-            ${!on && def.warn ? `<span class="setting-warn">${esc(def.warn)}</span>` : ''}
-            ${!active ? `<span class="setting-inert">متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>` : ''}
+            ${!on && def.warn ? `<span class="setting-warn">${icon('alert')} ${esc(def.warn)}</span>` : ''}
+            ${inert}
+          </div>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" ${on ? 'checked' : ''} ${disabled ? 'disabled' : ''}
+                     aria-label="${esc(def.title)}">
+              <span class="slider"></span>
+            </label>
           </div>
         </div>`;
     }
@@ -908,17 +1485,17 @@ function renderSetting(def) {
         return `
         <div class="${cls}" data-key="${esc(def.key)}" data-type="number">
           <div class="setting-text">
-            <b>${esc(def.title)}</b>
+            <b>${changed}${esc(def.title)}</b>
             <span class="sub">${esc(def.desc)}</span>
-            ${!active ? `<span class="setting-inert">متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>` : ''}
+            ${inert}
           </div>
-          <div class="setting-number">
+          <div class="setting-control setting-number">
             <input type="number" class="num-box" min="${def.min}" max="${def.max}" step="${def.step || 1}"
                    value="${value}" dir="ltr" ${disabled ? 'disabled' : ''}
                    aria-label="${esc(def.title)}">
             <input type="range" min="${def.min}" max="${def.max}" step="${def.step || 1}"
                    value="${value}" ${disabled ? 'disabled' : ''} tabindex="-1" aria-hidden="true">
-            <output>${formatNumber(def, value)}</output>
+            <output>${numberHint(def, value)}</output>
           </div>
         </div>`;
     }
@@ -927,16 +1504,16 @@ function renderSetting(def) {
     return `
     <div class="${cls}" data-key="${esc(def.key)}" data-type="enum">
       <div class="setting-text">
-        <b>${esc(def.title)}</b>
+        <b>${changed}${esc(def.title)}</b>
         <span class="sub">${esc(def.desc)}</span>
       </div>
-      <div class="setting-choices">
+      <div class="setting-control setting-choices">
         ${def.options.map((o) => `
-          <label class="choice ${o.value === value ? 'is-picked' : ''}">
+          <label class="radio-card ${o.value === value ? 'is-picked' : ''}">
             <input type="radio" name="${esc(def.key)}" value="${esc(o.value)}"
                    ${o.value === value ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
-            <span class="choice-label">${esc(o.label)}</span>
-            ${o.desc ? `<span class="choice-desc">${esc(o.desc)}</span>` : ''}
+            <span class="radio-card-label">${esc(o.label)}</span>
+            ${o.desc ? `<span class="radio-card-desc">${esc(o.desc)}</span>` : ''}
           </label>`).join('')}
       </div>
     </div>`;
@@ -952,6 +1529,16 @@ function formatNumber(def, value) {
         return value >= 60 ? `${Math.round((value / 60) * 10) / 10} ساعة` : `${value} دقيقة`;
     }
     return String(value);
+}
+
+/**
+ * الصيغة المقروءة جنب الخانة — وبس لما تضيف معلومة.
+ * «١٠٠» جنب «١٠٠» رقم مكرر بياخد مساحة ومابيقولش حاجة؛ «٧٠٪» جنب
+ * «0.7» بيقول اللي الرقم الخام مابيقولهوش.
+ */
+function numberHint(def, value) {
+    const formatted = formatNumber(def, value);
+    return formatted === String(value) ? '' : formatted;
 }
 
 function wireSettingInputs() {
@@ -981,7 +1568,7 @@ function wireSettingInputs() {
             const paint = (v) => {
                 range.value = v;
                 box.value = v;
-                out.textContent = formatNumber(def, v);
+                out.textContent = numberHint(def, v);
             };
 
             // Clamped here rather than trusted to the browser: typing a
@@ -998,7 +1585,7 @@ function wireSettingInputs() {
             // pixel would be dozens of writes for one decision.
             range.addEventListener('input', () => {
                 box.value = range.value;
-                out.textContent = formatNumber(def, Number(range.value));
+                out.textContent = numberHint(def, Number(range.value));
             });
             range.addEventListener('change', () => {
                 const previous = state.settings[key];
@@ -1012,7 +1599,7 @@ function wireSettingInputs() {
                 const n = clamp(box.value);
                 if (n !== null) {
                     range.value = n;
-                    out.textContent = formatNumber(def, n);
+                    out.textContent = numberHint(def, n);
                 }
             });
 
@@ -1075,8 +1662,10 @@ async function commitSetting(key, value, control, revert) {
         }
     }
 
+    renderSettingsNav();
     renderSettingGroups();
     renderLiveBanner();
+    renderDashboard();
     toast('اتحفظ، وشغّال على المحادثات الجديدة على طول.');
 }
 
@@ -1101,22 +1690,13 @@ async function applyBehaviorProfile(profile) {
     }
 }
 
-/** عدد الإعدادات المتغيّرة عن المعتاد جوه كل مجموعة. */
-function renderGroupCounts() {
-    for (const group of groupedSettings()) {
-        const el = $('settingGroups').querySelector(`.group-count[data-group="${group.id}"]`);
-        if (!el) continue;
-        const changed = group.settings.filter((s) => state.settings[s.key] !== SIE_DEFAULT_SETTINGS[s.key]).length;
-        el.textContent = changed ? `${changed} متغيّر` : '';
-        el.className = `group-count${changed ? ' is-changed' : ''}`;
-    }
-}
-
 function renderLiveBanner() {
     const banner = $('liveBanner');
     if (state.settings.engine_enabled === false) {
         banner.className = 'live-banner live-banner--off';
-        banner.textContent = 'المحرك الذكي متوقف دلوقتي. العملاء بيرد عليهم البوت العادي.';
+        banner.innerHTML = `${icon('power')}
+            <div><b>المحرك الذكي متوقف دلوقتي.</b>
+            <span class="sub">العملاء بيرد عليهم البوت العادي لحد ما تفتحه تاني.</span></div>`;
         return;
     }
 
@@ -1124,12 +1704,28 @@ function renderLiveBanner() {
     // Counts what differs from the shipped defaults, not what is merely
     // off: several settings ship off, so counting "off" would report
     // changes on a console nobody has ever touched.
-    const changed = Object.keys(SIE_DEFAULT_SETTINGS).filter(
-        (key) => key !== 'engine_enabled' && state.settings[key] !== SIE_DEFAULT_SETTINGS[key]
-    ).length;
-    banner.textContent = changed === 0
-        ? 'المحرك الذكي شغّال بكل الإعدادات المعتادة.'
-        : `المحرك الذكي شغّال، مع ${changed} إعداد متغيّر عن المعتاد.`;
+    const changed = changedSettingsCount();
+    banner.innerHTML = `${icon('checkCircle')}
+        <div><b>المحرك الذكي شغّال${changed ? `، مع ${changed} إعداد متغيّر عن المعتاد` : ' بكل الإعدادات المعتادة'}.</b>
+        <span class="sub">أي تغيير هنا بيتحفظ فورًا وبيسري على المحادثات الجديدة على طول.</span></div>`;
+}
+
+// ═════════════════════════════════════════════════════════════
+// التشخيص — تجربة رسالة
+// ═════════════════════════════════════════════════════════════
+const TRY_SAMPLES = ['الاشتراك بتاعي منتهي', 'الواتساب مش مربوط', 'نسيت الباسورد'];
+
+function wireDiagnostics() {
+    $('tryBtn').addEventListener('click', runDiagnosisPreview);
+    $('tryInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runDiagnosisPreview(); });
+
+    $('trySamples').innerHTML = '<span class="sub">جرّب مثلاً:</span>'
+        + TRY_SAMPLES.map((text) => `<button type="button" class="chip chip--action" data-sample="${esc(text)}">${esc(text)}</button>`).join('');
+    $('trySamples').querySelectorAll('[data-sample]').forEach((button) =>
+        button.addEventListener('click', () => {
+            $('tryInput').value = button.dataset.sample;
+            runDiagnosisPreview();
+        }));
 }
 
 /**
@@ -1143,7 +1739,7 @@ async function runDiagnosisPreview() {
     if (!text) return;
 
     box.hidden = false;
-    box.innerHTML = 'ثانية واحدة…';
+    box.innerHTML = '<div class="loading-block"><span class="loading-dot"></span> بشغّل المحرك على الرسالة…</div>';
     try {
         const { normalize } = await import('/sie/language/normalizer.js');
         const { processTurn } = await import('/sie/diagnostics/diagnostic-engine.js');
@@ -1155,29 +1751,40 @@ async function runDiagnosisPreview() {
         const top = ranking.ranked.slice(0, 4).filter((r) => r.hypothesis.confidence > 0);
 
         if (top.length === 0) {
-            box.innerHTML = '<span class="sub">المحرك مافهمش الرسالة دي، وهيسأل العميل يوضّح أكتر. '
-                + 'لو دي حالة متكررة عندك، ضيفها من صفحة «السيناريوهات».</span>';
+            box.innerHTML = emptyState({
+                iconName: 'search',
+                title: 'المحرك مافهمش الرسالة دي',
+                text: 'هيسأل العميل يوضّح أكتر. لو دي حالة متكررة عندك، ضيفها من صفحة السيناريوهات.',
+                action: '<a class="btn btn--secondary btn--sm" href="#/scenarios">افتح السيناريوهات</a>'
+            });
             return;
         }
 
         const best = top[0];
         const willAnswer = best.hypothesis.confidence >= 0.6;
         box.innerHTML = `
-          <div class="verdict ${willAnswer ? 'verdict--ok' : 'verdict--ask'}">
-            ${willAnswer
-              ? `هيتعامل معاها كـ «${esc(best.scenario?.label.ar || best.hypothesis.scenarioId)}»`
-              : 'مش متأكد كفاية، فهيسأل العميل سؤال توضيحي الأول'}
+          <div class="verdict verdict--${willAnswer ? 'ok' : 'ask'}">
+            ${icon(willAnswer ? 'checkCircle' : 'alert')}
+            <div>
+              <b>${willAnswer
+                  ? `هيتعامل معاها كـ «${esc(best.scenario?.label.ar || best.hypothesis.scenarioId)}»`
+                  : 'مش متأكد كفاية، فهيسأل العميل سؤال توضيحي الأول'}</b>
+              <span class="sub">الحد المطلوب للحسم هو ٦٠٪.</span>
+            </div>
           </div>
-          <table class="data-table">
-            <thead><tr><th>أقرب السيناريوهات</th><th>درجة التأكد</th></tr></thead>
-            <tbody>${top.map((r) => `
-              <tr>
-                <td>${esc(r.scenario?.label.ar || r.hypothesis.scenarioId)}</td>
-                <td class="ltr">${Math.round(r.hypothesis.confidence * 100)}%</td>
-              </tr>`).join('')}</tbody>
-          </table>`;
+          <ul class="rank-list">
+            ${top.map((r) => {
+                const pct = Math.round(r.hypothesis.confidence * 100);
+                return `
+                <li class="rank-row">
+                  <span class="rank-name">${esc(r.scenario?.label.ar || r.hypothesis.scenarioId)}</span>
+                  <span class="rank-meter">${meter(pct, pct >= 60 ? 'success' : 'warning')}</span>
+                  <b class="num">${pct}%</b>
+                </li>`;
+            }).join('')}
+          </ul>`;
     } catch (err) {
-        box.innerHTML = `<span class="sub">مقدرتش أجرّب دلوقتي: ${esc(err.message)}</span>`;
+        box.innerHTML = errorState(err.message);
     }
 }
 
@@ -1188,8 +1795,10 @@ async function loadUsers() {
     const notice = $('usersNotice');
     if (!state.isSieAdmin) {
         notice.hidden = false;
-        notice.textContent =
-            'السماح للعملاء متاح لمسؤول المحرك بس. تقدر تشوف القائمة، لكن الحفظ هيترفض من قاعدة البيانات.';
+        notice.className = 'alert alert--info';
+        notice.innerHTML = `${icon('info')}<div class="alert-body">`
+            + 'السماح للعملاء متاح لمسؤول المحرك بس. تقدر تشوف القائمة، لكن الحفظ هيترفض من قاعدة البيانات.'
+            + '</div>';
     }
 
     const [{ data: profiles, error: pErr }, { data: access }, rateLimits] = await Promise.all([
@@ -1201,8 +1810,10 @@ async function loadUsers() {
     ]);
 
     if (pErr) {
+        $('userRows').innerHTML = '';
         $('userEmpty').hidden = false;
-        $('userEmpty').textContent = `تعذّر تحميل المستخدمين: ${pErr.message}`;
+        $('userEmpty').innerHTML = errorState(`تعذّر تحميل المستخدمين: ${pErr.message}`);
+        $('userStats').innerHTML = '';
         return;
     }
 
@@ -1233,17 +1844,55 @@ async function loadUsers() {
     // ما العميل يتقفل عليه الباب — أنفع من عدد اللي عندهم حد.
     const nearLimit = state.users.filter((u) => ['warning', 'almost'].includes(u.quota?.status)).length;
     const exhausted = state.users.filter((u) => u.quota?.status === 'exhausted').length;
-    $('userStats').innerHTML = [
-        ['كل المستخدمين', state.users.length],
-        ['مسموح لهم', enabled],
-        ['مش مسموح', state.users.length - enabled],
-        ['عندهم حد استخدام', state.users.filter((u) => u.access && u.access.access_mode !== 'unlimited').length],
-        ['قرّبوا من الحد', nearLimit],
-        ['مستنفدين', exhausted]
-    ].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+    const limited = state.users.filter((u) => u.access && u.access.access_mode !== 'unlimited').length;
 
-    ['userSearch', 'userFilter'].forEach((id) => $(id).addEventListener('input', renderUsers));
+    $('userStats').innerHTML = [
+        statCard({ label: 'كل المستخدمين', value: fmtNumber(state.users.length), iconName: 'users' }),
+        statCard({ label: 'مسموح لهم', value: fmtNumber(enabled), iconName: 'checkCircle', tone: 'success' }),
+        statCard({ label: 'مش مسموح', value: fmtNumber(state.users.length - enabled), iconName: 'lock', tone: 'neutral' }),
+        statCard({ label: 'عندهم حد استخدام', value: fmtNumber(limited), iconName: 'gauge', tone: 'neutral' })
+    ].join('');
+
+    $('usageStats').innerHTML = [
+        statCard({ label: 'حسابات برصيد محدد', value: fmtNumber(state.users.filter((u) => u.access?.access_mode === 'quota').length), iconName: 'usage' }),
+        statCard({ label: 'قرّبوا من الحد', value: fmtNumber(nearLimit), iconName: 'alert', tone: nearLimit ? 'warning' : 'neutral' }),
+        statCard({ label: 'مستنفدين', value: fmtNumber(exhausted), iconName: 'lock', tone: exhausted ? 'danger' : 'neutral' }),
+        statCard({
+            label: 'استثناءات حد المعدل',
+            value: fmtNumber(state.users.filter((u) => u.rateLimit?.is_overridden).length),
+            iconName: 'zap', tone: 'neutral'
+        })
+    ].join('');
+
+    $('userSearch').addEventListener('input', debounce(() => { state.userPage = 1; renderUsers(); }));
+    $('userFilter').addEventListener('input', () => { state.userPage = 1; renderUsers(); });
+    $('usageSearch').addEventListener('input', debounce(() => { state.usagePage = 1; renderUsage(); }));
+    $('usageFilter').addEventListener('input', () => { state.usagePage = 1; renderUsage(); });
+
     renderUsers();
+    renderUsage();
+}
+
+const quotaTone = (status) => ({
+    success: 'success', warning: 'warning', danger: 'danger', neutral: 'neutral'
+}[quotaStatus[status]?.tone] || 'neutral');
+
+/**
+ * الاستهلاك مع حالته. الرقم لوحده («٨٠ / ١٠٠») مابيقولش إن ده قرّب من
+ * الحد، والنسبة هي اللي بتخلي الأدمن ياخد باله قبل ما تخلص.
+ * التصنيف نفسه بيجي من quotaMetrics عشان يبقى واحد في كل الشاشات.
+ */
+function quotaCell(quota, valueHtml) {
+    if (!quota || quota.status === 'unavailable') return `<span class="sub">—</span>`;
+    const label = quotaStatus[quota.status]?.label || '';
+    const pct = quota.total ? `<span class="sub num">${quota.percentage}٪</span>` : '';
+    const tokens = quota.tokensUsed === null || quota.tokensUsed === undefined
+        ? '' : `<span class="sub"><b class="num">${fmtNumber(quota.tokensUsed)}</b> توكن</span>`;
+    return `<div class="usage-cell">
+              ${valueHtml}
+              ${badge(label, quotaTone(quota.status))}
+              ${pct}${tokens}
+            </div>`;
 }
 
 /**
@@ -1252,71 +1901,184 @@ async function loadUsers() {
  * force matters more than the number — an admin changing the global
  * default needs to see at a glance who will not follow it.
  */
-/**
- * الاستهلاك مع حالته. الرقم لوحده («٨٠ / ١٠٠») مابيقولش إن ده قرّب من
- * الحد، والنسبة هي اللي بتخلي الأدمن ياخد باله قبل ما تخلص.
- * التصنيف نفسه بيجي من quotaMetrics عشان يبقى واحد في كل الشاشات.
- */
-function quotaCell(quota, fallbackText) {
-    if (!quota || quota.status === 'unavailable') return `<span class="sub">${esc(fallbackText)}</span>`;
-    const tone = quotaStatus[quota.status]?.tone || 'neutral';
-    const label = quotaStatus[quota.status]?.label || '';
-    const pct = quota.total ? ` — ${quota.percentage}٪` : '';
-    const tokens = quota.tokensUsed === null || quota.tokensUsed === undefined
-        ? '' : `<span class="sub">${Number(quota.tokensUsed).toLocaleString('en')} توكن</span>`;
-    return `<span class="ltr sub">${esc(fallbackText)}${pct}`
-         + `<span class="sub"><span class="pill pill--${esc(tone)}">${esc(label)}</span></span>${tokens}</span>`;
-}
-
 function rateLimitCell(status) {
     if (!status) return '<span class="sub">—</span>';
     if (status.effective_enabled === false) {
-        return `<span class="sub">مقفول<span class="sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}</span></span>`;
+        return `<div class="usage-cell"><span>مقفول</span>
+                <span class="sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}</span></div>`;
     }
     const pressure = describeRateLimitPressure(status);
     const pressed = pressure.level === 'critical' || pressure.level === 'exhausted';
-    const window = Number(status.window_requests) > 0 ? ` — ${Number(status.window_requests)} آخر دقيقة` : '';
-    return `<span class="ltr sub${pressed ? ' rl-pressed' : ''}">${Number(status.effective_limit)}/دقيقة`
-         + `<span class="sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}${window}</span></span>`;
+    const window = Number(status.window_requests) > 0
+        ? ` · <b class="num">${Number(status.window_requests)}</b> آخر دقيقة` : '';
+    // الرقم في عنصر معزول لوحده: «100/دقيقة» في نص عربي بيتقلب حسب
+    // خوارزمية الاتجاه، والفصل بيمنع ده تمامًا.
+    return `<div class="usage-cell${pressed ? ' is-pressed' : ''}">
+              <span><b class="num">${Number(status.effective_limit)}</b> طلب/دقيقة</span>
+              <span class="sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}${window}</span>
+            </div>`;
 }
 
-function renderUsers() {
+function usageText(user) {
+    if (!user.access) return '—';
+    return user.access.access_mode === 'quota'
+        ? `${user.access.messages_used ?? 0} / ${user.access.message_quota ?? '—'}`
+        : `${user.access.messages_used ?? 0}`;
+}
+
+/** «١٢٨٤ رسالة» — الرقم معزول والكلمة عربية، عشان الاتنين مايتقلبوش. */
+function usageCellText(user) {
+    if (!user.access) return '<span class="sub">—</span>';
+    return user.access.access_mode === 'quota'
+        ? `<span class="num">${esc(usageText(user))}</span>`
+        : `<span><b class="num">${user.access.messages_used ?? 0}</b> رسالة</span>`;
+}
+
+function userIdentityCell(user) {
+    return `<div class="user-cell">
+              ${avatar(user.name, user.email)}
+              <span class="user-text">
+                <span class="cell-title">${esc(user.name)}</span>
+                <span class="cell-sub">${esc(user.email)}</span>
+              </span>
+            </div>`;
+}
+
+function filteredUsers() {
     const q = $('userSearch').value.trim().toLowerCase();
     const filter = $('userFilter').value;
 
-    const rows = state.users.filter((u) => {
+    return state.users.filter((u) => {
         const status = evaluateSieAccessRow(u.access);
         if (filter === 'enabled' && !status.available) return false;
         if (filter === 'disabled' && status.available) return false;
         if (!q) return true;
         return `${u.name} ${u.email}`.toLowerCase().includes(q);
     });
+}
+
+function renderUsers() {
+    const rows = filteredUsers();
+    const pageCount = Math.max(1, Math.ceil(rows.length / USERS_PER_PAGE));
+    state.userPage = Math.min(Math.max(1, state.userPage), pageCount);
+    const start = (state.userPage - 1) * USERS_PER_PAGE;
+    const page = rows.slice(start, start + USERS_PER_PAGE);
+
+    $('userCount').textContent = rows.length === 0 ? ''
+        : rows.length <= USERS_PER_PAGE ? `${rows.length} مستخدم`
+        : `${start + 1}–${start + page.length} من ${rows.length} مستخدم`;
 
     $('userEmpty').hidden = rows.length > 0;
-    $('userRows').innerHTML = rows.map((u) => {
+    $('userEmpty').innerHTML = rows.length > 0 ? '' : emptyState({
+        iconName: 'users', title: 'مفيش مستخدمين مطابقين',
+        text: 'جرّب اسم أو بريد تاني، أو شيل الفلتر.'
+    });
+
+    $('userRows').innerHTML = page.map((u) => {
         const s = evaluateSieAccessRow(u.access);
-        const usage = !u.access ? '—'
-            : u.access.access_mode === 'quota'
-                ? `${u.access.messages_used ?? 0} / ${u.access.message_quota ?? '—'}`
-                : `${u.access.messages_used ?? 0} رسالة`;
+        /* USERS_ROW_TEMPLATE — عدد الخانات هنا لازم يساوي عدد الأعمدة في الترويسة */
         return `
         <tr>
-          <td><b>${esc(u.name)}</b><span class="sub ltr">${esc(u.email)}</span></td>
-          <td><span class="pill ${s.available ? 'pill--ok' : 'pill--warn'}">${esc(s.statusLabel)}</span></td>
-          <td class="sub">${esc({ unlimited: 'من غير حدود', quota: 'عدد رسائل', expiration: 'لحد تاريخ' }[u.access?.access_mode] || '—')}</td>
-          <td class="ltr sub">${quotaCell(u.quota, usage)}</td>
-          <td>${rateLimitCell(u.rateLimit)}</td>
-          <td><button class="btn-ghost btn-sm" data-edit="${esc(u.id)}">تعديل</button></td>
+          <td>${userIdentityCell(u)}</td>
+          <td data-label="الحالة">${badge(s.statusLabel, s.available ? 'success' : 'neutral')}</td>
+          <td data-label="نوع السماح" class="sub">${esc(ACCESS_MODE_AR[u.access?.access_mode] || '—')}</td>
+          <td data-label="الاستهلاك">${quotaCell(u.quota, usageCellText(u))}</td>
+          <td data-label="حد المعدل">${rateLimitCell(u.rateLimit)}</td>
+          <td data-label="آخر نشاط" class="sub" title="${esc(fmtDate(u.rateLimit?.last_request_at, { withTime: true }))}">${esc(fmtRelative(u.rateLimit?.last_request_at))}</td>
+          <td class="cell-actions">
+            <button class="btn btn--ghost btn--sm" data-edit="${esc(u.id)}">${icon('edit')} تعديل</button>
+          </td>
         </tr>`;
     }).join('');
 
     $('userRows').querySelectorAll('[data-edit]').forEach((b) =>
         b.addEventListener('click', () => openAccessDialog(b.dataset.edit)));
+
+    renderPager($('userPager'), {
+        page: state.userPage,
+        pageCount,
+        onSelect: (target) => { state.userPage = target; renderUsers(); $('pageScroll').scrollTo({ top: 0, behavior: 'smooth' }); }
+    });
 }
 
+// ═════════════════════════════════════════════════════════════
+// الاستهلاك والحدود — نفس البيانات، بس مقروءة من ناحية الرصيد
+// ═════════════════════════════════════════════════════════════
+function renderUsage() {
+    const q = $('usageSearch').value.trim().toLowerCase();
+    const filter = $('usageFilter').value;
+
+    const rows = state.users.filter((u) => {
+        if (filter === 'quota' && u.access?.access_mode !== 'quota') return false;
+        if (filter === 'attention' && !['warning', 'almost', 'exhausted'].includes(u.quota?.status)) return false;
+        if (filter === 'overridden' && !u.rateLimit?.is_overridden) return false;
+        if (!q) return true;
+        return `${u.name} ${u.email}`.toLowerCase().includes(q);
+    });
+
+    const pageCount = Math.max(1, Math.ceil(rows.length / USERS_PER_PAGE));
+    state.usagePage = Math.min(Math.max(1, state.usagePage), pageCount);
+    const start = (state.usagePage - 1) * USERS_PER_PAGE;
+    const page = rows.slice(start, start + USERS_PER_PAGE);
+
+    $('usageCount').textContent = rows.length === 0 ? ''
+        : rows.length <= USERS_PER_PAGE ? `${rows.length} عميل`
+        : `${start + 1}–${start + page.length} من ${rows.length} عميل`;
+
+    $('usageEmpty').hidden = rows.length > 0;
+    $('usageEmpty').innerHTML = rows.length > 0 ? '' : emptyState({
+        iconName: 'usage', title: 'مفيش عميل هنا',
+        text: 'غيّر الفلتر عشان تشوف باقي الحسابات.'
+    });
+
+    $('usageRows').innerHTML = page.map((u) => {
+        const quota = u.quota || {};
+        const hasQuota = u.access?.access_mode === 'quota' && quota.total;
+        return `
+        <tr>
+          <td>${userIdentityCell(u)}</td>
+          <td data-label="الرصيد">
+            <div class="usage-cell">
+              ${usageCellText(u)}
+              ${hasQuota ? meter(quota.percentage, quotaTone(quota.status)) : ''}
+            </div>
+          </td>
+          <td data-label="المتبقي" class="num">${hasQuota ? fmtNumber(quota.remaining) : '—'}</td>
+          <td data-label="التوكن" class="num">${quota.tokensUsed === null || quota.tokensUsed === undefined ? '—' : fmtNumber(quota.tokensUsed)}</td>
+          <td data-label="الطلبات" class="num">${u.rateLimit ? fmtNumber(u.rateLimit.total_requests) : '—'}${
+              Number(u.rateLimit?.total_rejected) > 0
+                  ? `<span class="sub"><b class="num">${fmtNumber(u.rateLimit.total_rejected)}</b> مرفوض</span>` : ''}</td>
+          <td data-label="حد المعدل">${rateLimitCell(u.rateLimit)}</td>
+          <td class="cell-actions">
+            <button class="btn btn--ghost btn--sm" data-edit-usage="${esc(u.id)}">${icon('edit')} تعديل</button>
+          </td>
+        </tr>`;
+    }).join('');
+
+    $('usageRows').querySelectorAll('[data-edit-usage]').forEach((b) =>
+        b.addEventListener('click', () => openAccessDialog(b.dataset.editUsage)));
+
+    renderPager($('usagePager'), {
+        page: state.usagePage,
+        pageCount,
+        onSelect: (target) => { state.usagePage = target; renderUsage(); $('pageScroll').scrollTo({ top: 0, behavior: 'smooth' }); }
+    });
+}
+
+// ═════════════════════════════════════════════════════════════
+// درج العميل — الوصول والاستهلاك وحد المعدل في مكان واحد
+// ═════════════════════════════════════════════════════════════
 function wireAccessEditor() {
+    const dlg = $('accessDialog');
     $('aMode').addEventListener('change', syncAccessMode);
-    $('cancelAccessBtn').addEventListener('click', () => $('accessDialog').close());
+
+    const isDirty = () => state.dirtySnapshot !== null && snapshotOf(dlg) !== state.dirtySnapshot;
+    for (const id of ['cancelAccessBtn', 'closeAccessBtn']) {
+        $(id).addEventListener('click', () => tryClose(dlg, isDirty));
+    }
+    guardUnsaved(dlg, isDirty);
+    closeOnBackdrop(dlg, { guardDirty: isDirty });
+
     $('resetRateLimitBtn').addEventListener('click', submitResetRateLimit);
     $('saveAccessBtn').addEventListener('click', submitAccess);
     $('resetUsageBtn').addEventListener('click', submitResetUsage);
@@ -1331,7 +2093,11 @@ function syncAccessMode() {
 async function openAccessDialog(userId) {
     const user = state.users.find((u) => u.id === userId);
     state.editingUserId = userId;
+    state.dirtySnapshot = null;
+
     $('accessUserName').textContent = user?.name || '';
+    $('accessUserEmail').textContent = user?.email || '';
+    $('accessAvatar').textContent = user ? initialsOf(user) : '؟';
     $('accessErrors').hidden = true;
 
     // Re-read rather than trusting the list: the row may have changed since
@@ -1345,16 +2111,56 @@ async function openAccessDialog(userId) {
     $('aNotes').value = row?.notes || '';
     syncAccessMode();
 
+    const evaluated = evaluateSieAccessRow(row);
+    $('accessStatusBadge').innerHTML = badge(evaluated.statusLabel, evaluated.available ? 'success' : 'neutral');
+    renderAccessUsage(row);
+
     fillRateLimitFields(state.users.find((u) => u.id === userId)?.rateLimit || null);
 
     $('saveAccessBtn').disabled = !state.isSieAdmin;
     $('resetUsageBtn').disabled = !state.isSieAdmin || !row;
     $('resetRateLimitBtn').disabled = !state.isSieAdmin;
-    $('accessDialog').showModal();
+
+    openDialog($('accessDialog'));
+    state.dirtySnapshot = snapshotOf($('accessDialog'));
+}
+
+const initialsOf = (user) => (user.name && user.name !== '—' ? user.name : user.email).slice(0, 2).toUpperCase();
+
+/** الاستهلاك الحالي للعميل — من نفس حساب quotaMetrics المستخدم في الجداول. */
+function renderAccessUsage(row) {
+    const quota = quotaMetrics(row, state.users.find((u) => u.id === state.editingUserId)?.quota?.tokensUsed ?? null);
+    const hasQuota = row?.access_mode === 'quota' && quota.total;
+
+    $('accessUsage').innerHTML = `
+      <div class="usage-summary">
+        <div class="usage-figure">
+          <span class="sub">مستهلك</span>
+          <b class="num">${fmtNumber(quota.used)}</b>
+        </div>
+        <div class="usage-figure">
+          <span class="sub">الرصيد</span>
+          <b class="num">${hasQuota ? fmtNumber(quota.total) : 'غير محدود'}</b>
+        </div>
+        <div class="usage-figure">
+          <span class="sub">المتبقي</span>
+          <b class="num">${hasQuota ? fmtNumber(quota.remaining) : '—'}</b>
+        </div>
+        <div class="usage-figure">
+          <span class="sub">التوكن</span>
+          <b class="num">${quota.tokensUsed === null || quota.tokensUsed === undefined ? '—' : fmtNumber(quota.tokensUsed)}</b>
+        </div>
+      </div>
+      ${hasQuota ? `${meter(quota.percentage, quotaTone(quota.status))}
+        <p class="sub usage-note">${badge(quotaStatus[quota.status]?.label || '', quotaTone(quota.status))}
+        <span class="num">${quota.percentage}٪</span> من الرصيد اتستهلك.</p>` : ''}
+      ${row?.access_mode === 'expiration' && row.expires_at
+        ? `<p class="sub usage-note">${icon('calendar')} الصلاحية بتنتهي ${esc(fmtDate(row.expires_at, { withTime: true }))}</p>` : ''}
+      ${!row ? '<p class="sub usage-note">العميل ده لسه مالوش صف صلاحية — أول حفظ هينشئه.</p>' : ''}`;
 }
 
 /**
- * The rate-limit half of the dialog.
+ * The rate-limit half of the drawer.
  *
  * The three inputs show the OVERRIDE, not the effective value: an empty
  * box means "inherit", and pre-filling it with the inherited number would
@@ -1374,9 +2180,10 @@ function fillRateLimitFields(status) {
         ? `${Number(status.window_requests)} طلب${Number(status.window_rejected) > 0 ? ` — ${Number(status.window_rejected)} اترفض` : ''}`
         : '—';
 
-    const meter = $('rlMeter');
-    meter.className = `rl-meter-fill ${pressure.level}`;
-    meter.style.width = `${Math.round(pressure.ratio * 100)}%`;
+    const meterEl = $('rlMeter');
+    const tone = { warning: 'is-warning', critical: 'is-danger', exhausted: 'is-danger', off: 'is-neutral' }[pressure.level] || 'is-success';
+    meterEl.className = `meter-fill ${tone}`;
+    meterEl.style.width = `${Math.round(pressure.ratio * 100)}%`;
 
     const pressureEl = $('rlPressure');
     pressureEl.className = `rl-pressure ${pressure.level}`;
@@ -1393,33 +2200,29 @@ function fillRateLimitFields(status) {
 
 async function submitAccess() {
     const mode = $('aMode').value;
-    const errBox = $('accessErrors');
 
     if (mode === 'quota' && !(Number($('aQuota').value) > 0)) {
-        errBox.textContent = 'اكتب عدد رسائل أكبر من صفر.';
-        errBox.hidden = false;
+        showFormError('accessErrors', 'اكتب عدد رسائل أكبر من صفر.');
+        $('aQuota').focus();
         return;
     }
     if (mode === 'expiration' && !$('aExpiry').value) {
-        errBox.textContent = 'اختار تاريخ انتهاء.';
-        errBox.hidden = false;
+        showFormError('accessErrors', 'اختار تاريخ انتهاء.');
+        $('aExpiry').focus();
         return;
     }
 
-    $('saveAccessBtn').disabled = true;
-    const { error } = await adminSetAccess(supabase, {
+    const { error } = await withBusy($('saveAccessBtn'), () => adminSetAccess(supabase, {
         userId: state.editingUserId,
         isEnabled: $('aEnabled').checked,
         accessMode: mode,
         messageQuota: mode === 'quota' ? Number($('aQuota').value) : null,
         expiresAt: mode === 'expiration' ? new Date($('aExpiry').value).toISOString() : null,
         notes: $('aNotes').value.trim() || null
-    });
-    $('saveAccessBtn').disabled = false;
+    }));
 
     if (error) {
-        errBox.textContent = `تعذّر الحفظ: ${error.message}`;
-        errBox.hidden = false;
+        showFormError('accessErrors', `تعذّر الحفظ: ${esc(error.message)}`);
         return;
     }
 
@@ -1429,15 +2232,17 @@ async function submitAccess() {
     // admin already made — they get told, and the quota stands.
     const rlError = await saveRateLimitFields();
     if (rlError) {
-        errBox.textContent = `الصلاحية اتحفظت، لكن حد المعدل فشل: ${rlError.message}`;
-        errBox.hidden = false;
+        showFormError('accessErrors', `الصلاحية اتحفظت، لكن حد المعدل فشل: ${esc(rlError.message)}`);
+        state.dirtySnapshot = null;
         await loadUsers();
         return;
     }
 
-    $('accessDialog').close();
+    state.dirtySnapshot = null;
+    closeDialog($('accessDialog'));
     toast('اتحفظت الصلاحية وحد المعدل.');
     await loadUsers();
+    renderDashboard();
 }
 
 /** @returns {Promise<Error|null>} */
@@ -1471,27 +2276,43 @@ async function saveRateLimitFields() {
 // ceiling" and "this customer is stuck behind a 429 right now" are different
 // decisions, and merging them means every unblock rewrites the policy.
 async function submitResetRateLimit() {
-    if (!confirm('فك الحظر المؤقت للعميل ده؟ ده بيصفّر عدّاد المعدل من غير ما يغيّر الحد نفسه.')) return;
-    const { error } = await adminResetRateLimit(supabase, state.editingUserId);
+    const ok = await confirmAction({
+        title: 'فك الحظر المؤقت للعميل ده؟',
+        body: 'ده بيصفّر عدّاد المعدل عشان يقدر يبعت حالًا، من غير ما يغيّر الحد نفسه.',
+        confirmLabel: 'فُك الحظر'
+    });
+    if (!ok) return;
+
+    const { error } = await withBusy($('resetRateLimitBtn'), () =>
+        adminResetRateLimit(supabase, state.editingUserId));
     if (error) {
-        $('accessErrors').textContent = `تعذّر فك الحظر: ${error.message}`;
-        $('accessErrors').hidden = false;
+        showFormError('accessErrors', `تعذّر فك الحظر: ${esc(error.message)}`);
         return;
     }
-    $('accessDialog').close();
+    state.dirtySnapshot = null;
+    closeDialog($('accessDialog'));
     toast('اتفك الحظر — العميل يقدر يبعت دلوقتي.');
     await loadUsers();
 }
 
 async function submitResetUsage() {
-    if (!confirm('تصفير عدّاد الاستخدام للعميل ده؟')) return;
-    const { error } = await adminResetUsage(supabase, state.editingUserId);
+    const ok = await confirmAction({
+        title: 'تصفير عدّاد الاستخدام؟',
+        body: 'الرسائل المستهلكة هترجع صفر. الرصيد نفسه مش هيتغير.',
+        confirmLabel: 'صفّر العدّاد',
+        tone: 'danger'
+    });
+    if (!ok) return;
+
+    const { error } = await withBusy($('resetUsageBtn'), () =>
+        adminResetUsage(supabase, state.editingUserId));
     if (error) {
-        $('accessErrors').textContent = `تعذّر التصفير: ${error.message}`;
-        $('accessErrors').hidden = false;
+        showFormError('accessErrors', `تعذّر التصفير: ${esc(error.message)}`);
         return;
     }
-    $('accessDialog').close();
+    state.dirtySnapshot = null;
+    closeDialog($('accessDialog'));
     toast('اتصفّر الاستخدام.');
     await loadUsers();
+    renderDashboard();
 }

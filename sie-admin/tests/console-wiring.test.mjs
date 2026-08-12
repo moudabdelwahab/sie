@@ -59,10 +59,76 @@ test('كل حاجة settings.js بيستوردها من sie-runtime موجودة
     assert.deepEqual(missing, [], `مستورد ومش موجود في الـ runtime: ${missing.join(', ')}`);
 });
 
-test('التبويب اسمه «السيناريوهات» مش «الحالات»', async () => {
-    const html = await read('settings.html');
-    assert.ok(html.includes('>السيناريوهات<'));
+test('القسم اسمه «السيناريوهات» مش «الحالات»', async () => {
+    const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
+    // أسماء الأقسام بقت في وصف الأقسام جوه settings.js، مش مكتوبة في الـHTML.
+    assert.match(js, /label: 'السيناريوهات'/);
     assert.ok(!html.includes('الحالات اللي بيفهمها'));
+    assert.ok(!js.includes('الحالات اللي بيفهمها'));
+});
+
+// ── هيكل التطبيق ────────────────────────────────────────────────────
+//
+// نفس منطق الاختبار الأول، بس للطبقة اللي اتفصلت في إعادة التصميم:
+// الشِل والعناصر المشتركة بينادوا على عناصر بالـid زي أي كود تاني،
+// وفشلهم بيبقى صامت بنفس الطريقة.
+
+const UI_FILES = ['ui/app-shell.js', 'ui/components.js'];
+
+test('كل عنصر بينده عليه الشِل والعناصر المشتركة موجود في settings.html', async () => {
+    const html = await read('settings.html');
+    const declared = idsInHtml(html);
+
+    for (const file of UI_FILES) {
+        const source = await read(file);
+        const used = [...source.matchAll(/getElementById\('([^']+)'\)/g)].map((m) => m[1]);
+        const missing = [...new Set(used)].filter((id) => !declared.has(id));
+        assert.deepEqual(missing, [], `${file}: عناصر بيتنده عليها ومش موجودة: ${missing.join(', ')}`);
+    }
+});
+
+test('كل قسم في القائمة الجانبية له لوحة في الـHTML', async () => {
+    const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
+
+    const viewIds = [...js.matchAll(/^\s*id: '([a-z]+)', label: '/gm)].map((m) => m[1]);
+    assert.ok(viewIds.length >= 5, `مالقيتش وصف الأقسام (لقيت ${viewIds.length})`);
+
+    const panels = new Set([...html.matchAll(/data-view-panel="([^"]+)"/g)].map((m) => m[1]));
+    const missing = viewIds.filter((id) => !panels.has(id));
+    assert.deepEqual(missing, [], `أقسام في القائمة من غير لوحة: ${missing.join(', ')}`);
+});
+
+test('الأيقونات كلها من نظام الأيقونات — مفيش إيموجي في الواجهة', async () => {
+    const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
+    // نطاق الإيموجي الأساسي. الرموز العربية والعلامات مش داخلة فيه.
+    const emoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
+    assert.doesNotMatch(html, emoji, 'فيه إيموجي في settings.html');
+    assert.doesNotMatch(js, emoji, 'فيه إيموجي في settings.js');
+});
+
+test('كل الأيقونات المطلوبة موجودة في نظام الأيقونات', async () => {
+    const [js, shellSource] = await Promise.all([read('settings.js'), read('ui/app-shell.js')]);
+    const { iconNames } = await import('../ui/icons.js');
+
+    const asked = new Set([
+        ...[...js.matchAll(/icon\('([a-zA-Z]+)'/g)].map((m) => m[1]),
+        ...[...shellSource.matchAll(/icon\('([a-zA-Z]+)'/g)].map((m) => m[1]),
+        // أيقونات الأقسام بتتكتب كـ iconName في وصف القسم.
+        ...[...js.matchAll(/iconName: '([a-zA-Z]+)'/g)].map((m) => m[1])
+    ]);
+
+    const missing = [...asked].filter((name) => !iconNames.includes(name));
+    assert.deepEqual(missing, [], `أيقونات مطلوبة ومش متعرّفة: ${missing.join(', ')}`);
+});
+
+test('الصفحات بتحمّل نظام التصميم مرة واحدة وبس', async () => {
+    for (const page of ['settings.html', 'login.html']) {
+        const html = await read(page);
+        assert.ok(html.includes('./design-system.css'), `${page} مش بيحمّل نظام التصميم`);
+        assert.ok(html.includes('./sie-admin.css'), `${page} مش بيحمّل ستايل الصفحات`);
+        // الملف ده اتشال، وتوكناته بقت جوه design-system.css.
+        assert.ok(!html.includes('base-theme.css'), `${page} لسه بيحمّل ملف اتشال`);
+    }
 });
 
 test('الصفحة الرئيسية فيها زرار دخول بيوصّل لـ sie-admin/login.html', async () => {
@@ -109,10 +175,13 @@ test('نافذة الصلاحية فيها كل عناصر حد المعدل', a
 test('عمود حد المعدل موجود في الترويسة وفي الصف', async () => {
     const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
     // زيادة <th> من غير <td> بتزحلق كل خانة في الجدول مكان واحد.
-    const usersTable = html.slice(html.indexOf('id="tab-users"'), html.indexOf('</section>', html.indexOf('id="tab-users"')));
+    const panelStart = html.indexOf('data-view-panel="users"');
+    const usersTable = html.slice(panelStart, html.indexOf('</section>', panelStart));
     const headerCount = [...usersTable.slice(usersTable.indexOf('<thead>'), usersTable.indexOf('</thead>')).matchAll(/<th\b/g)].length;
 
-    const rowStart = js.indexOf('<tr>\n          <td><b>${esc(u.name)}</b>');
+    // علامة ثابتة في المصدر: الصف بيتغيّر شكله، والاختبار مايتغيرش معاه.
+    const rowStart = js.indexOf('/* USERS_ROW_TEMPLATE');
+    assert.ok(rowStart > 0, 'مالقيتش علامة صف المستخدمين في settings.js');
     const rowTemplate = js.slice(rowStart, js.indexOf('</tr>', rowStart));
     const cellCount = [...rowTemplate.matchAll(/<td\b/g)].length;
 
