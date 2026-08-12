@@ -142,3 +142,38 @@ test('مركز المراجعة مابقاش فيه أي تحكم في حد ال
         assert.ok(!rc.includes(fn), `${fn} لسه موجود في مركز المراجعة — المفروض التحكم في مكان واحد بس`);
     }
 });
+
+test('الأرقام تتكتب مش تتسحب بس', async () => {
+    const js = await read('settings.js');
+    const render = js.slice(js.indexOf("if (def.type === 'number')"), js.indexOf('// enum'));
+
+    // خانة رقم حقيقية جنب الشريط. من غيرها الرقم بيتحدد بالمؤشر بس،
+    // والشريط اللي مداه بالآلاف مستحيل يوصّل لرقم بعينه.
+    assert.match(render, /type="number" class="num-box"/);
+    assert.match(render, /min="\$\{def\.min\}" max="\$\{def\.max\}"/);
+
+    const wire = js.slice(js.indexOf("if (type === 'number')"), js.indexOf("row.querySelectorAll('input[type=radio]')"));
+    assert.match(wire, /const box = row\.querySelector\('\.num-box'\)/);
+    // الشريط والخانة لازم يفضلوا متطابقين في الاتجاهين.
+    assert.match(wire, /range\.addEventListener\('input'/);
+    assert.match(wire, /box\.addEventListener\('input'/);
+    // الحفظ على change مش على كل حرف: «١» في طريقها لـ«١٠٠» قيمة
+    // حقيقية المحرك كان هيطيعها للحظة.
+    assert.match(wire, /box\.addEventListener\('change', commitBox\)/);
+    assert.match(wire, /if \(e\.key === 'Enter'\)/);
+    // الحد بيتقصّ هنا: رقم بره المدى بيفضل شكله سليم في المتصفح
+    // والقاعدة هي اللي بترفضه برسالة محدش هيربطها باللي كتبه.
+    assert.match(wire, /Math\.min\(Math\.max\(n, def\.min\), def\.max\)/);
+});
+
+test('مدى الشريط للأرقام يقدر يوصّل للقيمة الافتراضية', async () => {
+    const { SETTINGS } = await import('../../sie/config/settings-schema.js');
+    // شريط من ١ لـ١٠٠٠٠٠ مستحيل يختار ١٠٠. الافتراضي لازم يكون على
+    // خطوة صحيحة من الحد الأدنى، وإلا السحب عمره ما هيقف عليه.
+    for (const def of SETTINGS.filter((d) => d.type === 'number')) {
+        const steps = (def.default - def.min) / (def.step || 1);
+        assert.ok(Number.isInteger(Number(steps.toFixed(6))),
+            `${def.key}: القيمة الافتراضية ${def.default} مش على خطوة من ${def.min} بمقدار ${def.step}`);
+        assert.ok(def.default >= def.min && def.default <= def.max, `${def.key}: الافتراضي بره المدى`);
+    }
+});

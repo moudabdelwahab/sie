@@ -594,3 +594,24 @@ fieldset.field { border: 1px solid var(--color-border); border-radius: 12px; pad
 .rl-pressure.exhausted { color: var(--danger, #ef4444); font-weight: 700; }
 
 .rl-pressed { color: var(--danger, #ef4444); font-weight: 700; }
+
+/* الرقم يتكتب، مش يتسحب بس — السحب بيوصّل لـ«حوالي كده»،
+   والكتابة هي الطريقة الوحيدة للوصول لرقم بعينه. */
+.setting-number .num-box {
+  width: 5.5rem;
+  padding: .4rem .55rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  border-radius: 8px;
+  border: 1px solid var(--line, rgba(255,255,255,.14));
+  background: var(--surface-2, rgba(255,255,255,.05));
+  color: inherit;
+  font: inherit;
+}
+.setting-number .num-box:focus {
+  outline: 2px solid var(--accent, #6366f1);
+  outline-offset: 1px;
+}
+.setting-number .num-box:disabled { opacity: .45; cursor: not-allowed; }
+/* الرقم بقى في الخانة، فالـoutput فضل للصيغة المقروءة بس (ساعة/٪). */
+.setting-number output { color: var(--muted, #94a3b8); font-size: .82rem; min-width: 4ch; }

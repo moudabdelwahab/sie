@@ -19248,6 +19248,4802 @@
         }
       },
       "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_from_other_platform",
+      "label": {
+        "ar": "الانتقال من منصة تانية",
+        "en": "Migrating from another platform"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_migration",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_import",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "النقل بيتعمل على تلات مراحل عشان ماتوقفش شغلك يوم واحد:\n١. نصدّر من المنصة القديمة: جهات الاتصال، والمحادثات المفتوحة بس (المقفولة تتنقل بعدين).\n٢. نرفعهم هنا ونطابق الأعمدة — الشاشة بتوريك كل عمود رايح فين قبل ما تأكّد.\n٣. نشغّل الاتنين بالتوازي أسبوع، والفريق يرد من هنا والقديم يفضل للقراءة بس.\nقولّي المنصة اللي جاي منها وأقولّك الملفات المطلوبة بالظبط [[icon:note]]",
+          "en": "Migration runs in three stages so you never lose a working day:\n1. Export from the old platform: contacts and OPEN conversations only.\n2. Upload here and map the columns — the screen shows where each column lands before you confirm.\n3. Run both in parallel for a week, replying here while the old one stays read-only.\nTell me which platform you are coming from and I will list the exact files."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_history_scope",
+      "label": {
+        "ar": "المحادثات القديمة تيجي معانا؟",
+        "en": "Do old conversations come across?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_history_import",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_archive",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه، بس الأفضل ماتنقلش كل حاجة:\n• المحادثات المفتوحة — تتنقل أول حاجة، دي اللي شغلك واقف عليها.\n• آخر ٦ شهور — تتنقل عشان تاريخ العميل يفضل قدام الموظف.\n• الأقدم من كده — يتحفظ كأرشيف للقراءة، ماينفعش يتردّ عليه.\nالسبب إن نقل كل حاجة بيبطّئ البحث من أول يوم على بيانات محدش هيفتحها [[icon:note]]",
+          "en": "Yes, but you should not move everything:\n- Open conversations first — your work depends on them.\n- The last 6 months, so the customer history stays in front of the agent.\n- Anything older becomes a read-only archive.\nMoving everything slows search from day one, over data nobody will open."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_golive_plan",
+      "label": {
+        "ar": "خطة يوم التشغيل",
+        "en": "Go-live plan"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_golive",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_onboarding_checklist",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أحسن يوم للتشغيل هو أهدى يوم عندك في الأسبوع، مش أول الشهر.\n• قبلها بيومين: الفريق يكون دخل وجرّب الرد على محادثة تجريبية.\n• يوم التشغيل: نحوّل قناة واحدة بس — الواتساب مثلاً — والباقي يفضل زي ما هو.\n• بعدها بأسبوع: نحوّل باقي القنوات.\nالتحويل على مراحل معناه إن أي مفاجأة تبقى في قناة واحدة مش في كل الشغل [[icon:note]]",
+          "en": "The best go-live day is your quietest day of the week, not the start of the month.\n- Two days before: the team signs in and practises on a test conversation.\n- Go-live day: switch ONE channel only.\n- A week later: move the rest.\nStaging it means any surprise is contained to one channel, not your whole operation."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_parallel_run",
+      "label": {
+        "ar": "نشغّل الاتنين مع بعض",
+        "en": "Running both systems in parallel"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_parallel_run",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_golive",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "trigger_afraid_mistake",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التشغيل بالتوازي فكرة كويسة، بشرط واحد: قناة الاستقبال تكون في مكان واحد بس.\nلو الرقم نفسه موصّل على الاتنين، العميل هيتردّ عليه مرتين والموظفين هيشتغلوا على نفس التذكرة من غير ما يعرفوا.\nفالأسلوب الصح: الاستقبال هنا، والقديم مفتوح للقراءة والرجوع للتاريخ بس، لمدة أسبوعين تقريبًا [[icon:note]]",
+          "en": "Parallel running is sensible, with one condition: inbound must land in ONE place.\nIf the same number is connected to both, the customer gets two replies and two agents work the same ticket unaware.\nSo: receive here, keep the old system read-only for history, for about two weeks."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_team_training",
+      "label": {
+        "ar": "تدريب الفريق على المنصة",
+        "en": "Training the team"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_team_training",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الفريق محتاج ٤٠ دقيقة بالظبط، مش أكتر:\n١. إزاي يرد ويقفل تذكرة (١٠ دقايق).\n٢. الملاحظات الداخلية والفرق بينها وبين الرد — ده أكتر مكان بيحصل فيه غلط.\n٣. التحويل لزميل، والردود الجاهزة.\nخلّي كل واحد يعمل تذكرة تجريبية بنفسه في الجلسة — الشرح لوحده مابيثبتش [[icon:note]]",
+          "en": "Your team needs exactly 40 minutes, not more:\n1. Replying and closing a ticket (10 min).\n2. Internal notes vs replies — this is where mistakes happen most.\n3. Transferring to a colleague, and canned replies.\nHave each person create a test ticket during the session; explanation alone does not stick."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_rollback_plan",
+      "label": {
+        "ar": "لو حبينا نرجع زي ما كنا",
+        "en": "Rolling back"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_rollback",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "trigger_afraid_mistake",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "بياناتك بتفضل بتاعتك في أي وقت: تقدر تصدّر كل المحادثات وجهات الاتصال من الإعدادات ← التصدير، بصيغة قياسية أي منصة بتقراها.\nفالرجوع مش «إذن» بتاخده مننا — هو زرار. وعشان كده مانصحش حد يقفل نظامه القديم قبل ما يعدّي أسبوعين هنا [[icon:note]]",
+          "en": "Your data stays yours: export every conversation and contact from Settings > Export, in a standard format any platform reads.\nRolling back is not permission you ask us for — it is a button. Which is why we tell nobody to shut down their old system before two weeks here."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_data_cleanup",
+      "label": {
+        "ar": "تنظيف البيانات قبل النقل",
+        "en": "Cleaning data before the move"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_data_cleanup",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_duplicated",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_contact",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أهم خطوة قبل النقل، وأكتر واحدة بتتنسي:\n• شيل جهات الاتصال المكررة — لو اتنقلت مكررة هتفضل مكررة هنا.\n• وحّد صيغة الأرقام (كود الدولة قدام كل رقم) — ده اللي بيخلي العميل يتعرف عليه لما يكلمك.\n• امسح اللي مالوش رقم ولا إيميل، ده صف فاضي.\nابعتلي الملف قبل ما ترفعه وأقولّك فيه إيه [[icon:note]]",
+          "en": "The most important step before migrating, and the most skipped:\n- Remove duplicate contacts — duplicates that come in stay duplicates.\n- Normalise phone numbers with a country code — that is what lets a customer be recognised.\n- Delete rows with no phone and no email; those are empty rows.\nSend me the file before uploading and I will tell you what is in it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_pilot_group",
+      "label": {
+        "ar": "نجرب على فريق صغير الأول",
+        "en": "Piloting with a small team"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_pilot_group",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_department",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده أذكى ترتيب، والاختيار الصح للمجموعة التجريبية مش أصغر فريق — هو الفريق اللي بيشوف أكتر أنواع مشاكل.\nقسم الدعم اليومي أحسن من قسم المبيعات مثلاً، لأنه هيكشف الحاجات الناقصة في أول أسبوع بدل ما تظهر بعد ما الكل يتحوّل.\nخليه أسبوعين، وبعدها نوسّع [[icon:note]]",
+          "en": "Smart sequencing. The right pilot group is not the smallest team — it is the team that sees the widest range of problems.\nDaily support beats sales here, because it surfaces gaps in week one rather than after everyone has moved.\nRun it two weeks, then expand."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_who_sets_up",
+      "label": {
+        "ar": "مين اللي بيظبط الحساب",
+        "en": "Who sets the account up"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_account_setup",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_need_help",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التجهيز الأساسي إحنا بنعمله معاك في مكالمة واحدة: ربط القناة، وإضافة الفريق، ومواعيد الشغل.\nاللي بيفضل عليك بعدها حاجتين بس: نص الترحيب، والردود الجاهزة اللي فريقك بيستخدمها كل يوم — ودول محدش يعرفهم غيرك.\nقولّي معادك المناسب وأرتّبها [[icon:note]]",
+          "en": "We do the core setup with you in one call: channel connection, team members, working hours.\nTwo things stay with you: the welcome message and the canned replies your team uses daily — nobody else knows those.\nTell me a time that suits you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "migration_onboarding_checklist",
+      "label": {
+        "ar": "محتاجين نجهّز إيه",
+        "en": "What to prepare"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_onboarding_checklist",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_first_time",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أربع حاجات بس، وكلها من عندك:\n١. رقم واتساب مش مربوط بتطبيق واتساب تاني على نفس الرقم.\n٢. إيميلات فريقك عشان ندخلهم.\n٣. مواعيد شغلكم وأيام الإجازة.\n٤. أكتر ٥ أسئلة بيتكرروا من عملائك — دي اللي هنبني عليها أول ردود جاهزة.\nجهّزهم وابعتلي، والباقي علينا [[icon:note]]",
+          "en": "Four things, all from your side:\n1. A WhatsApp number not already tied to the WhatsApp app.\n2. Your team email addresses.\n3. Working hours and days off.\n4. Your five most repeated customer questions — those become the first canned replies.\nSend those and we take it from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "compliance_data_agreement",
+      "label": {
+        "ar": "اتفاقية معالجة البيانات",
+        "en": "Data processing agreement"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_data_agreement",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_purchase_order",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "compliance_data_residency",
+      "label": {
+        "ar": "البيانات متخزنة فين",
+        "en": "Where the data is stored"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_data_residency",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "trigger_is_data_safe",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "compliance_erasure_request",
+      "label": {
+        "ar": "عميل طالب حذف بياناته",
+        "en": "End customer requests erasure"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_erasure_request",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_delete",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_contact",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الطلب ده ليه مسار محدد عشان يتوثّق:\n١. من صفحة العميل ← «حذف بيانات العميل»، بيمسح بياناته الشخصية ويسيب التذاكر مجهّلة (عشان أرقامك في التقارير ماتتغيرش أثر رجعي).\n٢. الحذف بيتسجل في سجل النشاط بتاريخه ومين طلبه — ده إثباتك لو حد سألك بعدين.\n٣. لو محتاج مسح كامل بما فيه التذاكر، ده بيتعمل من فريقنا بطلب مكتوب.\nقولّي أنهي مستوى محتاجه [[icon:note]]",
+          "en": "This request has a defined path so it is documented:\n1. Customer page > Delete customer data — removes personal data and anonymises the tickets, so your historical reports do not change retroactively.\n2. The deletion is written to the activity log with date and requester — that is your evidence later.\n3. Full erasure including tickets is done by our team on a written request.\nTell me which level you need."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "compliance_consent_record",
+      "label": {
+        "ar": "إثبات موافقة العميل",
+        "en": "Proof of customer consent"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_consent_record",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_optout",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_audit_log",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "compliance_retention_policy",
+      "label": {
+        "ar": "مدة الاحتفاظ بالبيانات",
+        "en": "Data retention period"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_retention_policy",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_archiving",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "compliance_certification",
+      "label": {
+        "ar": "شهادات الامتثال",
+        "en": "Compliance certifications"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_certification",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "compliance_subprocessors",
+      "label": {
+        "ar": "مين بيشارككم البيانات",
+        "en": "Who else touches the data"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_subprocessor",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "trigger_data_concern",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "compliance_breach_duty",
+      "label": {
+        "ar": "لو حصل اختراق",
+        "en": "Breach notification"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_breach_duty",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_login_alert",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "scale_search_slow",
+      "label": {
+        "ar": "البحث بقى بطيء",
+        "en": "Search has become slow"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_search_performance",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_large_volume",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_slow",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "scale_report_timeout",
+      "label": {
+        "ar": "التقرير بيفصل على مدة طويلة",
+        "en": "Report times out on a long range"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_report_range",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_timeout",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التقرير الطويل بيتقطع لأنه بيحسب كل حاجة مرة واحدة. الطريقة العملية:\n١. قسّمه لفترات: ربع سنة في المرة بدل سنة كاملة.\n٢. لو محتاج السنة كلها في ملف واحد، استخدم «تقرير مجدول» — بيتحسب في الخلفية ويوصلك على الإيميل جاهز.\n٣. شيل الأعمدة اللي مش هتستخدمها قبل ما تصدّر، هي اللي بتثقّل أكتر حاجة.\nلو لسه بيفصل بعد كده قولّي [[icon:note]]",
+          "en": "A long report breaks because it computes everything at once:\n1. Split it — a quarter at a time instead of a full year.\n2. If you need the whole year in one file, use a scheduled report: it runs in the background and arrives by email.\n3. Drop columns you will not use before exporting; they are the heaviest part."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "scale_storage_limit",
+      "label": {
+        "ar": "المساحة خلصت",
+        "en": "Storage limit reached"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_storage_limit",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_attachment_size",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_limit_reached",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "scale_archiving_old",
+      "label": {
+        "ar": "نأرشف المحادثات القديمة",
+        "en": "Archiving old conversations"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_archiving",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_large_volume",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الأرشفة بتنقل القديم برّه البحث اليومي من غير ما تمسحه:\n١. الإعدادات ← البيانات ← الأرشفة، وتحدد المدة (المعتاد: أقدم من سنة).\n٢. المؤرشف يفضل موجود ويتبحث فيه من خانة «شامل الأرشيف»، بس مش بيثقّل البحث العادي.\n٣. بتتعمل مرة واحدة وبعدين بتشتغل لوحدها كل شهر.\nده أكبر فرق في سرعة البحث لو عندك سنين من المحادثات [[icon:note]]",
+          "en": "Archiving moves old data out of daily search without deleting it:\n1. Settings > Data > Archiving, pick a cutoff (usually older than a year).\n2. Archived items remain searchable via \"include archive\", but stop weighing down normal search.\n3. Set it once and it runs monthly.\nThis is the single biggest search-speed change if you have years of history."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "scale_deep_pagination",
+      "label": {
+        "ar": "الصفحات البعيدة بطيئة",
+        "en": "Deep pages are slow"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_deep_pagination",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_slow",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_filter",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الصفحات البعيدة بتبقى تقيلة لأن النظام بيعدّي على كل اللي قبلها.\nالحل العملي مش إنك تستنى — هو إنك ماتوصلش لهناك أصلاً: استخدم الفلتر (تاريخ، أو موظف، أو وسم) عشان النتيجة تبقى أقل من صفحتين.\nلو محتاج فعلاً تمشي على كل حاجة بالترتيب، صدّرها ملف وافتحها برّه — ده أسرع بكتير من التنقل صفحة صفحة [[icon:note]]",
+          "en": "Deep pages are heavy because the system walks everything before them.\nThe practical fix is not waiting — it is not going there: filter by date, agent or tag so the result is under two pages.\nIf you genuinely need to walk everything in order, export it and open it outside; far faster than paging."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "scale_concurrent_agents",
+      "label": {
+        "ar": "ضغط لما الفريق كله شغال",
+        "en": "Slow when the whole team is online"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_concurrent_agents",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_slow",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_all_users",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "scale_attachment_too_big",
+      "label": {
+        "ar": "المرفق كبير ومش راضي يترفع",
+        "en": "Attachment too large to upload"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_attachment_size",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_file_upload",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_saving",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الملفات الكبيرة بترفض عشان الطرف التاني غالبًا مش هيقدر ينزّلها أصلاً — خصوصًا على الواتساب.\n• الصور: صغّرها من الموبايل قبل الإرسال (شارك ← حجم متوسط).\n• الفيديو: ارفعه على أي خدمة تخزين وابعت الرابط — أسرع للعميل وأخف عليك.\n• المستندات: لو أكبر من الحد، اقسمها أو ابعتها بالإيميل من داخل التذكرة.\nقولّي نوع الملف وحجمه وأقولّك أنهي طريقة أنسب [[icon:note]]",
+          "en": "Large files are refused because the recipient usually cannot download them anyway, especially on WhatsApp.\n- Images: resize on the phone before sending.\n- Video: upload to storage and send the link.\n- Documents: split, or send by email from inside the ticket.\nTell me the file type and size and I will suggest the best route."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "billing_switch_cycle",
+      "label": {
+        "ar": "تغيير دورة الاشتراك",
+        "en": "Switching billing cycle"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_plan_switch",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_proration",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_change",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_seat_truing",
+      "label": {
+        "ar": "زوّدنا موظفين",
+        "en": "Added more agents"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_seat_truing",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_bill_higher",
+      "label": {
+        "ar": "الفاتورة أعلى من المتوقع",
+        "en": "Bill higher than expected"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_bill_shock",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_credit_note",
+      "label": {
+        "ar": "إشعار دائن",
+        "en": "Credit note"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_credit_note",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_refund",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_refund_other_card",
+      "label": {
+        "ar": "الاسترداد على كارت تاني",
+        "en": "Refund to a different card"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_refund_destination",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_refund",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_card",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_consolidate_invoices",
+      "label": {
+        "ar": "فاتورة واحدة لكل الفروع",
+        "en": "One invoice for all branches"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_invoice_consolidation",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_department",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_tax_exemption",
+      "label": {
+        "ar": "إعفاء ضريبي",
+        "en": "Tax exemption"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_tax_exemption",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_vat_invoice",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "billing_dunning_window",
+      "label": {
+        "ar": "الدفع فشل — فاضل قد إيه",
+        "en": "Failed payment grace period"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_dunning",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما الدفع يفشل مابنقفلش الحساب على طول:\n• بنحاول تاني بعد ٣ أيام، وبعدين بعد ٧.\n• طول المدة دي الخدمة شغالة عادي والعميل مايحسّش بحاجة.\n• بعد ١٤ يوم بيتوقف الإرسال بس، والقراءة والتاريخ بيفضلوا موجودين.\nلو المشكلة في الكارت غيّره من الفوترة ← وسيلة الدفع، والمحاولة بتتم فورًا [[icon:note]]",
+          "en": "A failed payment does not close your account immediately:\n- We retry after 3 days, then after 7.\n- Service runs normally throughout; your customers notice nothing.\n- After 14 days sending pauses, while reading and history stay.\nIf it is the card, change it under Billing > Payment method and we retry at once."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "team_offboarding_agent",
+      "label": {
+        "ar": "موظف ساب الشركة",
+        "en": "An agent has left"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_offboarding",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_role",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رتّبها بالترتيب ده عشان ماتضيعش شغل ولا تسيب باب مفتوح:\n١. الأول: حوّل تذاكره المفتوحة لزميل — لو شيلته قبل كده، تذاكره هتفضل بلا مسؤول ومحدش هيلاحظ.\n٢. بعدها: عطّل حسابه (متمسحوش) — المسح بيشيل اسمه من تاريخ المحادثات القديمة.\n٣. أخيرًا: راجع لو كان مربوط بيه مفتاح واجهة أو تكامل باسمه.\nالترتيب ده هو الفرق بين تسليم نضيف وتذاكر ضايعة [[icon:note]]",
+          "en": "Do it in this order so nothing is lost and no door is left open:\n1. First transfer his open tickets — remove him first and they sit unassigned unnoticed.\n2. Then DISABLE the account, do not delete it; deleting strips his name from past conversations.\n3. Finally check whether any API key or integration was in his name."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "team_ticket_handover",
+      "label": {
+        "ar": "تذاكره المفتوحة تروح لمين",
+        "en": "Where his open tickets go"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_ticket_handover",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_assignment",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "team_shared_vs_personal",
+      "label": {
+        "ar": "صندوق مشترك ولا لكل واحد صندوقه",
+        "en": "Shared or personal inboxes"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_shared_vs_personal",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_assignment",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "team_supervisor_view",
+      "label": {
+        "ar": "المشرف يتابع الفريق",
+        "en": "Supervisor oversight"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_supervisor_view",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_role",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent_ranking",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "team_agent_scripts",
+      "label": {
+        "ar": "ردود موحّدة للفريق",
+        "en": "Standard replies for the team"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_agent_script",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_canned_response",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_team_training",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الردود الموحّدة بتفرق أكتر ما الناس تتوقع، بس بشرط ماتبقاش جامدة:\n١. اكتب أول ٥ ردود من كلام موظفينك الحاليين، مش من الصفر — دي اللي العملاء اتعوّدوا عليها.\n٢. سيب فيها فراغ للاسم والتفاصيل بدل جملة عامة.\n٣. راجعهم كل شهرين، وشيل اللي محدش بيستخدمه.\nمن الإعدادات ← الردود الجاهزة، والموظف بيوصلها بكتابة «/» في صندوق الرد [[icon:note]]",
+          "en": "Standard replies matter more than people expect, as long as they are not rigid:\n1. Write the first five from what your agents already say, not from scratch.\n2. Leave gaps for the name and details instead of one generic sentence.\n3. Review them every couple of months and remove the unused ones.\nSettings > Canned replies; agents reach them by typing \"/\" in the composer."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "team_shift_handover",
+      "label": {
+        "ar": "تسليم الوردية",
+        "en": "Shift handover"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_shift_handover",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_note",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_working_hours",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "team_training_mode",
+      "label": {
+        "ar": "موظف جديد تحت المتابعة",
+        "en": "A new agent under review"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_training_mode",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_handoff",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "team_review_data",
+      "label": {
+        "ar": "أرقام لتقييم الموظفين",
+        "en": "Data for performance reviews"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_review_data",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent_ranking",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "قبل ما تاخد الأرقام دي لتقييم، خد بالك من حاجة: العدد لوحده بيظلم.\nموظف بيرد على ٣٠ تذكرة سهلة مش أحسن من واحد بيقفل ٨ تذاكر معقدة. الأرقام المفيدة فعلاً تلاتة:\n• نسبة الحل من أول تواصل.\n• تقييم العملاء ليه.\n• متوسط وقت الرد في ساعات شغله هو، مش الساعات المطلقة.\nتلاقيهم في التقارير ← أداء الفريق، وتقدر تصدّرهم للفترة اللي تحددها [[icon:note]]",
+          "en": "Before using these for a review: raw counts are unfair.\nAn agent closing 30 easy tickets is not better than one closing 8 hard ones. The three numbers that actually mean something:\n- First-contact resolution rate.\n- Customer ratings.\n- Average response time within HIS working hours, not absolute hours.\nReports > Team performance, exportable for any period."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "wa_template_category_changed",
+      "label": {
+        "ar": "ميتا غيّرت تصنيف القالب",
+        "en": "Meta changed the template category"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_template_category",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp_template",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_meta_policy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wa_country_pricing",
+      "label": {
+        "ar": "السعر بيختلف حسب الدولة",
+        "en": "Pricing differs by country"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_country_pricing",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_currency",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_pricing",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wa_optout_handling",
+      "label": {
+        "ar": "العميل طلب يوقف الرسايل",
+        "en": "Customer opted out"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_optout",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_optin",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_consent_record",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إيقاف الرسايل مش بس أدب — هو اللي بيحمي جودة رقمك من البلاغات.\n١. من صفحة العميل، فعّل «موقوف عن الحملات» — بيمنعه من أي إرسال جماعي وبيسيب الرد على محادثاته شغال.\n٢. لو الطلب جه في رسالة، الأفضل تعمله فورًا وتردّ عليه بتأكيد قصير.\n٣. راجع سبب الطلب لو اتكرر من ناس كتير — ده غالبًا معناه إن الحملات كتيرة أو مش مناسبة.\nالبلاغات هي أسرع طريقة لتخفيض جودة الرقم [[icon:note]]",
+          "en": "Honouring opt-outs is not just courtesy — it protects your number quality from reports.\n1. On the customer page, enable \"excluded from campaigns\"; it blocks bulk sends while normal replies keep working.\n2. If the request came in a message, do it immediately and confirm briefly.\n3. If many people ask, look at why — usually too many or badly targeted campaigns.\nReports are the fastest way to sink a number."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "wa_flow_form",
+      "label": {
+        "ar": "نموذج جوّه المحادثة",
+        "en": "A form inside the chat"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_wa_flow",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_prechat_form",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wa_interactive_buttons",
+      "label": {
+        "ar": "أزرار وقوائم في الرسالة",
+        "en": "Buttons and lists in a message"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_interactive_buttons",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp_template",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wa_click_to_chat_ads",
+      "label": {
+        "ar": "إعلانات بتوصل للواتساب",
+        "en": "Click-to-WhatsApp ads"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_click_to_chat_ads",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_campaign",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_facebook_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wa_verification_renewal",
+      "label": {
+        "ar": "تجديد توثيق النشاط",
+        "en": "Renewing business verification"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_verification_renewal",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_verification",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_meta_policy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "wa_display_name_rejected",
+      "label": {
+        "ar": "الاسم الظاهر اترفض",
+        "en": "Display name rejected"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_display_name",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_business_profile",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الاسم بيترفض في الغالب لسبب من تلاتة، وكلهم قابلين للتصليح:\n١. الاسم مالوش علاقة بالنشاط المسجّل — لازم يطابق اسم الشركة أو علامتها التجارية.\n٢. فيه كلمة عامة زي «دعم» أو «خدمة عملاء» لوحدها من غير اسم النشاط.\n٣. فيه رموز أو أرقام مالهاش معنى.\nغيّره لاسم شركتك زي ما هو في السجل التجاري وقدّمه تاني — المراجعة بتاخد يوم لتلاتة [[icon:note]]",
+          "en": "The name is usually rejected for one of three fixable reasons:\n1. It does not relate to the registered business — it must match your company or brand name.\n2. It uses a generic word like \"Support\" alone, without the business name.\n3. It contains meaningless symbols or numbers.\nChange it to your registered company name and resubmit; review takes one to three days."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "wa_quality_recovery_plan",
+      "label": {
+        "ar": "نرجّع جودة الرقم",
+        "en": "Recovering number quality"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_quality_recovery",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_quality_rating",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_optout",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الجودة بترجع لوحدها، بس بشرط تغيّر اللي نزّلها. خطة أسبوع:\n١. أوقف كل الحملات فورًا — أهم خطوة، ولو كمّلت مش هتفرق أي حاجة تانية.\n٢. رد على المحادثات الجاية بسرعة، الرد السريع بيرفع الجودة فعلاً.\n٣. شيل كل اللي طلبوا إيقاف من قوايمك.\n٤. بعد أسبوع ابدأ بحملة صغيرة لعملاء متفاعلين بس.\nالجودة بتتحسب على آخر فترة، فالسكوت مع رد كويس بيرجّعها [[icon:note]]",
+          "en": "Quality recovers on its own, but only if you change what lowered it. A one-week plan:\n1. Stop all campaigns now — the most important step; nothing else matters if you continue.\n2. Reply fast to incoming chats; fast replies genuinely raise quality.\n3. Remove everyone who asked to stop.\n4. After a week, resume with a small campaign to engaged customers only.\nQuality is measured over a recent window, so quiet plus good replies restores it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "wa_pricing_change",
+      "label": {
+        "ar": "أسعار واتساب اتغيرت",
+        "en": "WhatsApp pricing changed"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_wa_pricing_change",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_country_pricing",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "trigger_hidden_cost",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_handoff_condition",
+      "label": {
+        "ar": "إمتى البوت يحوّل لموظف",
+        "en": "When the bot hands over"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_handoff_condition",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_handoff",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أوضح تلات شروط، ومنصوح تفعّلهم كلهم:\n١. العميل طلب حد بنفسه — يتحوّل فورًا من غير أي محاولة تانية.\n٢. البوت مفهمش بعد محاولتين — التالتة بتزوّد الغضب مش الفهم.\n٣. نبرة العميل متضايقة — دي أهم واحدة وأكتر واحدة بتتنسي.\nمن الإعدادات ← إدارة الدعم. لو مفعّلتش غير واحدة، خلّيها الأولى [[icon:note]]",
+          "en": "Three clear conditions, and enabling all three is the recommendation:\n1. The customer asked for a human — hand over immediately, no further attempt.\n2. The bot failed twice — a third try adds frustration, not understanding.\n3. The customer sounds upset — the most important and most forgotten one.\nSettings > Support management. If you enable only one, make it the first."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "bot_retry_limit",
+      "label": {
+        "ar": "يجرب كام مرة قبل ما يحوّل",
+        "en": "How many attempts before handover"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_bot_retry_limit",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_handoff",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_multilingual_flow",
+      "label": {
+        "ar": "مسار بأكتر من لغة",
+        "en": "A flow in more than one language"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_multilingual_flow",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_flow_variable_source",
+      "label": {
+        "ar": "البوت ياخد بيانات العميل منين",
+        "en": "Where the bot gets customer data"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_flow_variable_source",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_custom_field",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_flow_testing",
+      "label": {
+        "ar": "أجرّب المسار قبل النشر",
+        "en": "Testing a flow before publishing"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_flow_testing",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_sandbox",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_flow_versioning",
+      "label": {
+        "ar": "أرجع لنسخة قديمة من المسار",
+        "en": "Reverting a flow version"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_flow_versioning",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_recover",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_greeting_experiment",
+      "label": {
+        "ar": "أجرّب ترحيبين وأشوف الأحسن",
+        "en": "Testing two welcome messages"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_greeting_test",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_welcome_message",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "bot_dropoff_point",
+      "label": {
+        "ar": "العميل بيسيب المحادثة عند خطوة معيّنة",
+        "en": "Customers drop at one step"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_dropoff_analytics",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده أنفع رقم في تحليلات البوت، وغالبًا بيقول نفس الحاجة:\n• لو الخروج عند سؤال، السؤال غالبًا بيطلب معلومة العميل مش فاكرها (رقم طلب مثلاً) — خلّيه اختياري أو اعرض له بدائل.\n• لو الخروج عند قايمة طويلة، اقسمها لمستويين.\n• لو الخروج بعد أول رد، الترحيب طويل.\nمن التقارير ← مسار البوت، هتلاقي عند أي خطوة بيقفوا [[icon:note]]",
+          "en": "The most useful number in bot analytics, and it usually says the same thing:\n- Dropping at a question means it asks for something the customer does not have to hand (an order number). Make it optional or offer alternatives.\n- Dropping at a long menu means splitting it into two levels.\n- Dropping after the first reply means the greeting is too long.\nReports > Bot flow shows the exact step."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "report_custom_dashboard",
+      "label": {
+        "ar": "لوحة أرقام مخصصة",
+        "en": "A custom dashboard"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_custom_dashboard",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "report_scheduled_delivery_new",
+      "label": {
+        "ar": "تقرير يوصل تلقائي كل فترة",
+        "en": "A recurring report by email"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_scheduled_report",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_digest_email",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "report_sla_breaches",
+      "label": {
+        "ar": "تقرير التذاكر اللي اتأخرت",
+        "en": "Report of breached response times"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_sla_report",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_sla",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_response_time",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "report_first_contact_resolution",
+      "label": {
+        "ar": "نسبة الحل من أول تواصل",
+        "en": "First-contact resolution rate"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_first_contact_resolution",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_csat",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرقم ده بيقيس حاجة واحدة: العميل اضطر يرجع تاني ولا لأ.\nوهو أصدق من «عدد التذاكر المقفولة»، لأن تذكرة بتتقفل وتترجع تاني بتتحسب مرتين في العدد وبتتحسب فشل هنا.\n• فوق ٧٠٪ ممتاز.\n• تحت ٥٠٪ معناه إن الردود الأولى ناقصة معلومة، مش إن الفريق بطيء.\nمن التقارير ← جودة الخدمة [[icon:note]]",
+          "en": "This measures one thing: did the customer have to come back.\nIt is more honest than \"tickets closed\", because a ticket that closes and reopens counts twice there and counts as a failure here.\n- Above 70% is strong.\n- Below 50% means your first replies are missing information, not that the team is slow.\nReports > Service quality."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "report_backlog_aging",
+      "label": {
+        "ar": "التذاكر المتراكمة القديمة",
+        "en": "Aging backlog"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_backlog_aging",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "report_agent_occupancy",
+      "label": {
+        "ar": "نسبة انشغال الموظف",
+        "en": "Agent occupancy"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_agent_occupancy",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent_ranking",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_working_hours",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "voice_click_to_call",
+      "label": {
+        "ar": "اتصال من داخل المنصة",
+        "en": "Calling from the platform"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_click_to_call",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "voice_call_logging",
+      "label": {
+        "ar": "المكالمة تتسجل مع التذكرة",
+        "en": "Logging calls on the ticket"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_call_logging",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_note",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "voice_ivr_to_chat",
+      "label": {
+        "ar": "تحويل من الرد الآلي للمحادثة",
+        "en": "From IVR to chat"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_ivr_handoff",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_handoff",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_channel",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "voice_missed_call_followup",
+      "label": {
+        "ar": "مكالمة فايتة نرجع نكلمه",
+        "en": "Following up a missed call"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_missed_call",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_automation_rule",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_contact",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "voice_recording_consent",
+      "label": {
+        "ar": "الموافقة على تسجيل المكالمة",
+        "en": "Call recording consent"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_recording_consent",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_consent_record",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "kb_article_suggestion",
+      "label": {
+        "ar": "مقالات مقترحة للموظف وهو بيرد",
+        "en": "Article suggestions while replying"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_article_suggestion",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_knowledge_base",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "kb_public_help_center",
+      "label": {
+        "ar": "مركز مساعدة للعملاء",
+        "en": "A public help centre"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_public_kb",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_knowledge_base",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_deflection",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "kb_article_analytics",
+      "label": {
+        "ar": "أنهي مقال بيتقرا فعلاً",
+        "en": "Which articles get read"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_article_analytics",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_knowledge_base",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "kb_article_versioning",
+      "label": {
+        "ar": "مين عدّل المقال",
+        "en": "Who edited the article"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_article_versioning",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_knowledge_base",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_audit_log",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "kb_multilingual_article",
+      "label": {
+        "ar": "المقال بأكتر من لغة",
+        "en": "Articles in more than one language"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_multilingual_article",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_knowledge_base",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "kb_deflection_rate",
+      "label": {
+        "ar": "نقلّل التذاكر بالمعرفة",
+        "en": "Reducing tickets with knowledge"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_deflection",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_public_kb",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أسرع طريقة لتقليل التذاكر مش بوت أذكى — هي إنك تجاوب على اللي بيتكرر قبل ما العميل يكتب.\n١. من التقارير، هات أكتر ١٠ أسئلة اتكررت الشهر اللي فات.\n٢. اكتبلهم ١٠ مقالات قصيرة، كل واحد يجاوب سؤال واحد بس.\n٣. اربطهم في رسالة الترحيب كاختيارات سريعة.\nالعشرة دول عادةً بيغطوا نص التذاكر الواردة، والباقي بيبقى الشغل الحقيقي اللي فريقك مفروض يقضي وقته فيه [[icon:note]]",
+          "en": "The fastest way to fewer tickets is not a smarter bot — it is answering the repeats before the customer types.\n1. Pull last month top ten repeated questions from Reports.\n2. Write ten short articles, one question each.\n3. Link them in the welcome message as quick options.\nThose ten usually cover half of inbound, leaving the real work your team should be spending time on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "commerce_order_lookup",
+      "label": {
+        "ar": "العميل يسأل عن طلبه في المحادثة",
+        "en": "Order lookup inside the chat"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_order_lookup",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_store_platform",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "commerce_returns_flow",
+      "label": {
+        "ar": "مسار استرجاع المنتج",
+        "en": "A returns flow"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_returns_flow",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_bot_flow",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_store_platform",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "commerce_abandoned_cart",
+      "label": {
+        "ar": "متابعة السلة المتروكة",
+        "en": "Abandoned cart follow-up"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_abandoned_cart",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_campaign",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_store_platform",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "commerce_product_recommendation",
+      "label": {
+        "ar": "نرشّح منتجات للعميل",
+        "en": "Recommending products"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_product_recommendation",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_store_platform",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_segment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "commerce_payment_link",
+      "label": {
+        "ar": "رابط دفع في المحادثة",
+        "en": "A payment link in the chat"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_payment_link",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_store_platform",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "commerce_shipping_tracking",
+      "label": {
+        "ar": "تتبّع الشحنة في المحادثة",
+        "en": "Shipment tracking in the chat"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_shipping_tracking",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_order_lookup",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_integration",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "a11y_screen_reader",
+      "label": {
+        "ar": "موظف بيستخدم قارئ الشاشة",
+        "en": "An agent using a screen reader"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_screen_reader",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "loc_rtl_reports",
+      "label": {
+        "ar": "التقرير المصدَّر مقلوب",
+        "en": "Exported report reads reversed"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_rtl_reports",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المشكلة دي مش في التقرير، هي في البرنامج اللي بتفتحه بيه: الملف بيتخزن بترميز عربي، وبرنامج الجداول بيفتحه بترميز تاني فالحروف بتتقلب.\n١. متفتحش الملف بدبل كليك. افتح البرنامج الأول.\n٢. بيانات ← من ملف نصي، واختار الترميز العربي (UTF-8) في خطوة الاستيراد.\n٣. من هنا وطالع، الأعمدة والاتجاه هيظهروا صح.\nلو بتفتحه على الموبايل، جرّب تطبيق تاني — دي مشكلة معروفة في تطبيق واحد بعينه [[icon:note]]",
+          "en": "This is not the report, it is the program opening it: the file is saved in Arabic encoding and the spreadsheet opens it in another, so letters reverse.\n1. Do not double-click the file. Open the spreadsheet app first.\n2. Data > From text file, and choose UTF-8 in the import step.\n3. Columns and direction then render correctly."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "loc_date_format",
+      "label": {
+        "ar": "التاريخ ظاهر بالعكس",
+        "en": "Dates appear in the wrong order"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_date_format",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_timezone",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_wrong_data",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "loc_email_template_rtl",
+      "label": {
+        "ar": "قالب الإيميل بالعربي متلخبط",
+        "en": "Arabic email template renders wrong"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_email_template_rtl",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_language_setting",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "loc_multi_currency",
+      "label": {
+        "ar": "نعرض بأكتر من عملة",
+        "en": "Showing more than one currency"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_multi_currency_display",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_currency",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "ops_seasonal_capacity",
+      "label": {
+        "ar": "موسم ضغط ومحتاجين نستعد",
+        "en": "Preparing for a busy season"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_seasonal_rush",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_working_hours",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_automation_rule",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الاستعداد للموسم بيتعمل قبله بأسبوعين، مش في يومه:\n١. راجع أكتر ٥ أسئلة الموسم اللي فات وحوّلهم لردود جاهزة وأزرار في الترحيب.\n٢. زوّد مواعيد الشغل مؤقتًا، وفعّل رسالة «بره المواعيد» بوقت رد واقعي مش متفائل.\n٣. فعّل التصعيد التلقائي بمدة أقصر من المعتاد.\n٤. لو هتزوّد موظفين مؤقتين، ضيفهم قبلها بأسبوع عشان يتدربوا على شغل حقيقي هادي.\nالموسم مابيكسرش الفرق الجاهزة — بيكسر اللي بيجهّز فيه [[icon:note]]",
+          "en": "Season prep happens two weeks before, not on the day:\n1. Turn last season top five questions into canned replies and welcome buttons.\n2. Extend working hours temporarily and set an away message with a REALISTIC response time.\n3. Shorten the auto-escalation threshold.\n4. If adding temporary agents, onboard them a week early on quiet real work.\nA season does not break prepared teams; it breaks the ones preparing during it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "ops_customer_waiting_too_long",
+      "label": {
+        "ar": "عميل مستني من غير رد",
+        "en": "A customer waiting with no reply"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_backlog_aging",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_escalation_rule",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_complaint_about_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "ops_measure_bot_value",
+      "label": {
+        "ar": "البوت وفّر علينا إيه فعلاً",
+        "en": "What the bot actually saved"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_deflection",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_first_contact_resolution",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent_occupancy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_business_slow",
+      "label": {
+        "ar": "الشغل راكد عنده",
+        "en": "Business is slow"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_business_slow",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ربنا يفتحها عليك [[icon:smile]] والموسم الراكد بيبقى أحسن وقت تظبط فيه الحاجات اللي مبيبقاش فيه وقت ليها وقت الزحمة — زي الردود الجاهزة ومقالات الأسئلة المتكررة. لو حابب أساعدك ترتّبهم دلوقتي، قولّي.",
+          "en": "May it pick up soon. A quiet season is actually the best time to set up the things there is never time for when you are busy — canned replies, articles for repeated questions. Happy to help you arrange those now."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_business_booming",
+      "label": {
+        "ar": "الشغل ماشي كويس",
+        "en": "Business is going well"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_business_booming",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحمد لله، مبسوط أسمع كده [[icon:smile]] ولو الشغل زاد، خد بالك من حاجتين بيبانوا بدري: وقت الرد بيطول، والأسئلة المتكررة بتاكل وقت الفريق. الاتنين ليهم حل بسيط لو حبيت نظبطهم قبل ما يبقوا مشكلة.",
+          "en": "Glad to hear it. If volume is up, two things show early: response times stretch, and repeated questions eat your team time. Both have simple fixes if you want to set them up before they become a problem."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_new_branch",
+      "label": {
+        "ar": "فتح فرع جديد",
+        "en": "Opened a new branch"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_new_branch",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_department",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_growth_upgrade",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مبروك الفرع الجديد [[icon:smile]] تقدر تدير الفرعين من نفس الحساب بقسمين مختلفين، وكل قسم يشوف تذاكره بس ومواعيده الخاصة. لو حابب، أقولّك تظبطها إزاي في دقيقتين.",
+          "en": "Congratulations on the new branch. You can run both from one account as two departments, each seeing only its own tickets with its own hours. Tell me if you want the two-minute setup."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_closing_business",
+      "label": {
+        "ar": "قافل النشاط",
+        "en": "Closing the business"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_closing_business",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_cancel",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أسف أسمع كده، وأتمنى يكون القرار لصالحك [[icon:note]] قبل أي حاجة، خد نسخة من بياناتك من الإعدادات ← التصدير — المحادثات وجهات الاتصال — لأنها ممكن تلزمك بعدين. ولو حابب توقف الاشتراك أظبطهالك من غير تجديد تلقائي.",
+          "en": "Sorry to hear that, and I hope it works out for you. Before anything, take a copy of your data from Settings > Export — conversations and contacts — you may need it later. I can also stop auto-renewal for you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_changing_business",
+      "label": {
+        "ar": "غيّر نشاطه",
+        "en": "Changed line of business"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_changing_business",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_business_profile",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_change",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، والتغيير ده بيلزمه تعديل في حتتين عشان الشكل يبقى متسق: بيانات النشاط على الواتساب (الاسم والوصف والفئة)، والردود الجاهزة اللي بتتكلم عن المجال القديم.\nقولّي النشاط الجديد وأقولّك بالظبط اللي محتاج يتغيّر [[icon:note]]",
+          "en": "Understood. That change needs updates in two places so things stay consistent: your WhatsApp business profile (name, description, category), and any canned replies that mention the old line of work."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_seasonal_rush",
+      "label": {
+        "ar": "موسم ضغط جاي",
+        "en": "A busy season is coming"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_seasonal_rush",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_working_hours",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أحسن حاجة إنك بتفكر فيها من دلوقتي مش في يومها [[icon:smile]] أهم تلاتة قبل الموسم: ردود جاهزة لأكتر أسئلة الموسم اللي فات، مواعيد شغل موسّعة برسالة «بره المواعيد» فيها وقت رد واقعي، وتصعيد تلقائي بمدة أقصر. لو حابب نمشي فيهم خطوة خطوة أنا معاك.",
+          "en": "The best thing is that you are thinking about it now, not on the day. The three that matter: canned replies for last season top questions, extended hours with a realistic away message, and a shorter auto-escalation window."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_growth_upgrade",
+      "label": {
+        "ar": "كبرنا ومحتاجين أكتر",
+        "en": "Grown and need more"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_growth_upgrade",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_upgrade",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_seat_truing",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "حلو إن السبب إن الشغل كبر [[icon:smile]] قبل ما تغيّر الباقة، شوف إيه اللي فعلاً وصل لحده: عدد الموظفين، ولا عدد الرسايل، ولا عدد القنوات — لأن كل واحد فيهم ليه حل مختلف، وساعات الترقية مش الحل الأرخص. قولّي إيه اللي واقفك وأشوفهالك.",
+          "en": "Good that growth is the reason. Before changing plan, check what actually hit its limit: agents, messages, or channels — each has a different fix, and upgrading is not always the cheapest one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_hiring",
+      "label": {
+        "ar": "وظّف ناس جداد",
+        "en": "Hired new people"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_hiring",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_team_training",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مبروك للفريق [[icon:smile]] لما تضيفهم، أنصحك تبدأ بيهم على صلاحية «موظف» مش «مدير» أول أسبوعين، وتخليهم يشوفوا تذاكر قسم واحد بس. ده بيخلي التعلّم أسهل عليهم وبيقلل الغلط. الإضافة من الإعدادات ← الفريق.",
+          "en": "Congratulations. When you add them, start with the Agent role rather than Admin for the first two weeks, scoped to one department. It makes learning easier and mistakes rarer. Settings > Team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_competitor_pressure",
+      "label": {
+        "ar": "ضغط من المنافسين",
+        "en": "Competitor pressure"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_competitor_pressure",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "trigger_competitor",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_compare",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفهوم، والسعر لوحده صعب يبقى المقارنة كلها [[icon:note]] لو تقولّي إيه اللي شايفه أرخص بالظبط، أقدر أوضّحلك الفرق في اللي بيأثر على شغلك فعلاً — عدد الرسايل المحسوبة، وجودة الرقم، والدعم لما حاجة تقف. ولو الفرق حقيقي، هقولّك كده بصراحة.",
+          "en": "Understood, and price alone is rarely the whole comparison. Tell me exactly what looks cheaper and I can lay out the differences that actually affect your operation — counted messages, number quality, and support when something breaks. And if the gap is real, I will say so."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_supply_issue",
+      "label": {
+        "ar": "مشكلة في التوريد",
+        "en": "A supply problem"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_supply_issue",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_campaign",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الله يعينك، ودي حاجة بتحصل [[icon:note]] لو التأخير هيأثر على عملائك، أحسن حاجة تسبقهم برسالة قصيرة توضّح الوضع — ده بيقلل الاستفسارات كتير أوي وبيمنع الزعل. تقدر تبعتها لشريحة العملاء المتأثرين بس، وأقدر أساعدك تظبطها.",
+          "en": "Hope it resolves soon. If the delay will reach your customers, getting ahead of it with a short message helps a lot — it cuts inbound questions sharply and prevents frustration. You can send it to just the affected segment."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_cash_tight",
+      "label": {
+        "ar": "السيولة ضيقة",
+        "en": "Cash is tight"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_cash_tight",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_dunning",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفهوم تمامًا، ومحصلش حاجة [[icon:note]] لو الدفع اتأخر، الخدمة مابتتقفلش فورًا — فيه مهلة قبل ما يتأثر أي حاجة، والتاريخ والمحادثات بيفضلوا موجودين على أي حال. ولو محتاج ترتيب مختلف للفترة دي، قولّي وأوصّل طلبك للفريق.",
+          "en": "Completely understood, and nothing is lost. A late payment does not close the service immediately — there is a grace period before anything is affected, and your history stays regardless. If you need a different arrangement for this period, I can pass that on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_expanding_abroad",
+      "label": {
+        "ar": "توسع لبلد تانية",
+        "en": "Expanding to another country"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_expanding_abroad",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_country_pricing",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_timezone",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خطوة كبيرة، مبروك [[icon:smile]] تلات حاجات بتفرق لما تشتغل في بلد تانية: تكلفة رسالة الواتساب بتختلف حسب بلد العميل، والمنطقة الزمنية بتأثر على مواعيد شغلك وتقاريرك، ولغة الردود. قولّي البلد وأقولّك التفاصيل.",
+          "en": "Big step, congratulations. Three things change when you operate in another country: WhatsApp message cost varies by the customer country, the timezone affects your hours and reports, and reply language. Tell me the country and I will give you specifics."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_long_customer",
+      "label": {
+        "ar": "عميل قديم",
+        "en": "A long-standing customer"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_long_customer",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وده شرف لينا فعلاً [[icon:smile]] وجودك معانا من بدري معناه إنك شفت المنصة وهي بتكبر. لو فيه حاجة كنت بتتمناها من زمان ولسه مش موجودة، قولّي — رأي عميل قديم بيتاخد بجدية.",
+          "en": "That genuinely means a lot. Being with us from early on means you have watched the platform grow. If there is something you have wanted for a long time that still is not here, tell me — a long-standing customer view carries weight."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_referred_by_friend",
+      "label": {
+        "ar": "حد رشّحنا له",
+        "en": "Referred by someone"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_referred",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_first_time",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "يا أهلاً، وسلّملي على اللي رشّحنا [[icon:smile]] وبما إنك جاي بترشيح، خلّيني أختصر عليك: قولّي بتشتغل في إيه وبتستقبل عملاءك منين، وأقولّك أنسب طريقة تبدأ بيها من غير لف.",
+          "en": "Welcome, and thank them for us. Since you came by referral, let me keep it short: tell me what you do and where your customers reach you, and I will point you straight at the best way to start."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_saw_ad",
+      "label": {
+        "ar": "شاف إعلان",
+        "en": "Saw an ad"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_saw_ad",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_first_time",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_pricing",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أهلاً بيك [[icon:smile]] الإعلان بيقول الفكرة العامة، بس اللي بيفرق فعلاً هو حالتك إنت. قولّي بتستقبل كام رسالة تقريبًا في اليوم ومن أنهي قناة، وأقولّك المنصة هتفرق معاك في إيه بالظبط — من غير كلام عام.",
+          "en": "Welcome. An ad gives the general idea, but what matters is your specific case. Tell me roughly how many messages a day and on which channel, and I will tell you exactly where this would help — no generic pitch."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_returning_customer",
+      "label": {
+        "ar": "راجع بعد ما ساب",
+        "en": "Returning after leaving"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_returning_customer",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_recover",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_first_time",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "نوّرت تاني [[icon:smile]] لو حسابك القديم لسه موجود، تقدر ترجع بنفس البيانات والتاريخ من غير ما تبدأ من الصفر. ولو حابب تقولّي إيه اللي خلّاك تسيب وقتها، ده بيفيدنا فعلاً ومش هيتاخد على إنه شكوى.",
+          "en": "Welcome back. If your old account is still there, you can return with the same data and history rather than starting over. And if you want to say what made you leave, that genuinely helps us and will not be treated as a complaint."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_comparing_before_renew",
+      "label": {
+        "ar": "بيقارن قبل التجديد",
+        "en": "Comparing before renewing"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_comparing_before_renew",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_compare",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "حقك تقارن، ودي علامة إنك بتاخد القرار بجد [[icon:note]] عشان المقارنة تبقى عادلة، بص على تلاتة: كام رسالة محسوبة عليك فعلاً في الشهر، وإيه اللي بيحصل لما رقمك يقع، وبيرد عليك مين وقت المشكلة. الأسعار بتتقارب، والتلاتة دول هما اللي بيفرقوا.",
+          "en": "Comparing is fair, and a sign you are deciding seriously. To make it a fair comparison, look at three things: how many messages actually count against you monthly, what happens when your number goes down, and who answers you when it does. Prices converge; those three do not."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_loyalty_discount",
+      "label": {
+        "ar": "بيطلب خصم ولاء",
+        "en": "Asking for a loyalty discount"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_loyalty_discount",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_discount",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_long_customer",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_case_study",
+      "label": {
+        "ar": "عايز يبقى قصة نجاح",
+        "en": "Wants to be a case study"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_case_study",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_partnership",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_testimonial",
+      "label": {
+        "ar": "عارض يكتب رأي",
+        "en": "Offering a testimonial"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_testimonial",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_grateful",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده كرم منك وبيفرق معانا جدًا [[icon:smile]] أي شكل يريحك — كلمتين مكتوبة أو فيديو قصير — وهوصّل عرضك للفريق المسؤول ويتواصلوا معاك يظبطوا التفاصيل. وشكرًا بجد.",
+          "en": "That is generous and it genuinely matters to us. Whatever format suits you — a couple of written lines or a short video — I will pass your offer to the right team and they will arrange the details."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_apologizes_after_anger",
+      "label": {
+        "ar": "اعتذر بعد ما زعل",
+        "en": "Apologising after being upset"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_apologizes_after_anger",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_apology_from_customer",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_relieved",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك خالص، ومحدش زعل [[icon:smile]] الانفعال ساعة المشكلة طبيعي، والمهم عندي إن مشكلتك اتحلت. لو لسه فيها حاجة ناقصة قولّي.",
+          "en": "Not at all, and nobody took offence. Getting frustrated in the middle of a problem is normal; what matters to me is that yours got solved. If anything is still incomplete, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wants_account_manager",
+      "label": {
+        "ar": "عايز مسؤول حساب ثابت",
+        "en": "Wants a dedicated account manager"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_wants_account_manager",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_human",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_not_technical",
+      "label": {
+        "ar": "مش فاهم في التكنولوجيا",
+        "en": "Not technical"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_not_technical",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_simpler",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، وأنا هشرحلك من غير أي مصطلحات [[icon:smile]] هقولّك خطوة واحدة بس في المرة، وانت تقولّي «تمام» وننتقل للي بعدها. مفيش سؤال بسيط أوي، ولو حاجة مش واضحة قولّي وأعيدها بشكل تاني.",
+          "en": "No problem at all, and I will explain without any jargon. One step at a time — you say \"done\" and we move to the next. No question here is too basic, and if something is unclear I will put it another way."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_using_someone_else_account",
+      "label": {
+        "ar": "بيستخدم حساب حد تاني",
+        "en": "Using someone else account"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_using_parent_account",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، بس خد بالك من حاجة مهمة: أي تغيير هيتعمل من الحساب ده هيتسجل باسم صاحبه، ولو الموضوع فيه بيانات دفع أو إلغاء، الأفضل صاحب الحساب هو اللي يطلبه بنفسه.\nلو محتاج مساعدة في حاجة عامة، أنا معاك عادي [[icon:note]]",
+          "en": "That is fine, with one caveat: anything changed from this account is recorded under its owner name, and if it involves payment details or cancellation, the owner should request it themselves.\nFor anything general, I am happy to help."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_noisy_place",
+      "label": {
+        "ar": "في مكان زحمة",
+        "en": "In a noisy place"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_noisy_place",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_shorter",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_to_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، هخلّيها مختصرة [[icon:smile]] اكتبلي في سطر إيه اللي محتاجه، ولو مش مناسب دلوقتي المحادثة هتفضل محفوظة وارجعلي في أي وقت.",
+          "en": "No problem, I will keep it short. Write what you need in one line — and if now is not a good time, the conversation stays saved and you can come back whenever."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_driving",
+      "label": {
+        "ar": "بيسوق",
+        "en": "Driving"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_driving",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_to_wait",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_voice_note",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خلّي بالك من نفسك، والموضوع مايستاهلش [[icon:note]] سيبها لحد ما توصل والمحادثة هتفضل زي ما هي. لو حاجة مستعجلة فعلاً، اكتبلي كلمتين بس لما تقف وأنا هجهّز الباقي.",
+          "en": "Please stay safe — nothing here is worth it. Leave it until you arrive and the conversation stays exactly as it is. If something is genuinely urgent, send me two words when you stop and I will prepare the rest."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_health_situation",
+      "label": {
+        "ar": "ظرف صحي",
+        "en": "A health situation"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_in_hospital",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_to_wait",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ألف سلامة عليك، وربنا يقومك بالسلامة [[icon:note]] خد وقتك تمامًا، ومفيش أي حاجة هنا مستعجلة عليك. لو فيه حاجة في الحساب ممكن تتأخر من غير ما تضرّك، أقدر أظبطها دلوقتي وتتفرغ إنت لصحتك.",
+          "en": "I hope you recover soon. Take all the time you need — nothing here is urgent enough to matter. If something on the account can safely be paused, I can arrange that now so you can focus on getting better."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_prayer_time",
+      "label": {
+        "ar": "وقت صلاة",
+        "en": "Prayer time"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_prayer_time",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_to_wait",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_returned",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ربنا يتقبل منك [[icon:smile]] المحادثة هتفضل مفتوحة زي ما هي، ارجعلي وقت ما تخلص.",
+          "en": "May it be accepted. The conversation stays open exactly as it is — come back when you are done."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_traveling",
+      "label": {
+        "ar": "مسافر",
+        "en": "Travelling"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_traveling",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_timezone",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_weak_internet",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رحلة سعيدة [[icon:smile]] حاجة تفيدك وانت بره: لو هتدخل حسابك من بلد تانية وحسابك عليه تقييد عناوين، ممكن يترفض الدخول — لو حصل قولّي وأحلّهالك. وبالنسبة للمواعيد، خد بالك إن التقارير بتمشي بتوقيت حسابك مش توقيت مكانك.",
+          "en": "Safe travels. One thing that helps abroad: if your account has IP restrictions, sign-in may be refused from another country — tell me if it happens. And note that reports follow your account timezone, not where you are."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_weak_internet",
+      "label": {
+        "ar": "نت ضعيف",
+        "en": "Weak internet"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_weak_internet",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_offline_mode",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_timeout",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفهوم، وده بيأثر فعلاً [[icon:note]] حاجتين بيساعدوا: اكتب رسالتك في مكان تاني وانسخها هنا عشان متضيعش لو الصفحة اتقطعت، ولو الصفحة وقفت بتحمّل اعمل تحديث بدل ما تستنى. ولو بتستخدم الموبايل، التطبيق بيتحمّل أخف من المتصفح على شبكة ضعيفة.",
+          "en": "Understood, and it does affect things. Two things help: draft your message elsewhere and paste it, so nothing is lost if the page drops; and refresh rather than wait if it hangs. On mobile, the app is lighter than the browser on a weak connection."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_borrowed_device",
+      "label": {
+        "ar": "جهاز مش بتاعه",
+        "en": "On a borrowed device"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_borrowed_phone",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_session",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد بالك من حاجة مهمة قبل ما تسيب الجهاز: سجّل خروج من حسابك. الجلسة بتفضل مفتوحة حتى لو قفلت الصفحة، ومعناها إن صاحب الجهاز يقدر يشوف محادثاتك.\nلو نسيت وسبته، تقدر تنهي كل الجلسات من الإعدادات ← الأمان [[icon:note]]",
+          "en": "One important thing before you hand the device back: sign out. The session stays open even after closing the page, which means the device owner could see your conversations.\nIf you forget, you can end all sessions from Settings > Security."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_previous_employee_left",
+      "label": {
+        "ar": "الموظف اللي كان بيتابع مشي",
+        "en": "The employee who handled this left"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_employee_left",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_offboarding",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket_handover",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفهوم، ودي أكتر حالة بتضيّع شغل من غير ما حد ياخد باله [[icon:note]] حاجتين لازم يتعملوا: تذاكره المفتوحة تتحوّل لحد تاني عشان ماتفضلش بلا مسؤول، وحسابه يتعطّل مش يتمسح — المسح بيشيل اسمه من تاريخ المحادثات القديمة. أقدر أساعدك في الاتنين دلوقتي.",
+          "en": "Understood, and this is the situation that quietly loses the most work. Two things must happen: his open tickets get reassigned so they do not sit unowned, and his account is DISABLED not deleted — deleting strips his name from past conversations. I can help with both now."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asking_for_someone_else",
+      "label": {
+        "ar": "بيسأل لحد تاني",
+        "en": "Asking on behalf of someone"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asking_for_friend",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ولا يهمك، اسأل عادي [[icon:smile]] أي حاجة عامة عن المنصة أقدر أجاوبها. بس لو السؤال عن حساب بعينه — رصيد أو اشتراك أو بيانات — ده لازم يجي من صاحب الحساب نفسه، حفاظًا على خصوصيته.",
+          "en": "Go ahead, no problem. Anything general about the platform I can answer. But if the question is about a specific account — balance, subscription, data — that has to come from the account holder, for their own privacy."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_representing_company",
+      "label": {
+        "ar": "بيمثل شركة",
+        "en": "Representing a company"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_representing_company",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_purchase_order",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_department",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_when_feature_ships",
+      "label": {
+        "ar": "إمتى الميزة دي",
+        "en": "When will this feature ship"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_when_feature",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_app_version",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_updates",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش هقولّك تاريخ مش متأكد منه [[icon:note]] اللي أقدر أعمله إني أسجّل طلبك باسمك، وده بيفرق فعلاً في الترتيب لأن الطلبات المتكررة بتتقدّم. ولو الميزة قربت تنزل، الفريق بيبلّغ اللي طلبوها الأول. قولّي المطلوب بالظبط وهسجّله.",
+          "en": "I will not give you a date I am not sure of. What I can do is log the request under your name, and that genuinely affects priority since repeated requests move up. When it is close, the team notifies the people who asked first."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_asks_discount",
+      "label": {
+        "ar": "بيطلب خصم",
+        "en": "Asking for a discount"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_discount",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_pricing",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_trial_extension_request",
+      "label": {
+        "ar": "بيطلب مد التجربة",
+        "en": "Asking to extend the trial"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_trial_extension",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_trial",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_hesitant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_custom_development",
+      "label": {
+        "ar": "بيطلب تطوير خاص",
+        "en": "Asking for custom development"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_custom_development",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_when_feature",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_partnership",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_out_of_scope_service",
+      "label": {
+        "ar": "بيسأل عن خدمة مش عندنا",
+        "en": "Asking about a service we do not offer"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_out_of_scope",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_location",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "دي مش من شغلنا للأسف، وأحسن ما أوهّمك [[icon:note]] إحنا متخصصين في إدارة خدمة العملاء والواتساب — استقبال الرسايل والرد عليها وتنظيمها. لو محتاج حاجة في المجال ده أنا معاك، ولو محتاج التانية الأفضل تدوّر على متخصص فيها.",
+          "en": "That is outside what we do, and I would rather not mislead you. We specialise in customer support and WhatsApp management — receiving, answering and organising messages. If you need something in that space I am here; for the other, you are better off with a specialist."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wants_founder",
+      "label": {
+        "ar": "عايز يكلم صاحب الشركة",
+        "en": "Wants to speak to the founder"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_asks_founder",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_human",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "trigger_wants_escalation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_sla_guarantee",
+      "label": {
+        "ar": "بيطلب ضمان مدة رد",
+        "en": "Asking for a response-time guarantee"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_sla_guarantee",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_sla",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_uptime_history",
+      "label": {
+        "ar": "بيسأل عن تاريخ التوقف",
+        "en": "Asking about downtime history"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_uptime_history",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "trigger_is_data_safe",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_company_longevity",
+      "label": {
+        "ar": "هتفضلوا موجودين؟",
+        "en": "Will you still be around"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_company_longevity",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "emotion_worried",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_export",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "سؤال منطقي جدًا وبيتسأل كتير [[icon:note]] اللي أقدر أطمّنك عليه عمليًا مش وعد: بياناتك بتفضل قابلة للتصدير في أي وقت من الإعدادات، بصيغة قياسية أي منصة تانية بتقراها. يعني ارتباطك بينا اختيار مستمر مش قفل، وده أهم ضمان عملي.",
+          "en": "A very fair question, and a common one. What I can offer is practical rather than a promise: your data stays exportable at any time in a standard format any other platform reads. Your commitment stays a choice rather than a lock-in — which is the guarantee that actually matters."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_funding_question",
+      "label": {
+        "ar": "بيسأل عن الاستثمار",
+        "en": "Asking about funding"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_funding_question",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_about_team",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_company_longevity",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_rates_the_bot",
+      "label": {
+        "ar": "بيقيّم المساعد",
+        "en": "Rating the assistant"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_rate_the_bot",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_praise",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_csat",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكرًا على التقييم، وبيوصل فعلاً [[icon:smile]] ولو فيه نقطة معينة كانت هتخلّيه أعلى، قولّيها — دي أنفع من الرقم نفسه.",
+          "en": "Thank you for the rating, and it does reach us. If there is a specific thing that would have made it higher, tell me — that is more useful than the number itself."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_how_to_give_feedback",
+      "label": {
+        "ar": "إزاي أبعت ملاحظاتي",
+        "en": "How to send feedback"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_how_to_feedback",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "trigger_feedback",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "intent_feature_request",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اكتبها هنا وخلاص [[icon:smile]] أي ملاحظة أو اقتراح بتكتبه في المحادثة دي بيتسجّل ويوصل للفريق باسمك، من غير ما تدوّر على نموذج ولا صفحة تانية. قول اللي في بالك.",
+          "en": "Just write it here. Any note or suggestion you put in this conversation is recorded and reaches the team under your name — no form to find, no other page. Go ahead."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_bot_answered_wrong",
+      "label": {
+        "ar": "بيقول إن الرد غلط",
+        "en": "Says the answer was wrong"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_bot_answered_wrong",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "trigger_reported_issue",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكرًا إنك قلتلي، وده بيتصلّح فعلاً مش بيتسجل وبس [[icon:note]] المحادثة دي بتروح لمراجعة بشرية والرد الغلط بيتظبط عشان مايتكررش مع غيرك.\nقولّي الإجابة الصح إيه لو تعرفها، ولو محتاج حد يراجع الموضوع معاك أوصّلك على طول.",
+          "en": "Thank you for telling me — this gets fixed, not just logged. This conversation goes to human review and the wrong answer gets corrected so it does not repeat for someone else.\nTell me the right answer if you know it, and I can connect you with a person if you want it checked."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_wants_human_to_verify",
+      "label": {
+        "ar": "عايز حد يراجع الرد",
+        "en": "Wants a human to verify"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_escalate_bot_answer",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_confirmation",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_wants_human",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_previous_answer_wrong",
+      "label": {
+        "ar": "رد قديم طلع غلط",
+        "en": "An earlier answer proved wrong"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_previous_answer_wrong",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "trigger_our_fault",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_criticism",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده غلطنا وأنا آسف عليه [[icon:note]] معلومة غلط أسوأ من مفيش معلومة، لأنك اتصرفت على أساسها. هسجّل الموضوع للمراجعة عشان يتظبط، وقولّي دلوقتي الوضع عندك إيه بالظبط وأشوف نعالج أثر الغلط إزاي.",
+          "en": "That is on us and I am sorry. Wrong information is worse than none, because you acted on it. I am logging this for correction — and tell me where things stand now so we can deal with the consequences."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_reopen_old_conversation",
+      "label": {
+        "ar": "عايز يفتح محادثة قديمة",
+        "en": "Reopening an old conversation"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_reopen_conversation",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_archive",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_very_long_message",
+      "label": {
+        "ar": "رسالة طويلة جدًا",
+        "en": "A very long message"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_very_long_message",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_more_detail",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اكتب براحتك ومتقلقش من الطول [[icon:smile]] بس لو تحب توفّر وقتك: أهم تلات حاجات بتوصّلني للحل بسرعة هي إيه اللي حصل بالظبط، وإمتى بدأ، وإيه اللي بيظهرلك على الشاشة. الباقي هسألك عليه لو احتجته.",
+          "en": "Write as much as you like, length is not a problem. But if you want to save yourself time: the three things that get me to an answer fastest are what exactly happened, when it started, and what you see on screen. I will ask for anything else I need."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_many_short_messages",
+      "label": {
+        "ar": "بعت رسايل قصيرة كتير",
+        "en": "Sent many short messages"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_many_short_messages",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_slow_down",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وصلوني كلهم ومفيش حاجة ضاعت [[icon:smile]] هرد عليهم مع بعض عشان مانتلخبطش. ولو فيه حاجة فاتتني بينهم قولّي وأرجعلها.",
+          "en": "They all arrived, nothing was lost. I will answer them together so we do not get tangled. If I miss one, point at it and I will come back to it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_writing_in_caps",
+      "label": {
+        "ar": "بيكتب بصوت عالي",
+        "en": "Writing in a raised voice"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_all_caps",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_urgent",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وصلتني إن الموضوع مهم ومستعجل، وأنا واخد باله [[icon:note]] مش محتاج تأكيد أكتر من كده — قولّي المشكلة وأنا هتعامل معاها كأولوية.",
+          "en": "I can tell this is important and urgent, and I have registered that. No further emphasis needed — tell me the problem and I will treat it as a priority."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_formal_arabic",
+      "label": {
+        "ar": "بيكتب بالفصحى",
+        "en": "Writing in formal Arabic"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_formal_arabic",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_dialect",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_small_request",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أهلاً بحضرتك، وتحت أمرك [[icon:smile]] تقدر تكتب بالفصحى أو بالعامية زي ما يريحك، أنا بفهم الاتنين. تفضّل بسؤالك.",
+          "en": "Welcome, and at your service. You may write in formal or colloquial Arabic, whichever is comfortable — I understand both. Please go ahead with your question."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_two_questions_at_once",
+      "label": {
+        "ar": "سؤالين في رسالة واحدة",
+        "en": "Two questions in one message"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_two_questions",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_has_question",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_steps",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، هجاوب على الاتنين بالترتيب عشان مايتلخبطوش [[icon:smile]] هبدأ باللي أقدر أحسمه على طول، وبعدين التاني. ولو واحد فيهم أهم عندك قولّي وأبدأ بيه.",
+          "en": "Fine — I will answer both in order so they do not get mixed up. I will start with the one I can settle immediately, then the other. If one matters more to you, say so and I will start there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_repeats_same_question",
+      "label": {
+        "ar": "بيكرر نفس السؤال",
+        "en": "Repeating the same question"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_repeats_question",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "behaviour_repeat_request",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_fed_up",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معلش إني خلّيتك تكرر، ودي غلطتي مش غلطتك [[icon:note]] يعني إجابتي الأولى مكانتش واضحة أو مكانتش جاوبت على اللي في بالك فعلاً. قولّي الجزء اللي لسه مش مفهوم بالظبط وأجاوبه بشكل مختلف تمامًا المرة دي.",
+          "en": "Sorry for making you repeat — that is on me, not you. It means my first answer was unclear or did not answer what you actually meant. Tell me the part that is still unclear and I will answer it a completely different way this time."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_sends_a_link",
+      "label": {
+        "ar": "باعت رابط",
+        "en": "Sent a link"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_sends_link",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_will_send_proof",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_file_upload",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "وصلني الرابط، بس أنا مابفتحش روابط خارجية [[icon:note]] لو فيه رسالة خطأ أو رقم أو نص مهم فيه، انسخهولي هنا وأنا أقراه على طول. ولو صورة، ارفعها في المحادثة نفسها.",
+          "en": "I got the link, but I do not open external links. If there is an error message, a number or important text in it, paste it here and I will read it right away. If it is an image, upload it into the conversation itself."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_sends_phone_number",
+      "label": {
+        "ar": "باعت رقم تليفون",
+        "en": "Sent a phone number"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_sends_phone",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_contact",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_data_privacy",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "convo_answers_out_of_order",
+      "label": {
+        "ar": "بيرد على سؤال قديم",
+        "en": "Answering an earlier question"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_answers_out_of_order",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_repeats_question",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "social_continue",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تمام، وصلتني وعرفت بتتكلم عن أنهي نقطة [[icon:smile]] كمّل عادي، أنا شايف المحادثة كلها قدامي.",
+          "en": "Understood, and I can see which point you mean. Carry on — I have the whole conversation in front of me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "convo_started_typing_then_stopped",
+      "label": {
+        "ar": "بدأ يكتب وسكت",
+        "en": "Started typing then stopped"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "social_types_then_stops",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_asks_to_wait",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "emotion_confused",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خد وقتك [[icon:smile]] ولو الفكرة راحت منك، ابدأ من أي نقطة — قولّي إيه اللي مضايقك أو اللي مش شغال، وأنا هوصل للباقي بالأسئلة.",
+          "en": "Take your time. And if the thought slipped away, start anywhere — tell me what is bothering you or what is not working, and I will get to the rest by asking."
+        }
+      },
+      "requiresTicketIfUnresolved": false
     }
   ]
 }

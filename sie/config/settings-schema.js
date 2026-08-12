@@ -102,7 +102,7 @@ export const SETTINGS = Object.freeze([
     },
     {
         key: 'rate_limit_requests_per_minute', group: 'operation', type: 'number', default: 100,
-        min: 1, max: 100000, step: 10,
+        min: 10, max: 5000, step: 10,
         title: 'عدد الطلبات المسموحة في الدقيقة',
         desc: 'المعدل المستمر لكل عميل. الافتراضي ١٠٠ طلب في الدقيقة، وتقدر تحدد رقم مختلف لعميل بعينه من مركز المراجعة.',
         warn: 'رقم منخفض جدًا ممكن يوقف استخدام عادي — كل فتحة شاشة بتعمل أكتر من طلب.',
@@ -111,7 +111,7 @@ export const SETTINGS = Object.freeze([
     },
     {
         key: 'rate_limit_burst', group: 'operation', type: 'number', default: 20,
-        min: 0, max: 100000, step: 5,
+        min: 0, max: 500, step: 5,
         title: 'السماح بدفعة مفاجئة',
         desc: 'كام طلب زيادة مسموح فوق المعدل لو العميل كان ساكت شوية. ده اللي بيمنع الواجهة تحس إنها متضايقة من استخدام عادي — شاشة واحدة ممكن تعمل عشر طلبات مرة واحدة.',
         warn: 'صفر معناه إن أي دفعة سريعة هتترفض حتى لو العميل مستخدمش حاجة من ساعة.',

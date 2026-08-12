@@ -908,8 +908,11 @@ function renderSetting(def) {
             ${!active ? `<span class="setting-inert">متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>` : ''}
           </div>
           <div class="setting-number">
+            <input type="number" class="num-box" min="${def.min}" max="${def.max}" step="${def.step || 1}"
+                   value="${value}" dir="ltr" ${disabled ? 'disabled' : ''}
+                   aria-label="${esc(def.title)}">
             <input type="range" min="${def.min}" max="${def.max}" step="${def.step || 1}"
-                   value="${value}" ${disabled ? 'disabled' : ''}>
+                   value="${value}" ${disabled ? 'disabled' : ''} tabindex="-1" aria-hidden="true">
             <output>${formatNumber(def, value)}</output>
           </div>
         </div>`;
@@ -962,17 +965,63 @@ function wireSettingInputs() {
 
         if (type === 'number') {
             const range = row.querySelector('input[type=range]');
+            const box = row.querySelector('.num-box');
             const out = row.querySelector('output');
             const def = SETTINGS_BY_KEY[key];
+
+            // Two controls over one value. The slider is for "roughly
+            // more/less"; the box is for "exactly 100" — which a slider
+            // spanning thousands of steps cannot express, and which is
+            // the only way most of these numbers are ever decided.
+            const paint = (v) => {
+                range.value = v;
+                box.value = v;
+                out.textContent = formatNumber(def, v);
+            };
+
+            // Clamped here rather than trusted to the browser: typing a
+            // number outside min/max leaves the input valid-looking in
+            // several browsers, and the database would reject it later
+            // with a message nobody connects to what they typed.
+            const clamp = (raw) => {
+                const n = Number(raw);
+                if (!Number.isFinite(n)) return null;
+                return Math.min(Math.max(n, def.min), def.max);
+            };
+
             // Live label while dragging, one save on release — a save per
             // pixel would be dozens of writes for one decision.
-            range.addEventListener('input', () => { out.textContent = formatNumber(def, Number(range.value)); });
+            range.addEventListener('input', () => {
+                box.value = range.value;
+                out.textContent = formatNumber(def, Number(range.value));
+            });
             range.addEventListener('change', () => {
                 const previous = state.settings[key];
-                commitSetting(key, Number(range.value), range, () => {
-                    range.value = previous;
-                    out.textContent = formatNumber(def, previous);
-                });
+                commitSetting(key, Number(range.value), range, () => paint(previous));
+            });
+
+            // Typing updates the slider but does NOT save on every
+            // keystroke: "1" on the way to "100" is a real value the
+            // engine would briefly obey.
+            box.addEventListener('input', () => {
+                const n = clamp(box.value);
+                if (n !== null) {
+                    range.value = n;
+                    out.textContent = formatNumber(def, n);
+                }
+            });
+
+            const commitBox = () => {
+                const previous = state.settings[key];
+                const n = clamp(box.value);
+                if (n === null) { paint(previous); return; }   // empty or nonsense
+                if (n === previous) { paint(previous); return; } // nothing to save
+                paint(n);
+                commitSetting(key, n, box, () => paint(previous));
+            };
+            box.addEventListener('change', commitBox);
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); box.blur(); }
             });
             return;
         }
