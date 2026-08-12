@@ -558,3 +558,39 @@ fieldset.field { border: 1px solid var(--color-border); border-radius: 12px; pad
     .toolbar-filters select { flex: 1 1 45%; }
     .pager-btn { min-width: 2rem; padding: .4rem .55rem; }
 }
+
+/* ============================================================
+   حد معدل الطلبات — جوّه نافذة صلاحية العميل
+   ------------------------------------------------------------
+   Styled as a readout rather than a form: the admin needs to see
+   whether the limit is actually biting BEFORE deciding to change it,
+   and a number they must go look up elsewhere is one they will not.
+   ============================================================ */
+.dialog-sep { border: 0; border-top: 1px solid var(--line, rgba(255,255,255,.1)); margin: 1.4rem 0 1rem; }
+.dialog-subtitle { margin: 0 0 .35rem; font-size: 1rem; }
+
+.rl-live {
+  background: var(--surface-2, rgba(255,255,255,.04));
+  border: 1px solid var(--line, rgba(255,255,255,.08));
+  border-radius: 12px;
+  padding: .8rem .9rem;
+  margin: .8rem 0 1rem;
+}
+.rl-live-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .25rem 0; }
+.rl-live-row span { color: var(--muted, #94a3b8); font-size: .82rem; }
+/* Numbers stay LTR inside an RTL dialog, or "100 / 120" renders reversed. */
+.rl-live-row b { direction: ltr; unicode-bidi: isolate; font-size: .9rem; }
+
+.rl-meter { height: 6px; border-radius: 999px; background: var(--line, rgba(255,255,255,.1)); overflow: hidden; margin: .55rem 0 .4rem; }
+.rl-meter-fill { height: 100%; width: 100%; border-radius: 999px; background: var(--ok, #22c55e); transition: width .3s ease, background-color .3s ease; }
+.rl-meter-fill.warning   { background: var(--warn, #f59e0b); }
+.rl-meter-fill.critical,
+.rl-meter-fill.exhausted { background: var(--danger, #ef4444); }
+.rl-meter-fill.off       { background: var(--muted, #94a3b8); opacity: .4; }
+
+.rl-pressure { margin: 0; font-size: .78rem; color: var(--muted, #94a3b8); }
+.rl-pressure.warning   { color: var(--warn, #f59e0b); }
+.rl-pressure.critical,
+.rl-pressure.exhausted { color: var(--danger, #ef4444); font-weight: 700; }
+
+.rl-pressed { color: var(--danger, #ef4444); font-weight: 700; }

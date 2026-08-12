@@ -37,6 +37,10 @@ import {
     evaluateSieAccessRow,
     adminSetAccess,
     adminResetUsage,
+    getRateLimitStatus,
+    adminSetRateLimit,
+    adminResetRateLimit,
+    describeRateLimitPressure,
     getSieSettings,
     saveSieSetting,
     publishScenarioVersion,
@@ -1134,9 +1138,12 @@ async function loadUsers() {
             'السماح للعملاء متاح لمسؤول المحرك بس. تقدر تشوف القائمة، لكن الحفظ هيترفض من قاعدة البيانات.';
     }
 
-    const [{ data: profiles, error: pErr }, { data: access }] = await Promise.all([
+    const [{ data: profiles, error: pErr }, { data: access }, rateLimits] = await Promise.all([
         supabase.from('profiles').select('id, full_name, email, role').order('created_at', { ascending: false }),
-        supabase.from('customer_sie_access').select('*')
+        supabase.from('customer_sie_access').select('*'),
+        // One RPC for the whole table rather than one per row, and it
+        // already degrades to [] for a caller without the permission.
+        getRateLimitStatus(supabase)
     ]);
 
     if (pErr) {
@@ -1146,12 +1153,14 @@ async function loadUsers() {
     }
 
     const byUser = new Map((access || []).map((a) => [a.user_id, a]));
+    const rateLimitByUser = new Map((rateLimits || []).map((r) => [r.user_id, r]));
     state.users = (profiles || []).map((p) => ({
         id: p.id,
         name: p.full_name || '—',
         email: p.email || '',
         role: p.role,
-        access: byUser.get(p.id) || null
+        access: byUser.get(p.id) || null,
+        rateLimit: rateLimitByUser.get(p.id) || null
     }));
 
     const enabled = state.users.filter((u) => evaluateSieAccessRow(u.access).available).length;
@@ -1164,6 +1173,24 @@ async function loadUsers() {
 
     ['userSearch', 'userFilter'].forEach((id) => $(id).addEventListener('input', renderUsers));
     renderUsers();
+}
+
+/**
+ * The rate-limit cell: the effective ceiling, and whether it came from the
+ * global setting or an exception on this customer. Which of the two is in
+ * force matters more than the number — an admin changing the global
+ * default needs to see at a glance who will not follow it.
+ */
+function rateLimitCell(status) {
+    if (!status) return '<span class="sub">—</span>';
+    if (status.effective_enabled === false) {
+        return `<span class="sub">مقفول<span class="sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}</span></span>`;
+    }
+    const pressure = describeRateLimitPressure(status);
+    const pressed = pressure.level === 'critical' || pressure.level === 'exhausted';
+    const window = Number(status.window_requests) > 0 ? ` — ${Number(status.window_requests)} آخر دقيقة` : '';
+    return `<span class="ltr sub${pressed ? ' rl-pressed' : ''}">${Number(status.effective_limit)}/دقيقة`
+         + `<span class="sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}${window}</span></span>`;
 }
 
 function renderUsers() {
@@ -1191,6 +1218,7 @@ function renderUsers() {
           <td><span class="pill ${s.available ? 'pill--ok' : 'pill--warn'}">${esc(s.statusLabel)}</span></td>
           <td class="sub">${esc({ unlimited: 'من غير حدود', quota: 'عدد رسائل', expiration: 'لحد تاريخ' }[u.access?.access_mode] || '—')}</td>
           <td class="ltr sub">${esc(usage)}</td>
+          <td>${rateLimitCell(u.rateLimit)}</td>
           <td><button class="btn-ghost btn-sm" data-edit="${esc(u.id)}">تعديل</button></td>
         </tr>`;
     }).join('');
@@ -1202,6 +1230,7 @@ function renderUsers() {
 function wireAccessEditor() {
     $('aMode').addEventListener('change', syncAccessMode);
     $('cancelAccessBtn').addEventListener('click', () => $('accessDialog').close());
+    $('resetRateLimitBtn').addEventListener('click', submitResetRateLimit);
     $('saveAccessBtn').addEventListener('click', submitAccess);
     $('resetUsageBtn').addEventListener('click', submitResetUsage);
 }
@@ -1229,9 +1258,50 @@ async function openAccessDialog(userId) {
     $('aNotes').value = row?.notes || '';
     syncAccessMode();
 
+    fillRateLimitFields(state.users.find((u) => u.id === userId)?.rateLimit || null);
+
     $('saveAccessBtn').disabled = !state.isSieAdmin;
     $('resetUsageBtn').disabled = !state.isSieAdmin || !row;
+    $('resetRateLimitBtn').disabled = !state.isSieAdmin;
     $('accessDialog').showModal();
+}
+
+/**
+ * The rate-limit half of the dialog.
+ *
+ * The three inputs show the OVERRIDE, not the effective value: an empty
+ * box means "inherit", and pre-filling it with the inherited number would
+ * turn every save into an accidental override.
+ */
+function fillRateLimitFields(status) {
+    const pressure = describeRateLimitPressure(status);
+    const limit = status ? Number(status.effective_limit) : null;
+    const burst = status ? Number(status.effective_burst) : null;
+
+    $('rlEffective').textContent = !status ? '—'
+        : status.effective_enabled === false ? 'مقفول'
+        : `${limit}/دقيقة (+${burst})`;
+    $('rlRemaining').textContent = !status || status.effective_enabled === false ? '—'
+        : `${Number(status.tokens_remaining)} / ${limit + burst}`;
+    $('rlWindow').textContent = status
+        ? `${Number(status.window_requests)} طلب${Number(status.window_rejected) > 0 ? ` — ${Number(status.window_rejected)} اترفض` : ''}`
+        : '—';
+
+    const meter = $('rlMeter');
+    meter.className = `rl-meter-fill ${pressure.level}`;
+    meter.style.width = `${Math.round(pressure.ratio * 100)}%`;
+
+    const pressureEl = $('rlPressure');
+    pressureEl.className = `rl-pressure ${pressure.level}`;
+    pressureEl.textContent = status
+        ? `${pressure.label}${status.is_overridden ? ' — استثناء للعميل ده' : ' — بيورث الإعداد العام'}`
+        : 'مفيش بيانات استخدام للعميل ده لسه';
+
+    $('rlEnabled').value = !status || status.override_enabled === null || status.override_enabled === undefined
+        ? 'inherit' : (status.override_enabled ? 'on' : 'off');
+    $('rlRpm').value = status?.override_limit ?? '';
+    $('rlBurst').value = status?.override_burst ?? '';
+    $('rlNotes').value = status?.notes ?? '';
 }
 
 async function submitAccess() {
@@ -1266,8 +1336,63 @@ async function submitAccess() {
         return;
     }
 
+    // The rate limit is saved from the same button but through its own RPC:
+    // different table, different authorization. Writing it AFTER the access
+    // row means a rejected rate limit cannot roll back a quota change the
+    // admin already made — they get told, and the quota stands.
+    const rlError = await saveRateLimitFields();
+    if (rlError) {
+        errBox.textContent = `الصلاحية اتحفظت، لكن حد المعدل فشل: ${rlError.message}`;
+        errBox.hidden = false;
+        await loadUsers();
+        return;
+    }
+
     $('accessDialog').close();
-    toast('اتحفظت الصلاحية.');
+    toast('اتحفظت الصلاحية وحد المعدل.');
+    await loadUsers();
+}
+
+/** @returns {Promise<Error|null>} */
+async function saveRateLimitFields() {
+    const choice = $('rlEnabled').value;
+    const rpmRaw = $('rlRpm').value.trim();
+    const burstRaw = $('rlBurst').value.trim();
+
+    // Empty means inherit, which is null in the database — NOT zero.
+    const requestsPerMinute = rpmRaw === '' ? null : Number(rpmRaw);
+    const burst = burstRaw === '' ? null : Number(burstRaw);
+
+    if (requestsPerMinute !== null && !(requestsPerMinute >= 1)) {
+        return new Error('عدد الطلبات في الدقيقة لازم يكون أكبر من صفر، أو سيبه فاضي.');
+    }
+    if (burst !== null && !(burst >= 0)) {
+        return new Error('الدفعة المفاجئة لازم تكون صفر أو أكتر، أو سيبها فاضية.');
+    }
+
+    const { error } = await adminSetRateLimit(supabase, {
+        userId: state.editingUserId,
+        isEnabled: choice === 'inherit' ? null : choice === 'on',
+        requestsPerMinute,
+        burst,
+        notes: $('rlNotes').value.trim() || null
+    });
+    return error;
+}
+
+// Separate from saving a limit on purpose: "this customer deserves a higher
+// ceiling" and "this customer is stuck behind a 429 right now" are different
+// decisions, and merging them means every unblock rewrites the policy.
+async function submitResetRateLimit() {
+    if (!confirm('فك الحظر المؤقت للعميل ده؟ ده بيصفّر عدّاد المعدل من غير ما يغيّر الحد نفسه.')) return;
+    const { error } = await adminResetRateLimit(supabase, state.editingUserId);
+    if (error) {
+        $('accessErrors').textContent = `تعذّر فك الحظر: ${error.message}`;
+        $('accessErrors').hidden = false;
+        return;
+    }
+    $('accessDialog').close();
+    toast('اتفك الحظر — العميل يقدر يبعت دلوقتي.');
     await loadUsers();
 }
 

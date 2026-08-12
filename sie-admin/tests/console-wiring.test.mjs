@@ -81,3 +81,64 @@ test('النموذج اللي زرار التنزيل بيجيبه موجود ع
     const contents = await readFile(onDisk, 'utf8');
     assert.ok(contents.includes('# سيناريو:'), 'النموذج مافيهوش أي مثال');
 });
+
+// ── حد معدل الطلبات ─────────────────────────────────────────────────
+//
+// The limit is managed here, in the same dialog as the customer's quota:
+// quota answers "how many messages in total", the rate limit answers "how
+// fast", and they are the same customer. These guard the parts that fail
+// silently — a control the script reads but the markup never defines, or
+// a table header with no matching cell.
+
+test('نافذة الصلاحية فيها كل عناصر حد المعدل', async () => {
+    const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
+    const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
+    const used = new Set([...js.matchAll(/\$\(\s*'([^']+)'\s*\)/g)].map((m) => m[1]));
+
+    // كل دي بيقراها السكربت فعلاً — أي واحدة ناقصة من الـ HTML معناها
+    // TypeError أول ما حد يفتح النافذة، من غير أي فشل وقت التحميل.
+    for (const id of ['rlEffective', 'rlRemaining', 'rlWindow', 'rlMeter', 'rlPressure',
+                      'rlEnabled', 'rlRpm', 'rlBurst', 'rlNotes', 'resetRateLimitBtn']) {
+        assert.ok(ids.has(id), `العنصر #${id} مش موجود في settings.html`);
+        assert.ok(used.has(id), `settings.js مابيقراش #${id}`);
+    }
+    // ده حاوية شكلية بس، فمطلوب وجودها من غير ما السكربت يقراها.
+    assert.ok(ids.has('rlLive'), 'العنصر #rlLive مش موجود في settings.html');
+});
+
+test('عمود حد المعدل موجود في الترويسة وفي الصف', async () => {
+    const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
+    // زيادة <th> من غير <td> بتزحلق كل خانة في الجدول مكان واحد.
+    const usersTable = html.slice(html.indexOf('id="tab-users"'), html.indexOf('</section>', html.indexOf('id="tab-users"')));
+    const headerCount = [...usersTable.slice(usersTable.indexOf('<thead>'), usersTable.indexOf('</thead>')).matchAll(/<th\b/g)].length;
+
+    const rowStart = js.indexOf('<tr>\n          <td><b>${esc(u.name)}</b>');
+    const rowTemplate = js.slice(rowStart, js.indexOf('</tr>', rowStart));
+    const cellCount = [...rowTemplate.matchAll(/<td\b/g)].length;
+
+    assert.equal(cellCount, headerCount, `الترويسة فيها ${headerCount} عمود والصف بيرسم ${cellCount}`);
+});
+
+test('حد المعدل بيتقرا من الـ runtime مش من ملف داخلي', async () => {
+    const js = await read('settings.js');
+    for (const fn of ['getRateLimitStatus', 'adminSetRateLimit', 'adminResetRateLimit', 'describeRateLimitPressure']) {
+        assert.match(js, new RegExp(`\\b${fn}\\b`), `${fn} مش مستخدم في اللوحة`);
+    }
+    assert.doesNotMatch(js, /from\s+['"][^'"]*sie-entitlement\.js['"]/, 'ممنوع الاستيراد المباشر من الملف الداخلي');
+});
+
+test('الخانة الفاضية معناها «ورث» مش صفر', async () => {
+    const js = await read('settings.js');
+    const fn = js.slice(js.indexOf('async function saveRateLimitFields'));
+    // لو الفاضي اتحوّل لصفر، كل حفظ هيحط للعميل حد صفر بدل ما يسيبه يورث.
+    assert.match(fn, /rpmRaw === '' \? null/);
+    assert.match(fn, /burstRaw === '' \? null/);
+    assert.match(fn, /choice === 'inherit' \? null/);
+});
+
+test('مركز المراجعة مابقاش فيه أي تحكم في حد المعدل', async () => {
+    const rc = await readFile(fileURLToPath(new URL('../../sie/observability/admin-ui/review-center.js', import.meta.url)), 'utf8');
+    for (const fn of ['adminSetRateLimit', 'adminResetRateLimit', 'getRateLimitStatus']) {
+        assert.ok(!rc.includes(fn), `${fn} لسه موجود في مركز المراجعة — المفروض التحكم في مكان واحد بس`);
+    }
+});
