@@ -6061,6 +6061,1875 @@
         "استخدمت المفتاح الغلط",
         "بيئة الاختبار والانتاج"
       ]
+    },
+    {
+      "canonical": "entity_migration",
+      "labels": {
+        "ar": "النقل من منصة تانية",
+        "en": "entity migration"
+      },
+      "patterns": [
+        "ننقل من منصة تانية",
+        "هنسيب المنصة القديمة",
+        "ننقل بياناتنا لعندكم",
+        "الانتقال من نظام قديم",
+        "هنحوّل من برنامج تاني",
+        "عايز انقل من منصة تانية",
+        "ننقل لعندكم",
+        "نحول لعندكم من منصة"
+      ]
+    },
+    {
+      "canonical": "entity_history_import",
+      "labels": {
+        "ar": "استيراد المحادثات القديمة",
+        "en": "entity history import"
+      },
+      "patterns": [
+        "ننقل المحادثات القديمة",
+        "التذاكر القديمة تيجي معانا",
+        "ارشيف قديم ننقله",
+        "تاريخ العملاء القديم"
+      ]
+    },
+    {
+      "canonical": "entity_golive",
+      "labels": {
+        "ar": "يوم التشغيل الرسمي",
+        "en": "entity golive"
+      },
+      "patterns": [
+        "يوم التشغيل",
+        "هنشتغل رسمي امتى",
+        "نطلع لايف",
+        "بدء التشغيل الفعلي",
+        "خطة الاطلاق"
+      ]
+    },
+    {
+      "canonical": "entity_parallel_run",
+      "labels": {
+        "ar": "تشغيل بالتوازي",
+        "en": "entity parallel run"
+      },
+      "patterns": [
+        "نشغل الاتنين مع بعض",
+        "بالتوازي مع القديم",
+        "فترة تجريبية جنب النظام القديم",
+        "ما نقفلش القديم على طول"
+      ]
+    },
+    {
+      "canonical": "entity_team_training",
+      "labels": {
+        "ar": "تدريب الفريق",
+        "en": "entity team training"
+      },
+      "patterns": [
+        "ندرب الفريق",
+        "تدريب الموظفين على المنصة",
+        "الفريق مش عارف يستخدم",
+        "محتاجين شرح للفريق",
+        "جلسة تدريب"
+      ]
+    },
+    {
+      "canonical": "entity_rollback",
+      "labels": {
+        "ar": "الرجوع للنظام القديم",
+        "en": "entity rollback"
+      },
+      "patterns": [
+        "نرجع زي ما كنا",
+        "نلغي التحويل",
+        "الرجوع للقديم",
+        "خطة تراجع"
+      ]
+    },
+    {
+      "canonical": "entity_onboarding_checklist",
+      "labels": {
+        "ar": "خطوات التجهيز",
+        "en": "entity onboarding checklist"
+      },
+      "patterns": [
+        "قايمة التجهيز",
+        "ايه الخطوات قبل ما نبدا",
+        "محتاجين نجهز ايه",
+        "خطوات الاعداد الاولي"
+      ]
+    },
+    {
+      "canonical": "entity_data_cleanup",
+      "labels": {
+        "ar": "تنظيف البيانات قبل النقل",
+        "en": "entity data cleanup"
+      },
+      "patterns": [
+        "تنظيف البيانات",
+        "بيانات قديمة مكررة",
+        "نشيل القديم قبل النقل",
+        "تنقيح القوايم"
+      ]
+    },
+    {
+      "canonical": "entity_pilot_group",
+      "labels": {
+        "ar": "مجموعة تجريبية",
+        "en": "entity pilot group"
+      },
+      "patterns": [
+        "نجرب على فريق صغير",
+        "مجموعة تجريبية",
+        "نبدا بقسم واحد",
+        "تجربة محدودة الاول"
+      ]
+    },
+    {
+      "canonical": "entity_account_setup",
+      "labels": {
+        "ar": "تجهيز الحساب",
+        "en": "entity account setup"
+      },
+      "patterns": [
+        "تجهيز الحساب",
+        "اعداد الحساب من الاول",
+        "ظبطولنا الحساب",
+        "مين يظبطلنا الاعدادات"
+      ]
+    },
+    {
+      "canonical": "entity_data_agreement",
+      "labels": {
+        "ar": "اتفاقية معالجة البيانات",
+        "en": "entity data agreement"
+      },
+      "patterns": [
+        "اتفاقية معالجة بيانات",
+        "عقد حماية البيانات",
+        "ورق قانوني للبيانات",
+        "اتفاقية سرية"
+      ]
+    },
+    {
+      "canonical": "entity_data_residency",
+      "labels": {
+        "ar": "مكان تخزين البيانات",
+        "en": "entity data residency"
+      },
+      "patterns": [
+        "البيانات متخزنة فين",
+        "سيرفرات في اي بلد",
+        "التخزين داخل البلد",
+        "بيانات جوه مصر"
+      ]
+    },
+    {
+      "canonical": "entity_erasure_request",
+      "labels": {
+        "ar": "طلب حذف بيانات عميل",
+        "en": "entity erasure request"
+      },
+      "patterns": [
+        "عميل طالب حذف بياناته",
+        "حق النسيان",
+        "امسحوا بيانات العميل ده",
+        "طلب محو البيانات"
+      ]
+    },
+    {
+      "canonical": "entity_consent_record",
+      "labels": {
+        "ar": "إثبات الموافقة",
+        "en": "entity consent record"
+      },
+      "patterns": [
+        "اثبات موافقة العميل",
+        "سجل الموافقات",
+        "العميل وافق امتى",
+        "دليل الموافقة"
+      ]
+    },
+    {
+      "canonical": "entity_retention_policy",
+      "labels": {
+        "ar": "مدة الاحتفاظ بالبيانات",
+        "en": "entity retention policy"
+      },
+      "patterns": [
+        "مدة الاحتفاظ",
+        "بتحتفظوا بالبيانات كام سنة",
+        "سياسة حفظ البيانات",
+        "الحذف التلقائي بعد مدة"
+      ]
+    },
+    {
+      "canonical": "entity_certification",
+      "labels": {
+        "ar": "شهادات الامتثال",
+        "en": "entity certification"
+      },
+      "patterns": [
+        "شهادة امتثال",
+        "عندكم ايزو",
+        "شهادات الامان",
+        "تقرير تدقيق"
+      ]
+    },
+    {
+      "canonical": "entity_subprocessor",
+      "labels": {
+        "ar": "أطراف تالتة",
+        "en": "entity subprocessor"
+      },
+      "patterns": [
+        "اطراف تالتة",
+        "شركات تانية بتشوف البيانات",
+        "مقدمي خدمة فرعيين",
+        "مين بيشارككم البيانات"
+      ]
+    },
+    {
+      "canonical": "entity_breach_duty",
+      "labels": {
+        "ar": "الإبلاغ عن اختراق",
+        "en": "entity breach duty"
+      },
+      "patterns": [
+        "لو حصل اختراق",
+        "هتبلغونا امتى",
+        "خطة الاستجابة للحوادث",
+        "التزام الابلاغ"
+      ]
+    },
+    {
+      "canonical": "entity_large_volume",
+      "labels": {
+        "ar": "حجم بيانات كبير",
+        "en": "entity large volume"
+      },
+      "patterns": [
+        "عندنا عشرات الالاف",
+        "حجم كبير من المحادثات",
+        "بيانات ضخمة",
+        "الارقام عندنا كبيرة"
+      ]
+    },
+    {
+      "canonical": "entity_search_performance",
+      "labels": {
+        "ar": "بطء البحث",
+        "en": "entity search performance"
+      },
+      "patterns": [
+        "البحث بياخد وقت",
+        "البحث بطيء",
+        "لما ادور بياخد دقايق",
+        "نتيجة البحث بتتاخر",
+        "البحث بقى بطيء",
+        "البحث بقى تقيل"
+      ]
+    },
+    {
+      "canonical": "entity_report_range",
+      "labels": {
+        "ar": "مدى التقرير",
+        "en": "entity report range"
+      },
+      "patterns": [
+        "تقرير لسنة كاملة",
+        "مدى زمني كبير",
+        "التقرير بيفصل على فترة طويلة",
+        "تقرير شامل لكل الفترة"
+      ]
+    },
+    {
+      "canonical": "entity_storage_limit",
+      "labels": {
+        "ar": "حد المساحة",
+        "en": "entity storage limit"
+      },
+      "patterns": [
+        "المساحة خلصت",
+        "حد التخزين",
+        "المرفقات واخدة مساحة",
+        "مساحة الحساب"
+      ]
+    },
+    {
+      "canonical": "entity_archiving",
+      "labels": {
+        "ar": "أرشفة القديم",
+        "en": "entity archiving"
+      },
+      "patterns": [
+        "نأرشف القديم",
+        "ننقل القديم بره",
+        "ارشفة تلقائية",
+        "نفضي مساحة"
+      ]
+    },
+    {
+      "canonical": "entity_deep_pagination",
+      "labels": {
+        "ar": "التصفح لصفحات بعيدة",
+        "en": "entity deep pagination"
+      },
+      "patterns": [
+        "الصفحات البعيدة بطيئة",
+        "لما اروح لصفحة متاخرة",
+        "التنقل في الصفحات تقيل"
+      ]
+    },
+    {
+      "canonical": "entity_concurrent_agents",
+      "labels": {
+        "ar": "موظفين كتير مع بعض",
+        "en": "entity concurrent agents"
+      },
+      "patterns": [
+        "موظفين كتير شغالين",
+        "عشرين موظف مع بعض",
+        "ضغط في نفس الوقت",
+        "كل الفريق فاتح مع بعض"
+      ]
+    },
+    {
+      "canonical": "entity_attachment_size",
+      "labels": {
+        "ar": "حجم المرفقات",
+        "en": "entity attachment size"
+      },
+      "patterns": [
+        "حجم الملف كبير",
+        "المرفق مش راضي يترفع",
+        "حد حجم المرفق",
+        "ملف تقيل"
+      ]
+    },
+    {
+      "canonical": "entity_plan_switch",
+      "labels": {
+        "ar": "تغيير دورة الاشتراك",
+        "en": "entity plan switch"
+      },
+      "patterns": [
+        "نحول من سنوي لشهري",
+        "نغير دورة الدفع",
+        "من شهري لسنوي",
+        "تغيير مدة الاشتراك"
+      ]
+    },
+    {
+      "canonical": "entity_seat_truing",
+      "labels": {
+        "ar": "تسوية المقاعد",
+        "en": "entity seat truing"
+      },
+      "patterns": [
+        "زودنا موظفين",
+        "تسوية عدد المقاعد",
+        "دفعنا لعدد اقل",
+        "المقاعد الزيادة"
+      ]
+    },
+    {
+      "canonical": "entity_bill_shock",
+      "labels": {
+        "ar": "فاتورة أعلى من المتوقع",
+        "en": "entity bill shock"
+      },
+      "patterns": [
+        "الفاتورة اعلى من المتوقع",
+        "ليه الحساب زاد",
+        "مبلغ اكبر من الشهر اللي فات",
+        "فوجئنا بالمبلغ"
+      ]
+    },
+    {
+      "canonical": "entity_credit_note",
+      "labels": {
+        "ar": "إشعار دائن",
+        "en": "entity credit note"
+      },
+      "patterns": [
+        "اشعار دائن",
+        "رصيد لصالحنا",
+        "خصم على الفاتورة الجاية",
+        "مبلغ يترد كرصيد"
+      ]
+    },
+    {
+      "canonical": "entity_refund_destination",
+      "labels": {
+        "ar": "وجهة الاسترداد",
+        "en": "entity refund destination"
+      },
+      "patterns": [
+        "نرجعه على كارت تاني",
+        "الكارت الاول اتقفل",
+        "استرداد على حساب مختلف",
+        "حولوه على حساب بنكي"
+      ]
+    },
+    {
+      "canonical": "entity_invoice_consolidation",
+      "labels": {
+        "ar": "دمج الفواتير",
+        "en": "entity invoice consolidation"
+      },
+      "patterns": [
+        "فاتورة واحدة لكل الفروع",
+        "دمج الفواتير",
+        "حسابات كتير فاتورة واحدة",
+        "نجمع الفواتير"
+      ]
+    },
+    {
+      "canonical": "entity_tax_exemption",
+      "labels": {
+        "ar": "إعفاء ضريبي",
+        "en": "entity tax exemption"
+      },
+      "patterns": [
+        "اعفاء ضريبي",
+        "احنا معفيين من الضريبة",
+        "شهادة اعفاء",
+        "من غير ضريبة"
+      ]
+    },
+    {
+      "canonical": "entity_dunning",
+      "labels": {
+        "ar": "محاولات تحصيل متكررة",
+        "en": "entity dunning"
+      },
+      "patterns": [
+        "الدفع فشل كام مرة",
+        "بتحاولوا تحصلوا تاني امتى",
+        "اشعارات الدفع المتاخر",
+        "مهلة قبل الايقاف"
+      ]
+    },
+    {
+      "canonical": "entity_offboarding",
+      "labels": {
+        "ar": "موظف ساب الشركة",
+        "en": "entity offboarding"
+      },
+      "patterns": [
+        "موظف مشي",
+        "موظف ساب الشغل",
+        "نشيل موظف من الفريق",
+        "استقال ونشيله"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_handover",
+      "labels": {
+        "ar": "تسليم التذاكر المفتوحة",
+        "en": "entity ticket handover"
+      },
+      "patterns": [
+        "تذاكره المفتوحة تروح لمين",
+        "تسليم شغله",
+        "ننقل تذاكره",
+        "شغل الموظف اللي مشي"
+      ]
+    },
+    {
+      "canonical": "entity_shared_vs_personal",
+      "labels": {
+        "ar": "صندوق مشترك ولا شخصي",
+        "en": "entity shared vs personal"
+      },
+      "patterns": [
+        "صندوق مشترك",
+        "كل واحد صندوقه",
+        "الكل يشوف كل حاجة",
+        "تقسيم الصناديق"
+      ]
+    },
+    {
+      "canonical": "entity_supervisor_view",
+      "labels": {
+        "ar": "متابعة المشرف",
+        "en": "entity supervisor view"
+      },
+      "patterns": [
+        "المشرف يتابع",
+        "اشوف شغل الفريق",
+        "متابعة مباشرة للمحادثات",
+        "صلاحية مشرف"
+      ]
+    },
+    {
+      "canonical": "entity_agent_script",
+      "labels": {
+        "ar": "نص إرشادي للموظف",
+        "en": "entity agent script"
+      },
+      "patterns": [
+        "نص جاهز للموظف",
+        "ارشادات للرد",
+        "سكريبت للفريق",
+        "ردود موحدة للفريق"
+      ]
+    },
+    {
+      "canonical": "entity_shift_handover",
+      "labels": {
+        "ar": "تسليم الوردية",
+        "en": "entity shift handover"
+      },
+      "patterns": [
+        "تسليم الوردية",
+        "الشيفت اللي بعدنا",
+        "ملاحظات لنهاية اليوم",
+        "الوردية الجاية"
+      ]
+    },
+    {
+      "canonical": "entity_training_mode",
+      "labels": {
+        "ar": "وضع التدريب",
+        "en": "entity training mode"
+      },
+      "patterns": [
+        "وضع تدريب",
+        "موظف جديد تحت المتابعة",
+        "مراجعة قبل الارسال",
+        "ردوده تتراجع الاول"
+      ]
+    },
+    {
+      "canonical": "entity_review_data",
+      "labels": {
+        "ar": "بيانات تقييم الأداء",
+        "en": "entity review data"
+      },
+      "patterns": [
+        "بيانات التقييم السنوي",
+        "ارقام لتقييم الموظف",
+        "تقرير اداء للمراجعة",
+        "احصائيات للتقييم"
+      ]
+    },
+    {
+      "canonical": "entity_template_category",
+      "labels": {
+        "ar": "تصنيف القالب",
+        "en": "entity template category"
+      },
+      "patterns": [
+        "تصنيف القالب اتغير",
+        "ميتا غيرت تصنيف",
+        "القالب بقى تسويقي",
+        "فئة القالب"
+      ]
+    },
+    {
+      "canonical": "entity_country_pricing",
+      "labels": {
+        "ar": "سعر حسب الدولة",
+        "en": "entity country pricing"
+      },
+      "patterns": [
+        "السعر بيختلف حسب البلد",
+        "تكلفة الرسالة في بلد تانية",
+        "اسعار الدول",
+        "تسعير حسب الدولة"
+      ]
+    },
+    {
+      "canonical": "entity_optout",
+      "labels": {
+        "ar": "إلغاء الاشتراك",
+        "en": "entity optout"
+      },
+      "patterns": [
+        "العميل طلب يوقف الرسايل",
+        "الغاء الاشتراك من الرسايل",
+        "مش عايز يستقبل",
+        "شيلوني من القايمة"
+      ]
+    },
+    {
+      "canonical": "entity_wa_flow",
+      "labels": {
+        "ar": "نموذج داخل واتساب",
+        "en": "entity wa flow"
+      },
+      "patterns": [
+        "نموذج جوه واتساب",
+        "استمارة في المحادثة",
+        "العميل يملا بيانات في الشات"
+      ]
+    },
+    {
+      "canonical": "entity_interactive_buttons",
+      "labels": {
+        "ar": "أزرار وقوائم",
+        "en": "entity interactive buttons"
+      },
+      "patterns": [
+        "ازرار في الرسالة",
+        "قايمة اختيارات",
+        "العميل يختار من قايمة",
+        "رسالة بازرار"
+      ]
+    },
+    {
+      "canonical": "entity_click_to_chat_ads",
+      "labels": {
+        "ar": "إعلانات توصل للواتساب",
+        "en": "entity click to chat ads"
+      },
+      "patterns": [
+        "اعلان بيوصل للواتساب",
+        "حملات تجيب محادثات",
+        "اعلانات فيسبوك للواتساب",
+        "من الاعلان للمحادثة"
+      ]
+    },
+    {
+      "canonical": "entity_verification_renewal",
+      "labels": {
+        "ar": "تجديد التوثيق",
+        "en": "entity verification renewal"
+      },
+      "patterns": [
+        "تجديد التوثيق",
+        "التوثيق قرب ينتهي",
+        "اعادة التحقق من النشاط"
+      ]
+    },
+    {
+      "canonical": "entity_display_name",
+      "labels": {
+        "ar": "الاسم الظاهر",
+        "en": "entity display name"
+      },
+      "patterns": [
+        "الاسم الظاهر اترفض",
+        "اسم النشاط مرفوض",
+        "نغير الاسم الظاهر",
+        "الاسم اللي بيشوفه العميل"
+      ]
+    },
+    {
+      "canonical": "entity_quality_recovery",
+      "labels": {
+        "ar": "استرجاع جودة الرقم",
+        "en": "entity quality recovery"
+      },
+      "patterns": [
+        "نرجع الجودة تاني",
+        "الجودة بقت حمرا",
+        "خطة تحسين الجودة",
+        "الرقم يرجع اخضر"
+      ]
+    },
+    {
+      "canonical": "entity_wa_pricing_change",
+      "labels": {
+        "ar": "تغيير تسعير واتساب",
+        "en": "entity wa pricing change"
+      },
+      "patterns": [
+        "ميتا غيرت الاسعار",
+        "التسعير الجديد",
+        "اسعار المحادثات اتغيرت"
+      ]
+    },
+    {
+      "canonical": "entity_handoff_condition",
+      "labels": {
+        "ar": "شرط التحويل لموظف",
+        "en": "entity handoff condition"
+      },
+      "patterns": [
+        "امتى يحول لموظف",
+        "شرط التحويل",
+        "يسيب البوت ويحول",
+        "متى يتدخل الانسان"
+      ]
+    },
+    {
+      "canonical": "entity_bot_retry_limit",
+      "labels": {
+        "ar": "عدد محاولات البوت",
+        "en": "entity bot retry limit"
+      },
+      "patterns": [
+        "بعد كام محاولة يحول",
+        "يجرب كام مرة",
+        "حد محاولات البوت"
+      ]
+    },
+    {
+      "canonical": "entity_multilingual_flow",
+      "labels": {
+        "ar": "مسار متعدد اللغات",
+        "en": "entity multilingual flow"
+      },
+      "patterns": [
+        "مسار بلغتين",
+        "بوت يرد بلغتين",
+        "اللغة حسب العميل",
+        "مسارات لكل لغة"
+      ]
+    },
+    {
+      "canonical": "entity_flow_variable_source",
+      "labels": {
+        "ar": "مصدر بيانات المسار",
+        "en": "entity flow variable source"
+      },
+      "patterns": [
+        "البوت ياخد البيانات منين",
+        "يربط ببيانات العميل",
+        "متغيرات من نظام تاني"
+      ]
+    },
+    {
+      "canonical": "entity_flow_testing",
+      "labels": {
+        "ar": "تجربة المسار قبل النشر",
+        "en": "entity flow testing"
+      },
+      "patterns": [
+        "اجرب المسار قبل النشر",
+        "تجربة البوت",
+        "نشوفه شغال قبل ما ينزل"
+      ]
+    },
+    {
+      "canonical": "entity_flow_versioning",
+      "labels": {
+        "ar": "نسخ المسار",
+        "en": "entity flow versioning"
+      },
+      "patterns": [
+        "نسخة قديمة من المسار",
+        "نرجع لنسخة سابقة",
+        "تاريخ التعديلات على المسار"
+      ]
+    },
+    {
+      "canonical": "entity_greeting_test",
+      "labels": {
+        "ar": "تجربة رسايل ترحيب",
+        "en": "entity greeting test"
+      },
+      "patterns": [
+        "نجرب ترحيبين",
+        "مقارنة رسالتين",
+        "اي ترحيب افضل"
+      ]
+    },
+    {
+      "canonical": "entity_dropoff_analytics",
+      "labels": {
+        "ar": "مكان خروج العميل",
+        "en": "entity dropoff analytics"
+      },
+      "patterns": [
+        "العميل بيسيب المحادثة فين",
+        "نقطة الخروج",
+        "بيقف عند خطوة معينة"
+      ]
+    },
+    {
+      "canonical": "entity_custom_dashboard",
+      "labels": {
+        "ar": "لوحة مخصصة",
+        "en": "entity custom dashboard"
+      },
+      "patterns": [
+        "لوحة مخصصة",
+        "اعمل لوحة بتاعتي",
+        "ارقام مختارة في شاشة واحدة"
+      ]
+    },
+    {
+      "canonical": "entity_scheduled_report",
+      "labels": {
+        "ar": "تقرير دوري",
+        "en": "entity scheduled report"
+      },
+      "patterns": [
+        "تقرير اسبوعي تلقائي",
+        "يوصل للمدير كل شهر",
+        "جدولة تقرير"
+      ]
+    },
+    {
+      "canonical": "entity_sla_report",
+      "labels": {
+        "ar": "تقرير الالتزام بالمدة",
+        "en": "entity sla report"
+      },
+      "patterns": [
+        "تقرير تجاوز المدة",
+        "كام تذكرة اتاخرت",
+        "الالتزام بالمواعيد"
+      ]
+    },
+    {
+      "canonical": "entity_first_contact_resolution",
+      "labels": {
+        "ar": "الحل من أول تواصل",
+        "en": "entity first contact resolution"
+      },
+      "patterns": [
+        "اتحلت من اول مرة",
+        "نسبة الحل الفوري",
+        "من غير متابعة تانية"
+      ]
+    },
+    {
+      "canonical": "entity_backlog_aging",
+      "labels": {
+        "ar": "عمر التذاكر المتراكمة",
+        "en": "entity backlog aging"
+      },
+      "patterns": [
+        "تذاكر قديمة مفتوحة",
+        "المتراكم بقاله قد ايه",
+        "اقدم تذكرة مفتوحة"
+      ]
+    },
+    {
+      "canonical": "entity_agent_occupancy",
+      "labels": {
+        "ar": "نسبة انشغال الموظف",
+        "en": "entity agent occupancy"
+      },
+      "patterns": [
+        "نسبة الانشغال",
+        "الموظف مشغول قد ايه",
+        "وقت العمل الفعلي"
+      ]
+    },
+    {
+      "canonical": "entity_click_to_call",
+      "labels": {
+        "ar": "اتصال من المنصة",
+        "en": "entity click to call"
+      },
+      "patterns": [
+        "اتصل من المنصة",
+        "زرار اتصال",
+        "مكالمة من الشاشة"
+      ]
+    },
+    {
+      "canonical": "entity_call_logging",
+      "labels": {
+        "ar": "تسجيل المكالمات في التذكرة",
+        "en": "entity call logging"
+      },
+      "patterns": [
+        "المكالمة تتسجل في التذكرة",
+        "سجل المكالمات",
+        "المكالمات تظهر مع المحادثة"
+      ]
+    },
+    {
+      "canonical": "entity_ivr_handoff",
+      "labels": {
+        "ar": "تحويل من الرد الآلي",
+        "en": "entity ivr handoff"
+      },
+      "patterns": [
+        "من الرد الالي للشات",
+        "يحول المكالمة لمحادثة",
+        "الرد الالي يبعت رسالة"
+      ]
+    },
+    {
+      "canonical": "entity_missed_call",
+      "labels": {
+        "ar": "مكالمة فايتة",
+        "en": "entity missed call"
+      },
+      "patterns": [
+        "مكالمة فايتة",
+        "اتصل ومحدش رد",
+        "نرجع نكلمه"
+      ]
+    },
+    {
+      "canonical": "entity_recording_consent",
+      "labels": {
+        "ar": "الموافقة على التسجيل",
+        "en": "entity recording consent"
+      },
+      "patterns": [
+        "موافقة على تسجيل المكالمة",
+        "نبلغه ان المكالمة متسجلة"
+      ]
+    },
+    {
+      "canonical": "entity_number_porting",
+      "labels": {
+        "ar": "نقل الرقم",
+        "en": "entity number porting"
+      },
+      "patterns": [
+        "ننقل رقمنا",
+        "نقل الرقم من مشغل تاني",
+        "نفس الرقم عندكم"
+      ]
+    },
+    {
+      "canonical": "entity_article_suggestion",
+      "labels": {
+        "ar": "اقتراح مقال للموظف",
+        "en": "entity article suggestion"
+      },
+      "patterns": [
+        "يقترح مقال للموظف",
+        "مقالات مقترحة اثناء الرد",
+        "يجيبله الاجابة"
+      ]
+    },
+    {
+      "canonical": "entity_public_kb",
+      "labels": {
+        "ar": "مركز مساعدة عام",
+        "en": "entity public kb"
+      },
+      "patterns": [
+        "مركز مساعدة للعملاء",
+        "صفحة اسئلة شائعة",
+        "مقالات يشوفها العميل"
+      ]
+    },
+    {
+      "canonical": "entity_article_analytics",
+      "labels": {
+        "ar": "أداء المقالات",
+        "en": "entity article analytics"
+      },
+      "patterns": [
+        "اي مقال بيتقرا",
+        "احصائيات المقالات",
+        "المقال ده مفيد ولا لا"
+      ]
+    },
+    {
+      "canonical": "entity_article_versioning",
+      "labels": {
+        "ar": "نسخ المقال",
+        "en": "entity article versioning"
+      },
+      "patterns": [
+        "نسخة قديمة من المقال",
+        "مين عدل المقال",
+        "تاريخ تعديل المقال"
+      ]
+    },
+    {
+      "canonical": "entity_multilingual_article",
+      "labels": {
+        "ar": "مقال بأكتر من لغة",
+        "en": "entity multilingual article"
+      },
+      "patterns": [
+        "المقال بلغتين",
+        "ترجمة المقالات",
+        "نسخة انجليزي من المقال"
+      ]
+    },
+    {
+      "canonical": "entity_deflection",
+      "labels": {
+        "ar": "تقليل التذاكر بالمعرفة",
+        "en": "entity deflection"
+      },
+      "patterns": [
+        "نقلل التذاكر",
+        "العميل يلاقي الحل بنفسه",
+        "نسبة الحل الذاتي",
+        "نقلل التذاكر ازاي",
+        "نقلل عدد التذاكر"
+      ]
+    },
+    {
+      "canonical": "entity_order_lookup",
+      "labels": {
+        "ar": "الاستعلام عن طلب",
+        "en": "entity order lookup"
+      },
+      "patterns": [
+        "العميل يسال عن طلبه",
+        "حالة الطلب في المحادثة",
+        "رقم الطلب في الشات"
+      ]
+    },
+    {
+      "canonical": "entity_returns_flow",
+      "labels": {
+        "ar": "مسار الاسترجاع",
+        "en": "entity returns flow"
+      },
+      "patterns": [
+        "استرجاع منتج",
+        "العميل عايز يرجع الطلب",
+        "مسار المرتجعات"
+      ]
+    },
+    {
+      "canonical": "entity_abandoned_cart",
+      "labels": {
+        "ar": "سلة متروكة",
+        "en": "entity abandoned cart"
+      },
+      "patterns": [
+        "سلة متروكة",
+        "العميل ساب العربة",
+        "متابعة اللي ماكملش شراء"
+      ]
+    },
+    {
+      "canonical": "entity_product_recommendation",
+      "labels": {
+        "ar": "اقتراح منتجات",
+        "en": "entity product recommendation"
+      },
+      "patterns": [
+        "نقترح منتجات",
+        "نرشح للعميل حاجات",
+        "عروض حسب اهتمامه"
+      ]
+    },
+    {
+      "canonical": "entity_payment_link",
+      "labels": {
+        "ar": "رابط دفع في المحادثة",
+        "en": "entity payment link"
+      },
+      "patterns": [
+        "رابط دفع في الشات",
+        "نبعتله لينك يدفع",
+        "الدفع من داخل المحادثة"
+      ]
+    },
+    {
+      "canonical": "entity_shipping_tracking",
+      "labels": {
+        "ar": "تتبع الشحنة",
+        "en": "entity shipping tracking"
+      },
+      "patterns": [
+        "تتبع الشحن",
+        "الشحنة فين",
+        "رقم البوليصة"
+      ]
+    },
+    {
+      "canonical": "entity_screen_reader",
+      "labels": {
+        "ar": "قارئ الشاشة",
+        "en": "entity screen reader"
+      },
+      "patterns": [
+        "قارئ الشاشة",
+        "موظف كفيف",
+        "الوصول لذوي الاحتياجات"
+      ]
+    },
+    {
+      "canonical": "entity_font_size",
+      "labels": {
+        "ar": "حجم الخط",
+        "en": "entity font size"
+      },
+      "patterns": [
+        "الخط صغير",
+        "نكبر الخط",
+        "حجم الخط في الشاشة"
+      ]
+    },
+    {
+      "canonical": "entity_rtl_reports",
+      "labels": {
+        "ar": "اتجاه التقارير",
+        "en": "entity rtl reports"
+      },
+      "patterns": [
+        "التقرير مقلوب",
+        "الاتجاه في التقارير",
+        "الاعمدة معكوسة في التصدير"
+      ]
+    },
+    {
+      "canonical": "entity_date_format",
+      "labels": {
+        "ar": "صيغة التاريخ",
+        "en": "entity date format"
+      },
+      "patterns": [
+        "صيغة التاريخ",
+        "التاريخ ظاهر بالعكس",
+        "اليوم قبل الشهر"
+      ]
+    },
+    {
+      "canonical": "entity_email_template_rtl",
+      "labels": {
+        "ar": "قوالب البريد بالعربي",
+        "en": "entity email template rtl"
+      },
+      "patterns": [
+        "قالب الايميل مقلوب",
+        "الايميل بالعربي متلخبط",
+        "اتجاه النص في الايميل"
+      ]
+    },
+    {
+      "canonical": "entity_multi_currency_display",
+      "labels": {
+        "ar": "عرض عملات متعددة",
+        "en": "entity multi currency display"
+      },
+      "patterns": [
+        "اكتر من عملة",
+        "نعرض بعملة العميل",
+        "تحويل العملة في العرض"
+      ]
+    },
+    {
+      "canonical": "social_business_slow",
+      "labels": {
+        "ar": "الشغل راكد",
+        "en": "social business slow"
+      },
+      "patterns": [
+        "الشغل راكد",
+        "السوق واقف",
+        "مفيش بيع",
+        "الحركة ضعيفة",
+        "موسم ميت"
+      ]
+    },
+    {
+      "canonical": "social_business_booming",
+      "labels": {
+        "ar": "الشغل ماشي كويس",
+        "en": "social business booming"
+      },
+      "patterns": [
+        "الشغل ماشي كويس",
+        "الحمد لله شغل كتير",
+        "الطلبات زادت",
+        "موسم حلو",
+        "بنكبر"
+      ]
+    },
+    {
+      "canonical": "social_new_branch",
+      "labels": {
+        "ar": "فرع جديد",
+        "en": "social new branch"
+      },
+      "patterns": [
+        "فتحنا فرع جديد",
+        "هنفتح فرع",
+        "توسعنا لفرع تاني",
+        "محل جديد"
+      ]
+    },
+    {
+      "canonical": "social_closing_business",
+      "labels": {
+        "ar": "قافلين النشاط",
+        "en": "social closing business"
+      },
+      "patterns": [
+        "هنقفل الشغل",
+        "بنسيب النشاط",
+        "مش هنكمل",
+        "قافلين المحل"
+      ]
+    },
+    {
+      "canonical": "social_changing_business",
+      "labels": {
+        "ar": "غيرنا النشاط",
+        "en": "social changing business"
+      },
+      "patterns": [
+        "غيرنا النشاط",
+        "بقينا نشتغل في حاجة تانية",
+        "حولنا المجال"
+      ]
+    },
+    {
+      "canonical": "social_seasonal_rush",
+      "labels": {
+        "ar": "موسم ضغط",
+        "en": "social seasonal rush"
+      },
+      "patterns": [
+        "موسم الضغط",
+        "رمضان شغل كتير",
+        "الاوردرات هتزيد الشهر ده",
+        "ذروة الموسم"
+      ]
+    },
+    {
+      "canonical": "social_growth_upgrade",
+      "labels": {
+        "ar": "كبرنا ومحتاجين أكتر",
+        "en": "social growth upgrade"
+      },
+      "patterns": [
+        "كبرنا ومحتاجين اكتر",
+        "الباقة بقت صغيرة علينا",
+        "العدد زاد علينا"
+      ]
+    },
+    {
+      "canonical": "social_hiring",
+      "labels": {
+        "ar": "بنوظف ناس",
+        "en": "social hiring"
+      },
+      "patterns": [
+        "وظفنا ناس جداد",
+        "الفريق كبر",
+        "داخلين موظفين جداد"
+      ]
+    },
+    {
+      "canonical": "social_competitor_pressure",
+      "labels": {
+        "ar": "ضغط المنافسين",
+        "en": "social competitor pressure"
+      },
+      "patterns": [
+        "المنافسين بيعملوا كده",
+        "فيه حد اقل سعر",
+        "السوق فيه ناس ارخص"
+      ]
+    },
+    {
+      "canonical": "social_supply_issue",
+      "labels": {
+        "ar": "مشكلة في التوريد",
+        "en": "social supply issue"
+      },
+      "patterns": [
+        "البضاعة اتاخرت",
+        "مشكلة في التوريد",
+        "المورد متاخر"
+      ]
+    },
+    {
+      "canonical": "social_cash_tight",
+      "labels": {
+        "ar": "السيولة ضيقة",
+        "en": "social cash tight"
+      },
+      "patterns": [
+        "الفلوس ضيقة الشهر ده",
+        "السيولة مش مظبوطة",
+        "مقدرش ادفع دلوقتي"
+      ]
+    },
+    {
+      "canonical": "social_expanding_abroad",
+      "labels": {
+        "ar": "توسع لبلد تانية",
+        "en": "social expanding abroad"
+      },
+      "patterns": [
+        "هنفتح في بلد تانية",
+        "توسع خارج مصر",
+        "عملاء في الخليج"
+      ]
+    },
+    {
+      "canonical": "social_long_customer",
+      "labels": {
+        "ar": "عميل من زمان",
+        "en": "social long customer"
+      },
+      "patterns": [
+        "انا معاكم من زمان",
+        "من اول ما فتحتوا",
+        "عميل قديم عندكم",
+        "بقالي سنين معاكم"
+      ]
+    },
+    {
+      "canonical": "social_referred",
+      "labels": {
+        "ar": "حد رشّحكم",
+        "en": "social referred"
+      },
+      "patterns": [
+        "صاحبي رشحكم",
+        "حد قالي عليكم",
+        "اتنصحت بيكم",
+        "واحد صاحبي بيستخدمكم"
+      ]
+    },
+    {
+      "canonical": "social_saw_ad",
+      "labels": {
+        "ar": "شاف إعلان",
+        "en": "social saw ad"
+      },
+      "patterns": [
+        "شفت اعلان",
+        "لقيتكم في اعلان",
+        "جالي اعلان عنكم"
+      ]
+    },
+    {
+      "canonical": "social_returning_customer",
+      "labels": {
+        "ar": "راجع بعد ما ساب",
+        "en": "social returning customer"
+      },
+      "patterns": [
+        "كنت معاكم وسبت",
+        "راجع تاني",
+        "الغيت زمان وعايز ارجع"
+      ]
+    },
+    {
+      "canonical": "social_comparing_before_renew",
+      "labels": {
+        "ar": "بيقارن قبل التجديد",
+        "en": "social comparing before renew"
+      },
+      "patterns": [
+        "بقارن قبل ما اجدد",
+        "بفكر اجدد ولا لا",
+        "قبل التجديد عايز اشوف"
+      ]
+    },
+    {
+      "canonical": "social_loyalty_discount",
+      "labels": {
+        "ar": "بيطلب خصم ولاء",
+        "en": "social loyalty discount"
+      },
+      "patterns": [
+        "خصم لعميل قديم",
+        "مستاهل خصم",
+        "ماتعملوش خصم للقدام"
+      ]
+    },
+    {
+      "canonical": "social_case_study",
+      "labels": {
+        "ar": "حالة دراسية",
+        "en": "social case study"
+      },
+      "patterns": [
+        "اتكلموا عننا",
+        "قصة نجاح",
+        "نبقى مثال عندكم"
+      ]
+    },
+    {
+      "canonical": "social_testimonial",
+      "labels": {
+        "ar": "شهادة رأي",
+        "en": "social testimonial"
+      },
+      "patterns": [
+        "اكتبلكم رأي",
+        "اصور فيديو عنكم",
+        "رأي للنشر"
+      ]
+    },
+    {
+      "canonical": "social_apologizes_after_anger",
+      "labels": {
+        "ar": "اعتذر بعد الزعل",
+        "en": "social apologizes after anger"
+      },
+      "patterns": [
+        "كنت متعصب ساعتها",
+        "سامحوني على كلامي",
+        "كنت مضغوط ساعتها"
+      ]
+    },
+    {
+      "canonical": "social_wants_account_manager",
+      "labels": {
+        "ar": "بيطلب مسؤول حساب",
+        "en": "social wants account manager"
+      },
+      "patterns": [
+        "عايز حد مسؤول عننا",
+        "مدير حساب",
+        "حد ثابت نتعامل معاه"
+      ]
+    },
+    {
+      "canonical": "social_not_technical",
+      "labels": {
+        "ar": "مش فاهم في التكنولوجيا",
+        "en": "social not technical"
+      },
+      "patterns": [
+        "انا مش فاهم في الكمبيوتر",
+        "كبير في السن",
+        "مش بفهم في التكنولوجيا",
+        "اشرحلي كانك بتشرح لطفل"
+      ]
+    },
+    {
+      "canonical": "social_using_parent_account",
+      "labels": {
+        "ar": "بيستخدم حساب حد تاني",
+        "en": "social using parent account"
+      },
+      "patterns": [
+        "ده حساب ابويا",
+        "حساب اخويا",
+        "بستخدم حساب صاحب الشغل"
+      ]
+    },
+    {
+      "canonical": "social_noisy_place",
+      "labels": {
+        "ar": "في مكان زحمة",
+        "en": "social noisy place"
+      },
+      "patterns": [
+        "انا في مكان زحمة",
+        "في الشارع",
+        "صوت عالي حواليا"
+      ]
+    },
+    {
+      "canonical": "social_driving",
+      "labels": {
+        "ar": "بيسوق",
+        "en": "social driving"
+      },
+      "patterns": [
+        "انا بسوق",
+        "ورا الدركسيون",
+        "في العربية دلوقتي"
+      ]
+    },
+    {
+      "canonical": "social_in_hospital",
+      "labels": {
+        "ar": "ظرف صحي",
+        "en": "social in hospital"
+      },
+      "patterns": [
+        "انا في المستشفى",
+        "تعبان صحيا",
+        "ظرف صحي"
+      ]
+    },
+    {
+      "canonical": "social_prayer_time",
+      "labels": {
+        "ar": "وقت صلاة",
+        "en": "social prayer time"
+      },
+      "patterns": [
+        "هصلي وارجع",
+        "وقت الصلاة",
+        "استنى لحد ما اصلي"
+      ]
+    },
+    {
+      "canonical": "social_traveling",
+      "labels": {
+        "ar": "مسافر",
+        "en": "social traveling"
+      },
+      "patterns": [
+        "انا مسافر",
+        "بره البلد",
+        "في المطار"
+      ]
+    },
+    {
+      "canonical": "social_weak_internet",
+      "labels": {
+        "ar": "نت ضعيف",
+        "en": "social weak internet"
+      },
+      "patterns": [
+        "النت عندي ضعيف",
+        "الشبكة وحشة",
+        "بيقطع كل شوية"
+      ]
+    },
+    {
+      "canonical": "social_borrowed_phone",
+      "labels": {
+        "ar": "موبايل مش بتاعه",
+        "en": "social borrowed phone"
+      },
+      "patterns": [
+        "الجهاز ده مش بتاعي",
+        "من تليفون صاحبي",
+        "جهاز مستعار"
+      ]
+    },
+    {
+      "canonical": "social_employee_left",
+      "labels": {
+        "ar": "الموظف اللي كان بيتابع مشي",
+        "en": "social employee left"
+      },
+      "patterns": [
+        "الموظف اللي كان بيتابع مشي",
+        "اللي كان شغال ساب",
+        "الشخص اللي كلمكم مش موجود"
+      ]
+    },
+    {
+      "canonical": "social_asking_for_friend",
+      "labels": {
+        "ar": "بيسأل لحد تاني",
+        "en": "social asking for friend"
+      },
+      "patterns": [
+        "بسال لصاحبي",
+        "لواحد صاحبي",
+        "مش ليا انا"
+      ]
+    },
+    {
+      "canonical": "social_representing_company",
+      "labels": {
+        "ar": "بيمثل شركة",
+        "en": "social representing company"
+      },
+      "patterns": [
+        "انا بمثل شركة",
+        "باسم المؤسسة",
+        "انا المسؤول عن الشركة"
+      ]
+    },
+    {
+      "canonical": "social_when_feature",
+      "labels": {
+        "ar": "إمتى الميزة دي",
+        "en": "social when feature"
+      },
+      "patterns": [
+        "الميزة دي هتنزل امتى",
+        "فيه خطة تعملوها",
+        "هتضيفوها امتى"
+      ]
+    },
+    {
+      "canonical": "social_asks_discount",
+      "labels": {
+        "ar": "بيطلب خصم",
+        "en": "social asks discount"
+      },
+      "patterns": [
+        "فيه خصم",
+        "اقل سعر ممكن",
+        "ماتنزلش السعر"
+      ]
+    },
+    {
+      "canonical": "social_trial_extension",
+      "labels": {
+        "ar": "مد التجربة",
+        "en": "social trial extension"
+      },
+      "patterns": [
+        "مدولي التجربة",
+        "التجربة قصيرة",
+        "كام يوم زيادة"
+      ]
+    },
+    {
+      "canonical": "social_custom_development",
+      "labels": {
+        "ar": "تطوير خاص",
+        "en": "social custom development"
+      },
+      "patterns": [
+        "تعملولنا حاجة مخصوص",
+        "تطوير خاص لينا",
+        "ميزة مخصصة"
+      ]
+    },
+    {
+      "canonical": "social_out_of_scope",
+      "labels": {
+        "ar": "خدمة مش عندكم",
+        "en": "social out of scope"
+      },
+      "patterns": [
+        "بتعملوا مواقع",
+        "بتصمموا",
+        "بتديروا صفحات",
+        "بتعملوا اعلانات"
+      ]
+    },
+    {
+      "canonical": "social_asks_founder",
+      "labels": {
+        "ar": "عايز صاحب الشركة",
+        "en": "social asks founder"
+      },
+      "patterns": [
+        "عايز اكلم صاحب الشركة",
+        "المالك",
+        "المؤسس"
+      ]
+    },
+    {
+      "canonical": "social_sla_guarantee",
+      "labels": {
+        "ar": "ضمان مدة رد",
+        "en": "social sla guarantee"
+      },
+      "patterns": [
+        "تضمنولي الرد في كام ساعة",
+        "ضمان مكتوب",
+        "تعهد بالمدة"
+      ]
+    },
+    {
+      "canonical": "social_uptime_history",
+      "labels": {
+        "ar": "تاريخ التوقف",
+        "en": "social uptime history"
+      },
+      "patterns": [
+        "وقفتوا قبل كده",
+        "كام مرة الخدمة وقفت",
+        "سجل الاعطال"
+      ]
+    },
+    {
+      "canonical": "social_company_longevity",
+      "labels": {
+        "ar": "هتفضلوا موجودين",
+        "en": "social company longevity"
+      },
+      "patterns": [
+        "هتفضلوا موجودين",
+        "مش هتقفلوا",
+        "الشركة مستقرة"
+      ]
+    },
+    {
+      "canonical": "social_funding_question",
+      "labels": {
+        "ar": "أسئلة عن الاستثمار",
+        "en": "social funding question"
+      },
+      "patterns": [
+        "مين ممولكم",
+        "فيه مستثمرين",
+        "الشركة مدعومة من مين"
+      ]
+    },
+    {
+      "canonical": "social_rate_the_bot",
+      "labels": {
+        "ar": "بيقيّم المساعد",
+        "en": "social rate the bot"
+      },
+      "patterns": [
+        "هقيمك",
+        "تقييمي ليك",
+        "اديك كام من عشرة"
+      ]
+    },
+    {
+      "canonical": "social_how_to_feedback",
+      "labels": {
+        "ar": "إزاي أبعت ملاحظات",
+        "en": "social how to feedback"
+      },
+      "patterns": [
+        "ابعت ملاحظاتي فين",
+        "عايز اقترح",
+        "فين مكان الاقتراحات"
+      ]
+    },
+    {
+      "canonical": "social_bot_answered_wrong",
+      "labels": {
+        "ar": "الرد كان غلط",
+        "en": "social bot answered wrong"
+      },
+      "patterns": [
+        "ردك كان غلط",
+        "المعلومة دي مش صح",
+        "انت جاوبت غلط"
+      ]
+    },
+    {
+      "canonical": "social_escalate_bot_answer",
+      "labels": {
+        "ar": "عايز حد يراجع الرد",
+        "en": "social escalate bot answer"
+      },
+      "patterns": [
+        "حد يراجع اللي قلته",
+        "عايز تأكيد من موظف",
+        "اتأكد من حد تاني"
+      ]
+    },
+    {
+      "canonical": "social_previous_answer_wrong",
+      "labels": {
+        "ar": "رد قديم طلع غلط",
+        "en": "social previous answer wrong"
+      },
+      "patterns": [
+        "اللي قلتهولي قبل كده طلع غلط",
+        "المعلومة القديمة مش مظبوطة"
+      ]
+    },
+    {
+      "canonical": "social_reopen_conversation",
+      "labels": {
+        "ar": "يفتح محادثة مقفولة",
+        "en": "social reopen conversation"
+      },
+      "patterns": [
+        "افتح المحادثة تاني",
+        "نفتح الموضوع تاني",
+        "نكمل في نفس الموضوع القديم"
+      ]
+    },
+    {
+      "canonical": "social_very_long_message",
+      "labels": {
+        "ar": "رسالة طويلة جدًا",
+        "en": "social very long message"
+      },
+      "patterns": [
+        "هكتبلك كل التفاصيل",
+        "الموضوع طويل",
+        "هحكيلك من الاول بالتفصيل"
+      ]
+    },
+    {
+      "canonical": "social_many_short_messages",
+      "labels": {
+        "ar": "رسايل قصيرة كتير",
+        "en": "social many short messages"
+      },
+      "patterns": [
+        "بعتلك كذا رسالة",
+        "كتبت على مراحل",
+        "قسمتها رسايل"
+      ]
+    },
+    {
+      "canonical": "social_all_caps",
+      "labels": {
+        "ar": "بيكتب بصوت عالي",
+        "en": "social all caps"
+      },
+      "patterns": [
+        "بكتب كده عشان مهم",
+        "الموضوع مستعجل جدا جدا"
+      ]
+    },
+    {
+      "canonical": "social_formal_arabic",
+      "labels": {
+        "ar": "بيكتب فصحى",
+        "en": "social formal arabic"
+      },
+      "patterns": [
+        "اود الاستفسار",
+        "تحية طيبة وبعد",
+        "ارجو التكرم",
+        "يرجى افادتي"
+      ]
+    },
+    {
+      "canonical": "social_two_questions",
+      "labels": {
+        "ar": "سؤالين في رسالة",
+        "en": "social two questions"
+      },
+      "patterns": [
+        "عندي سؤالين",
+        "حاجتين مع بعض",
+        "موضوعين في نفس الوقت"
+      ]
+    },
+    {
+      "canonical": "social_repeats_question",
+      "labels": {
+        "ar": "بيكرر نفس السؤال",
+        "en": "social repeats question"
+      },
+      "patterns": [
+        "سالت قبل كده",
+        "انا كررت السؤال",
+        "مرة تانية بسال"
+      ]
+    },
+    {
+      "canonical": "social_sends_link",
+      "labels": {
+        "ar": "باعت رابط",
+        "en": "social sends link"
+      },
+      "patterns": [
+        "بعتلك لينك",
+        "الرابط ده",
+        "شوف اللينك"
+      ]
+    },
+    {
+      "canonical": "social_sends_phone",
+      "labels": {
+        "ar": "باعت رقم تليفون",
+        "en": "social sends phone"
+      },
+      "patterns": [
+        "رقمي كذا",
+        "كلمني على الرقم ده",
+        "ده رقم تليفوني"
+      ]
+    },
+    {
+      "canonical": "social_answers_out_of_order",
+      "labels": {
+        "ar": "بيرد على سؤال قديم",
+        "en": "social answers out of order"
+      },
+      "patterns": [
+        "ده رد على سؤالك الاول",
+        "بالنسبة للي سالته قبل كده",
+        "راجع لسؤالك السابق"
+      ]
+    },
+    {
+      "canonical": "social_types_then_stops",
+      "labels": {
+        "ar": "بدأ يكتب وسكت",
+        "en": "social types then stops"
+      },
+      "patterns": [
+        "كنت هكتب حاجة ونسيت",
+        "خرجت مني",
+        "كنت بقول ايه"
+      ]
     }
   ]
 }

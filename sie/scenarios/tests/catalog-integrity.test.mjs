@@ -220,5 +220,5 @@ test('an auto-resolving scenario carries an answer, and an escalating one does n
 });
 
 test('the catalog holds the expected number of scenarios', () => {
-    assert.equal(scenarios.length, 500);
+    assert.equal(scenarios.length, 650);
 });

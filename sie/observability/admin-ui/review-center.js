@@ -1,8 +1,7 @@
 import { checkAdminAuth, updateAdminUI } from '/assets/js/admin/auth.js';
 import { initSidebar } from '/assets/js/admin/sidebar.js';
 import { supabase } from '/api-config.js';
-import { isCurrentUserSieAdmin, getSieAccessStatus, adminSetAccess, adminResetUsage, evaluateSieAccessRow,
-         getRateLimitStatus, adminSetRateLimit, adminResetRateLimit, describeRateLimitPressure } from '/sie-integration/sie-runtime.js';
+import { isCurrentUserSieAdmin, getSieAccessStatus, adminSetAccess, adminResetUsage, evaluateSieAccessRow } from '/sie-integration/sie-runtime.js';
 
 initSidebar();
 
@@ -683,11 +682,7 @@ async function initReviewCenter(currentUser) {
 // ------------------------------------------------------------------
 async function initCustomerAccess(currentUser) {
     let isSieAdmin = false;
-    let CUSTOMERS = []; // { id, fullName, email, role, access: customer_sie_access row|null, rateLimit: status row|null }
-    // Keyed by user id. Loaded alongside the access rows so one customer
-    // row can show quota and speed together — the whole reason the rate
-    // limit lives in this tab and not on a page of its own.
-    let RATE_LIMITS = new Map();
+    let CUSTOMERS = []; // { id, fullName, email, role, access: customer_sie_access row|null }
     let selectedUserId = null;
     const filters = { status: 'all', search: '' };
 
@@ -719,41 +714,14 @@ async function initCustomerAccess(currentUser) {
         return `${row.messages_used ?? 0} رسالة مُرسَلة`;
     }
 
-    /**
-     * The rate-limit cell: the effective ceiling, plus whether it came from
-     * the global setting or an exception on this customer. Showing which of
-     * the two is in force matters more than the number — an admin changing
-     * the global default needs to know at a glance who will not follow it.
-     */
-    function rateLimitCell(status) {
-        if (!status) return '<span class="rl-cell is-off">—</span>';
-        if (status.effective_enabled === false) {
-            return '<span class="rl-cell is-off">مقفول<span class="rl-sub">'
-                + (status.is_overridden ? 'استثناء لهذا العميل' : 'الإعداد العام') + '</span></span>';
-        }
-        const pressure = describeRateLimitPressure(status);
-        const pressed = pressure.level === 'critical' || pressure.level === 'exhausted';
-        return `<span class="rl-cell${pressed ? ' is-pressed' : ''}">`
-            + `${Number(status.effective_limit)} / دقيقة`
-            + `<span class="rl-sub">${status.is_overridden ? 'استثناء' : 'الإعداد العام'}`
-            + `${Number(status.window_requests) > 0 ? ` — ${Number(status.window_requests)} آخر دقيقة` : ''}`
-            + `</span></span>`;
-    }
-
     async function loadCustomers() {
         document.getElementById('custLastSync').textContent = '● جارِ الاتصال بقاعدة البيانات…';
         try {
-            const [{ data: profiles, error: profilesError }, accessResult, rateLimitRows] = await Promise.all([
+            const [{ data: profiles, error: profilesError }, accessResult] = await Promise.all([
                 supabase.from('profiles').select('id, full_name, email, role, created_at').order('created_at', { ascending: false }),
-                supabase.from('customer_sie_access').select('*'),
-                // Fetched with the others rather than per row: one RPC for the
-                // whole table beats one per customer, and getRateLimitStatus()
-                // already degrades to [] for a caller without the permission.
-                getRateLimitStatus(supabase)
+                supabase.from('customer_sie_access').select('*')
             ]);
             if (profilesError) throw profilesError;
-
-            RATE_LIMITS = new Map((rateLimitRows || []).map(r => [r.user_id, r]));
 
             // قراءة customer_sie_access ممكن ترجع فاضية أو بخطأ لو الحساب
             // الحالي مش is_sie_admin() فعليًا — مش هنعتبره فشل قاتل للقسم
@@ -774,8 +742,7 @@ async function initCustomerAccess(currentUser) {
                 fullName: p.full_name || 'بدون اسم',
                 email: p.email || '—',
                 role: p.role,
-                access: accessByUser.get(p.id) || null,
-                rateLimit: RATE_LIMITS.get(p.id) || null
+                access: accessByUser.get(p.id) || null
             }));
 
             document.getElementById('custLastSync').textContent = `آخر تحديث: ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
@@ -844,7 +811,6 @@ async function initCustomerAccess(currentUser) {
                     <td><span class="status-badge status-${status.enabled ? 'resolved' : 'dismissed'}">${escapeHtml(status.label)}</span></td>
                     <td>${mode ? `<span class="badge ${accessModeBadgeClass(mode)}">${accessModeLabel(mode)}</span>` : '—'}</td>
                     <td class="conf">${escapeHtml(usageLabel(c.access))}</td>
-                    <td>${rateLimitCell(c.rateLimit)}</td>
                     <td><button class="btn btn-ghost btn-sm cust-edit-btn" data-id="${escapeHtml(c.id)}">تعديل</button></td>
                 </tr>
             `;
@@ -880,57 +846,8 @@ async function initCustomerAccess(currentUser) {
         document.getElementById('cust-usage-display').textContent = usageLabel(row);
         document.getElementById('cust-saved-flag').classList.remove('show');
 
-        fillRateLimitPanel(customer.rateLimit);
-
         document.getElementById('cust-detail').classList.add('open');
         document.getElementById('cust-detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    /**
-     * The rate-limit half of the drawer. Reads the SAME row the table cell
-     * reads, so the summary and the detail cannot disagree.
-     *
-     * The three inputs show the OVERRIDE, not the effective value: an empty
-     * box means "inherit", and pre-filling it with the inherited number
-     * would turn every save into an accidental override.
-     */
-    function fillRateLimitPanel(status) {
-        const pressure = describeRateLimitPressure(status);
-        const limit = status ? Number(status.effective_limit) : null;
-        const burst = status ? Number(status.effective_burst) : null;
-        const remaining = status ? Number(status.tokens_remaining) : null;
-
-        document.getElementById('cust-rl-effective').textContent =
-            !status ? '—'
-            : status.effective_enabled === false ? 'مقفول'
-            : `${limit} / دقيقة (+${burst} دفعة)`;
-
-        document.getElementById('cust-rl-remaining').textContent =
-            !status || status.effective_enabled === false ? '—'
-            : `${remaining} من ${limit + burst}`;
-
-        document.getElementById('cust-rl-window').textContent = status
-            ? `${Number(status.window_requests)} طلب` +
-              (Number(status.window_rejected) > 0 ? ` — ${Number(status.window_rejected)} اترفض` : '')
-            : '—';
-
-        const meter = document.getElementById('cust-rl-meter');
-        meter.className = 'rl-meter-fill ' + pressure.level;
-        meter.style.width = `${Math.round(pressure.ratio * 100)}%`;
-
-        const pressureEl = document.getElementById('cust-rl-pressure');
-        pressureEl.className = 'rl-pressure ' + pressure.level;
-        pressureEl.textContent = status
-            ? `${pressure.label}${status.is_overridden ? ' — استثناء لهذا العميل' : ' — بيورث الإعداد العام'}`
-            : 'مفيش بيانات استخدام لهذا العميل لسه';
-
-        document.getElementById('cust-rl-enabled').value =
-            !status || status.override_enabled === null || status.override_enabled === undefined
-                ? 'inherit' : (status.override_enabled ? 'on' : 'off');
-        document.getElementById('cust-rl-rpm').value = status?.override_limit ?? '';
-        document.getElementById('cust-rl-burst').value = status?.override_burst ?? '';
-        document.getElementById('cust-rl-notes').value = status?.notes ?? '';
-        document.getElementById('cust-rl-saved-flag').classList.remove('show');
     }
 
     function closeCustomerDetail() {
@@ -987,83 +904,6 @@ async function initCustomerAccess(currentUser) {
         } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = 'حفظ إعدادات SIE';
-        }
-    });
-
-    // ---- حد المعدل: حفظ وتصفير ----------------------------------
-    //
-    // Deliberately a SEPARATE save from the quota one above. They write
-    // different tables through different RPCs with different authorization,
-    // and merging them into one button would mean an admin who only wanted
-    // to raise a rate limit silently rewrites the customer's quota row too.
-    document.getElementById('cust-rl-save-btn').addEventListener('click', async () => {
-        if (!selectedUserId) return;
-        const btn = document.getElementById('cust-rl-save-btn');
-        const flag = document.getElementById('cust-rl-saved-flag');
-
-        const enabledChoice = document.getElementById('cust-rl-enabled').value;
-        const rpmRaw = document.getElementById('cust-rl-rpm').value.trim();
-        const burstRaw = document.getElementById('cust-rl-burst').value.trim();
-        const notes = document.getElementById('cust-rl-notes').value.trim() || null;
-
-        // Empty means inherit, which is null in the database — NOT zero.
-        const requestsPerMinute = rpmRaw === '' ? null : parseInt(rpmRaw, 10);
-        const burst = burstRaw === '' ? null : parseInt(burstRaw, 10);
-        const isEnabled = enabledChoice === 'inherit' ? null : enabledChoice === 'on';
-
-        if (requestsPerMinute !== null && (!Number.isFinite(requestsPerMinute) || requestsPerMinute < 1)) {
-            alert('عدد الطلبات في الدقيقة لازم يكون رقم أكبر من صفر، أو سيبه فاضي عشان يورث الإعداد العام');
-            return;
-        }
-        if (burst !== null && (!Number.isFinite(burst) || burst < 0)) {
-            alert('الدفعة المفاجئة لازم تكون صفر أو أكتر، أو سيبها فاضية عشان ترث الإعداد العام');
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'جارِ الحفظ…';
-        try {
-            const { error } = await adminSetRateLimit(supabase, {
-                userId: selectedUserId, isEnabled, requestsPerMinute, burst, notes
-            });
-            if (error) throw error;
-            flag.style.color = '';
-            flag.textContent = 'اتحفظ — هيسري على الطلب الجاي من غير أي نشر';
-            flag.classList.add('show');
-            await loadCustomers();
-            openCustomerDetail(selectedUserId);
-        } catch (err) {
-            console.error('[review-center] فشل حفظ حد المعدل:', err);
-            flag.style.color = 'var(--color-danger)';
-            flag.textContent = 'فشل الحفظ: ' + (err.message || 'تحقق من صلاحية is_sie_admin()');
-            flag.classList.add('show');
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'حفظ حد المعدل';
-        }
-    });
-
-    document.getElementById('cust-rl-reset-btn').addEventListener('click', async () => {
-        if (!selectedUserId) return;
-        if (!confirm('تصفير عدّاد حد المعدل لهذا العميل؟ ده بيفك أي حظر مؤقت عليه دلوقتي من غير ما يغيّر الحد نفسه.')) return;
-        const btn = document.getElementById('cust-rl-reset-btn');
-        const flag = document.getElementById('cust-rl-saved-flag');
-        btn.disabled = true;
-        try {
-            const { error } = await adminResetRateLimit(supabase, selectedUserId);
-            if (error) throw error;
-            flag.style.color = '';
-            flag.textContent = 'اتصفّر — العميل يقدر يبعت دلوقتي';
-            flag.classList.add('show');
-            await loadCustomers();
-            openCustomerDetail(selectedUserId);
-        } catch (err) {
-            console.error('[review-center] فشل تصفير حد المعدل:', err);
-            flag.style.color = 'var(--color-danger)';
-            flag.textContent = 'فشل التصفير: ' + (err.message || 'تحقق من صلاحية is_sie_admin()');
-            flag.classList.add('show');
-        } finally {
-            btn.disabled = false;
         }
     });
 

@@ -142,7 +142,7 @@
     <div id="usersNotice" class="notice" hidden></div>
     <div class="table-wrap">
       <table class="data-table">
-        <thead><tr><th>العميل</th><th>الحالة</th><th>نوع السماح</th><th>استهلك</th><th></th></tr></thead>
+        <thead><tr><th>العميل</th><th>الحالة</th><th>نوع السماح</th><th>استهلك</th><th>حد المعدل</th><th></th></tr></thead>
         <tbody id="userRows"></tbody>
       </table>
       <p class="empty" id="userEmpty" hidden>مفيش مستخدمين مطابقين.</p>
@@ -289,9 +289,46 @@
     <label class="field"><span>ملاحظات</span>
       <input type="text" id="aNotes"></label>
 
+    <!--
+      حد المعدل لنفس العميل، في نفس النافذة.
+      الكوتة بتجاوب على «كام رسالة إجمالاً» وحد المعدل على «بأي سرعة» —
+      نفس العميل، فمفيش سبب يخليهم في صفحتين.
+    -->
+    <hr class="dialog-sep">
+    <h3 class="dialog-subtitle">حد معدل الطلبات</h3>
+    <p class="field-hint">
+      بيتنفّذ في قاعدة البيانات على كل طلب للواجهة، مش في المتصفح.
+      سيب الخانة فاضية عشان ترث الإعداد العام من تبويب «تحكّم المحرك».
+    </p>
+
+    <div class="rl-live" id="rlLive">
+      <div class="rl-live-row"><span>الحد المطبَّق</span><b class="ltr" id="rlEffective">—</b></div>
+      <div class="rl-live-row"><span>المتبقي دلوقتي</span><b class="ltr" id="rlRemaining">—</b></div>
+      <div class="rl-live-row"><span>آخر دقيقة</span><b class="ltr" id="rlWindow">—</b></div>
+      <div class="rl-meter"><div class="rl-meter-fill" id="rlMeter"></div></div>
+      <p class="rl-pressure" id="rlPressure">—</p>
+    </div>
+
+    <label class="field"><span>حالة الحد</span>
+      <select id="rlEnabled">
+        <option value="inherit">زي الإعداد العام</option>
+        <option value="on">مفعّل للعميل ده</option>
+        <option value="off">مقفول للعميل ده</option>
+      </select></label>
+
+    <label class="field"><span>عدد الطلبات في الدقيقة</span>
+      <input type="number" id="rlRpm" min="1" dir="ltr" placeholder="فاضي = الإعداد العام"></label>
+
+    <label class="field"><span>السماح بدفعة مفاجئة</span>
+      <input type="number" id="rlBurst" min="0" dir="ltr" placeholder="فاضي = الإعداد العام"></label>
+
+    <label class="field"><span>ملاحظة على الاستثناء</span>
+      <input type="text" id="rlNotes" placeholder="مثلاً: تكامل بيسحب تقارير كل صباح"></label>
+
     <div id="accessErrors" class="auth-alert auth-alert--error" hidden></div>
 
     <div class="dialog-actions">
+      <button type="button" class="btn-ghost" id="resetRateLimitBtn">فُك الحظر دلوقتي</button>
       <button type="button" class="btn-ghost" id="resetUsageBtn">صفّر العدّاد</button>
       <span class="spacer"></span>
       <button type="button" class="btn-ghost" id="cancelAccessBtn">إلغاء</button>
