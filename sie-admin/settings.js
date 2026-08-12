@@ -26,6 +26,11 @@
  * while entitlement is a single accountable address.
  */
 import { supabase } from './supabase-client.js';
+// نفس دوال الحساب اللي صفحتَي الكوتة كانت بتستخدمها. مستوردة مش
+// متكررة: لو اللوحة حسبت «قرّب من الحد» بطريقة مختلفة عن اللي بيتحسب
+// في مكان تاني، الرقمين هيختلفوا ومحدش هيعرف مين الصح.
+import { quotaMetrics, quotaStatus } from '../sie/quota-ui/quota-metrics.js';
+import { sieQuotaService } from '../sie/quota-ui/sie-quota-service.js';
 import {
     listActiveScenarios,
     validateScenarioDraft,
@@ -1203,21 +1208,38 @@ async function loadUsers() {
 
     const byUser = new Map((access || []).map((a) => [a.user_id, a]));
     const rateLimitByUser = new Map((rateLimits || []).map((r) => [r.user_id, r]));
+
+    // استهلاك الـtokens بيانات مساندة: لو RLS مخبّيها أو اتأخرت، الجدول
+    // لازم يفضل شغّال. عشان كده بتتقرا لوحدها وفشلها مابيوقفش الصفحة.
+    let tokensByUser = new Map();
+    try {
+        const rows = await sieQuotaService.getUsersQuotas();
+        tokensByUser = new Map(rows.map((r) => [r.user_id, r.tokensUsed]));
+    } catch (err) {
+        console.warn('[settings] تعذّر قراءة استهلاك الـtokens:', err?.message || err);
+    }
     state.users = (profiles || []).map((p) => ({
         id: p.id,
         name: p.full_name || '—',
         email: p.email || '',
         role: p.role,
         access: byUser.get(p.id) || null,
-        rateLimit: rateLimitByUser.get(p.id) || null
+        rateLimit: rateLimitByUser.get(p.id) || null,
+        quota: quotaMetrics(byUser.get(p.id) || null, tokensByUser.get(p.id) ?? null)
     }));
 
     const enabled = state.users.filter((u) => evaluateSieAccessRow(u.access).available).length;
+    // «قرّب من الحد» و«مستنفد» هما الرقمين اللي بيخلوا الأدمن يتحرك قبل
+    // ما العميل يتقفل عليه الباب — أنفع من عدد اللي عندهم حد.
+    const nearLimit = state.users.filter((u) => ['warning', 'almost'].includes(u.quota?.status)).length;
+    const exhausted = state.users.filter((u) => u.quota?.status === 'exhausted').length;
     $('userStats').innerHTML = [
         ['كل المستخدمين', state.users.length],
         ['مسموح لهم', enabled],
         ['مش مسموح', state.users.length - enabled],
-        ['عندهم حد استخدام', state.users.filter((u) => u.access && u.access.access_mode !== 'unlimited').length]
+        ['عندهم حد استخدام', state.users.filter((u) => u.access && u.access.access_mode !== 'unlimited').length],
+        ['قرّبوا من الحد', nearLimit],
+        ['مستنفدين', exhausted]
     ].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
 
     ['userSearch', 'userFilter'].forEach((id) => $(id).addEventListener('input', renderUsers));
@@ -1230,6 +1252,22 @@ async function loadUsers() {
  * force matters more than the number — an admin changing the global
  * default needs to see at a glance who will not follow it.
  */
+/**
+ * الاستهلاك مع حالته. الرقم لوحده («٨٠ / ١٠٠») مابيقولش إن ده قرّب من
+ * الحد، والنسبة هي اللي بتخلي الأدمن ياخد باله قبل ما تخلص.
+ * التصنيف نفسه بيجي من quotaMetrics عشان يبقى واحد في كل الشاشات.
+ */
+function quotaCell(quota, fallbackText) {
+    if (!quota || quota.status === 'unavailable') return `<span class="sub">${esc(fallbackText)}</span>`;
+    const tone = quotaStatus[quota.status]?.tone || 'neutral';
+    const label = quotaStatus[quota.status]?.label || '';
+    const pct = quota.total ? ` — ${quota.percentage}٪` : '';
+    const tokens = quota.tokensUsed === null || quota.tokensUsed === undefined
+        ? '' : `<span class="sub">${Number(quota.tokensUsed).toLocaleString('en')} توكن</span>`;
+    return `<span class="ltr sub">${esc(fallbackText)}${pct}`
+         + `<span class="sub"><span class="pill pill--${esc(tone)}">${esc(label)}</span></span>${tokens}</span>`;
+}
+
 function rateLimitCell(status) {
     if (!status) return '<span class="sub">—</span>';
     if (status.effective_enabled === false) {
@@ -1266,7 +1304,7 @@ function renderUsers() {
           <td><b>${esc(u.name)}</b><span class="sub ltr">${esc(u.email)}</span></td>
           <td><span class="pill ${s.available ? 'pill--ok' : 'pill--warn'}">${esc(s.statusLabel)}</span></td>
           <td class="sub">${esc({ unlimited: 'من غير حدود', quota: 'عدد رسائل', expiration: 'لحد تاريخ' }[u.access?.access_mode] || '—')}</td>
-          <td class="ltr sub">${esc(usage)}</td>
+          <td class="ltr sub">${quotaCell(u.quota, usage)}</td>
           <td>${rateLimitCell(u.rateLimit)}</td>
           <td><button class="btn-ghost btn-sm" data-edit="${esc(u.id)}">تعديل</button></td>
         </tr>`;

@@ -177,3 +177,30 @@ test('مدى الشريط للأرقام يقدر يوصّل للقيمة الا
         assert.ok(def.default >= def.min && def.default <= def.max, `${def.key}: الافتراضي بره المدى`);
     }
 });
+
+// ── توحيد إدارة الحصص ────────────────────────────────────────────────
+
+test('حساب الكوتة مستورد مش متكرر', async () => {
+    const js = await read('settings.js');
+    // نفس الدالة اللي صفحتَي الكوتة كانت بتستخدمها. لو اللوحة حسبت
+    // «قرّب من الحد» بنفسها، الرقمين هيختلفوا ومحدش هيعرف مين الصح.
+    assert.match(js, /import \{ quotaMetrics, quotaStatus \} from '\.\.\/sie\/quota-ui\/quota-metrics\.js'/);
+    assert.match(js, /sieQuotaService/);
+    assert.doesNotMatch(js, /percentage\s*=\s*Math\.round/, 'اللوحة بتحسب النسبة بنفسها بدل ما تستورد الحساب');
+});
+
+test('الصفحتين القديمتين بيحوّلوا مش بيشتغلوا', async () => {
+    const { readFile } = await import('node:fs/promises');
+    for (const rel of ['../../sie/observability/admin-ui/quota-management.html', '../../sie/quota-ui/user-quota-dashboard.html']) {
+        const html = await readFile(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
+        // اتسابوا كتحويل مش اتمسحوا، عشان أي لينك محفوظ عند حد يفضل شغّال.
+        assert.match(html, /http-equiv="refresh"/, `${rel} لسه صفحة شغّالة مش تحويل`);
+        assert.match(html, /sie-admin\/settings\.html/, `${rel} بيحوّل لمكان غلط`);
+    }
+});
+
+test('مركز المراجعة مابقاش بيوصّل لصفحة الحصص القديمة', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const html = await readFile(fileURLToPath(new URL('../../sie/observability/admin-ui/review-center.html', import.meta.url)), 'utf8');
+    assert.ok(!html.includes('quota-management.html'), 'لسه فيه لينك لصفحة اتنقلت');
+});
