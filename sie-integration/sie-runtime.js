@@ -79,7 +79,7 @@ import { parseContentDocument as _parseContentDocument, topTwoShare as _topTwoSh
  * Mad3oom never needs to read this; it exists so a support engineer
  * looking at a console log can tell which runtime a tab is running.
  */
-export const SIE_RUNTIME_VERSION = '2.2.0';
+export const SIE_RUNTIME_VERSION = '2.3.0';
 
 // ===================================================================
 // Chat
@@ -275,6 +275,24 @@ export async function adminSetAccess(supabase, params) {
 export async function adminResetUsage(supabase, userId) {
     return _adminResetUsage(supabase, userId);
 }
+
+/**
+ * Rate limits — the same "how much is this customer allowed" question as
+ * the access functions above, asked about speed instead of volume, so it
+ * belongs on the same public surface rather than a second one.
+ *
+ * Enforcement is NOT here and cannot be: the limit is spent inside
+ * sie_rate_limit_hit() at the API boundary, before any of this runs. What
+ * these expose is the management and display side — read a customer's
+ * effective ceiling, change it, clear a bucket that is currently blocking
+ * them, and describe how close anyone is to the wall.
+ */
+export {
+    getRateLimitStatus,
+    adminSetRateLimit,
+    adminResetRateLimit,
+    describeRateLimitPressure
+} from './sie-entitlement.js';
 
 // ===================================================================
 // Settings

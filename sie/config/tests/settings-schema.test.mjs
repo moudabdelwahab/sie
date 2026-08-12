@@ -221,7 +221,15 @@ test('كل إعداد بيتقرا في كود المحرك فعلاً', async (
     const roots = [
         '../../../sie-integration/sie-chat-bridge.js',
         '../../../sie-integration/sie-entitlement.js',
-        '../../../sie-admin/settings.js'
+        '../../../sie-admin/settings.js',
+        // The engine is no longer only JavaScript. The rate limit is
+        // enforced inside sie_rate_limit_hit(), which reads its three
+        // settings straight from sie_settings on every API call — that is
+        // what lets a change take effect with no deployment and no cache
+        // to wait out. A setting read there is every bit as live as one
+        // read in the bridge, so the scan has to look there too or it
+        // reports a real branch as dead.
+        '../../../sie-integration/migrations/0008_add_api_rate_limiting.sql'
     ];
     const sources = await Promise.all(
         roots.map((rel) => readFile(fileURLToPath(new URL(rel, import.meta.url)), 'utf8'))

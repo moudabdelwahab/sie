@@ -356,6 +356,7 @@
                             <th>حالة SIE</th>
                             <th>نوع الحد</th>
                             <th>الاستخدام</th>
+                            <th>حد المعدل</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -409,6 +410,59 @@
                     <button class="btn btn-primary" id="cust-save-btn">حفظ إعدادات SIE</button>
                     <button class="btn btn-ghost" id="cust-reset-usage-btn">تصفير الاستخدام</button>
                     <span class="saved-flag" id="cust-saved-flag">تم الحفظ</span>
+                </div>
+            </div>
+
+            <!--
+                حد المعدل لنفس العميل، في نفس الدرج.
+                Quota answers "how many messages in total", the rate limit
+                answers "how fast" — same customer, so the admin decides both
+                without leaving the row they already selected.
+            -->
+            <div class="panel-block">
+                <h4>حد معدل الطلبات لهذا العميل</h4>
+                <p class="hint">
+                    الحد بيتنفّذ في قاعدة البيانات على كل طلب للواجهة (sie_rate_limit_hit)، مش في المتصفح.
+                    سيبه فاضي عشان يورث الإعداد العام من صفحة الإعدادات.
+                </p>
+
+                <div class="rl-live" id="cust-rl-live">
+                    <div class="rl-live-row">
+                        <span class="rl-live-label">الحد المطبَّق دلوقتي</span>
+                        <span class="rl-live-value" id="cust-rl-effective">—</span>
+                    </div>
+                    <div class="rl-live-row">
+                        <span class="rl-live-label">المتبقي في اللحظة دي</span>
+                        <span class="rl-live-value" id="cust-rl-remaining">—</span>
+                    </div>
+                    <div class="rl-live-row">
+                        <span class="rl-live-label">آخر دقيقة</span>
+                        <span class="rl-live-value" id="cust-rl-window">—</span>
+                    </div>
+                    <div class="rl-meter"><div class="rl-meter-fill" id="cust-rl-meter"></div></div>
+                    <p class="rl-pressure" id="cust-rl-pressure">—</p>
+                </div>
+
+                <label class="field-label">حالة الحد</label>
+                <select id="cust-rl-enabled">
+                    <option value="inherit">زي الإعداد العام</option>
+                    <option value="on">مفعّل لهذا العميل</option>
+                    <option value="off">مقفول لهذا العميل</option>
+                </select>
+
+                <label class="field-label">عدد الطلبات في الدقيقة</label>
+                <input type="number" id="cust-rl-rpm" min="1" step="10" placeholder="فاضي = زي الإعداد العام">
+
+                <label class="field-label">السماح بدفعة مفاجئة</label>
+                <input type="number" id="cust-rl-burst" min="0" step="5" placeholder="فاضي = زي الإعداد العام">
+
+                <label class="field-label">ملاحظة على الاستثناء (اختياري)</label>
+                <input type="text" id="cust-rl-notes" placeholder="مثلاً: تكامل بيسحب تقارير كل صباح">
+
+                <div class="save-row">
+                    <button class="btn btn-primary" id="cust-rl-save-btn">حفظ حد المعدل</button>
+                    <button class="btn btn-ghost" id="cust-rl-reset-btn">تصفير العدّاد دلوقتي</button>
+                    <span class="saved-flag" id="cust-rl-saved-flag">تم الحفظ</span>
                 </div>
             </div>
         </section>

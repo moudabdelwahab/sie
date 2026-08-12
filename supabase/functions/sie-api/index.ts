@@ -28,6 +28,7 @@
 import { corsHeaders, handleOptions } from './_shared/cors.ts';
 import { json } from './_shared/http.ts';
 import { buildUserClient } from './_shared/supabase-client.ts';
+import { checkRateLimit, rateLimitHeaders, tooManyRequestsBody } from './_shared/rate-limit.ts';
 import { handleIsAdmin } from './handlers/is-admin.ts';
 import { handleAccessStatus } from './handlers/access-status.ts';
 import { handleAccessSet } from './handlers/access-set.ts';
@@ -119,33 +120,54 @@ Deno.serve(async (req: Request) => {
         // checks the identity itself or calls an RPC that does.
         const supabase = buildUserClient(req);
 
+        // ------------------------------------------------------------
+        // RATE LIMIT — after health, before every real route.
+        //
+        // After health on purpose: the health check is what tells an
+        // operator whether SIE is up, and a limiter that can hide an
+        // outage behind a 429 is worse than no limiter. It also costs
+        // nothing to serve.
+        //
+        // Before routing, so one token is spent per request rather than
+        // per handler, and so a route added later cannot forget to
+        // participate. The decision's headers ride on EVERY response
+        // below, not just the 429, because a client can only slow down
+        // ahead of the wall if it is told how close it is.
+        const rate = await checkRateLimit(supabase, req);
+        const limitHeaders = rateLimitHeaders(rate);
+        const headers = { ...cors, ...limitHeaders };
+
+        if (!rate.allowed) {
+            return json(tooManyRequestsBody(rate), 429, headers);
+        }
+
         if (path === '/v1/admin/is-admin' && req.method === 'GET') {
-            return await handleIsAdmin(supabase, cors);
+            return await handleIsAdmin(supabase, headers);
         }
 
         if (path === '/v1/access/status' && req.method === 'GET') {
-            return await handleAccessStatus(supabase, url.searchParams.get('userId'), cors);
+            return await handleAccessStatus(supabase, url.searchParams.get('userId'), headers);
         }
         // The client's shape. Listed after /status so the literal word
         // "status" can never be read as a user id.
         const byId = path.match(ACCESS_BY_ID);
         if (byId && !ACCESS_RESERVED.has(byId[1]) && req.method === 'GET') {
-            return await handleAccessStatus(supabase, decodeURIComponent(byId[1]), cors);
+            return await handleAccessStatus(supabase, decodeURIComponent(byId[1]), headers);
         }
 
         if ((path === '/v1/access/set' || path === '/v1/admin/access') && req.method === 'POST') {
-            return await handleAccessSet(supabase, req, cors);
+            return await handleAccessSet(supabase, req, headers);
         }
 
         if ((path === '/v1/access/reset' || path === '/v1/admin/access/reset-usage') && req.method === 'POST') {
-            return await handleAccessReset(supabase, req, cors);
+            return await handleAccessReset(supabase, req, headers);
         }
 
         if (path === '/v1/chat/reply' && req.method === 'POST') {
-            return await handleChatReply(supabase, req, cors);
+            return await handleChatReply(supabase, req, headers);
         }
 
-        return json({ error: 'not_found', path }, 404, cors);
+        return json({ error: 'not_found', path }, 404, headers);
     } catch (err) {
         console.error('[sie-api] unhandled error:', err instanceof Error ? err.message : err);
         return json({ error: 'internal_error' }, 500, cors);
