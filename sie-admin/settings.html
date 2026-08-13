@@ -474,6 +474,94 @@
           </div>
         </section>
 
+        <!-- ══════════ الـAPI والمطورين ══════════ -->
+        <section class="view" data-view-panel="api" tabindex="-1">
+          <div class="stat-grid stat-grid--compact" id="apiUsageStats"></div>
+
+          <section class="card">
+            <div class="card-head">
+              <div class="card-head-text">
+                <h2 class="card-title">الـAPI العام</h2>
+                <p class="card-desc">الحد اللي العملاء والمطورين بيتكاملوا بيه مع SIE برمجيًا.</p>
+              </div>
+              <span id="apiStatusBadge"></span>
+            </div>
+            <div class="card-body">
+              <div class="api-overview">
+                <div class="api-field">
+                  <span class="sub">العنوان الأساسي</span>
+                  <div class="api-copy">
+                    <code class="ltr" id="apiBaseUrl">—</code>
+                    <button type="button" class="btn btn--secondary btn--sm" id="copyBaseUrlBtn">نسخ</button>
+                  </div>
+                </div>
+                <div class="api-field">
+                  <span class="sub">الإصدار</span>
+                  <b class="ltr" id="apiVersion">—</b>
+                </div>
+                <div class="api-field">
+                  <span class="sub">نسخة المحرك المنشورة</span>
+                  <b class="ltr" id="apiRuntimeVersion">—</b>
+                </div>
+                <div class="api-field">
+                  <span class="sub">السيناريوهات المحمّلة</span>
+                  <b class="num" id="apiCatalogSize">—</b>
+                </div>
+              </div>
+
+              <div class="api-links">
+                <a class="btn btn--secondary btn--sm" id="apiDocsLink" href="#" target="_blank" rel="noopener">
+                  توثيق المطورين
+                </a>
+                <a class="btn btn--secondary btn--sm" id="apiSpecLink" href="#" target="_blank" rel="noopener">
+                  openapi.json
+                </a>
+                <span class="api-sdk sub">
+                  الـSDK الرسمي: <code class="ltr">npm i @mad3oom/sie</code>
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <div class="toolbar">
+            <div class="toolbar-filters">
+              <select class="select" id="apiKeyFilter" aria-label="حالة المفاتيح">
+                <option value="">كل المفاتيح</option>
+                <option value="active">شغّالة</option>
+                <option value="revoked">ملغية</option>
+                <option value="expired">منتهية</option>
+              </select>
+            </div>
+            <div class="toolbar-actions">
+              <button type="button" class="btn btn--secondary" id="apiRefreshBtn">تحديث</button>
+              <button type="button" class="btn btn--primary" id="newApiKeyBtn">مفتاح جديد</button>
+            </div>
+          </div>
+
+          <div class="result-bar"><span id="apiKeyCount" class="result-count"></span></div>
+
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">الاسم</th>
+                    <th scope="col">العميل</th>
+                    <th scope="col">المفتاح</th>
+                    <th scope="col">الحالة</th>
+                    <th scope="col">اتعمل</th>
+                    <th scope="col">آخر استخدام</th>
+                    <th scope="col">ينتهي</th>
+                    <th scope="col"><span class="sr-only">إجراءات</span></th>
+                  </tr>
+                </thead>
+                <tbody id="apiKeyRows"></tbody>
+              </table>
+            </div>
+            <div id="apiKeysEmpty" hidden></div>
+          </div>
+        </section>
+
         <!-- ══════════ الإعدادات ══════════ -->
         <section class="view" data-view-panel="settings" tabindex="-1">
           <div id="liveBanner" class="live-banner"></div>
@@ -796,6 +884,89 @@
       <button type="button" class="btn btn--primary" id="saveAccessBtn">احفظ التغييرات</button>
     </div>
   </form>
+</dialog>
+
+<!-- ══════════════ مفتاح API جديد ══════════════ -->
+<dialog id="keyDialog" class="modal">
+  <form method="dialog" id="keyForm" class="dialog-shell">
+    <div class="dialog-head">
+      <div class="dialog-head-text">
+        <h2 class="dialog-title">مفتاح API جديد</h2>
+        <p class="dialog-sub">المفتاح بيتعرض مرة واحدة بس بعد الإنشاء — مافيش طريقة تشوفه تاني.</p>
+      </div>
+      <button type="button" class="icon-btn" id="cancelKeyBtn" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      <label class="field"><span>العميل</span>
+        <select class="select" id="kUser"></select>
+        <small class="field-hint">المفتاح بيتكلم باسم الحساب ده: نفس رصيده ونفس حدوده ونفس صلاحيته.</small></label>
+
+      <label class="field"><span>الاسم</span>
+        <input type="text" class="input" id="kName" placeholder="Production" maxlength="60">
+        <small class="field-hint">عشان تعرف المفتاح ده بتاع إيه لما تيجي تلغيه.</small></label>
+
+      <div class="form-grid">
+        <label class="field"><span>البيئة</span>
+          <select class="select" id="kEnv">
+            <option value="live">تشغيل (live)</option>
+            <option value="test">تجربة (test)</option>
+          </select></label>
+
+        <label class="field"><span>ينتهي في <em class="optional">اختياري</em></span>
+          <input type="date" class="input" id="kExpiry" dir="ltr">
+          <small class="field-hint">سيبه فاضي = مالوش نهاية.</small></label>
+      </div>
+
+      <div id="keyErrors" class="alert alert--danger" hidden></div>
+    </div>
+
+    <div class="dialog-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn btn--ghost" id="closeKeyBtn">إلغاء</button>
+      <button type="button" class="btn btn--primary" id="createKeyBtn">أنشئ المفتاح</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ══════════════ عرض المفتاح مرة واحدة ══════════════ -->
+<dialog id="keyRevealDialog" class="modal">
+  <div class="dialog-shell">
+    <div class="dialog-head">
+      <div class="dialog-head-text">
+        <h2 class="dialog-title">المفتاح جاهز</h2>
+        <p class="dialog-sub" id="revealMeta"></p>
+      </div>
+    </div>
+
+    <div class="dialog-body">
+      <div class="alert alert--warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 2.7 19.5a1 1 0 0 0 .87 1.5h16.86a1 1 0 0 0 .87-1.5L12 3.5z"/><path d="M12 9.5v4.5"/><path d="M12 17.5h.01"/></svg>
+        <div class="alert-body">
+          <span class="alert-title">انسخه دلوقتي — مش هيتعرض تاني</span>
+          إحنا بنخزّن هاش المفتاح بس، فمفيش طريقة نرجّعه بيها. لو ضاع منك،
+          دوّره واستبدله في التكامل.
+        </div>
+      </div>
+
+      <div class="key-reveal">
+        <code class="ltr" id="revealValue"></code>
+        <button type="button" class="btn btn--primary btn--sm" id="copyKeyBtn">نسخ</button>
+      </div>
+
+      <p class="hint">
+        حطّه في متغير بيئة على السيرفر (<code class="ltr">SIE_API_KEY</code>).
+        ماتحطهوش في كود متصفح ولا في مستودع.
+      </p>
+    </div>
+
+    <div class="dialog-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn btn--primary" id="revealDoneBtn">نسخته، اقفل</button>
+    </div>
+  </div>
 </dialog>
 
 <!-- ══════════════ تأكيد ══════════════ -->

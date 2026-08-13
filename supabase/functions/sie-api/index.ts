@@ -28,13 +28,14 @@
 import { corsHeaders, handleOptions } from './_shared/cors.ts';
 import { json } from './_shared/http.ts';
 import { buildUserClient } from './_shared/supabase-client.ts';
+import { publicApi, isPublicApiRequest, servePublicDoc } from './_shared/public-api.ts';
 import { checkRateLimit, rateLimitHeaders, tooManyRequestsBody } from './_shared/rate-limit.ts';
 import { handleIsAdmin } from './handlers/is-admin.ts';
 import { handleAccessStatus } from './handlers/access-status.ts';
 import { handleAccessSet } from './handlers/access-set.ts';
 import { handleAccessReset } from './handlers/access-reset.ts';
 import { handleChatReply } from './handlers/chat-reply.ts';
-import { listActiveScenarios } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@6c8d16406aa14cb8aa3866a059b96b1ee08e1162/sie-integration/sie-runtime.js';
+import { listActiveScenarios } from './_shared/engine.ts';
 
 const MOUNT_PREFIXES = ['/functions/v1/sie-api', '/sie-api'];
 
@@ -46,16 +47,24 @@ const MOUNT_PREFIXES = ['/functions/v1/sie-api', '/sie-api'];
  * arrives direct or through a rewrite at sie.mad3oom.com.
  */
 function normalizePath(pathname: string): string {
-    let path = pathname;
-    for (const prefix of MOUNT_PREFIXES) {
-        if (path.startsWith(prefix)) {
-            path = path.slice(prefix.length) || '/';
-            break;
-        }
-    }
+    let path = stripMount(pathname);
     if (path === '/api') return '/';
     if (path.startsWith('/api/')) path = path.slice('/api'.length);
     return path || '/';
+}
+
+/**
+ * بادئة Supabase بس، من غير ما نلمس `/api`.
+ *
+ * الـAPI العام محتاج يشوف `/api/v1/...` كامل عشان يفرّق بين مساراته هو
+ * ومسارات المنصة القديمة اللي بتتنده بنفس البادئة (`/api/v1/chat/reply`).
+ * normalizePath فوق بتشيل `/api` عشان الجدول القديم مكتوب من غيرها.
+ */
+function stripMount(pathname: string): string {
+    for (const prefix of MOUNT_PREFIXES) {
+        if (pathname.startsWith(prefix)) return pathname.slice(prefix.length) || '/';
+    }
+    return pathname || '/';
 }
 
 /** `/v1/access/<uuid>` — the client's shape for reading one customer's row. */
@@ -67,12 +76,34 @@ const ACCESS_RESERVED = new Set(['status', 'set', 'reset']);
 Deno.serve(async (req: Request) => {
     const origin = req.headers.get('origin');
     const cors = corsHeaders(origin);
+    const url = new URL(req.url);
+
+    // ------------------------------------------------------------
+    // الـAPI العام — أول حاجة، وقبل أي حاجة تانية.
+    //
+    // قبل preflight القديم: الـCORS بتاعه بيسمح لأي أصل، والـAPI العام
+    // سياسته أضيق (قائمة صريحة، ومن غير اعتمادات). لو الـpreflight
+    // القديم رد الأول، المتصفح كان هياخد سياسة مش بتاعة المسار ده.
+    //
+    // وقبل حد المعدل القديم: ده بيصرف تذكرة بدلو الـIP للنداء اللي
+    // مالوش توكن — يعني كل نداء API كان هيتحاسب مرتين، مرة على IP
+    // مشترك مع عملاء تانيين ومرة على حساب صاحب المفتاح.
+    //
+    // الشرط ضيق (isPublicApiRequest): مسارات المنصة القديمة زي
+    // /api/v1/chat/reply مش من ضمنه، فمسارها مااتغيرش ولا حرف.
+    const mountPath = stripMount(url.pathname);
+    if (isPublicApiRequest(mountPath)) {
+        if (req.method === 'GET') {
+            const document = servePublicDoc(mountPath);
+            if (document) return document;
+        }
+        return await publicApi.handle(req);
+    }
 
     // OPTIONS before anything else — before auth, before routing.
     const preflight = handleOptions(req);
     if (preflight) return preflight;
 
-    const url = new URL(req.url);
     const path = normalizePath(url.pathname);
 
     // ------------------------------------------------------------

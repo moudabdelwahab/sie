@@ -43,6 +43,11 @@ import {
     listStoredScenarioVersions,
     listStoredKnowledgeVersions,
     publishKnowledgeVersion,
+    createApiKey,
+    listApiKeys,
+    revokeApiKey,
+    rotateApiKey,
+    getApiUsageSummary,
     isCurrentUserEngineStaff,
     isCurrentUserSieAdmin,
     getSieAccessStatus,
@@ -93,6 +98,9 @@ const state = {
     drafts: [],
     knowledge: [],
     knowledgeError: null,
+    apiKeys: [],
+    apiUsage: null,
+    apiHealth: null,
     users: [],
     isStaff: false,
     isSieAdmin: false,
@@ -186,6 +194,10 @@ const VIEWS = [
         searchId: 'usageSearch'
     },
     {
+        id: 'api', label: 'الـAPI والمطورين', iconName: 'zap', group: 'المحرك',
+        title: 'الـAPI والمطورين', desc: 'المفاتيح والاستخدام والتوثيق للتكاملات البرمجية.'
+    },
+    {
         id: 'settings', label: 'الإعدادات', iconName: 'settings', group: 'المحرك',
         title: 'إعدادات المحرك', desc: 'أي تغيير هنا بيتحفظ فورًا وبيسري على المحادثات الجديدة على طول.',
         searchId: 'settingSearch'
@@ -235,6 +247,7 @@ let shell;
     wireAccessEditor();
     wireDiagnostics();
     wireKnowledge();
+    wireApiSection();
     paintLoadingStates();
 
     shell.start();
@@ -268,6 +281,9 @@ function onNavigate(view) {
     // مش محتاج يستهلك رسم.
     if (view.id === 'usage' && state.users.length) renderUsage();
     if (view.id === 'dashboard') renderDashboard();
+    // مفاتيح الـAPI بتتقرا أول ما القسم يتفتح: صفحة محدش فتحها مش
+    // محتاجة تنده على قاعدة البيانات كل تحميل.
+    if (view.id === 'api' && state.apiKeys.length === 0) loadApiSection();
 }
 
 function wireChrome() {
@@ -2315,4 +2331,321 @@ async function submitResetUsage() {
     toast('اتصفّر الاستخدام.');
     await loadUsers();
     renderDashboard();
+}
+
+// ═════════════════════════════════════════════════════════════
+// الـAPI والمطورين
+// ═════════════════════════════════════════════════════════════
+/**
+ * القسم ده بيدير مفاتيح الـAPI العام.
+ *
+ * ── القاعدة اللي كل حاجة هنا مبنية عليها ────────────────────
+ * القيمة الخام للمفتاح موجودة في لحظة واحدة: الرد اللي راجع من
+ * `createApiKey()`. مابتتحطش في `state`، ومابتتكتبش في أي سجل،
+ * ومابتترجعش من أي قراءة بعد كده — قاعدة البيانات نفسها شايفة الهاش بس.
+ * عشان كده القيمة بتتنقل من الرد لمتغير محلي جوه الدالة، ومنه للـDOM،
+ * وبتتمسح أول ما النافذة تتقفل.
+ *
+ * ── والصلاحية؟ ──────────────────────────────────────────────
+ * كل الدوال دي بتتنادى بجلسة الأدمن العادية، والرفض بيحصل في قاعدة
+ * البيانات (is_sie_admin). إخفاء الزراير هنا مجاملة للواجهة بس.
+ */
+const API_KEY_STATUS = {
+    active: { label: 'شغّال', tone: 'success' },
+    revoked: { label: 'ملغي', tone: 'neutral' },
+    expired: { label: 'منتهي', tone: 'warning' }
+};
+
+/** العنوان الأساسي للـAPI — نفس أصل اللوحة، زي ما هو منشور. */
+const apiBaseUrl = () => `${window.location.origin}/api/v1`;
+
+function wireApiSection() {
+    $('apiRefreshBtn').addEventListener('click', (event) => withBusy(event.currentTarget, loadApiSection));
+    $('apiKeyFilter').addEventListener('input', renderApiKeys);
+    $('newApiKeyBtn').addEventListener('click', openKeyDialog);
+
+    $('copyBaseUrlBtn').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(apiBaseUrl());
+        toast('العنوان اتنسخ.');
+    });
+
+    const dialog = $('keyDialog');
+    for (const id of ['cancelKeyBtn', 'closeKeyBtn']) {
+        $(id).addEventListener('click', () => closeDialog(dialog));
+    }
+    closeOnBackdrop(dialog);
+    $('createKeyBtn').addEventListener('click', submitNewKey);
+
+    // نافذة العرض مالهاش «إلغاء»: الطريقة الوحيدة لقفلها هي زرار
+    // «نسخته» — عشان محدش يقفلها بالغلط وهو لسه ماخدش المفتاح.
+    $('revealDoneBtn').addEventListener('click', () => closeReveal());
+    $('copyKeyBtn').addEventListener('click', async (event) => {
+        // العنصر بيتمسك قبل الـawait: `currentTarget` بتبقى null بعد ما
+        // المعالج يرجع، والنسخ فيه await.
+        const button = event.currentTarget;
+        await navigator.clipboard.writeText($('revealValue').textContent);
+        // من نظام الأيقونات، مش إيموجي — نفس القاعدة في كل الواجهة.
+        button.innerHTML = `${icon('check')} اتنسخ`;
+        toast('المفتاح اتنسخ. حطه في متغير بيئة على السيرفر.');
+    });
+
+    if (!state.isSieAdmin) {
+        $('newApiKeyBtn').disabled = true;
+        $('newApiKeyBtn').title = 'إنشاء المفاتيح متاح لمسؤول المحرك بس';
+    }
+}
+
+async function loadApiSection() {
+    $('apiKeyRows').innerHTML = skeletonRows(3, 8);
+
+    const [keys, usage] = await Promise.all([
+        listApiKeys(supabase),
+        getApiUsageSummary(supabase, {})
+    ]);
+    state.apiKeys = keys;
+    state.apiUsage = usage;
+
+    renderApiOverview();
+    renderApiUsage();
+    renderApiKeys();
+    loadApiHealth();
+}
+
+/**
+ * حالة الـAPI من `/api/v1/health` نفسه.
+ *
+ * نداء حقيقي على الخدمة المنشورة، مش تخمين من الإعدادات: الهدف إن
+ * الأدمن يعرف إذا كان الـAPI شغّال دلوقتي فعلاً. لو اللوحة متقدمة من
+ * أصل تاني غير الـAPI، النداء بيفشل والحقول بتفضل «—» بدل ما تكدب.
+ */
+async function loadApiHealth() {
+    try {
+        const response = await fetch(`${apiBaseUrl()}/health`, { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        state.apiHealth = await response.json();
+    } catch (err) {
+        console.warn('[settings] تعذّر قراءة حالة الـAPI:', err?.message || err);
+        state.apiHealth = null;
+    }
+    renderApiOverview();
+}
+
+function renderApiOverview() {
+    const health = state.apiHealth;
+    const base = apiBaseUrl();
+
+    $('apiBaseUrl').textContent = base;
+    $('apiDocsLink').href = `${window.location.origin}/api/docs`;
+    $('apiSpecLink').href = `${window.location.origin}/api/openapi.json`;
+
+    $('apiStatusBadge').innerHTML = !health
+        ? badge('مش متأكدين', 'neutral')
+        : health.status === 'ok' ? badge('شغّال', 'success') : badge('فيه خلل', 'warning');
+
+    $('apiVersion').textContent = health?.version ?? 'v1';
+    $('apiRuntimeVersion').textContent = health?.engine?.runtime_version ?? '—';
+    $('apiCatalogSize').textContent = health?.engine?.catalog_size === undefined
+        ? '—' : fmtNumber(health.engine.catalog_size);
+}
+
+/**
+ * أرقام الاستخدام من سجل الطلبات نفسه. اللي مالوش مصدر بيظهر «—».
+ */
+function renderApiUsage() {
+    const usage = state.apiUsage;
+    const activeKeys = state.apiKeys.filter((key) => key.status === 'active').length;
+
+    $('apiUsageStats').innerHTML = [
+        statCard({
+            label: 'مفاتيح شغّالة',
+            value: fmtNumber(activeKeys),
+            meta: state.apiKeys.length
+                ? `من ${fmtNumber(state.apiKeys.length)} مفتاح متعمل`
+                : 'مفيش مفاتيح لسه',
+            iconName: 'lock'
+        }),
+        statCard({
+            label: 'طلبات الـAPI',
+            value: usage ? fmtNumber(usage.totalRequests) : '—',
+            meta: usage
+                ? `<b class="num">${fmtNumber(usage.okRequests)}</b> نجحوا`
+                : 'مافيش سجل لسه',
+            iconName: 'gauge'
+        }),
+        statCard({
+            label: 'طلبات فشلت',
+            value: usage ? fmtNumber(usage.errorRequests) : '—',
+            meta: usage && usage.rateLimited
+                ? `<b class="num">${fmtNumber(usage.rateLimited)}</b> منهم تجاوز الحد`
+                : 'مفيش تجاوز للحد',
+            iconName: 'alert',
+            tone: usage?.errorRequests ? 'warning' : 'neutral'
+        }),
+        statCard({
+            label: 'آخر طلب',
+            value: usage?.lastRequestAt ? fmtRelative(usage.lastRequestAt) : '—',
+            meta: usage?.lastRequestAt ? fmtDate(usage.lastRequestAt, { withTime: true }) : 'الـAPI مااتنداش لسه',
+            iconName: 'clock',
+            tone: 'neutral'
+        })
+    ].join('');
+}
+
+function renderApiKeys() {
+    const filter = $('apiKeyFilter').value;
+    const rows = state.apiKeys.filter((key) => !filter || key.status === filter);
+
+    $('apiKeyCount').textContent = rows.length ? `${rows.length} مفتاح` : '';
+    $('apiKeysEmpty').hidden = rows.length > 0;
+    $('apiKeysEmpty').innerHTML = rows.length > 0 ? '' : emptyState({
+        iconName: 'lock',
+        title: state.apiKeys.length ? 'مفيش مفتاح بالحالة دي' : 'مفيش مفاتيح API لسه',
+        text: state.apiKeys.length
+            ? 'غيّر الفلتر عشان تشوف الباقي.'
+            : 'اعمل مفتاح عشان عميل أو تكامل يقدر ينده على SIE برمجيًا.'
+    });
+
+    const userName = (userId) => state.users.find((user) => user.id === userId)?.name || '—';
+    const userEmail = (userId) => state.users.find((user) => user.id === userId)?.email || '';
+
+    $('apiKeyRows').innerHTML = rows.map((key) => {
+        const status = API_KEY_STATUS[key.status] || { label: key.status, tone: 'neutral' };
+        return `
+        <tr>
+          <td>
+            <span class="cell-title">${esc(key.name)}</span>
+            <span class="sub">${key.environment === 'test' ? 'تجربة' : 'تشغيل'} · ${fmtNumber(key.requestCount)} طلب</span>
+          </td>
+          <td data-label="العميل">
+            <span class="cell-title">${esc(userName(key.userId))}</span>
+            <span class="cell-sub">${esc(userEmail(key.userId))}</span>
+          </td>
+          <td data-label="المفتاح"><code class="ltr">${esc(key.prefix)}…${esc(key.last4)}</code></td>
+          <td data-label="الحالة">${badge(status.label, status.tone)}</td>
+          <td data-label="اتعمل" class="sub" title="${esc(fmtDate(key.createdAt, { withTime: true }))}">${esc(fmtRelative(key.createdAt))}</td>
+          <td data-label="آخر استخدام" class="sub" title="${key.lastUsedAt ? esc(fmtDate(key.lastUsedAt, { withTime: true })) : ''}">${key.lastUsedAt ? esc(fmtRelative(key.lastUsedAt)) : '—'}</td>
+          <td data-label="ينتهي" class="sub">${key.expiresAt ? esc(fmtDate(key.expiresAt)) : 'مالوش نهاية'}</td>
+          <td class="cell-actions">${key.status === 'active' ? `
+            <button class="btn btn--ghost btn--sm" data-rotate="${esc(key.id)}">دوّر</button>
+            <button class="btn btn--ghost btn--sm" data-revoke="${esc(key.id)}">ألغِ</button>` : ''}</td>
+        </tr>`;
+    }).join('');
+
+    if (!state.isSieAdmin) {
+        $('apiKeyRows').querySelectorAll('button').forEach((button) => { button.disabled = true; });
+        return;
+    }
+
+    $('apiKeyRows').querySelectorAll('[data-revoke]').forEach((button) =>
+        button.addEventListener('click', () => revokeKey(button, button.dataset.revoke)));
+    $('apiKeyRows').querySelectorAll('[data-rotate]').forEach((button) =>
+        button.addEventListener('click', () => rotateKey(button, button.dataset.rotate)));
+}
+
+function openKeyDialog() {
+    $('keyErrors').hidden = true;
+    $('kName').value = '';
+    $('kEnv').value = 'live';
+    $('kExpiry').value = '';
+
+    // العملاء من نفس القائمة اللي قسم المستخدمين بيقراها.
+    $('kUser').innerHTML = state.users.length
+        ? state.users.map((user) =>
+            `<option value="${esc(user.id)}">${esc(user.name)} — ${esc(user.email)}</option>`).join('')
+        : '<option value="">مفيش عملاء</option>';
+
+    openDialog($('keyDialog'));
+}
+
+async function submitNewKey() {
+    const userId = $('kUser').value;
+    const name = $('kName').value.trim();
+
+    if (!userId) {
+        showFormError('keyErrors', 'اختار العميل اللي المفتاح هيتكلم باسمه.');
+        return;
+    }
+    if (!name) {
+        showFormError('keyErrors', 'اكتب اسم للمفتاح عشان تعرفه بعدين.');
+        $('kName').focus();
+        return;
+    }
+
+    const expiry = $('kExpiry').value;
+    const result = await withBusy($('createKeyBtn'), () => createApiKey(supabase, {
+        userId,
+        name,
+        environment: $('kEnv').value,
+        // نهاية اليوم المختار، عشان «ينتهي ٣٠ يونيو» تعني آخر اليوم ده.
+        expiresAt: expiry ? new Date(`${expiry}T23:59:59`).toISOString() : null
+    }));
+
+    if (!result.success) {
+        showFormError('keyErrors', `تعذّر الإنشاء: ${esc(result.error)}`);
+        return;
+    }
+
+    closeDialog($('keyDialog'));
+    revealKeyOnce(result.key);
+
+    state.apiKeys = await listApiKeys(supabase);
+    renderApiKeys();
+    renderApiUsage();
+}
+
+/**
+ * العرض الوحيد للقيمة الخام.
+ *
+ * القيمة بتتحط في الـDOM مباشرة ومابتتخزنش في `state` ولا في أي متغير
+ * بيعيش بعد النافذة — وبتتمسح من الـDOM أول ما تتقفل، فحتى فحص العناصر
+ * بعد كده مالوش فايدة.
+ */
+function revealKeyOnce(key) {
+    $('revealValue').textContent = key.apiKey;
+    $('revealMeta').textContent =
+        `${key.environment === 'test' ? 'تجربة' : 'تشغيل'} · ${key.prefix}…${key.last4}`;
+    $('copyKeyBtn').textContent = 'نسخ';
+    openDialog($('keyRevealDialog'));
+}
+
+function closeReveal() {
+    $('revealValue').textContent = '';
+    $('revealMeta').textContent = '';
+    closeDialog($('keyRevealDialog'));
+}
+
+async function revokeKey(button, keyId) {
+    const key = state.apiKeys.find((candidate) => candidate.id === keyId);
+    const ok = await confirmAction({
+        title: `إلغاء المفتاح «${key?.name ?? ''}»؟`,
+        body: 'أي تكامل شغّال بالمفتاح ده هيقف على طول. الإلغاء مالوش رجعة — لو محتاج بديل، استخدم «دوّر» بدل «ألغِ».',
+        confirmLabel: 'ألغِ المفتاح',
+        tone: 'danger'
+    });
+    if (!ok) return;
+
+    const result = await withBusy(button, () => revokeApiKey(supabase, keyId));
+    if (!result.success) { toast(`مااتلغاش: ${result.error}`, 'err'); return; }
+
+    toast('المفتاح اتلغى. أي نداء بيه هياخد 401 على طول.');
+    state.apiKeys = await listApiKeys(supabase);
+    renderApiKeys();
+    renderApiUsage();
+}
+
+async function rotateKey(button, keyId) {
+    const key = state.apiKeys.find((candidate) => candidate.id === keyId);
+    const ok = await confirmAction({
+        title: `تدوير المفتاح «${key?.name ?? ''}»؟`,
+        body: 'هيتعمل مفتاح جديد بنفس الاسم والبيئة، والقديم هيتلغي في نفس اللحظة. حدّث التكامل بالمفتاح الجديد فورًا.',
+        confirmLabel: 'دوّر المفتاح'
+    });
+    if (!ok) return;
+
+    const result = await withBusy(button, () => rotateApiKey(supabase, keyId));
+    if (!result.success) { toast(`مااتدورش: ${result.error}`, 'err'); return; }
+
+    revealKeyOnce(result.key);
+    state.apiKeys = await listApiKeys(supabase);
+    renderApiKeys();
 }

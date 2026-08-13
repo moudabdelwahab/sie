@@ -196,12 +196,31 @@ test('chat/reply مابيثقش في userId الجاي في الـ body', async 
         'لازم يترفض الـ body اللي بيقول معرّف تاني');
 });
 
-test('المحرك متثبّت على commit مش على فرع', async () => {
+test('المحرك متثبّت على commit مش على فرع، وفي مكان واحد', async () => {
     // فرع معناه إن أي push بيغيّر المحرك تحت دالة شغّالة.
-    const source = await readFile(here('../handlers/chat-reply.ts'), 'utf8');
-    const pin = source.match(/cdn\.jsdelivr\.net\/gh\/moudabdelwahab\/sie@([^/]+)\//);
-    assert.ok(pin, 'مالقيتش استيراد المحرك');
+    const engine = await readFile(here('../_shared/engine.ts'), 'utf8');
+    const pin = engine.match(/cdn\.jsdelivr\.net\/gh\/moudabdelwahab\/sie@([^/]+)\//);
+    assert.ok(pin, 'مالقيتش استيراد المحرك في _shared/engine.ts');
     assert.match(pin[1], /^[0-9a-f]{40}$/, `مش SHA كامل: ${pin[1]}`);
+
+    // والـpin ده لازم يفضل المرجع الوحيد: نسختين في ملفين معناهم إن
+    // الدالة تحمّل المحرك مرتين لما واحد فيهم يتحدّث والتاني يتنسى —
+    // ٥٨٠ كيلو مكررة، وكتالوجين ممكن يختلفوا في نفس الطلب.
+    const others = [];
+    for (const file of ['../index.ts', '../handlers/chat-reply.ts']) {
+        const source = await readFile(here(file), 'utf8');
+        if (/cdn\.jsdelivr\.net/.test(source)) others.push(file);
+    }
+    assert.deepEqual(others, [], `الـpin متكرر في: ${others.join(', ')}`);
+});
+
+test('كل ملفات الدالة بتاخد المحرك من نفس المرجع', async () => {
+    for (const file of ['../index.ts', '../handlers/chat-reply.ts']) {
+        const source = await readFile(here(file), 'utf8');
+        if (!/getSieReply|listActiveScenarios|SIE_RUNTIME_VERSION|\bruntime\b/.test(source)) continue;
+        assert.match(source, /from '\.\.?\/_shared\/engine\.ts'/,
+            `${file} بياخد المحرك من مكان تاني`);
+    }
 });
 
 test('لو مدعوم متسحّب، بنقارن بمساراته الحقيقية مش المنسوخة', async () => {

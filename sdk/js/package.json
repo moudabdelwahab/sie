@@ -1,0 +1,43 @@
+{
+  "name": "@mad3oom/sie",
+  "version": "1.0.0",
+  "description": "العميل الرسمي لـSIE API — محرك الدعم الذكي العربي. Official JavaScript/TypeScript client for the SIE API.",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src/index.js",
+    "src/index.d.ts",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/"
+  },
+  "keywords": [
+    "sie",
+    "mad3oom",
+    "support",
+    "arabic",
+    "customer-support",
+    "diagnostics"
+  ],
+  "license": "UNLICENSED",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moudabdelwahab/sie.git",
+    "directory": "sdk/js"
+  },
+  "homepage": "https://sie.mad3oom.com/api/docs"
+}

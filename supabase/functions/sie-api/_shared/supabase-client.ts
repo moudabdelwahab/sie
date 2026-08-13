@@ -38,3 +38,29 @@ export function buildUserClient(req: Request): SupabaseClient {
         auth: { persistSession: false, autoRefreshToken: false }
     });
 }
+
+/**
+ * عميل بصلاحية الخدمة — **للـAPI العام بس**.
+ * ------------------------------------------------------------
+ * كل الكلام فوق عن إن service_role غلط هنا لسه صح لكل مسار بيتكلم
+ * بتوكن عميل. الـAPI العام هو الحالة اللي المنطق ده مابيغطيهاش: اللي
+ * بينده سيرفر بمفتاح API، ومالوش جلسة Supabase ومش هيبقى ليه واحدة —
+ * بالظبط زي ويبهوك تيليجرام.
+ *
+ * الثقة بتتنقل مش بتختفي: المفتاح بيتحقق منه في قاعدة البيانات
+ * (sie_api_key_verify، وهي service_role-only)، وبيرجّع user_id، وكل
+ * كتابة بعد كده بتمرّر الـuser_id ده صراحة. sie_consume_message لسه
+ * هو اللي بيصرف من الرصيد ولسه بيرفض لو الحساب مش مستحق — يعني مفتاح
+ * الـAPI مابيتخطاش أي فحص، بس بيقول «أنا مين».
+ *
+ * ⚠️ ماتستخدمش العميل ده في أي مسار بيقبل توكن مستخدم. مسارات
+ * `/v1/*` القديمة كلها لازم تفضل على buildUserClient.
+ */
+export function buildServiceClient(): SupabaseClient {
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+
+    return createClient(SUPABASE_URL, serviceKey, {
+        auth: { persistSession: false, autoRefreshToken: false }
+    });
+}
