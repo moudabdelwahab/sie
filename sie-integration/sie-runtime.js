@@ -75,11 +75,32 @@ import {
 import { parseContentDocument as _parseContentDocument, topTwoShare as _topTwoShare } from './sie-content-import.js';
 
 /**
+ * مفاتيح الـAPI العام. بتتصدّر من هنا زي أي حاجة تانية عشان الدالة
+ * الطرفية ولوحة الأدمن ياخدوا نفس الحد الواحد، ومايستوردوش الملف
+ * الداخلي مباشرة.
+ */
+export {
+    createApiKey,
+    listApiKeys,
+    revokeApiKey,
+    rotateApiKey,
+    getApiUsageSummary,
+    verifyApiKey,
+    logApiRequest,
+    checkApiRateLimit,
+    hashApiKey,
+    looksLikeApiKey,
+    apiKeyPrefix,
+    API_KEY_PATTERN,
+    API_KEY_PREFIX_LENGTH
+} from './sie-api-keys.js';
+
+/**
  * Bumped whenever the shape of anything exported here changes.
  * Mad3oom never needs to read this; it exists so a support engineer
  * looking at a console log can tell which runtime a tab is running.
  */
-export const SIE_RUNTIME_VERSION = '2.3.0';
+export const SIE_RUNTIME_VERSION = '2.4.0';
 
 // ===================================================================
 // Chat
@@ -501,6 +522,80 @@ export async function getTokenLabels() {
         return {};
     }
 }
+
+// ===================================================================
+// Diagnosis preview
+// ===================================================================
+
+/**
+ * بيمرّر رسالة على اللغة ← التشخيص ← الترتيب، وبيقف هناك.
+ *
+ * ── WHY IT STOPS AT RANKING ─────────────────────────────────
+ * Decision and Action are where SIE writes: a reply, a ticket, a spent
+ * quota message. A preview that ran them would cost the customer money
+ * for a question nobody asked. Stopping before them is the whole point —
+ * this answers "what would SIE make of this?" and nothing else, so it is
+ * safe to expose publicly and safe to call in a loop.
+ *
+ * ── WHY IT LIVES IN THE RUNTIME ─────────────────────────────
+ * The settings console did exactly this by importing three engine
+ * modules directly, which is the one thing this file exists to prevent:
+ * the nine modules are free to change shape only as long as nothing
+ * outside imports them. The public API needed the same capability, and
+ * two callers reaching past the runtime would have made that rule
+ * fiction. Now there is one composition, here.
+ *
+ * @param {string} text - رسالة العميل زي ما هي
+ * @param {{limit?: number}} [options]
+ * @returns {Promise<{text: string, tokens: Array, willResolve: boolean, threshold: number,
+ *                    candidates: Array<{scenarioId: string, label: {ar: string, en: string}|null,
+ *                                       category: string|null, confidence: number}>}>}
+ */
+export async function diagnoseMessage(text, { limit = 5 } = {}) {
+    const message = String(text ?? '').trim();
+    if (!message) {
+        return { text: '', tokens: [], willResolve: false, threshold: RESOLUTION_THRESHOLD, candidates: [] };
+    }
+
+    const [{ normalize }, { processTurn }, { rankDiagnosticState }] = await Promise.all([
+        import('../sie/language/normalizer.js'),
+        import('../sie/diagnostics/diagnostic-engine.js'),
+        import('../sie/ranking/ranking-engine.js')
+    ]);
+
+    const { normalizedTokens } = await normalize(message);
+    const diagnosticState = await processTurn({ normalizedTokens, turn: 1 });
+    const ranking = await rankDiagnosticState(diagnosticState);
+
+    const candidates = (ranking.ranked || [])
+        .filter((entry) => entry.hypothesis.confidence > 0)
+        .slice(0, limit)
+        .map((entry) => ({
+            scenarioId: entry.hypothesis.scenarioId,
+            label: entry.scenario?.label ?? null,
+            category: entry.scenario?.category ?? null,
+            confidence: Number(entry.hypothesis.confidence.toFixed(4))
+        }));
+
+    return {
+        text: message,
+        // الكلمات الدالة اللي المحرك شافها — ده اللي بيخلي المطوّر يفهم
+        // ليه الترتيب طلع كده بدل ما يخمّن.
+        tokens: (normalizedTokens || []).map((token) => ({
+            token: token.canonical ?? token.token ?? String(token),
+            source: token.source ?? null
+        })),
+        willResolve: candidates.length > 0 && candidates[0].confidence >= RESOLUTION_THRESHOLD,
+        threshold: RESOLUTION_THRESHOLD,
+        candidates
+    };
+}
+
+/**
+ * الحد اللي فوقه المحرك بيحسم بدل ما يسأل سؤال توضيحي. مكتوب هنا مرة
+ * واحدة عشان الواجهات ماتكتبهوش بإيدها في كذا مكان.
+ */
+export const RESOLUTION_THRESHOLD = 0.6;
 
 // ===================================================================
 // Health
