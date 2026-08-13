@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://srnelrdpqkcntbgudyto.supabase.co/functions/v1/sie-api/api/$1"
+    }
+  ]
+}
