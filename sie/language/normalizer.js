@@ -42,24 +42,7 @@ function buildGlossaryRules(entries) {
     const rules = [];
     for (const entry of entries) {
         for (const pattern of entry.patterns) {
-            const escaped = escapeRegExp(pattern).replace(/\s+/g, '\\s+');
-            // Unicode-aware word boundaries instead of `\b`. JavaScript's `\b`
-            // is defined against ASCII [A-Za-z0-9_], so every character of an
-            // Arabic pattern counts as a NON-word character and `\bمش شغال\b`
-            // can never match — which silently made Arabic glossary entries
-            // impossible, the exact opposite of what a bilingual engine needs.
-            // These lookarounds treat any letter or digit in any script as a
-            // word character, so "مش شغال" and "error 401" both match on a real
-            // boundary, while "401" still refuses to match inside "4012".
-            //
-            // Compiled HERE rather than in matchGlossary() because compiling
-            // is the single most expensive thing this module does and the
-            // result depends only on the pattern: building one RegExp per
-            // pattern per message meant thousands of compilations on every
-            // customer turn, which is what put the function over its CPU
-            // budget when the glossary grew.
-            const regex = new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, 'giu');
-            rules.push({ pattern, canonical: entry.canonical, labels: entry.labels, regex });
+            rules.push({ pattern, canonical: entry.canonical, labels: entry.labels });
         }
     }
     rules.sort((a, b) => {
@@ -71,30 +54,147 @@ function buildGlossaryRules(entries) {
 }
 
 /**
+ * A "word" for boundary purposes: exactly the character class the old
+ * lookarounds used, so a span found here begins and ends on precisely the
+ * boundaries `(?<![\p{L}\p{N}_])` and `(?![\p{L}\p{N}_])` accepted.
+ */
+const WORD_RUN = /[\p{L}\p{N}_]+/gu;
+const WHITESPACE_ONLY = /^\s+$/;
+/** A pattern that is word runs joined by whitespace — nothing else. */
+const SIMPLE_PATTERN = /^[\p{L}\p{N}_]+(?:\s+[\p{L}\p{N}_]+)*$/u;
+
+/**
+ * فهرس المطابقة: بحث بالكلمة بدل مسح النص بألف regex.
+ *
+ * WHY THIS REPLACED ONE REGEX PER PATTERN
+ *
+ * matchGlossary() used to run `regex.exec(text)` once per glossary
+ * pattern — 3,224 executions for every customer message. Measured cold,
+ * that single loop was ~2.8s of CPU and ~89% of the whole turn, which is
+ * what exhausted the edge runtime's budget. Caching the compiled regexes
+ * did not help: V8 generates a regex's matcher lazily on first exec, and
+ * in production almost every request lands on a cold isolate that only
+ * ever makes that first call.
+ *
+ * The observation that removes the loop: every match must begin and end
+ * on a `[\p{L}\p{N}_]` boundary, and 3,213 of the 3,224 patterns are
+ * word runs joined by whitespace. Such a pattern can only match a run of
+ * whole words of the message. So instead of asking every pattern
+ * "are you in this text?", the message offers its own word spans and asks
+ * "does any pattern equal this?" — a Map lookup. Cost becomes a function
+ * of message length (words × 6) instead of glossary size.
+ *
+ * The 11 patterns that are not word runs (hyphenated terms like
+ * "two-factor", and two carrying Arabic diacritics) keep a real regex.
+ * Eleven executions per message is not the loop this replaced.
+ *
+ * @param {Array<{pattern: string}>} rules already in priority order
+ */
+function buildGlossaryMatchIndex(rules) {
+    const spanIndex = new Map();
+    const regexRules = [];
+    let maxSpanWords = 1;
+
+    rules.forEach((rule, order) => {
+        if (SIMPLE_PATTERN.test(rule.pattern)) {
+            const words = rule.pattern.split(/\s+/);
+            if (words.length > maxSpanWords) maxSpanWords = words.length;
+            // Case folding matches the old 'i' flag. Whitespace runs collapse
+            // to one space because the old pattern turned them into `\s+`,
+            // which accepts any run.
+            const key = words.join(' ').toLowerCase();
+            const existing = spanIndex.get(key);
+            // Two entries may list the same surface form. Both rules survive,
+            // in priority order, exactly as they did in the scan.
+            if (existing) existing.push(order);
+            else spanIndex.set(key, [order]);
+        } else {
+            const escaped = escapeRegExp(rule.pattern).replace(/\s+/g, '\\s+');
+            regexRules.push({
+                order,
+                regex: new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, 'giu')
+            });
+        }
+    });
+
+    return { spanIndex, regexRules, maxSpanWords };
+}
+
+/**
  * Scans raw text for non-overlapping glossary matches, longest/most
  * specific pattern wins when patterns overlap.
+ *
+ * Same result as the old per-pattern scan, reached the other way round:
+ * the message's own word spans are looked up in the index, then the
+ * winners are replayed in the ORIGINAL rule order through the ORIGINAL
+ * claiming rule, so precedence and overlap handling are unchanged.
+ *
  * @returns {Array<{start: number, end: number, canonical: string, labels: Object}>}
  */
-function matchGlossary(text, rules) {
+function matchGlossary(text, rules, matchIndex) {
     const matches = [];
     const consumed = []; // list of [start, end) already claimed
 
     const overlaps = (start, end) =>
         consumed.some(([cStart, cEnd]) => start < cEnd && end > cStart);
 
-    for (const rule of rules) {
-        const regex = rule.regex;
-        // A /g/ regex carries lastIndex between uses, and these are now
-        // SHARED across messages. The loop below runs to exec() === null,
-        // which resets it — but an early return or a throw would not, and
-        // the next message would then start scanning from the middle of
-        // the previous one. Resetting here makes reuse indistinguishable
-        // from the fresh RegExp this used to build every time.
+    const { spanIndex, regexRules, maxSpanWords } = matchIndex;
+
+    // Every occurrence found, grouped by the rule that found it. Recorded
+    // in ascending start order, which is the order the old left-to-right
+    // scan produced them in.
+    const occurrences = new Map();
+    const record = (order, start, end) => {
+        const list = occurrences.get(order);
+        if (list) list.push([start, end]);
+        else occurrences.set(order, [[start, end]]);
+    };
+
+    // ONE pass over the message — the only scan of the text that remains.
+    const words = [];
+    for (const match of text.matchAll(WORD_RUN)) {
+        words.push({ start: match.index, end: match.index + match[0].length, lower: match[0].toLowerCase() });
+    }
+
+    for (let i = 0; i < words.length; i++) {
+        let key = words[i].lower;
+        for (let span = 1; span <= maxSpanWords && i + span <= words.length; span++) {
+            if (span > 1) {
+                // The old pattern joined its words with `\s+`, so anything
+                // but whitespace between two words ends the phrase — and
+                // ends it for every longer span from here too.
+                const gap = text.slice(words[i + span - 2].end, words[i + span - 1].start);
+                if (!WHITESPACE_ONLY.test(gap)) break;
+                key += ' ' + words[i + span - 1].lower;
+            }
+            const orders = spanIndex.get(key);
+            if (orders) {
+                for (const order of orders) record(order, words[i].start, words[i + span - 1].end);
+            }
+        }
+    }
+
+    for (const { order, regex } of regexRules) {
+        // Shared across messages, so lastIndex is reset before scanning.
         regex.lastIndex = 0;
         let match;
         while ((match = regex.exec(text)) !== null) {
-            const start = match.index;
-            const end = start + match[0].length;
+            record(order, match.index, match.index + match[0].length);
+        }
+    }
+
+    // Replay in rule order. Rules with no occurrence contributed nothing to
+    // the old scan either, so skipping them changes no outcome.
+    for (const order of [...occurrences.keys()].sort((a, b) => a - b)) {
+        const rule = rules[order];
+        // A /g/ exec never returns a match starting inside the previous one:
+        // lastIndex jumps to its end whether or not the match was kept. The
+        // cursor reproduces that, so a repeated-word phrase cannot claim a
+        // second, shifted span the old scan would never have offered.
+        let cursor = -1;
+        for (const [start, end] of occurrences.get(order)) {
+            if (start < cursor) continue;
+            cursor = end;
             if (!overlaps(start, end)) {
                 matches.push({ start, end, canonical: rule.canonical, labels: rule.labels });
                 consumed.push([start, end]);
@@ -359,8 +459,10 @@ function deriveGlossary(entries) {
 
 function buildGlossaryDerivation(entries) {
     const { index: phraseIndex, maxWords } = buildNormalizedPhraseIndex(entries);
+    const rules = buildGlossaryRules(entries);
     return {
-        rules: buildGlossaryRules(entries),
+        rules,
+        matchIndex: buildGlossaryMatchIndex(rules),
         wordIndex: buildNormalizedWordIndex(entries),
         phraseIndex,
         maxPhraseWords: maxWords,
@@ -398,12 +500,13 @@ export async function normalize(text, options = {}) {
     ]);
     const {
         rules: glossaryRules,
+        matchIndex: glossaryMatchIndex,
         wordIndex: normalizedWordIndex,
         phraseIndex: normalizedPhraseIndex,
         maxPhraseWords,
         vocabulary: normalizedVocabulary
     } = deriveGlossary(glossaryEntries);
-    const glossaryMatches = matchGlossary(rawText, glossaryRules);
+    const glossaryMatches = matchGlossary(rawText, glossaryRules, glossaryMatchIndex);
 
     const normalizedTokens = [];
     const languagePolicyTokens = [];
