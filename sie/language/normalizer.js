@@ -42,7 +42,24 @@ function buildGlossaryRules(entries) {
     const rules = [];
     for (const entry of entries) {
         for (const pattern of entry.patterns) {
-            rules.push({ pattern, canonical: entry.canonical, labels: entry.labels });
+            const escaped = escapeRegExp(pattern).replace(/\s+/g, '\\s+');
+            // Unicode-aware word boundaries instead of `\b`. JavaScript's `\b`
+            // is defined against ASCII [A-Za-z0-9_], so every character of an
+            // Arabic pattern counts as a NON-word character and `\bمش شغال\b`
+            // can never match — which silently made Arabic glossary entries
+            // impossible, the exact opposite of what a bilingual engine needs.
+            // These lookarounds treat any letter or digit in any script as a
+            // word character, so "مش شغال" and "error 401" both match on a real
+            // boundary, while "401" still refuses to match inside "4012".
+            //
+            // Compiled HERE rather than in matchGlossary() because compiling
+            // is the single most expensive thing this module does and the
+            // result depends only on the pattern: building one RegExp per
+            // pattern per message meant thousands of compilations on every
+            // customer turn, which is what put the function over its CPU
+            // budget when the glossary grew.
+            const regex = new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, 'giu');
+            rules.push({ pattern, canonical: entry.canonical, labels: entry.labels, regex });
         }
     }
     rules.sort((a, b) => {
@@ -66,16 +83,14 @@ function matchGlossary(text, rules) {
         consumed.some(([cStart, cEnd]) => start < cEnd && end > cStart);
 
     for (const rule of rules) {
-        const escaped = escapeRegExp(rule.pattern).replace(/\s+/g, '\\s+');
-        // Unicode-aware word boundaries instead of `\b`. JavaScript's `\b`
-        // is defined against ASCII [A-Za-z0-9_], so every character of an
-        // Arabic pattern counts as a NON-word character and `\bمش شغال\b`
-        // can never match — which silently made Arabic glossary entries
-        // impossible, the exact opposite of what a bilingual engine needs.
-        // These lookarounds treat any letter or digit in any script as a
-        // word character, so "مش شغال" and "error 401" both match on a real
-        // boundary, while "401" still refuses to match inside "4012".
-        const regex = new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, 'giu');
+        const regex = rule.regex;
+        // A /g/ regex carries lastIndex between uses, and these are now
+        // SHARED across messages. The loop below runs to exec() === null,
+        // which resets it — but an early return or a throw would not, and
+        // the next message would then start scanning from the middle of
+        // the previous one. Resetting here makes reuse indistinguishable
+        // from the fresh RegExp this used to build every time.
+        regex.lastIndex = 0;
         let match;
         while ((match = regex.exec(text)) !== null) {
             const start = match.index;
@@ -302,6 +317,58 @@ function resolveArabizi(tokenLower, arabiziMap) {
 }
 
 /**
+ * كل ما يُشتق من المعجم — يُبنى مرة واحدة لكل نسخة بيانات، مش كل رسالة.
+ *
+ * WHY THIS CACHE EXISTS
+ *
+ * normalize() used to rebuild five O(glossary) structures on EVERY call:
+ * the rule list (plus a sort whose comparator splits both patterns), the
+ * single-word index, the phrase index, the vocabulary — and, inside
+ * matchGlossary(), one compiled RegExp per pattern. None of it depends on
+ * the message; all of it depends only on the glossary.
+ *
+ * That made the cost of answering one customer scale with the size of the
+ * glossary, and when the glossary grew from 268 entries / 2,272 patterns
+ * to 523 / 3,224, the function started exhausting the CPU budget of the
+ * edge runtime it runs in — on every request, warm or cold.
+ *
+ * KEYED ON THE ENTRIES ARRAY ITSELF, DELIBERATELY
+ *
+ * A module-level flag would go stale the moment the glossary is reloaded
+ * or a caller injects a different provider (every test does). Keying a
+ * WeakMap on the entries array means the cache is valid exactly as long
+ * as the data is the same object and cannot possibly outlive it: a
+ * reload produces a new array, which misses and rebuilds. Since the
+ * provider caches its array for the life of the isolate, the steady
+ * state is "built once", with no invalidation logic to get wrong.
+ */
+const glossaryDerivationCache = new WeakMap();
+
+function deriveGlossary(entries) {
+    // Non-object inputs cannot key a WeakMap. Derive without caching
+    // rather than throwing: correctness does not depend on the cache.
+    if (!entries || typeof entries !== 'object') {
+        return buildGlossaryDerivation(entries || []);
+    }
+    const cached = glossaryDerivationCache.get(entries);
+    if (cached) return cached;
+    const derived = buildGlossaryDerivation(entries);
+    glossaryDerivationCache.set(entries, derived);
+    return derived;
+}
+
+function buildGlossaryDerivation(entries) {
+    const { index: phraseIndex, maxWords } = buildNormalizedPhraseIndex(entries);
+    return {
+        rules: buildGlossaryRules(entries),
+        wordIndex: buildNormalizedWordIndex(entries),
+        phraseIndex,
+        maxPhraseWords: maxWords,
+        vocabulary: buildNormalizedVocabulary(entries)
+    };
+}
+
+/**
  * Normalizes one customer message end-to-end.
  *
  * @param {string} text - raw customer message
@@ -329,12 +396,14 @@ export async function normalize(text, options = {}) {
         glossaryProvider.getEntries(),
         arabiziProvider.getMap()
     ]);
-    const glossaryRules = buildGlossaryRules(glossaryEntries);
+    const {
+        rules: glossaryRules,
+        wordIndex: normalizedWordIndex,
+        phraseIndex: normalizedPhraseIndex,
+        maxPhraseWords,
+        vocabulary: normalizedVocabulary
+    } = deriveGlossary(glossaryEntries);
     const glossaryMatches = matchGlossary(rawText, glossaryRules);
-    const normalizedWordIndex = buildNormalizedWordIndex(glossaryEntries);
-    const { index: normalizedPhraseIndex, maxWords: maxPhraseWords } =
-        buildNormalizedPhraseIndex(glossaryEntries);
-    const normalizedVocabulary = buildNormalizedVocabulary(glossaryEntries);
 
     const normalizedTokens = [];
     const languagePolicyTokens = [];
