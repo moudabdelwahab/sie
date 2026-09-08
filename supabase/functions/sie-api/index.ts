@@ -116,11 +116,20 @@ Deno.serve(async (req: Request) => {
             // function's own anon client. When RLS hides the published
             // rows from it, `overlayStatus` says `unavailable` rather than
             // reporting a catalog size that was never checked.
-            const settings = await getSieSettings(buildUserClient(req));
-            const resolution = await describeScenarioCatalog({
-                supabase: buildUserClient(req),
-                settings
-            });
+            const client = buildUserClient(req);
+            // sie_settings is readable only by an AUTHENTICATED caller, and
+            // this endpoint deliberately accepts no token. Reading zero rows
+            // therefore means "I cannot see the settings", not "the settings
+            // say off" — and getSieSettings() cannot tell those apart,
+            // because it returns defaults on both. Reporting `disabled` for
+            // an unreadable setting would be the same confident-wrong answer
+            // this endpoint was just fixed to stop giving, so the count is
+            // checked first and `null` is passed when nothing is visible.
+            const { count: settingsVisible } = await client
+                .from('sie_settings')
+                .select('*', { count: 'exact', head: true });
+            const settings = settingsVisible ? await getSieSettings(client) : null;
+            const resolution = await describeScenarioCatalog({ supabase: client, settings });
             engine = {
                 loaded: true,
                 catalogSize: resolution.effectiveCount,

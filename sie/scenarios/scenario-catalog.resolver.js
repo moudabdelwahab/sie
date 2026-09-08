@@ -81,7 +81,11 @@ import { scenarioCatalogProvider } from './scenario-catalog.local.js';
  * @property {number} effectiveCount   what the engine actually diagnoses against
  * @property {string[]} addedIds       overlay ids not present in the base
  * @property {string[]} overriddenIds  base ids replaced by an overlay row
- * @property {'applied'|'disabled'|'unavailable'|'empty'} overlayStatus
+ * @property {'applied'|'disabled'|'unavailable'|'empty'|'unknown'} overlayStatus
+ *   'unknown' is NOT 'disabled'. A caller that could not read the settings
+ *   (an unauthenticated health check, say) knows nothing about the overlay,
+ *   and saying "disabled" there would be the same kind of confident wrong
+ *   answer this resolver exists to stop giving.
  * @property {string|null} overlayError
  */
 
@@ -225,9 +229,19 @@ export async function resolveScenarioCatalog({
     const baseScenarios = await baseProvider.getAllScenarios();
     const baseWarnings = await baseProvider.getLoadWarnings();
 
+    // "I could not read the settings" and "the settings say off" produce
+    // the same catalog but are different facts, and only one of them is
+    // worth waking someone up about. Keep them apart.
+    if (settings === null || settings === undefined) {
+        return {
+            provider: baseProvider,
+            resolution: emptyResolution(baseScenarios.length, 'unknown', 'settings were not supplied')
+        };
+    }
+
     // The flag is read the same way the bridge always read it, so turning
     // the overlay off keeps costing exactly one cached call and no query.
-    const overlayEnabled = settings?.use_published_scenarios === true;
+    const overlayEnabled = settings.use_published_scenarios === true;
     if (!overlayEnabled) {
         return {
             provider: baseProvider,

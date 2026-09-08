@@ -266,3 +266,134 @@ test('a database error propagates so the resolver can report it', async () => {
     };
     await assert.rejects(() => loadPublishedScenarioOverlay(supabase), /permission denied/);
 });
+
+// ===================================================================
+// Phase 1.5 — the eight invariants, stated as the reviewer stated them.
+// Several are covered above; these pin the ones that were implicit, and
+// the two that use the REAL production data rather than a fixture.
+// ===================================================================
+
+/** The seven rows exactly as they sit in production, warts included. */
+function productionOverlayRows() {
+    const sig = (tokens) => tokens.map((t) => ({ token: t, source: 'text', weight: 1 }));
+    const router = (id, ar, category, tokens) => ({
+        id, label: { ar, en: '' }, category,
+        resolution: { hasAutoResolution: false },
+        evidenceSignature: sig(tokens), discriminatingQuestions: [], requiresTicketIfUnresolved: true
+    });
+    const inquiry = (id, ar, ks, tokens) => ({
+        id, label: { ar, en: '' }, category: 'inquiry',
+        resolution: { text: { ar: 'نص', en: '' }, knowledgeSource: ks, hasAutoResolution: true },
+        evidenceSignature: sig(tokens), discriminatingQuestions: [], requiresTicketIfUnresolved: false
+    });
+    return [
+        router('category_login', 'تسجيل الدخول', 'login', ['دخول', 'login']),
+        router('category_other', 'حاجة تانية', 'other', ['اخرى', 'other']),
+        router('category_subscription', 'الاشتراك', 'subscription', ['اشتراك', 'subscription']),
+        router('category_tickets', 'التذاكر', 'tickets', ['تذكره', 'ticket']),
+        router('category_whatsapp', 'واتساب', 'whatsapp', ['واتساب', 'whatsapp']),
+        inquiry('subscription_status_inquiry', 'استفسار عن حالة الاشتراك', 'subscription_status', ['اشتراكي']),
+        inquiry('ticket_status_inquiry', 'استفسار عن حالة التذكرة', 'ticket_status', ['تذاكري'])
+    ];
+}
+
+test('INVARIANT F: 650 base + the 7 real production rows (all invalid) = 650 effective', async () => {
+    const base = Array.from({ length: 650 }, (_, i) => scenario(`base_${i}`));
+    const { provider, resolution } = await resolveScenarioCatalog({
+        supabase: FAKE_CLIENT,
+        settings: SETTINGS_ON,
+        baseProvider: baseProviderOf(base),
+        loadOverlay: async () => productionOverlayRows()
+    });
+
+    assert.equal((await provider.getAllScenarios()).length, 650, 'the production overlay must not shrink the catalog');
+    assert.equal(resolution.effectiveCount, 650);
+    assert.equal(resolution.overlayCount, 0, 'none of the seven validate');
+    assert.equal(resolution.overlayInvalid, 7, 'and all seven are reported, not silently dropped');
+    assert.equal(resolution.overlayStatus, 'empty');
+});
+
+test('INVARIANT G: a valid overlay adds exactly its new ids and nothing else', async () => {
+    const base = Array.from({ length: 650 }, (_, i) => scenario(`base_${i}`));
+    const overlay = [scenario('brand_new_a'), scenario('brand_new_b'), scenario('base_5', 9)];
+
+    const { provider, resolution } = await resolveScenarioCatalog({
+        supabase: FAKE_CLIENT,
+        settings: SETTINGS_ON,
+        baseProvider: baseProviderOf(base),
+        loadOverlay: async () => overlay
+    });
+
+    assert.equal(resolution.effectiveCount, 652, '650 + 2 new; the override adds nothing');
+    assert.deepEqual(resolution.addedIds.sort(), ['brand_new_a', 'brand_new_b']);
+    assert.deepEqual(resolution.overriddenIds, ['base_5']);
+    assert.equal((await provider.getScenarioById('base_5')).evidenceSignature.length, 9);
+});
+
+test('INVARIANT H: an override replaces a base scenario, it can never delete one', async () => {
+    const base = [scenario('a'), scenario('b'), scenario('c')];
+    // Every hostile shape an overlay row could take against an existing id.
+    const overlay = [
+        { id: 'a' },                                   // schema-invalid
+        { id: 'b', label: null },                      // schema-invalid
+        scenario('c', 1)                               // valid override
+    ];
+
+    const { provider, resolution } = await resolveScenarioCatalog({
+        supabase: FAKE_CLIENT,
+        settings: SETTINGS_ON,
+        baseProvider: baseProviderOf(base),
+        loadOverlay: async () => overlay
+    });
+
+    const ids = (await provider.getAllScenarios()).map((s) => s.id);
+    assert.deepEqual(ids, ['a', 'b', 'c'], 'all three base ids survive');
+    assert.equal(resolution.effectiveCount, 3);
+    assert.equal(resolution.overlayInvalid, 2);
+    assert.deepEqual(resolution.overriddenIds, ['c']);
+    // There is no deletion semantic, by design: no overlay shape removes an id.
+    assert.ok(
+        !Object.keys(resolution).includes('removedIds'),
+        'the resolution has no removal channel, because the merge has no deletion rule'
+    );
+});
+
+test('a duplicate id inside one overlay batch is rejected, not applied twice', async () => {
+    const base = [scenario('a')];
+    const { provider, resolution } = await resolveScenarioCatalog({
+        supabase: FAKE_CLIENT,
+        settings: SETTINGS_ON,
+        baseProvider: baseProviderOf(base),
+        loadOverlay: async () => [scenario('dup', 2), scenario('dup', 5)]
+    });
+    const ids = (await provider.getAllScenarios()).map((s) => s.id);
+    assert.deepEqual(ids, ['a', 'dup']);
+    assert.equal(resolution.overlayInvalid, 1, 'validateCatalog rejects the second as a duplicate id');
+    assert.equal((await provider.getScenarioById('dup')).evidenceSignature.length, 2, 'the first wins');
+});
+
+test('unreadable settings report "unknown", never "disabled"', async () => {
+    const base = [scenario('a'), scenario('b')];
+    for (const settings of [null, undefined]) {
+        const { provider, resolution } = await resolveScenarioCatalog({
+            supabase: FAKE_CLIENT,
+            settings,
+            baseProvider: baseProviderOf(base),
+            loadOverlay: async () => { throw new Error('should not be reached'); }
+        });
+        assert.equal(resolution.overlayStatus, 'unknown',
+            'an unauthenticated health check knows nothing about the overlay and must say so');
+        assert.notEqual(resolution.overlayStatus, 'disabled');
+        assert.equal((await provider.getAllScenarios()).length, 2);
+    }
+});
+
+test('an explicitly-false setting still reports "disabled", not "unknown"', async () => {
+    const { resolution } = await resolveScenarioCatalog({
+        supabase: FAKE_CLIENT,
+        settings: SETTINGS_OFF,
+        baseProvider: baseProviderOf([scenario('a')]),
+        loadOverlay: async () => []
+    });
+    assert.equal(resolution.overlayStatus, 'disabled');
+});
