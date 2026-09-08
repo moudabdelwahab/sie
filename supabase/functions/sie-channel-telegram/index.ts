@@ -54,7 +54,7 @@ import { createIdentityResolver } from '../../../channels/core/channel-identity.
 import { createEntitlementExplainer } from '../../../channels/core/channel-entitlement.js';
 import { createMemoryDeduplicator } from '../../../channels/core/delivery.js';
 import { createLogger } from '../../../channels/core/logger.js';
-import { getSieReply, getSieAccessStatus, evaluateSieAccessRow } from '../../../sie-integration/sie-runtime.js';
+import { getSieReply, getSieAccessStatus, evaluateSieAccessRow, describeScenarioCatalog, getSieSettings } from '../../../sie-integration/sie-runtime.js';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
 const WEBHOOK_SECRET = Deno.env.get('TELEGRAM_WEBHOOK_SECRET') ?? '';
@@ -118,11 +118,16 @@ async function selfCheck(): Promise<Record<string, unknown>> {
     // Does the engine's data load in this runtime? The single most likely
     // deployment failure, and invisible from outside.
     try {
-        const { listActiveScenarios } = await import('../../../sie-integration/sie-runtime.js');
-        const scenarios = await listActiveScenarios();
+        // Reported the way the ENGINE resolves it — shipped catalog plus
+        // whatever published rows are actually merged over it — because a
+        // bare count cannot tell "the operator's rows are live" from "the
+        // overlay silently failed", and those need different responses.
+        const settings = await getSieSettings(supabase);
+        const resolution = await describeScenarioCatalog({ supabase, settings });
         stages.engine_loaded = true;
-        stages.catalog_size = scenarios.length;
-        stages.catalog_ok = scenarios.length > 0;
+        stages.catalog_size = resolution.effectiveCount;
+        stages.catalog_ok = resolution.effectiveCount > 0;
+        stages.catalog = resolution;
     } catch (err) {
         stages.engine_loaded = false;
         stages.engine_error = err instanceof Error ? err.message : String(err);

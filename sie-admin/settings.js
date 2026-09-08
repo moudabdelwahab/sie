@@ -38,6 +38,7 @@ import { quotaMetrics, quotaStatus } from '../sie/quota-ui/quota-metrics.js';
 import { sieQuotaService } from '../sie/quota-ui/sie-quota-service.js';
 import {
     listActiveScenarios,
+    describeScenarioCatalog,
     validateScenarioDraft,
     saveScenarioDraft,
     listStoredScenarioVersions,
@@ -524,7 +525,11 @@ function renderSystemAlerts({ pendingDrafts, attention, rejected }) {
 // ═════════════════════════════════════════════════════════════
 async function loadScenarios() {
     await loadTokenLabels();
-    state.scenarios = await listActiveScenarios();
+    // The client and settings are load-bearing, not decoration: without
+    // them this reads the shipped catalog only, which is exactly how the
+    // console came to report a catalog the engine was not using.
+    state.scenarios = await listActiveScenarios({ supabase, settings: state.settings });
+    state.catalogResolution = await describeScenarioCatalog({ supabase, settings: state.settings });
     state.drafts = state.isStaff ? await listStoredScenarioVersions(supabase) : [];
 
     const categories = [...new Set(state.scenarios.map((s) => s.category))].sort();

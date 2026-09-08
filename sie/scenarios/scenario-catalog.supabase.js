@@ -1,4 +1,22 @@
 /**
+ * scenario-catalog.supabase.js  —  SUPERSEDED FOR THE RUNTIME PATH
+ * ------------------------------------------------------------
+ * ⚠️ Nothing in the running engine imports this any more. The overlay
+ * read moved into sie/scenarios/scenario-catalog.resolver.js, which is
+ * now the ONLY answer to "which catalog does the engine diagnose
+ * against" for the runtime, the console, the health checks and the
+ * tests alike.
+ *
+ * It is kept because it is a correct, tested implementation of the
+ * provider contract and a useful reference for a future storage swap —
+ * but do NOT wire it into a code path directly. Using it on its own is
+ * precisely the bug the resolver exists to prevent: it returns ONLY the
+ * published rows, so a caller that treats its output as "the catalog"
+ * silently discards the entire shipped catalog. In production that was
+ * 650 scenarios replaced by 7.
+ */
+
+/**
  * scenario-catalog.supabase.js
  * ------------------------------------------------------------
  * Supabase-backed implementation of the scenario catalog provider.

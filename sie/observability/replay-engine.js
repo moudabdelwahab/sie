@@ -36,7 +36,13 @@ import { buildTraceEvent } from './trace-logger.js';
 /**
  * @typedef {Object} ReplayConfig
  * @property {{glossaryProvider: *, arabiziProvider: *}} [language]
- * @property {*} [scenarioProvider] - defaults to the real, currently-published catalog
+ * @property {*} [scenarioProvider] - defaults to the SHIPPED catalog, which is
+ *   not necessarily the effective one: when `use_published_scenarios` is on,
+ *   the live engine also merges published rows over it (see
+ *   sie/scenarios/scenario-catalog.resolver.js). A shadow run comparing two
+ *   configs against each other is unaffected — both sides use the same base —
+ *   but a caller asking "what would production do" must pass the resolved
+ *   provider explicitly.
  * @property {*} [staticKnowledgeProvider] - defaults to the real, currently-published content
  * @property {*} [liveKnowledgeProvider] - defaults to the no-op stub (same as production today)
  * @property {{userId: string}} [liveKnowledgeContext]

@@ -64,7 +64,7 @@ import { createIdentityResolver } from 'https://cdn.jsdelivr.net/gh/moudabdelwah
 import { createEntitlementExplainer } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@8252e5774529196b323d72932df8b43c09f9cdbe/channels/core/channel-entitlement.js';
 import { createMemoryDeduplicator } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@8252e5774529196b323d72932df8b43c09f9cdbe/channels/core/delivery.js';
 import { createLogger } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@8252e5774529196b323d72932df8b43c09f9cdbe/channels/core/logger.js';
-import { getSieReply, getSieAccessStatus, evaluateSieAccessRow, listActiveScenarios } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@8252e5774529196b323d72932df8b43c09f9cdbe/sie-integration/sie-runtime.js';
+import { getSieReply, getSieAccessStatus, evaluateSieAccessRow, describeScenarioCatalog, getSieSettings } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@8252e5774529196b323d72932df8b43c09f9cdbe/sie-integration/sie-runtime.js';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
@@ -189,10 +189,16 @@ async function selfCheck(): Promise<Record<string, unknown>> {
     // Does the engine's data load in this runtime? The single most likely
     // deployment failure, and invisible from outside.
     try {
-        const scenarios = await listActiveScenarios();
+        // Reported the way the ENGINE resolves it — shipped catalog plus
+        // whatever published rows are actually merged over it — because a
+        // bare count cannot tell "the operator's rows are live" from "the
+        // overlay silently failed", and those need different responses.
+        const settings = await getSieSettings(supabase);
+        const resolution = await describeScenarioCatalog({ supabase, settings });
         stages.engine_loaded = true;
-        stages.catalog_size = scenarios.length;
-        stages.catalog_ok = scenarios.length > 0;
+        stages.catalog_size = resolution.effectiveCount;
+        stages.catalog_ok = resolution.effectiveCount > 0;
+        stages.catalog = resolution;
     } catch (err) {
         stages.engine_loaded = false;
         stages.engine_error = err instanceof Error ? err.message : String(err);
