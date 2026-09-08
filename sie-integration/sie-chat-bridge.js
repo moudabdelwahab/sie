@@ -40,7 +40,7 @@ import { executeDecision, logTraceEvent } from '../sie/action/action-layer.js';
 import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js';
 import { buildTraceEvent } from '../sie/observability/trace-logger.js';
 import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
-import { createScenarioCatalogSupabaseProvider } from '../sie/scenarios/scenario-catalog.supabase.js';
+import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
 
 /**
  * الحالات اللي الإعدادات سامحة للمحرك يقراها.
@@ -313,9 +313,21 @@ const TICKET_DISABLED_TEXT = {
         + 'Please contact the team directly and they will follow up with you [[icon:note]]'
 };
 
-/** Published rows from chat_engine_scenarios, used when settings say so. */
-function createSupabaseScenarioProvider(supabase) {
-    return createScenarioCatalogSupabaseProvider(supabase);
+/**
+ * The catalog this turn diagnoses against.
+ *
+ * Delegates to the resolver rather than choosing here, because "which
+ * catalog?" is now answered in exactly one place for the runtime, the
+ * console, the health check and the tests alike. This used to pick
+ * BETWEEN the shipped file and the published rows; picking the rows
+ * meant discarding the file, which is how a 650-scenario catalog became
+ * 7 in production without a single error anywhere. The resolver merges
+ * instead, so the effective catalog can never be smaller than the
+ * shipped one.
+ */
+async function resolveTurnScenarioProvider(supabase, settings) {
+    const { provider, resolution } = await resolveScenarioCatalog({ supabase, settings });
+    return { provider, resolution };
 }
 
 const TICKET_DECLINE_TEXT = {
@@ -757,19 +769,29 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         }
 
         // 3. Diagnostics (Module 3)
-        // Which catalog answers the customer. Published Supabase rows let an
-        // edit made in the settings panel take effect without a deploy; the
-        // shipped catalog stays the default because it is the reviewed one.
-        const scenarioProvider = settings.use_published_scenarios
-            ? createSupabaseScenarioProvider(supabase)
-            : undefined;
+        // Which catalog answers the customer — resolved once and used by
+        // BOTH processTurn and rankDiagnosticState below, so the two can
+        // never disagree about what the candidates are.
+        const { provider: scenarioProvider, resolution: catalogResolution } =
+            await resolveTurnScenarioProvider(supabase, settings);
+
+        // The one catalog outcome worth a line in the logs: the operator
+        // asked for their published rows and did not get them. Silence
+        // here is what let the catalog question go unanswered for weeks.
+        if (catalogResolution.overlayStatus === 'unavailable') {
+            console.warn(
+                `[sie] published scenarios were requested but could not be applied `
+                + `(${catalogResolution.overlayError}); diagnosing against the shipped `
+                + `catalog of ${catalogResolution.baseCount}`
+            );
+        }
 
         const diagnosticState = await processTurn({
             normalizedTokens,
             turn,
             previousState: prevSie?.diagnosticState,
             liveEvidenceContext: { userId },
-            ...(scenarioProvider ? { scenarioProvider } : {})
+            scenarioProvider
         });
 
         // How much genuinely new evidence landed this turn, derived from the
@@ -784,7 +806,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         const activationThreshold = activationThresholdForLevel(settings.diagnosis_level);
         const ranking = await rankDiagnosticState(
             diagnosticState,
-            scenarioProvider || undefined,
+            scenarioProvider,
             { activationThreshold }
         );
 

@@ -150,8 +150,23 @@ test('الفحص الصحي بيقول هل بيانات المحرك حمّلت
     // «الدالة شغالة» و«الـ ٥٨٠ كيلو بتاعة المحرك حمّلت من الـ CDN» سؤالين
     // مختلفين، والتاني بس هو اللي وقع قبل كده.
     const { source } = await loadRouter();
-    assert.ok(source.includes('listActiveScenarios'), 'الفحص مابيلمسش المحرك');
+    assert.ok(source.includes('describeScenarioCatalog'), 'الفحص مابيلمسش المحرك');
     assert.ok(source.includes('catalogSize'));
+});
+
+test('الفحص الصحي بيبلّغ الكتالوج زي ما المحرك بيحلّه، مش زي ما الملف شكله', async () => {
+    // ده الفرق اللي خلّى /health يقول ٦٥٠ بينما العميل بياخد ٧: الفحص كان
+    // بيقرا الملف المشحون، والمحرك كان بيقرا صفوف قاعدة البيانات. لازم
+    // الاتنين يعدّوا من نفس الـresolver.
+    const { source } = await loadRouter();
+    assert.ok(
+        !source.includes('listActiveScenarios'),
+        'الفحص لازم مايستخدمش listActiveScenarios — دي بتشوف الملف بس لو مامرّرتش العميل'
+    );
+    assert.ok(
+        source.includes('effectiveCount'),
+        'الرقم المعروض لازم يكون الكتالوج الفعّال، مش عدد صفوف الملف'
+    );
 });
 
 test('كل مسار بيقرا بيانات بيتحقق من الهوية بنفسه', async () => {

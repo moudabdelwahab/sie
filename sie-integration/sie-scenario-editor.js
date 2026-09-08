@@ -21,23 +21,68 @@
  * an empty list / a structured validation result / a structured error,
  * never takes down the settings console.
  */
-import { scenarioCatalogProvider } from '../sie/scenarios/scenario-catalog.local.js';
+import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
 import { validateScenario } from '../sie/scenarios/scenario-types.js';
 import { saveScenarioDraft as saveScenarioDraftAction } from '../sie/action/action-layer.js';
 import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js';
 
 /**
- * The currently published Scenario catalog — exactly what the live
- * engine diagnoses against right now, not a draft or proposed edit.
+ * The catalog the live engine diagnoses against right now.
  *
+ * ⚠️ This used to read the shipped file and nothing else, while the
+ * engine could be reading published database rows instead. That is how
+ * `/health` and the console reported a 650-scenario catalog for weeks
+ * while customers were being answered from 7 rows. Both now go through
+ * the same resolver, so the number shown is the number used.
+ *
+ * PASS THE SUPABASE CLIENT AND SETTINGS. Without them the overlay cannot
+ * be read, and the answer degrades to the shipped catalog — honest, but
+ * incomplete. `describeScenarioCatalog()` says which of the two you got.
+ *
+ * @param {Object} [options]
+ * @param {import('@supabase/supabase-js').SupabaseClient} [options.supabase]
+ * @param {Object} [options.settings]
  * @returns {Promise<import('../sie/scenarios/scenario-types.js').Scenario[]>}
  */
-export async function listActiveScenarios() {
+export async function listActiveScenarios(options = {}) {
     try {
-        return await scenarioCatalogProvider.getAllScenarios();
+        const { provider } = await resolveScenarioCatalog(options);
+        return await provider.getAllScenarios();
     } catch (err) {
         console.warn('[sie] listActiveScenarios failed:', err?.message || err);
         return [];
+    }
+}
+
+/**
+ * The same resolution, plus WHY it looks like that: how many came from
+ * the shipped file, how many from published rows, which ids were added
+ * and which were overridden.
+ *
+ * This is what a health check should report. "The catalog has N
+ * scenarios" is not an operationally useful answer on its own — the
+ * question that matters is whether the published rows the operator
+ * configured are actually in play.
+ *
+ * @param {Object} [options] same shape as listActiveScenarios()
+ * @returns {Promise<import('../sie/scenarios/scenario-catalog.resolver.js').CatalogResolution>}
+ */
+export async function describeScenarioCatalog(options = {}) {
+    try {
+        const { resolution } = await resolveScenarioCatalog(options);
+        return resolution;
+    } catch (err) {
+        console.warn('[sie] describeScenarioCatalog failed:', err?.message || err);
+        return {
+            baseCount: 0,
+            overlayCount: 0,
+            overlayInvalid: 0,
+            effectiveCount: 0,
+            addedIds: [],
+            overriddenIds: [],
+            overlayStatus: 'unavailable',
+            overlayError: String(err?.message || err)
+        };
     }
 }
 

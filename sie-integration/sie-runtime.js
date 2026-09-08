@@ -63,6 +63,7 @@ import {
 } from './sie-entitlement.js';
 import {
     listActiveScenarios as _listActiveScenarios,
+    describeScenarioCatalog as _describeScenarioCatalog,
     listStoredScenarioVersions as _listStoredScenarioVersions,
     validateScenarioDraft as _validateScenarioDraft,
     saveScenarioDraft as _saveScenarioDraft
@@ -329,13 +330,38 @@ export {
 // ===================================================================
 
 /**
- * The currently published Scenario catalog — exactly what the live
- * engine diagnoses against right now.
+ * The catalog the live engine diagnoses against right now.
  *
+ * Pass `{ supabase, settings }` to get the real answer. Called bare it
+ * still works and still never throws, but it can only see the shipped
+ * catalog — which is exactly the blind spot that let `/health` report
+ * 650 while the engine was answering from 7. When the number matters
+ * operationally, use describeScenarioCatalog() instead: it says where
+ * every scenario came from.
+ *
+ * @param {{supabase?: Object, settings?: Object}} [options]
  * @returns {Promise<import('../sie/scenarios/scenario-types.js').Scenario[]>}
  */
-export async function listActiveScenarios() {
-    return _listActiveScenarios();
+export async function listActiveScenarios(options) {
+    return _listActiveScenarios(options);
+}
+
+/**
+ * Where the live catalog came from: how many scenarios are shipped in
+ * the file, how many published rows were merged over them, which ids
+ * were added, which were overridden, and whether the overlay was applied
+ * at all.
+ *
+ * This is the health-check answer. A bare count cannot distinguish "the
+ * operator's published rows are live" from "the overlay failed and you
+ * are silently running the shipped catalog", and those need different
+ * responses.
+ *
+ * @param {{supabase?: Object, settings?: Object}} [options]
+ * @returns {Promise<import('../sie/scenarios/scenario-catalog.resolver.js').CatalogResolution>}
+ */
+export async function describeScenarioCatalog(options) {
+    return _describeScenarioCatalog(options);
 }
 
 /**

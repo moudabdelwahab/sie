@@ -111,3 +111,132 @@ test('the bucket is untouched while the limiter is off', async () => {
     assert.ok(!/insert into/i.test(disabledBranch), 'the disabled branch must not write to the bucket');
     assert.match(disabledBranch, /return query select true, false/);
 });
+
+// ===================================================================
+// THE ENVIRONMENT GATE
+// ===================================================================
+//
+// These run the module instead of reading it. The limiter's whole risk
+// is that it does something when nobody asked it to, and a source-text
+// assertion cannot prove "no database call was made" — only executing it
+// can. Node strips the one type-only import, so the module loads here.
+
+/** Runs `fn` with SIE_RATE_LIMIT set to `value` (or unset when null). */
+async function withRateLimitEnv(value, fn) {
+    const had = Object.prototype.hasOwnProperty.call(globalThis, 'Deno');
+    const previous = globalThis.Deno;
+    globalThis.Deno = { env: { get: (k) => (k === 'SIE_RATE_LIMIT' && value !== null ? value : undefined) } };
+    try {
+        // Fresh module each time: the gate is read per call, but a cache-buster
+        // keeps these independent of import order.
+        const mod = await import(`../_shared/rate-limit.ts?env=${encodeURIComponent(String(value))}`);
+        return await fn(mod);
+    } finally {
+        if (had) globalThis.Deno = previous;
+        else delete globalThis.Deno;
+    }
+}
+
+/** A Supabase client that fails the test if anything touches it. */
+function forbiddenClient(t) {
+    return {
+        rpc: () => {
+            t.diagnostic('rpc() was called while the limiter was off');
+            throw new Error('the limiter called the database while switched off');
+        }
+    };
+}
+
+const REQUEST = new Request('https://example.test/v1/chat/reply', {
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.9' }
+});
+
+test('OFF by default: with the variable unset the limiter does not run at all', async (t) => {
+    await withRateLimitEnv(null, async ({ checkRateLimit, rateLimitHeaders }) => {
+        let rpcCalls = 0;
+        const supabase = { rpc: () => { rpcCalls += 1; return Promise.resolve({ data: null, error: null }); } };
+
+        const decision = await checkRateLimit(supabase, REQUEST);
+
+        // 1. no sie_rate_limit_hit call -> 2. therefore no bucket row can be
+        // created or updated, since that RPC is the only writer.
+        assert.equal(rpcCalls, 0, 'a switched-off limiter must not reach the database');
+        // 3. no rejection
+        assert.equal(decision.allowed, true);
+        assert.equal(decision.enabled, false);
+        // 4. no RateLimit-* headers
+        assert.deepEqual(rateLimitHeaders(decision), {});
+    });
+});
+
+test('OFF by default: every ambiguous value means off', async () => {
+    for (const value of [null, '', '   ', 'off', 'false', '0', 'no', 'disabled', 'ON_MAYBE', 'yes please']) {
+        await withRateLimitEnv(value, async ({ checkRateLimit, rateLimitHeaders }) => {
+            const decision = await checkRateLimit(forbiddenClient({ diagnostic() {} }), REQUEST);
+            assert.equal(decision.enabled, false, `"${value}" must not switch the limiter on`);
+            assert.equal(decision.allowed, true);
+            assert.deepEqual(rateLimitHeaders(decision), {});
+        });
+    }
+});
+
+test('ON when asked explicitly: the limiter runs exactly as before', async () => {
+    for (const value of ['on', 'true', '1', 'yes', 'enabled', 'ON', ' True ']) {
+        await withRateLimitEnv(value, async ({ checkRateLimit, rateLimitHeaders }) => {
+            let seenArgs = null;
+            const supabase = {
+                rpc: (name, args) => {
+                    seenArgs = { name, args };
+                    return Promise.resolve({
+                        data: [{ allowed: true, enabled: true, limit_per_min: 100, remaining: 97, reset_seconds: 12, retry_after: 0 }],
+                        error: null
+                    });
+                }
+            };
+
+            const decision = await checkRateLimit(supabase, REQUEST);
+
+            assert.equal(seenArgs?.name, 'sie_rate_limit_hit', `"${value}" should switch the limiter on`);
+            assert.equal(seenArgs?.args?.p_client_ip, '203.0.113.9');
+            assert.equal(decision.enabled, true);
+            assert.equal(decision.limit, 100);
+            assert.equal(decision.remaining, 97);
+            assert.deepEqual(rateLimitHeaders(decision), {
+                'RateLimit-Limit': '100',
+                'RateLimit-Remaining': '97',
+                'RateLimit-Reset': '12',
+                'X-RateLimit-Limit': '100',
+                'X-RateLimit-Remaining': '97',
+                'X-RateLimit-Reset': '12'
+            });
+        });
+    }
+});
+
+test('ON when asked explicitly: a rejected caller still gets a 429 decision and Retry-After', async () => {
+    await withRateLimitEnv('on', async ({ checkRateLimit, rateLimitHeaders }) => {
+        const supabase = {
+            rpc: () => Promise.resolve({
+                data: [{ allowed: false, enabled: true, limit_per_min: 100, remaining: 0, reset_seconds: 30, retry_after: 5 }],
+                error: null
+            })
+        };
+        const decision = await checkRateLimit(supabase, REQUEST);
+        assert.equal(decision.allowed, false);
+        assert.equal(rateLimitHeaders(decision)['Retry-After'], '5');
+    });
+});
+
+test('ON when asked explicitly: the fail-open posture is unchanged', async () => {
+    await withRateLimitEnv('on', async ({ checkRateLimit }) => {
+        const erroring = { rpc: () => Promise.resolve({ data: null, error: { message: 'boom' } }) };
+        const throwing = { rpc: () => { throw new Error('connection reset'); } };
+        const empty = { rpc: () => Promise.resolve({ data: [], error: null }) };
+        for (const client of [erroring, throwing, empty]) {
+            const decision = await checkRateLimit(client, REQUEST);
+            assert.equal(decision.allowed, true, 'a limiter failure must never block a request');
+            assert.equal(decision.enabled, false);
+        }
+    });
+});

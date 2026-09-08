@@ -83,10 +83,17 @@ export const SETTINGS = Object.freeze([
     },
     {
         key: 'use_published_scenarios', group: 'operation', type: 'boolean', default: false,
-        title: 'استخدم الحالات اللي ضفتها',
-        desc: 'يشتغل بالحالات المفعّلة من صفحة «الحالات اللي بيفهمها» بدل الحالات الأساسية.',
-        warn: 'شغّال بالحالات الأساسية بس — اللي ضفته مش مستخدم.',
-        effect: 'sie-chat-bridge: scenario provider selection'
+        title: 'ضيف الحالات اللي نشرتها',
+        desc: 'بيضيف الحالات المنشورة من صفحة «الحالات اللي بيفهمها» فوق الحالات الأساسية. '
+            + 'الحالة اللي ليها نفس المُعرِّف بتحلّ محل الأساسية، والباقي بيتضاف — '
+            + 'الحالات الأساسية مابتتشالش أبدًا.',
+        warn: 'شغّال بالحالات الأساسية بس — اللي نشرته مش مستخدم.',
+        // Was "بدل" (instead of), and the code matched: turning this on
+        // REPLACED the shipped catalog with the published rows. In
+        // production that swapped 650 reviewed scenarios for 7 seed rows
+        // with no error and no visible symptom. It is an overlay now —
+        // see sie/scenarios/scenario-catalog.resolver.js.
+        effect: 'scenario-catalog.resolver: published rows merged over the shipped catalog'
     },
 
     // ── حد معدل الطلبات ────────────────────────────────────────────
