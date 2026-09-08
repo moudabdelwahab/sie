@@ -47,6 +47,63 @@ export interface RateLimitDecision {
     retryAfter: number;
 }
 
+/**
+ * ------------------------------------------------------------
+ * THE LIMITER IS OFF UNLESS SOMEONE TURNS IT ON
+ *
+ * This code was written, reviewed and merged, but was never deployed —
+ * production has been running a build without it. That makes shipping it
+ * a behaviour change in its own right, separate from whatever else a
+ * deployment happens to carry, and it deserves its own decision rather
+ * than arriving as a side effect of an unrelated release.
+ *
+ * So the switch is an environment variable on the function, not a
+ * setting in the database. The database settings
+ * (rate_limit_enabled / _requests_per_minute / _burst) still tune the
+ * limiter's BEHAVIOUR and are read inside sie_rate_limit_hit(); this
+ * decides whether the limiter participates at all. Two different
+ * questions, deliberately answered in two different places: "should this
+ * deployment run a limiter" is a release decision, "how strict should it
+ * be" is an operations one.
+ *
+ * `rate_limit_enabled` is currently `true` in the database, so without
+ * this gate the very first request after a deploy would start spending
+ * tokens. That is precisely the surprise this prevents.
+ *
+ * OFF is the default and every ambiguous value means OFF: unset, empty,
+ * "off", "false", "0", or anything unrecognised. Only an explicit,
+ * affirmative value switches it on.
+ */
+const RATE_LIMIT_ENV = 'SIE_RATE_LIMIT';
+const AFFIRMATIVE = new Set(['on', 'true', '1', 'yes', 'enabled']);
+
+/**
+ * Read through `globalThis` rather than `Deno` directly: it keeps the
+ * module importable by the test runner, which is what lets the two
+ * states below be tested by RUNNING them instead of by reading the
+ * source and hoping.
+ */
+function limiterIsEnabled(): boolean {
+    const raw = (globalThis as { Deno?: { env?: { get?: (k: string) => string | undefined } } })
+        .Deno?.env?.get?.(RATE_LIMIT_ENV);
+    return typeof raw === 'string' && AFFIRMATIVE.has(raw.trim().toLowerCase());
+}
+
+/**
+ * What a switched-off limiter answers. `enabled: false` is what makes
+ * rateLimitHeaders() emit nothing, and `allowed: true` is what makes the
+ * router fall straight through to its real routes — so this single value
+ * is the whole of "the limiter does not participate".
+ */
+const LIMITER_OFF: RateLimitDecision = Object.freeze({
+    allowed: true,
+    enabled: false,
+    limit: 0,
+    remaining: 0,
+    resetSeconds: 0,
+    retryAfter: 0
+});
+
 /** Best-effort client IP, used only to bucket callers with no identity. */
 function clientIp(req: Request): string | null {
     const forwarded = req.headers.get('x-forwarded-for');
@@ -63,6 +120,11 @@ export async function checkRateLimit(
     supabase: SupabaseClient,
     req: Request
 ): Promise<RateLimitDecision> {
+    // Before the client is touched: a switched-off limiter must not reach
+    // the database at all, or it would still create bucket rows and still
+    // cost a round trip on every request.
+    if (!limiterIsEnabled()) return LIMITER_OFF;
+
     try {
         const { data, error } = await supabase.rpc('sie_rate_limit_hit', {
             p_client_ip: clientIp(req)

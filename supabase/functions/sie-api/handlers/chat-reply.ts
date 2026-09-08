@@ -56,7 +56,7 @@ import { json } from '../_shared/http.ts';
 // Same reasoning, and the same verified-working import FORM, as
 // supabase/functions/sie-channel-telegram/index.remote.ts — see the long
 // note there about eszip resolving the graph at deploy time.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@6c8d16406aa14cb8aa3866a059b96b1ee08e1162/sie-integration/sie-runtime.js';
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@820b79f464c5365bc4329c58b1c92d8e989557a0/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;
