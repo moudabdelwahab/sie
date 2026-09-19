@@ -1,0 +1,24 @@
+# The 726 tests in this repository had no automated guard before this file.
+# Every architectural change that follows depends on it.
+name: test
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # No dependencies to install: the engine has zero npm dependencies by
+      # design, and that property is worth keeping visible in CI.
+      - name: Assert the engine stays dependency-free
+        run: |
+          test ! -f package-lock.json || (echo "a lockfile appeared: the engine took a dependency" && exit 1)
+      - name: Run the full suite
+        run: npm test

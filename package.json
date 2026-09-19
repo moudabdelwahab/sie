@@ -1,0 +1,15 @@
+{
+  "name": "sie",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Support Intelligence Engine — deterministic diagnosis and decision engine for the Mad3oom platform.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test \"sie/**/tests/*.test.mjs\" \"channels/**/tests/*.test.mjs\" \"sie-integration/**/tests/*.test.mjs\" \"sie-admin/**/tests/*.test.mjs\" \"supabase/**/tests/*.test.mjs\"",
+    "test:engine": "node --test \"sie/**/tests/*.test.mjs\"",
+    "test:trust": "node --test \"sie/trust/tests/*.test.mjs\"",
+    "test:retrieval": "node --test \"sie/retrieval/tests/*.test.mjs\"",
+    "bench": "node bench/run-all.mjs"
+  }
+}
