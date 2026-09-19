@@ -51,6 +51,19 @@
 export const LINK_CODE_TTL_MINUTES = 15;
 
 /**
+ * The alphabet `channel_create_link_code()` actually mints from, verbatim
+ * from migration 0003: no 0/O/1/I/L, because these codes are read off a
+ * screen and typed into a phone and those are the pairs people get wrong.
+ *
+ * Matching the real alphabet rather than [A-Z0-9] is not pedantry. A code
+ * containing O or 1 cannot exist, so recognising one is pure false-positive
+ * surface — and the false positives land on ordinary support messages.
+ * "password", "login123" and "12345678" are all eight characters and all
+ * plausible things to type to a support bot; none of them can be a code.
+ */
+const LINK_CODE = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{8}$/;
+
+/**
  * Recognises a linking attempt.
  *
  * Accepts the code on its own or after Telegram's /start, because
@@ -58,8 +71,8 @@ export const LINK_CODE_TTL_MINUTES = 15;
  * is what someone does when they copy it from the settings page. Both are
  * the same intent and neither should be treated as a support question.
  *
- * The code shape (8 chars, unambiguous alphabet) is defined by the
- * database function that mints them; this only has to recognise it.
+ * The code shape is defined by the database function that mints them; this
+ * only has to recognise it, and now recognises exactly it.
  *
  * @param {string} text
  * @returns {string|null} the code, upper-cased, or null
@@ -68,7 +81,25 @@ export function extractLinkCode(text) {
     const trimmed = String(text || '').trim();
     const withoutCommand = trimmed.replace(/^\/start\s+/i, '').trim();
     const candidate = withoutCommand.toUpperCase();
-    return /^[A-Z0-9]{8}$/.test(candidate) ? candidate : null;
+    return LINK_CODE.test(candidate) ? candidate : null;
+}
+
+/**
+ * True when the linking intent was stated EXPLICITLY, via Telegram's /start.
+ *
+ * The distinction matters because a bare eight-character message is
+ * ambiguous and `/start CODE` is not. An explicit attempt is honoured
+ * whatever the sender's current state — re-linking is a real thing people
+ * do — while a bare code is only read as one when the sender has no link to
+ * hijack. See `resolve()`.
+ *
+ * @param {string} text
+ * @returns {string|null}
+ */
+export function extractExplicitLinkCode(text) {
+    const trimmed = String(text || '').trim();
+    if (!/^\/start\s+/i.test(trimmed)) return null;
+    return extractLinkCode(trimmed);
 }
 
 /**
@@ -82,13 +113,26 @@ export function extractLinkCode(text) {
 export function createIdentityResolver({ supabase, logger = null }) {
     return {
         async resolve(message) {
-            // A linking code is handled before anything else: it is not a
-            // support question, and answering it as one would be baffling.
-            const code = extractLinkCode(message.text);
-            if (code) {
-                return await redeemCode({ supabase, logger, message, code });
+            // An EXPLICIT /start CODE is unambiguous and is honoured first,
+            // whatever the sender's current state — re-linking is a real
+            // thing people do.
+            const explicit = extractExplicitLinkCode(message.text);
+            if (explicit) {
+                return await redeemCode({ supabase, logger, message, code: explicit });
             }
 
+            // A BARE eight-character message is not unambiguous, and the
+            // identity lookup is what disambiguates it — so it runs first.
+            //
+            // Before this ordering, an already-linked customer typing
+            // "WHATSAPP" had their support question consumed as a failed
+            // code redemption and got "that code is invalid" back. A linked
+            // sender has no code to redeem and nothing to gain from being
+            // asked, so their message is always a support question.
+            //
+            // The cost is one extra lookup for an unlinked sender typing a
+            // bare code. That is the right trade: the ambiguous case is rare,
+            // and the case it protects is every message a customer sends.
             try {
                 const { data, error } = await supabase
                     .from('channel_identities')
@@ -104,13 +148,22 @@ export function createIdentityResolver({ supabase, logger = null }) {
                     return { linked: false, userId: null, reply: null };
                 }
 
-                if (!data || !data.is_active) {
-                    return { linked: false, userId: null, reply: null };
+                if (data && data.is_active) {
+                    return { linked: true, userId: data.user_id, reply: null };
                 }
 
-                return { linked: true, userId: data.user_id, reply: null };
+                // Not linked: now a bare code is the only thing it can be.
+                const bare = extractLinkCode(message.text);
+                if (bare) {
+                    return await redeemCode({ supabase, logger, message, code: bare });
+                }
+                return { linked: false, userId: null, reply: null };
             } catch (err) {
                 logger?.error('the channel identity lookup threw', { error: err?.message });
+                // Fail CLOSED, and do NOT fall back to trying the text as a
+                // code: a lookup that threw tells us nothing about whether
+                // this sender is linked, and guessing would reintroduce
+                // exactly the hijack this ordering removes.
                 return { linked: false, userId: null, reply: null };
             }
         }

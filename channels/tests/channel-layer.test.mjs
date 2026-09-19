@@ -12,7 +12,7 @@ import { defineAdapter, createAdapterRegistry, handleInbound, CHANNEL_REPLIES } 
 import { constantTimeEquals, readHeader } from '../core/request-verify.js';
 import { withRetry, backoffDelay, DeliveryError, isRetryableStatus, createMemoryDeduplicator } from '../core/delivery.js';
 import { createLogger, redact } from '../core/logger.js';
-import { extractLinkCode } from '../core/channel-identity.js';
+import { extractLinkCode, extractExplicitLinkCode, createIdentityResolver } from '../core/channel-identity.js';
 import { channelSessionTag } from '../core/channel-session.js';
 import { createTelegramAdapter, buildReplyMarkup, stripIconMarkers } from '../telegram/telegram-adapter.js';
 import { normalizeUpdate } from '../telegram/telegram-normalize.js';
@@ -394,6 +394,82 @@ test('extractLinkCode: الرسالة العادية مش كود', () => {
     assert.equal(extractLinkCode('الاشتراك بتاعي منتهي'), null);
     assert.equal(extractLinkCode('ABC'), null, 'قصير');
     assert.equal(extractLinkCode(''), null);
+});
+
+test('extractLinkCode: بيرفض الحروف اللي مبتتولدش أصلًا (0/O/1/I/L)', () => {
+    // channel_create_link_code() mints from ABCDEFGHJKMNPQRSTUVWXYZ23456789.
+    // A code containing any of these cannot exist, so matching one is pure
+    // false-positive surface — and it landed on ordinary support messages.
+    assert.equal(extractLinkCode('password'), null, 'O');
+    assert.equal(extractLinkCode('login123'), null, 'L, O, 1');
+    assert.equal(extractLinkCode('12345678'), null, '1');
+    assert.equal(extractLinkCode('ERROR404'), null, 'O, 0');
+    assert.equal(extractLinkCode('ABCD2345'), 'ABCD2345', 'a real code still reads');
+});
+
+test('extractExplicitLinkCode: /start بس، مش الكود لوحده', () => {
+    assert.equal(extractExplicitLinkCode('/start ABCD2345'), 'ABCD2345');
+    assert.equal(extractExplicitLinkCode('ABCD2345'), null, 'bare is not explicit');
+    assert.equal(extractExplicitLinkCode('عندي مشكلة'), null);
+});
+
+// The ordering bug: a bare eight-character message used to be redeemed as a
+// code BEFORE anyone asked whether the sender was already linked, so a linked
+// customer typing "WHATSAPP" got "that code is invalid" instead of support.
+
+function fakeSupabase({ identity, onRpc }) {
+    return {
+        from() {
+            return {
+                select() { return this; },
+                eq() { return this; },
+                maybeSingle: async () => ({ data: identity, error: null })
+            };
+        },
+        rpc: async (name, args) => { onRpc?.(name, args); return { data: null, error: { message: 'invalid code' } }; }
+    };
+}
+
+test('resolve: عميل مربوط بيكتب رسالة من ٨ حروف — تفضل سؤال دعم', async () => {
+    let redeemed = false;
+    const resolver = createIdentityResolver({
+        supabase: fakeSupabase({ identity: { user_id: 'user-1', is_active: true }, onRpc: () => { redeemed = true; } })
+    });
+    const result = await resolver.resolve({ channel: 'telegram', channelUserId: '555', text: 'WHATSAPP' });
+    assert.equal(redeemed, false, 'a linked sender has no code to redeem');
+    assert.deepEqual(result, { linked: true, userId: 'user-1', reply: null });
+});
+
+test('resolve: عميل غير مربوط بيكتب كود — لسه بيتم استبداله', async () => {
+    let redeemedWith = null;
+    const resolver = createIdentityResolver({
+        supabase: fakeSupabase({ identity: null, onRpc: (_, args) => { redeemedWith = args.p_code; } })
+    });
+    await resolver.resolve({ channel: 'telegram', channelUserId: '555', text: 'ABCD2345' });
+    assert.equal(redeemedWith, 'ABCD2345');
+});
+
+test('resolve: /start بكود بيشتغل حتى لو العميل مربوط', async () => {
+    let redeemedWith = null;
+    const resolver = createIdentityResolver({
+        supabase: fakeSupabase({ identity: { user_id: 'user-1', is_active: true }, onRpc: (_, args) => { redeemedWith = args.p_code; } })
+    });
+    await resolver.resolve({ channel: 'telegram', channelUserId: '555', text: '/start ABCD2345' });
+    assert.equal(redeemedWith, 'ABCD2345', 'explicit re-linking must still work');
+});
+
+test('resolve: لو الـ lookup رمى استثناء، مبنجربش النص كود', async () => {
+    let redeemed = false;
+    const resolver = createIdentityResolver({
+        supabase: {
+            from() { return { select() { return this; }, eq() { return this; }, maybeSingle: async () => { throw new Error('boom'); } }; },
+            rpc: async () => { redeemed = true; return { data: null, error: null }; }
+        },
+        logger: { error() {} }
+    });
+    const result = await resolver.resolve({ channel: 'telegram', channelUserId: '555', text: 'ABCD2345' });
+    assert.equal(redeemed, false, 'a failed lookup says nothing about linkage; guessing would reintroduce the hijack');
+    assert.deepEqual(result, { linked: false, userId: null, reply: null });
 });
 
 test('channelSessionTag: مفتاح ثابت للمحادثة', () => {
