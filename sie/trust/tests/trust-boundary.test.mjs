@@ -99,23 +99,29 @@ test('evidence guard: a trusted turn passes through untouched, same array conten
 });
 
 test('evidence guard: clipping keeps arrival order, so the sender cannot choose what survives', () => {
+    // Weights chosen so the cap bites: 3 + 3 + 6 exceeds the budget of 8,
+    // and the heavy token is the one that has to be left out.
     const input = [
-        { token: 'first', weight: 1 }, { token: 'second', weight: 1 },
-        { token: 'heavy', weight: 4 }, { token: 'third', weight: 1 }
+        { token: 'first', weight: 3 }, { token: 'second', weight: 3 },
+        { token: 'heavy', weight: 6 }, { token: 'third', weight: 2 }
     ];
     const { evidence } = guardEvidence(input, envelopeFrom([sig(TRUST_LEVELS.CONSTRAINED)]));
     assert.deepEqual(evidence.map((e) => e.token), ['first', 'second', 'third']);
 });
 
 test('evidence guard: breadth escalates the envelope BEFORE the budget is applied', () => {
-    const { envelope, evidence } = guardEvidence(ev(30), trustedEnvelope(), { resolvableCount: 40 });
+    const { envelope, evidence } = guardEvidence(ev(30), trustedEnvelope(), { resolvableCount: 45 });
     assert.equal(envelope.level, TRUST_LEVELS.QUARANTINED);
     assert.deepEqual(evidence, [], 'the tightened budget, not the original one, must be the one enforced');
 });
 
-test('evidence guard: legitimate breadth does not escalate', () => {
-    const { envelope } = guardEvidence(ev(3), trustedEnvelope(), { resolvableCount: 5 });
-    assert.equal(envelope.level, TRUST_LEVELS.TRUSTED, 'observed legitimate max is 5 scenarios');
+test('evidence guard: legitimate breadth does not escalate, including the vague-question case', () => {
+    // 11 is the observed legitimate maximum, reached by "how does the platform
+    // work?" — and also what an attacker reaches with one chosen token. The
+    // threshold sits above BOTH deliberately; see the note in evidence-guard.js
+    // about why this sensor cannot discriminate at the low end.
+    const { envelope } = guardEvidence(ev(3), trustedEnvelope(), { resolvableCount: 11 });
+    assert.equal(envelope.level, TRUST_LEVELS.TRUSTED);
 });
 
 // ------------------------------------------------------------
@@ -258,7 +264,7 @@ test('trace: an untripped turn adds no field to the trace', () => {
 
 test('trace: the projection drops measurements but keeps the verdict', () => {
     const p = traceProjection(envelopeFrom([sig(TRUST_LEVELS.CONSTRAINED, 'domain_spray')]));
-    assert.deepEqual(p, { level: 'constrained', kinds: ['domain_spray'], evidenceBudget: 4 });
+    assert.deepEqual(p, { level: 'constrained', kinds: ['domain_spray'], evidenceBudget: 8 });
 });
 
 test('admission: an empty or absent message is trusted, not an error', () => {

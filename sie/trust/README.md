@@ -85,32 +85,73 @@ like a normal turn.
 ## Calibration
 
 Thresholds are set from a measured distribution, not chosen for how they
-sound. Reference corpus: 1,077 distinct Arabic strings from the repository's
-own tests plus the small-talk baseline fixture.
+sound. Reference corpus: 345 distinct Arabic strings extracted from the
+repository's test files — excluding `sie/trust/tests`, which holds the attack
+corpus — plus the small-talk baseline fixture.
 
 | Quantity | p50 | p90 | p95 | p99 | max | threshold |
 |---|---|---|---|---|---|---|
-| distinct evidence tokens | 0 | 3 | 5 | 8 | 9 | 14 / 25 |
-| total evidence weight | 0 | 2.8 | 4.0 | 6.4 | 7.4 | budget 4.0 |
-| distinct `entity_*` tokens | 0 | 1 | 1 | 1 | 3 | 5 / 8 |
-| message length (chars) | 44 | 93 | 104 | 122 | 163 | 2000 / 8000 |
-| scenarios crossing 0.6 in one turn | 1 | 2 | — | — | 5 | 8 / 20 |
+| distinct evidence tokens | 2 | 6 | 7 | 9 | 12 | 18 / 30 |
+| total evidence weight | 1.8 | 4.8 | 6.2 | 8.4 | 11.0 | budget 8.0 |
+| distinct `entity_*` tokens | 0 | 1 | 1 | 2 | 2 | 5 / 8 |
+| message length (chars) | 16 | 52 | 68 | 103 | 171 | 2000 / 8000 |
+| scenarios crossing 0.6 in one turn | 1 | 2 | 3 | 11 | 11 | 15 / 40 |
 
-**Limit of this calibration, stated plainly:** the corpus is test-suite text,
-not production traffic. It under-represents long messages and contains no
-pasted logs. The 0% false-positive rate `adversarial.test.mjs` asserts is
-measured *against this corpus*, and is a lower bound on the real one. Shipping
-with `observeOnly: true` is how that number gets replaced with a real one.
+### The first calibration was wrong, and the failure mode is worth knowing
+
+The corpus was originally extracted with `grep -E "[\u0600-\u06FF]"`. GNU grep
+has no `\uXXXX` escape, so that bracket expression matched the literal ASCII
+characters `\`, `u`, `0`–`6` and `F`. The resulting corpus of 1,077 "Arabic
+messages" was mostly English test titles and code fragments.
+
+It was convincing: plausible size, plausible percentiles, and a 0%
+false-positive rate. Every threshold derived from it was calibrated against
+noise, and several were roughly half what they should have been.
+
+What exposed it was a contradiction, not a review: an end-to-end test failed
+reporting 11 scenarios over the resolution threshold, on a message the corpus
+said could reach at most 5. **A measurement that disagrees with an observed
+execution is wrong, whatever its percentiles look like.** The extraction now
+runs in JavaScript, and `adversarial.test.mjs` asserts a canary message is
+present, so a silently empty corpus fails instead of passing.
+
+**Remaining limit, stated plainly:** the corpus is still test-suite text, not
+production traffic. It under-represents long messages and contains no pasted
+logs. The 0% false-positive rate below is measured *against this corpus* and
+is a lower bound on the real one. `observeOnly: true` exists to replace it
+with a real number.
 
 ## Measured results
 
 Run `npm run test:trust`.
 
-- **17/17** attacks in the corpus caught at or above their required level
+- **18/18** attacks in the corpus caught at or above their required level
 - **0/6** attack-shaped legitimate messages escalated
-- **0/1077** legitimate corpus messages escalated (0.00%)
+- **0/345** legitimate corpus messages escalated (0.00%)
 - **29** invariant tests covering monotonic escalation, budget arithmetic,
   closed fact vocabulary, speech-is-never-gated, and inertness when disabled
+
+## A sensor that cannot discriminate, and is kept anyway
+
+The breadth check in `evidence-guard.js` asks how many scenarios one turn
+carries over the resolution threshold. At the low end it cannot tell an attack
+from a customer, and the measurement says so exactly:
+
+- legitimate maximum: **11**, reached by `عايز اعرف عن منصه ازاي بتشتغل`
+  ("how does the platform work?")
+- attacker's best single token: **11**
+
+The populations do not merely overlap, they coincide — the vague question and
+the single-token probe *are* the same input as far as the engine is concerned.
+No threshold separates them. What the sensor can still see is the multi-token
+flood (three tokens reach 19 scenarios, thirty reach 98), so the threshold sits
+at 15: above every legitimate case, below any flood. It catches the flood and
+does not pretend to catch the rest.
+
+The same measurement is why `maxSimultaneousResolvable` in `decision-policy.js`
+ships **off**. Setting it to 6 preserves 98.1% of the corpus's automatic
+resolutions and costs the platform-info flow — a product trade-off for an
+operator to make deliberately, not a default.
 
 ## One sensor was removed, on evidence
 
@@ -134,8 +175,12 @@ Both verified against the code, both recorded in `SIE-ARCHITECTURE.md`:
 2. **71.5% of the catalog (465/650) is auto-resolvable from a single token.**
    A one-word message reaches `R7_CONFIDENT_LEADER` with ten other scenarios
    tied behind it, and `isAmbiguous` reports `false` because it measures the
-   top-two gap rather than the distribution. This is a ranking/decision defect,
-   not a trust one, and is fixed separately.
+   top-two gap rather than the distribution. `R6C_NON_DISCRIMINATING_EVIDENCE`
+   makes this visible in every trace and can enforce against it, but ships off:
+   no threshold separates the probe from a legitimate vague question. The real
+   fix is signatures with enough facets to discriminate, so that confidence
+   reflects evidence rather than catalog authorship — see
+   `SIE-ARCHITECTURE.md`.
 
 ## Status
 

@@ -150,14 +150,18 @@ const CAPABILITIES = Object.freeze({
     // Constrained traffic is still answered and still remembered as a turn —
     // it simply cannot move belief far or assert facts.
     //
-    // The budget of 4.0 is not a round number: measured over the reference
-    // corpus, a real customer message contributes p90=2.8 and p95=4.0 total
-    // evidence weight (max 7.4). Setting the cap at p95 means a FALSE
-    // positive costs a genuine customer nothing in 95% of cases, while a
-    // flooding attack is clipped to the weight of one ordinary sentence.
-    // The asymmetry is the point: this band has to be cheap to be wrong in,
-    // or it will be tuned off the first time it inconveniences someone.
-    [TRUST_LEVELS.CONSTRAINED]: { evidenceBudget: 4,        mayWriteFacts: false, mayMutateState: true,  mayTriggerAction: true },
+    // The budget of 8.0 is measured, not round: over the reference corpus a
+    // real customer message contributes p90=4.8, p95=6.2, p99=8.4 total
+    // evidence weight (max 11.0). Setting the cap near p99 means being WRONG
+    // here costs a genuine customer nothing they would notice in ~99% of
+    // cases, while a flooding turn carrying 26 tokens is clipped to the
+    // weight of one ordinary sentence.
+    //
+    // The asymmetry is the whole design: this band has to be cheap to be
+    // wrong in, or it gets tuned off the first time it inconveniences
+    // someone — and a security control that has been tuned off is worse than
+    // one that was never added, because it still reads as protection.
+    [TRUST_LEVELS.CONSTRAINED]: { evidenceBudget: 8,        mayWriteFacts: false, mayMutateState: true,  mayTriggerAction: true },
     [TRUST_LEVELS.QUARANTINED]: { evidenceBudget: 0,        mayWriteFacts: false, mayMutateState: false, mayTriggerAction: false },
     [TRUST_LEVELS.REJECTED]:    { evidenceBudget: 0,        mayWriteFacts: false, mayMutateState: false, mayTriggerAction: false }
 });

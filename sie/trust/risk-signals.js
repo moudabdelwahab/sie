@@ -41,30 +41,53 @@
  * ------------------------------------------------------------
  * CALIBRATION IS MEASURED, NOT GUESSED
  *
- * Every numeric threshold below was set from an observed distribution, not
- * chosen for how it sounds. The reference corpus is 1,077 distinct Arabic
- * strings drawn from the repository's own test suite and the small-talk
- * baseline fixture — the closest thing available here to a sample of real
- * customer phrasing. Measured over that corpus, after full normalization
- * and evidence extraction:
+ * Every numeric threshold below was set from an observed distribution. The
+ * reference corpus is 345 distinct Arabic strings extracted from the
+ * repository's own test files (excluding sie/trust/tests, which holds the
+ * ATTACK corpus) plus the small-talk baseline fixture — the closest thing
+ * available here to a sample of real customer phrasing. Measured over that
+ * corpus, after full normalization and evidence extraction:
  *
- *   distinct evidence tokens   p50=0  p90=3  p95=5  p99=8   max=9
- *   total evidence weight      p50=0  p90=2.8 p95=4 p99=6.4 max=7.4
- *   distinct entity_* tokens   p50=0  p90=1  p95=1  p99=1   max=3
- *   message length (chars)     p50=44 p90=93 p95=104 p99=122 max=163
- *   occurrences / distinct     p50=1.0                      max=2.0
+ *   distinct evidence tokens   p50=2   p90=6   p95=7   p99=9   max=12
+ *   total evidence weight      p50=1.8 p90=4.8 p95=6.2 p99=8.4 max=11
+ *   distinct entity_* tokens   p50=0   p90=1   p95=1   p99=2   max=2
+ *   message length (chars)     p50=16  p90=52  p95=68  p99=103 max=171
+ *   scenarios crossing 0.6     p50=1   p90=2   p95=3   p99=11  max=11
  *
- * Thresholds sit well ABOVE the observed maximum, not at some percentile of
- * it. A sensor that fires on the loudest real message in the corpus is a
- * sensor that will fire on customers all day.
+ * Thresholds sit above the observed MAXIMUM, not at a percentile of it. A
+ * sensor that fires on the loudest real message in the corpus is a sensor
+ * that will fire on customers all day.
  *
- * LIMIT OF THIS CALIBRATION, STATED PLAINLY: the corpus is test-suite text,
- * not production traffic. It is a lower bound on how long and how varied
- * real messages get — a customer pasting a stack trace will exceed every
- * length figure above. The thresholds are therefore set with generous
- * headroom, and the false-positive rate quoted anywhere else in this work
- * should be read as "measured against this corpus", not "measured against
- * production". Re-deriving these numbers from real traces is open work.
+ * ------------------------------------------------------------
+ * A CORRECTION, LEFT VISIBLE ON PURPOSE
+ *
+ * The first calibration of this file was wrong, and the way it was wrong is
+ * worth keeping in front of whoever tunes it next.
+ *
+ * The corpus was extracted with `grep -E "[\u0600-\u06FF]"`. GNU grep does
+ * not support \uXXXX escapes, so that bracket expression matched the literal
+ * ASCII characters \, u, 0-6 and F — not Arabic. The resulting "corpus" of
+ * 1,077 "messages" was mostly English test titles and code fragments, and
+ * every threshold derived from it was calibrated against noise. It looked
+ * entirely convincing: it had a plausible size, plausible percentiles, and it
+ * produced a 0% false-positive rate.
+ *
+ * What exposed it was not review but a contradiction: an end-to-end test
+ * failed with 11 scenarios crossing the resolution threshold, on a message
+ * the corpus claimed could reach at most 5. A measurement that disagrees with
+ * a real execution is wrong, whatever its percentiles look like.
+ *
+ * The lesson for this file specifically: the thresholds here are only as good
+ * as the corpus behind them, a corpus can be silently empty of the thing it
+ * claims to sample, and the only way to catch that is to check it against a
+ * case observed some other way. The numbers above have been checked that way.
+ * Numbers that replace them should be too.
+ *
+ * LIMIT OF THIS CALIBRATION, STATED PLAINLY: the corpus is still test-suite
+ * text, not production traffic. It under-represents long messages and
+ * contains no pasted logs. Any false-positive rate quoted from it should be
+ * read as "measured against this corpus". Re-deriving these numbers from real
+ * traces is open work, and `observeOnly` mode exists to make it possible.
  */
 import { normalizeArabicText } from '../language/dialect-normalizer.js';
 import { RISK_KINDS, TRUST_LEVELS } from './trust-types.js';
@@ -72,17 +95,17 @@ import { RISK_KINDS, TRUST_LEVELS } from './trust-types.js';
 // ------------------------------------------------------------
 // Thresholds. Each carries the observed maximum it clears.
 
-/** Distinct evidence tokens. Observed max in a real message: 9. */
-const FLOOD_CONSTRAIN = 14;
-const FLOOD_QUARANTINE = 25;
+/** Distinct evidence tokens. Observed max in a real message: 12 (p99=9). */
+const FLOOD_CONSTRAIN = 18;
+const FLOOD_QUARANTINE = 30;
 
 /** Distinct entity_* tokens — how many product areas one message names.
- *  Observed max: 3, and p99 is 1. A message naming six subsystems is not
- *  describing a problem, it is probing the catalog. */
+ *  Observed max: 2, and p90 is 1. A customer has one problem. A message
+ *  naming five subsystems is not describing it, it is probing the catalog. */
 const SPRAY_CONSTRAIN = 5;
 const SPRAY_QUARANTINE = 8;
 
-/** Characters. Observed max in the corpus: 163, but the corpus contains no
+/** Characters. Observed max in the corpus: 171, but the corpus contains no
  *  pasted logs, and pasting a log is legitimate support behaviour. The
  *  constrain threshold is therefore set at the size of a long paste, and the
  *  reject threshold at one channel message (Telegram's own limit is 4096) —
@@ -343,11 +366,11 @@ export function detectSignalFlood(evidence) {
     const distinct = new Set((evidence || []).map((e) => e.token)).size;
     if (distinct >= FLOOD_QUARANTINE) {
         return signal(RISK_KINDS.SIGNAL_FLOOD, TRUST_LEVELS.QUARANTINED, distinct, FLOOD_QUARANTINE,
-            `${distinct} distinct signals — ${Math.round(distinct / 9)}x the loudest real message measured`);
+            `${distinct} distinct signals — ${(distinct / 12).toFixed(1)}x the loudest real message measured`);
     }
     if (distinct >= FLOOD_CONSTRAIN) {
         return signal(RISK_KINDS.SIGNAL_FLOOD, TRUST_LEVELS.CONSTRAINED, distinct, FLOOD_CONSTRAIN,
-            `${distinct} distinct signals — above the observed range (max 9)`);
+            `${distinct} distinct signals — above the observed range (max 12)`);
     }
     return null;
 }
@@ -404,7 +427,7 @@ export function detectDomainSpray(evidence) {
     const n = entities.size;
     if (n >= SPRAY_QUARANTINE) {
         return signal(RISK_KINDS.DOMAIN_SPRAY, TRUST_LEVELS.QUARANTINED, n, SPRAY_QUARANTINE,
-            `${n} product areas named at once — observed max in a real message is 3`);
+            `${n} product areas named at once — observed max in a real message is 2`);
     }
     if (n >= SPRAY_CONSTRAIN) {
         return signal(RISK_KINDS.DOMAIN_SPRAY, TRUST_LEVELS.CONSTRAINED, n, SPRAY_CONSTRAIN,

@@ -10,7 +10,6 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,24 +31,65 @@ async function classify(text) {
 
 /**
  * The legitimate corpus: every distinct Arabic string literal in the
- * repository's own tests, plus the small-talk baseline utterances.
+ * repository's test files, minus this directory, plus the small-talk
+ * baseline utterances.
  *
- * This is a PROXY for production traffic, not a sample of it, and the gap
- * matters: it under-represents long messages and contains no pasted logs.
- * A false-positive rate measured here is a lower bound. Replacing it with
- * real traces is recorded as open work in SIE-ARCHITECTURE.md.
+ * TWO EXCLUSIONS, BOTH LOAD-BEARING:
+ *
+ *   - sie/trust/tests is skipped, because it holds the ATTACK corpus.
+ *     Measuring a false-positive rate against a file full of attacks measures
+ *     nothing except that the sensors work.
+ *   - strings that are plainly source code are skipped. The extractor cannot
+ *     tell a template literal holding a code sample from a message, and a
+ *     multi-line code block carries far more distinct tokens than any real
+ *     message, so leaving them in distorts exactly the distribution the
+ *     thresholds are calibrated against.
+ *
+ * A NOTE FOR WHOEVER CHANGES THIS FUNCTION: an earlier version extracted the
+ * corpus with `grep -E "[\u0600-\u06FF]"`. GNU grep has no \uXXXX escape, so
+ * that matched the literal characters \, u, 0-6 and F, and the "Arabic
+ * corpus" contained almost no Arabic. It still produced 1,077 entries and a
+ * 0% false-positive rate, which is why it survived review. The extraction
+ * below runs in JavaScript, where the escape means what it says.
+ *
+ * This is a PROXY for production traffic, not a sample of it. It
+ * under-represents long messages and contains no pasted logs, so the rate
+ * measured here is a lower bound.
  */
+const ARABIC = /[\u0600-\u06FF]/;
+const STRING_LITERAL = /'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"|`((?:[^`\\$]|\\.)*)`/g;
+const LOOKS_LIKE_CODE = /=>|\bfunction\b|\bconst \w|\}\s*\)|;\s*$|^\s*[{\[]/m;
+
+function testFilesUnder(dir, out = []) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) testFilesUnder(full, out);
+        else if (/\.m?js$/.test(entry.name)) out.push(full);
+    }
+    return out;
+}
+
 function legitimateCorpus() {
-    const cmd = `grep -rhoE "'[^']*[\\u0600-\\u06FF][^']*'" ` +
-        `"${ROOT}/sie"/*/tests/*.mjs "${ROOT}/sie-integration/tests"/*.mjs "${ROOT}/channels/tests"/*.mjs 2>/dev/null | sort -u`;
-    let raw = [];
-    try {
-        raw = execSync(cmd, { encoding: 'utf8', maxBuffer: 1 << 26, shell: '/bin/bash' })
-            .split('\n').filter(Boolean).map((s) => s.slice(1, -1));
-    } catch { /* grep exits non-zero on no match; an empty corpus fails the assertion below */ }
+    const files = ['sie', 'sie-integration', 'channels']
+        .flatMap((d) => testFilesUnder(path.join(ROOT, d)))
+        .filter((f) => f.includes(`${path.sep}tests${path.sep}`) && !f.includes(`${path.sep}trust${path.sep}tests${path.sep}`));
+
+    const corpus = new Set();
+    for (const file of files) {
+        for (const m of fs.readFileSync(file, 'utf8').matchAll(STRING_LITERAL)) {
+            const raw = m[1] ?? m[2] ?? m[3];
+            if (!raw || !ARABIC.test(raw)) continue;
+            if (raw.length < 2 || raw.length > 400) continue;
+            if (LOOKS_LIKE_CODE.test(raw)) continue;
+            corpus.add(raw.replace(/\\n/g, '\n'));
+        }
+    }
     const fixturePath = path.join(ROOT, 'sie/scenarios/tests/fixtures/small-talk-overlap.baseline.json');
-    const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8')).map((s) => s.split('::')[1]).filter(Boolean);
-    return [...new Set([...raw, ...fixture])].filter((s) => s.length > 1 && s.length < 400);
+    for (const line of JSON.parse(fs.readFileSync(fixturePath, 'utf8'))) {
+        const utterance = line.split('::')[1];
+        if (utterance) corpus.add(utterance);
+    }
+    return [...corpus];
 }
 
 test('adversarial: every attack the corpus expects to be caught, is caught at or above its required level', async () => {
@@ -78,7 +118,10 @@ test('adversarial: attack-shaped but legitimate messages are not escalated', asy
 
 test('adversarial: false-positive rate on the legitimate corpus stays at 0%', async () => {
     const corpus = legitimateCorpus();
-    assert.ok(corpus.length > 500, `corpus collapsed to ${corpus.length} messages — the grep above stopped matching`);
+    assert.ok(corpus.length > 250,
+        `corpus collapsed to ${corpus.length} messages — the extraction above stopped matching Arabic`);
+    assert.ok(corpus.includes('عايز اعرف عن منصه ازاي بتشتغل'),
+        'canary missing: the corpus must contain the known 11-scenario message, or the extraction is silently broken again');
 
     const fired = [];
     for (const msg of corpus) {

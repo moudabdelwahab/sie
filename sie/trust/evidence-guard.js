@@ -21,23 +21,34 @@ import { escalate, TRUST_LEVELS } from './trust-types.js';
  * How many scenarios one turn may carry over the auto-resolution threshold
  * before the breadth itself is the anomaly.
  *
- * MEASURED: over the 1,077-message reference corpus, a single turn carries
- * p50=1, p90=2, max=5 scenarios across 0.6. A greedy search over the catalog
- * reaches 11 with one token and 98 with thirty, so the attacker's reachable
- * range starts well above the legitimate one and there is room for a
- * threshold between them.
+ * MEASURED, and the measurement carries a negative result worth stating.
  *
- * HONEST CAVEAT, because it matters: the single token `intent_how_to` alone
- * lifts 11 scenarios over the threshold, so a customer typing nothing but
- * "ازاي؟" will trip this. That is not a defect in the sensor — it is the
- * catalog defect documented in SIE-ARCHITECTURE.md ("71.5% of scenarios are
- * auto-resolvable from a single token") showing through. Constraining that
- * turn costs the customer nothing measurable (a one-token message contributes
- * weight 1.0 against a budget of 4.0), and the trace entry is the point: it
- * makes the catalog defect visible in production rather than theoretical.
+ * Over the 345-message reference corpus a single legitimate turn puts p50=1,
+ * p90=2, p95=3 scenarios across 0.6 — but the maximum is 11, reached by the
+ * perfectly ordinary question "عايز اعرف عن منصه ازاي بتشتغل" ("how does the
+ * platform work?"). A greedy search over the catalog shows an attacker
+ * reaches exactly 11 with one well-chosen token.
+ *
+ * So AT THE LOW END THIS SENSOR CANNOT DISCRIMINATE AT ALL. The vague
+ * question and the single-token probe produce identical effects, because they
+ * ARE the same input as far as the engine is concerned. No threshold
+ * separates them; one can only be traded for the other.
+ *
+ * The sensor is still worth having, but only for what it can actually see.
+ * The greedy search reaches 19 scenarios at three tokens and 98 at thirty, so
+ * a threshold of 15 sits above every legitimate case observed and below any
+ * multi-token flood. It catches the flood; it does not pretend to catch the
+ * single-token case.
+ *
+ * The single-token case is a CATALOG defect, not a message defect: 465 of 650
+ * scenarios (71.5%) are auto-resolvable from one token because confidence is
+ * a coverage ratio over signatures too thin to discriminate. It is recorded
+ * in SIE-ARCHITECTURE.md and fixed by changing signatures, not by adding
+ * detectors. A sensor tuned to catch it would block "how does the platform
+ * work?", which is a worse outcome than the defect.
  */
-const BREADTH_CONSTRAIN = 8;
-const BREADTH_QUARANTINE = 20;
+const BREADTH_CONSTRAIN = 15;
+const BREADTH_QUARANTINE = 40;
 
 /**
  * @param {Array<{token: string, weight: number}>} evidence this turn's evidence

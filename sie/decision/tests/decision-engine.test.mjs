@@ -100,6 +100,7 @@ test('decide: evaluatedRules trace records every rule checked up to and includin
         'R5_BELOW_ACTIVATION',
         'R6_AMBIGUOUS',
         'R6B_ALREADY_ANSWERED',
+        'R6C_NON_DISCRIMINATING_EVIDENCE',
         'R7_CONFIDENT_LEADER'
     ]);
     assert.equal(decision.evaluatedRules.at(-1).matched, true);
