@@ -158,6 +158,14 @@ export async function recallPreviousSession(supabase, userId, currentSessionId, 
  */
 
 /**
+ * Every key this store will ever hold. Mirrors ALLOWED_FACT_KEYS in
+ * sie/trust/fact-guard.js, which enforces the same closure at the trust
+ * boundary — deliberately in both places, because the trust layer is a policy
+ * that can be switched off and this is the store's own invariant.
+ */
+export const ALLOWED_FACT_KEYS = Object.freeze(['name', 'role', 'company', 'note']);
+
+/**
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
  * @param {string} userId
  * @param {Array<{key: string, value: string}>} facts
@@ -166,12 +174,26 @@ export async function recallPreviousSession(supabase, userId, currentSessionId, 
 export async function rememberFacts(supabase, userId, facts) {
     if (!userId || !Array.isArray(facts) || facts.length === 0) return { saved: 0 };
     try {
-        const rows = facts.map((fact) => ({
-            user_id: userId,
-            key: fact.key,
-            value: String(fact.value).slice(0, 500),
-            updated_at: new Date().toISOString()
-        }));
+        // The key vocabulary is enforced HERE, at the write, not only where
+        // facts are produced.
+        //
+        // Today the only producer is detectMemoryIntent(), which emits exactly
+        // these four keys, so nothing is currently rejected. That is precisely
+        // why the check belongs here: the closure is a property of the STORE,
+        // and relying on every present and future producer to respect it makes
+        // it one refactor away from not being true. A store whose key space is
+        // open is a store whose schema the caller chooses, and durable state
+        // read back on every future conversation is the wrong place to
+        // discover that.
+        const rows = facts
+            .filter((fact) => fact && ALLOWED_FACT_KEYS.includes(fact.key))
+            .map((fact) => ({
+                user_id: userId,
+                key: fact.key,
+                value: String(fact.value).slice(0, 500),
+                updated_at: new Date().toISOString()
+            }));
+        if (rows.length === 0) return { saved: 0 };
         // Upsert on (user_id, key): a customer who corrects their name ends
         // up with one name, not two contradictory rows.
         const { error } = await supabase

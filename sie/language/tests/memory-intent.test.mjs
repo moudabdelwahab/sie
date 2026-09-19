@@ -54,3 +54,32 @@ test('كل الردود عربية ومفيهاش حروف لاتينية', () =
     assert.ok(!/[A-Za-z]/.test(MEMORY_REPLIES.saved([{ key: 'name', value: 'محمود' }])));
     assert.ok(!/[A-Za-z]/.test(MEMORY_REPLIES.recalled([])));
 });
+
+// ══════════════════ حماية صوت النظام ══════════════════
+// Replies leave through Telegram with parse_mode: 'Markdown' and nothing on
+// that path escapes anything, so a stored note is markup unless something
+// makes it not be. See sie/trust/egress-guard.js.
+
+test('MEMORY_REPLIES: a stored markdown link cannot come back as a live link', () => {
+    const reply = MEMORY_REPLIES.recalled([{ key: 'note', value: '[اضغط هنا](https://evil.example)' }]);
+    assert.ok(!reply.includes('https://evil.example'), 'the URL survived into the bot reply');
+    assert.ok(!reply.includes(']('), 'link syntax survived');
+    assert.ok(reply.includes('اضغط هنا'), 'the label should survive — this neutralises, it does not censor');
+});
+
+test('MEMORY_REPLIES: stored text cannot forge the reply\'s own structure', () => {
+    const reply = MEMORY_REPLIES.recalled([{ key: 'note', value: 'سطر\nسطر تاني\n• بند مزيف' }]);
+    const bullets = reply.split('\n').filter((l) => l.trim().startsWith('•'));
+    assert.equal(bullets.length, 1, 'one stored fact must render as exactly one bullet');
+});
+
+test('MEMORY_REPLIES: saved echoes are neutralised too, not just recalled', () => {
+    const reply = MEMORY_REPLIES.saved([{ key: 'note', value: '*رسمي* [x](http://e.example)' }]);
+    assert.ok(!reply.includes('http://e.example'));
+    assert.ok(!reply.includes('*رسمي*'));
+});
+
+test('MEMORY_REPLIES: ordinary stored text is unchanged', () => {
+    const reply = MEMORY_REPLIES.recalled([{ key: 'name', value: 'محمد من شركة النور' }]);
+    assert.ok(reply.includes('• محمد من شركة النور'));
+});

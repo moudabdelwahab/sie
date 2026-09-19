@@ -47,46 +47,13 @@
  * copy renders.
  */
 
-/** Stored text is a quotation inside a reply, not a document. */
-const MAX_QUOTED_LENGTH = 200;
+import { neutralizeUserText } from '../language/text-safety.js';
 
-/**
- * Makes one span of user-authored text safe to place inside a reply.
- *
- * @param {string} text
- * @param {Object} [options]
- * @param {number} [options.maxLength]
- * @returns {string}
- */
-export function neutralizeUserText(text, { maxLength = MAX_QUOTED_LENGTH } = {}) {
-    if (typeof text !== 'string' || text === '') return '';
-
-    let out = text;
-
-    // 1. Link syntax, label kept. This is the vector that matters: it is the
-    //    only markup here that can send someone somewhere.
-    out = out.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
-
-    // 2. Emphasis and code actives. Removed rather than escaped because the
-    //    legacy Markdown dialect Telegram is being asked for does not honour
-    //    backslash escapes reliably, and a half-working escape is worse than
-    //    none — it reads as safe.
-    out = out.replace(/[*_`~\[\]]/g, '');
-
-    // 3. Structure. Newlines let quoted text forge its own bullets and
-    //    paragraphs, which is how a quotation starts looking like the sender.
-    out = out.replace(/[\r\n\u2028\u2029]+/g, ' ');
-
-    // 4. Invisible characters: control codes, zero-width joiners and the
-    //    bidirectional overrides, which can reorder rendered text so that what
-    //    is displayed differs from what is stored.
-    // eslint-disable-next-line no-control-regex
-    out = out.replace(/[\u0000-\u001F\u007F\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '');
-
-    out = out.replace(/\s+/g, ' ').trim();
-    if (out.length > maxLength) out = `${out.slice(0, maxLength - 1)}…`;
-    return out;
-}
+// The mechanism lives in sie/language/text-safety.js so that the language
+// layer can call it without depending on layer 10. Re-exported here because
+// this is where it is a CHECKPOINT rather than a string function, and callers
+// reasoning about checkpoints should find it here.
+export { neutralizeUserText };
 
 /**
  * Applies `neutralizeUserText` to each stored fact's value.
