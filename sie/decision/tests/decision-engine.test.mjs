@@ -9,6 +9,7 @@ import {
     MAX_NO_PROGRESS_TURNS
 } from '../decision-policy.js';
 import { ACTIVATION_THRESHOLD } from '../../diagnostics/hypothesis-tracker.js';
+import { rankHypotheses } from '../../ranking/ranking-engine.js';
 
 const FIXED_TIME = '2026-01-01T00:00:00.000Z';
 const fixedClock = () => FIXED_TIME;
@@ -96,7 +97,7 @@ test('decide: evaluatedRules trace records every rule checked up to and includin
         'R1_TURN_BUDGET',
         'R2_COMPLETE_AFTER_ANSWER',
         'R3_NO_PROGRESS_FALLBACK',
-        'R4_NO_HYPOTHESES',
+        'R4_EMPTY_SCOPE',
         'R5_BELOW_ACTIVATION',
         'R6_AMBIGUOUS',
         'R6B_ALREADY_ANSWERED',
@@ -489,4 +490,76 @@ test('policy.allowAutoResolution=false does not invent a hand-off for scenarios 
 
     assert.equal(off.decision.action, on.decision.action);
     assert.ok(!off.decision.evaluatedRules.some((r) => r.rule === 'R7_AUTO_RESOLUTION_DISABLED'));
+});
+
+// ══════════════════ R4 / R5: empty scope vs vague message ══════════════════
+//
+// These two situations produce an IDENTICAL empty ranking and demand opposite
+// responses. Before retrieval narrowed the scope, `ranked` always held the
+// whole catalog, so `topHypothesis` was never null and R4 was unreachable —
+// dead code carrying the wrong answer for the case it would one day see.
+//
+// The comparator found it on real production traffic: "كلمني عن منصة مدعوم"
+// went from ASK_CLARIFYING_QUESTION to FALLBACK under retrieval.
+
+const emptyRanking = (catalogSize) => ({
+    ranked: [], topHypothesis: null, runnerUp: null, confidenceGap: null,
+    isAmbiguous: false, candidateDiscriminatingQuestions: [],
+    scopeSize: 0, catalogSize
+});
+
+test('R0/R4/R5: no candidates but a catalog behind them asks for detail — never silence, never fallback', () => {
+    // newEvidenceAddedThisTurn: 0 AND no candidates AND first turn — the exact
+    // shape of a customer whose opening message is "؟؟؟" or an emoji. Before
+    // the catalog guard, retrieval sent this to R0 and the customer got
+    // WAIT_FOR_USER, which is silence.
+    const { decision } = decide({ ranking: emptyRanking(650), turn: 1, previousDecisionState: null, newEvidenceAddedThisTurn: 0 });
+    assert.equal(decision.action, ACTIONS.ASK_CLARIFYING_QUESTION);
+    const matched = decision.evaluatedRules.filter((r) => r.matched).map((r) => r.rule);
+    assert.ok(!matched.includes('R0_WAIT_FOR_USER'), 'an empty scope is not an empty catalog — answering with silence is not an option');
+    assert.ok(!matched.includes('R4_EMPTY_SCOPE'), 'a vague message is not an empty catalog');
+    assert.ok(matched.includes('R5_BELOW_ACTIVATION'));
+    assert.match(decision.explanation, /no scenario shares any evidence/i);
+});
+
+test('R4/R5: an EMPTY catalog waits or falls back — the engine is broken, not the customer vague', () => {
+    // A prior decision that is not an ANSWER, so neither R0 (first turn) nor
+    // R2 (complete-after-answer) claims the turn before R4 sees it.
+    const { decision } = decide({
+        ranking: emptyRanking(0), turn: 2,
+        previousDecisionState: { ...createEmptyDecisionState(), lastAction: ACTIONS.ASK_CLARIFYING_QUESTION },
+        newEvidenceAddedThisTurn: 1
+    });
+    assert.equal(decision.action, ACTIONS.FALLBACK);
+    assert.ok(decision.evaluatedRules.filter((r) => r.matched).map((r) => r.rule).includes('R4_EMPTY_SCOPE'));
+});
+
+test('R4/R5: a ranking with no catalogSize field behaves EXACTLY as it always did', () => {
+    // Backwards compatibility, and worth being precise about what "the same"
+    // means. A caller that predates `catalogSize` passes a ranking without it;
+    // the fallback to scopeSize then treats an empty ranking as an empty
+    // catalog — which is what R0 and R4 both assumed before.
+    //
+    // So this returns WAIT_FOR_USER, not FALLBACK: with no evidence, no
+    // hypothesis and no prior decision, the OLD R0 fired first too. Asserting
+    // FALLBACK here would have been asserting a behaviour change.
+    const legacy = { ranked: [], topHypothesis: null, runnerUp: null, confidenceGap: null, isAmbiguous: false, candidateDiscriminatingQuestions: [] };
+    const { decision } = decide({ ranking: legacy, turn: 1, previousDecisionState: null, newEvidenceAddedThisTurn: 0 });
+    assert.equal(decision.action, ACTIONS.WAIT_FOR_USER);
+    assert.ok(decision.evaluatedRules.filter((r) => r.matched).map((r) => r.rule).includes('R0_WAIT_FOR_USER'));
+});
+
+test('R4/R5: a full-scan ranking never reaches R4, which is why it was dead code', () => {
+    // 650 zero-confidence hypotheses: a leader always exists, so R4 cannot
+    // fire. This pins the claim the fix rests on.
+    const hypotheses = Array.from({ length: 5 }, (_, i) => ({
+        scenarioId: `s${i}`, status: 'unconsidered', confidence: 0,
+        supportingEvidenceTokens: [], missingEvidenceTokens: [], hasEverBeenActive: false,
+        firstSeenTurn: 1, lastUpdatedTurn: 1, history: []
+    }));
+    const scenarios = hypotheses.map((h) => ({ id: h.scenarioId, evidenceSignature: [], discriminatingQuestions: [] }));
+    const ranking = rankHypotheses(hypotheses, scenarios);
+    assert.ok(ranking.topHypothesis, 'a full scan always produces a leader, even at confidence 0');
+    const { decision } = decide({ ranking, turn: 1, previousDecisionState: null, newEvidenceAddedThisTurn: 0 });
+    assert.ok(!decision.evaluatedRules.filter((r) => r.matched).map((r) => r.rule).includes('R4_EMPTY_SCOPE'));
 });
