@@ -33,7 +33,7 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.2;
  * @param {string} [params.timestamp]
  * @returns {import('./trace-types.js').TraceEvent}
  */
-export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp }) {
+export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null }) {
     const hypothesesSnapshot = (diagnosticState?.hypotheses || [])
         .filter((h) => h.status !== 'unconsidered')
         .map((h) => ({ scenarioId: h.scenarioId, confidence: h.confidence, status: h.status }));
@@ -42,6 +42,10 @@ export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, di
         sessionId,
         turn,
         rawText: rawText ?? '',
+        // null on an untripped turn, and on every turn while the trust boundary
+        // is off — so the trace does not grow a column that says "nothing
+        // happened" on every row.
+        trust,
         normalizedTokenCanonicals: (normalizedTokens || []).map((t) => t.canonical).filter(Boolean),
         hypothesesSnapshot,
         rankingSnapshot: {

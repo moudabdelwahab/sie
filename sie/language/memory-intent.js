@@ -25,6 +25,7 @@
  * wrong. Memory is written only when the customer asks for it, or when
  * they state a fact in one of a few unambiguous forms.
  */
+import { neutralizeUserText } from './text-safety.js';
 import { foldForMatch } from './emotion-detector.js';
 
 /** «افتكر» / «احفظ» — طلب صريح بالحفظ. */
@@ -173,12 +174,27 @@ function isPlausibleName(value) {
     return !NOT_A_NAME.includes(words[0]);
 }
 
-/** ردود الذاكرة بالعربي. */
+/**
+ * ردود الذاكرة بالعربي.
+ *
+ * EVERY fact value goes through `neutralizeUserText` before it reaches a
+ * reply, and it happens HERE rather than at the call site so that no future
+ * caller can forget. These two templates are the only places in the engine
+ * where customer-authored text is rendered into a message the engine sends as
+ * itself, and replies leave through Telegram with `parse_mode: 'Markdown'`
+ * and no escaping on the path. Without this, a stored note reading
+ * `[اضغط هنا](https://…)` came back as a live hyperlink in the brand's voice.
+ *
+ * See sie/language/text-safety.js for the mechanism and
+ * sie/trust/egress-guard.js for why this is a trust-boundary crossing.
+ */
+const quote = (facts) => facts.map((f) => `• ${neutralizeUserText(f?.value)}`).join('\n');
+
 export const MEMORY_REPLIES = Object.freeze({
-    saved: (facts) => `تمام، حفظتها 📝\n${facts.map((f) => `• ${f.value}`).join('\n')}\n\nهفضل فاكرها في أي محادثة جاية.`,
+    saved: (facts) => `تمام، حفظتها 📝\n${quote(facts)}\n\nهفضل فاكرها في أي محادثة جاية.`,
     nothingToSave: 'قولّي الحاجة اللي عايزني أفتكرها بالظبط وأنا أحفظها.',
     recalled: (facts) => (facts.length === 0
         ? 'لسه مش فاكر أي حاجة عنك. لو حابب، قولّي معلومة وأنا أحفظها.'
-        : `اللي فاكره عنك:\n${facts.map((f) => `• ${f.value}`).join('\n')}`),
+        : `اللي فاكره عنك:\n${quote(facts)}`),
     forgotten: 'تمام، مسحت كل اللي كنت فاكره عنك.'
 });

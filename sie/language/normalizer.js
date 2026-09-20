@@ -28,6 +28,59 @@ import { decideResponseLanguage } from './response-language-policy.js';
 import { technicalGlossaryProvider } from './technical-glossary.local.js';
 import { arabiziMapProvider } from './arabizi-map.local.js';
 
+/**
+ * The hard bound on how much text one message may put through this pipeline.
+ *
+ * ------------------------------------------------------------
+ * WHY THERE HAS TO BE ONE
+ *
+ * Before this, there was no input cap anywhere between the channel webhook and
+ * the engine — not in the channels, not in the bridge, not here. The cost of a
+ * turn was therefore whatever the sender chose to make it, and normalization
+ * is superlinear in input length. Measured on this machine with the shipped
+ * glossary:
+ *
+ *      490 chars ->     1.0 ms      2.14 ms/KB
+ *    2,450 chars ->     5.8 ms      2.44 ms/KB
+ *    9,800 chars ->    29.8 ms      3.11 ms/KB
+ *   49,000 chars ->   223.9 ms      4.68 ms/KB
+ *  196,000 chars -> 2,696.7 ms     14.09 ms/KB
+ *
+ * A single 196 KB message burns 2.7 seconds of CPU in this function alone.
+ * This engine runs in a Supabase Edge Function with a CPU budget measured in
+ * hundreds of milliseconds, so one message like that is a denial of service
+ * against every other customer sharing the isolate — no volume required.
+ *
+ * ------------------------------------------------------------
+ * WHY HERE AND NOT IN THE TRUST LAYER
+ *
+ * sie/trust also measures input size, and rejects above the same 8,000
+ * characters. That is a POLICY: it is graded, it is explainable, it reaches the
+ * trace, and it can be switched off.
+ *
+ * This is not a policy. It is a resource bound, and a resource bound that can
+ * be switched off is not a bound. The two coexist deliberately — the trust
+ * layer decides what an oversized message MEANS, and this decides what it
+ * COSTS. If the trust layer is disabled, misconfigured, or bypassed by a new
+ * caller that forgets it, this still holds.
+ *
+ * ------------------------------------------------------------
+ * WHY 8,000
+ *
+ * A real customer message runs to 171 characters at the observed maximum and
+ * 103 at p99. One Telegram message is capped at 4,096 by Telegram itself.
+ * 8,000 is therefore roughly 47x the longest message ever measured and still
+ * leaves room for a customer pasting a stack trace or a webhook payload, which
+ * is legitimate and common support behaviour. It costs ~25 ms — an order of
+ * magnitude inside the budget.
+ *
+ * Truncating rather than throwing is deliberate: a customer who pasted too
+ * much still has a problem, and the first 8,000 characters of it are almost
+ * certainly enough to diagnose. The return value carries `truncated` so
+ * nothing downstream has to guess.
+ */
+export const MAX_INPUT_CHARS = 8000;
+
 function escapeRegExp(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -488,10 +541,15 @@ export async function normalize(text, options = {}) {
     const {
         previousLanguage = 'ar',
         glossaryProvider = technicalGlossaryProvider,
-        arabiziProvider = arabiziMapProvider
+        arabiziProvider = arabiziMapProvider,
+        maxInputChars = MAX_INPUT_CHARS
     } = options;
 
-    const rawText = text || '';
+    const received = text || '';
+    // The hard bound. See MAX_INPUT_CHARS for why it lives here and not in
+    // the trust layer.
+    const truncated = received.length > maxInputChars;
+    const rawText = truncated ? received.slice(0, maxInputChars) : received;
     const tokens = tokenize(rawText);
 
     const [glossaryEntries, arabiziMap] = await Promise.all([
@@ -610,6 +668,11 @@ export async function normalize(text, options = {}) {
     return {
         rawText,
         normalizedTokens: foldNormalizedPhrases(normalizedTokens, normalizedPhraseIndex, maxPhraseWords, normalizedVocabulary),
-        responseLanguage
+        responseLanguage,
+        // Additive: existing callers ignore it, and a caller that cares (the
+        // trust layer's size sensor, the trace) can see that the text it is
+        // reasoning about is not all of what arrived.
+        truncated,
+        receivedChars: received.length
     };
 }

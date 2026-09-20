@@ -13,6 +13,40 @@ import { ACTIVATION_THRESHOLD } from '../diagnostics/hypothesis-tracker.js';
 /** Confidence a leading hypothesis needs to be treated as "confirmed enough" to answer/ticket. */
 export const RESOLUTION_CONFIDENCE_THRESHOLD = 0.6;
 
+/**
+ * How many scenarios may simultaneously clear the resolution threshold and
+ * still allow an automatic answer. `Infinity` — OFF by default.
+ *
+ * WHY THE KNOB EXISTS. Confidence here is a coverage ratio over a scenario's
+ * signature: the fraction of its expected tokens that have been seen. It says
+ * nothing about how MUCH evidence produced that fraction, so one token can
+ * satisfy a thin signature completely. Measured against the shipped catalog,
+ * 465 of 650 scenarios (71.5%) reach 0.6 from a single token, and the token
+ * `intent_how_to` alone lifts 11 of them over the bar at once. When that
+ * happens the leader is chosen by which signature weights that token highest
+ * — by how the catalog was written, not by what the customer said — and
+ * `isAmbiguous` reports false, because it measures the top-two gap rather
+ * than the distribution.
+ *
+ * WHY IT IS OFF. Counting simultaneous resolvables looked like a cheap proxy
+ * for "does this evidence discriminate". It is not, and the measurement says
+ * so plainly: over the 345-message reference corpus the legitimate maximum is
+ * 11, reached by "عايز اعرف عن منصه ازاي بتشتغل" ("how does the platform
+ * work?") — the same 11 an attacker reaches with one chosen token. The
+ * populations overlap exactly. Any cap that blocks the probe also stops the
+ * engine answering a reasonable question, and a cap set above the probe
+ * blocks nothing.
+ *
+ * Setting this to 6 preserves 98.1% of the corpus's automatic resolutions and
+ * costs the platform-info flow. That is a product trade-off for an operator
+ * to make deliberately, not a default to ship.
+ *
+ * The real fix is not a threshold. It is signatures with enough facets to
+ * discriminate, so that confidence reflects evidence rather than catalog
+ * authorship — see SIE-ARCHITECTURE.md.
+ */
+export const MAX_SIMULTANEOUS_RESOLVABLE = Infinity;
+
 /** Hard cap on clarifying questions per session before forcing escalation. */
 export const MAX_CLARIFYING_QUESTIONS = 3;
 
@@ -71,11 +105,15 @@ export const SMART_GUESS_MARGIN = 0.15;
  *   ticketOnAmbiguity: boolean,
  *   smartGuessMargin: number,
  *   includeTicketSummary: boolean,
- *   requireCompleteEvidence: boolean
+ *   requireCompleteEvidence: boolean,
+ *   maxSimultaneousResolvable: number
  * }}
  */
 export function resolvePolicy(policy = {}) {
     const num = (value, fallback) => (typeof value === 'number' && Number.isFinite(value) ? value : fallback);
+    // maxSimultaneousResolvable defaults to Infinity, which `num` would reject
+    // as non-finite, so it reads the raw value and only falls back on absence.
+    const cap = (value, fallback) => (typeof value === 'number' ? value : fallback);
     const bool = (value, fallback) => (typeof value === 'boolean' ? value : fallback);
 
     return {
@@ -97,6 +135,7 @@ export function resolvePolicy(policy = {}) {
         // «يعتمد على إيه في إجاباته». On, a scenario may be answered only
         // when every token in its signature has actually been seen — no
         // reaching a conclusion the customer never fully described.
-        requireCompleteEvidence: bool(policy.requireCompleteEvidence, false)
+        requireCompleteEvidence: bool(policy.requireCompleteEvidence, false),
+        maxSimultaneousResolvable: cap(policy.maxSimultaneousResolvable, MAX_SIMULTANEOUS_RESOLVABLE)
     };
 }

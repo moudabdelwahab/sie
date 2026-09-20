@@ -370,7 +370,29 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         );
     }
 
-    const rule7Matches = topHypothesis.hypothesis.confidence >= policy.resolutionConfidenceThreshold;
+    // R6C — the leader is ahead, but the evidence does not DISCRIMINATE.
+    //
+    // A high confidence and a discriminating observation are different things,
+    // and this engine's confidence cannot tell them apart: it is a coverage
+    // ratio, so one token can complete a thin signature. When many scenarios
+    // clear the resolution bar at once, the leader is being selected by how
+    // the catalog was written rather than by what the customer said, and
+    // answering automatically means answering a question nobody asked.
+    //
+    // Asking is the correct response, so this suppresses R7 and lets R8 do
+    // its job rather than routing to a supplementary-evidence request.
+    const resolvableCount = ranking.ranked.filter(
+        (h) => h.hypothesis.confidence >= policy.resolutionConfidenceThreshold
+    ).length;
+    const nonDiscriminating = resolvableCount > policy.maxSimultaneousResolvable;
+    evaluatedRules.push({
+        rule: 'R6C_NON_DISCRIMINATING_EVIDENCE',
+        matched: nonDiscriminating,
+        detail: `${resolvableCount} scenario(s) clear resolutionThreshold=${policy.resolutionConfidenceThreshold}; maxSimultaneousResolvable=${policy.maxSimultaneousResolvable}`
+    });
+
+    const rule7Matches =
+        !nonDiscriminating && topHypothesis.hypothesis.confidence >= policy.resolutionConfidenceThreshold;
     evaluatedRules.push({
         rule: 'R7_CONFIDENT_LEADER',
         matched: rule7Matches,
@@ -446,7 +468,9 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
     evaluatedRules.push({
         rule: 'R8_REFINE',
         matched: true,
-        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} is active but below resolution threshold, and not ambiguous.`
+        detail: nonDiscriminating
+            ? `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} clears the resolution threshold, but ${resolvableCount} scenarios clear it together — the evidence does not discriminate.`
+            : `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} is active but below resolution threshold, and not ambiguous.`
     });
     const ownUnasked = findUnaskedCandidateQuestion(candidateDiscriminatingQuestions, prevState.askedQuestionIds, topHypothesis.hypothesis.scenarioId);
     if (ownUnasked && prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
@@ -456,7 +480,9 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 scenarioId: topHypothesis.hypothesis.scenarioId,
                 scenarioLabel: topHypothesis.scenario?.label ?? null,
                 confidence: topHypothesis.hypothesis.confidence,
-                explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the resolution threshold (${policy.resolutionConfidenceThreshold}); asking a discriminating question to confirm it.`,
+                explanation: nonDiscriminating
+                    ? `"${topHypothesis.hypothesis.scenarioId}" leads, but ${resolvableCount} scenarios clear the resolution threshold on the same evidence; asking a discriminating question instead of guessing between them.`
+                    : `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the resolution threshold (${policy.resolutionConfidenceThreshold}); asking a discriminating question to confirm it.`,
                 targetQuestion: ownUnasked.question
             },
             turn, evaluatedRules, clock

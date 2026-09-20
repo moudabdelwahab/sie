@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize } from '../normalizer.js';
+import { normalize, MAX_INPUT_CHARS } from '../normalizer.js';
 import { createRealGlossaryProvider, createRealArabiziProvider } from './helpers/node-providers.js';
 
 function tokenSummary(result) {
@@ -146,4 +146,46 @@ test('normalizer: overlapping glossary patterns never double-count (longest matc
     // most-specific match should be emitted once.
     const result = await normalize('500 Internal Server Error', { previousLanguage: 'ar', ...providers() });
     assert.deepEqual(tokenSummary(result), ['glossary:http_status_500']);
+});
+
+// ══════════════════ الحد الأقصى للمدخلات ══════════════════
+// See MAX_INPUT_CHARS in normalizer.js for the measurements behind the cap.
+// Before it existed, the cost of a turn was whatever the sender chose: a
+// 196 KB message took 2,697 ms of CPU in this function alone, against an edge
+// runtime budget measured in hundreds of milliseconds.
+
+test('normalize: caps its input, and says when it did', async () => {
+    const oversized = 'الـ API مش شغال '.repeat(4000);
+    assert.ok(oversized.length > MAX_INPUT_CHARS * 2, 'the fixture must actually exceed the cap');
+
+    const result = await normalize(oversized, { previousLanguage: 'ar', ...providers() });
+    assert.equal(result.rawText.length, MAX_INPUT_CHARS);
+    assert.equal(result.truncated, true);
+    assert.equal(result.receivedChars, oversized.length);
+});
+
+test('normalize: an ordinary message is untouched and not flagged', async () => {
+    const result = await normalize('الـ API مش شغال', { previousLanguage: 'ar', ...providers() });
+    assert.equal(result.truncated, false);
+    assert.equal(result.rawText, 'الـ API مش شغال');
+    assert.deepEqual(tokenSummary(result), ['glossary:entity_api', 'glossary:symptom_not_working']);
+});
+
+test('normalize: the cap bounds the cost, not just the length', async () => {
+    // The point of the cap is CPU, so the test measures CPU. Generous bound:
+    // 8,000 characters costs ~25-40 ms, while the same text uncapped at
+    // 240,000 characters cost 2.7 s before this existed.
+    const oversized = 'الـ API مش شغال والباسورد غلط '.repeat(8000);
+    await normalize('warm', { previousLanguage: 'ar', ...providers() });
+
+    const started = process.hrtime.bigint();
+    await normalize(oversized, { previousLanguage: 'ar', ...providers() });
+    const elapsedMs = Number(process.hrtime.bigint() - started) / 1e6;
+    assert.ok(elapsedMs < 500, `capped normalization took ${elapsedMs.toFixed(0)}ms — the cap is not bounding cost`);
+});
+
+test('normalize: the cap is overridable, so a caller can be stricter', async () => {
+    const result = await normalize('الـ API مش شغال', { previousLanguage: 'ar', maxInputChars: 5, ...providers() });
+    assert.equal(result.rawText.length, 5);
+    assert.equal(result.truncated, true);
 });

@@ -20,6 +20,7 @@
  */
 import { createEmptyDiagnosticState } from './evidence-types.js';
 import { extractTextEvidence } from './evidence-extractor.js';
+import { isSparseState, expandHypotheses } from './sparse-state.js';
 import { mergeEvidence, getAllTokenPresences } from './evidence-accumulator.js';
 import { updateHypotheses } from './hypothesis-tracker.js';
 import { liveEvidenceProviderStub } from './live-evidence-provider.stub.js';
@@ -45,7 +46,8 @@ export async function processTurn({
     liveEvidenceContext,
     additionalEvidence = [],
     scenarioProvider = scenarioCatalogProvider,
-    liveEvidenceProvider = liveEvidenceProviderStub
+    liveEvidenceProvider = liveEvidenceProviderStub,
+    evidenceFilter = null
 }) {
     const state = previousState || createEmptyDiagnosticState();
 
@@ -56,11 +58,37 @@ export async function processTurn({
         ? await liveEvidenceProvider.getLiveEvidence({ ...liveEvidenceContext, turn })
         : [];
 
-    const allNewEvidence = [...textEvidence, ...liveEvidence, ...additionalEvidence];
+    let allNewEvidence = [...textEvidence, ...liveEvidence, ...additionalEvidence];
+
+    // The seam the trust boundary's evidence guard occupies.
+    //
+    // A CALLBACK rather than an import, deliberately: this module must not know
+    // that a trust layer exists. What it needs to know is that the evidence
+    // about to reach the accumulator may be bounded by its caller, and that the
+    // bound applies HERE — immediately before the first irreversible step of a
+    // turn, after extraction (so the filter can see what the message actually
+    // means) and before accumulation (so nothing it removes has moved belief).
+    //
+    // Pure and total by contract: it returns a subset, it cannot add evidence,
+    // and a filter that throws takes the turn down rather than silently
+    // processing unbounded input.
+    if (typeof evidenceFilter === 'function') {
+        allNewEvidence = evidenceFilter(allNewEvidence) || [];
+    }
 
     const newAccumulator = mergeEvidence(state.accumulator, allNewEvidence, turn);
     const tokenPresences = getAllTokenPresences(newAccumulator);
-    const newHypotheses = updateHypotheses(scenarios, tokenPresences, state.hypotheses, turn);
+
+    // A session persisted in the sparse shape expands back to the full
+    // hypotheses array here, so the tracker's hysteresis sees the same prior
+    // state it would have seen before sparse persistence existed. Expansion is
+    // exact — see sparse-state.js — so this is a decompression, not a
+    // reconstruction from partial information.
+    const previousHypotheses = isSparseState(state)
+        ? expandHypotheses(state, scenarios, Math.max(1, turn - 1))
+        : (state.hypotheses || []);
+
+    const newHypotheses = updateHypotheses(scenarios, tokenPresences, previousHypotheses, turn);
 
     return {
         accumulator: newAccumulator,

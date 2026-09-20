@@ -17,6 +17,30 @@
  * are supposed to compete — that competition is what the Decision
  * Engine's ambiguity rule reads before it asks a discriminating question.
  * What must never happen is a scenario the ranker cannot see at all.
+ *
+ * ------------------------------------------------------------
+ * THIS TEST USED TO ASSERT NOTHING
+ *
+ * The original assertion was that the scenario's id appears in
+ * `ranking.ranked`. It does — always. `rankHypotheses` returns the ENTIRE
+ * catalog sorted, including every zero-confidence hypothesis, because the
+ * diagnostic trail is supposed to record what was ruled out as well as what
+ * was kept. So `ranked` had 650 entries with 649 of them at confidence 0, and
+ * `ids.includes(scenario.id)` was true by construction. The test could not
+ * fail, for any catalog, for any probe.
+ *
+ * It is worth being precise about why that survived: the test LOOKED like it
+ * exercised the real pipeline, and it did — it normalised real Arabic, built
+ * real evidence, and ranked a real catalog. All of that work was real. Only
+ * the assertion at the end was empty, and an assertion is the only part of a
+ * test that can be empty without anything appearing to go wrong.
+ *
+ * The assertions below are calibrated against what the catalog actually does
+ * today, so they have room to fail:
+ *
+ *   own-probe confidence   > 0 for all 650
+ *   own rank               p50=1, p90=2, p99=5, max=10
+ *   all 650 within the top 20
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -31,6 +55,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 const readJson = (rel) => JSON.parse(readFileSync(join(here, rel), 'utf8'));
 
 const { scenarios } = readJson('../scenario-catalog.data/scenarios.json');
+
+/**
+ * How far down its own best words may place a scenario before it counts as
+ * unreachable. Measured over the shipped catalog: p50=1, p90=2, p99=5,
+ * max=10. Twenty leaves room for the catalog to grow denser without this
+ * becoming a tripwire, while still failing on a scenario that has genuinely
+ * been buried.
+ */
+const OWN_RANK_LIMIT = 20;
 const glossaryFile = readJson('../../language/data/technical-glossary.json');
 const patternsOf = new Map((glossaryFile.entries || glossaryFile).map((e) => [e.canonical, e.patterns]));
 
@@ -56,9 +89,22 @@ test('every scenario can be reached by the words it was written around', async (
         }
         const state = await diagnoseRealTurn(probe, 1);
         const ranked = await rankDiagnosticState(state, provider, { activationThreshold: 0 });
-        const ids = ranked.ranked.map((r) => r.hypothesis.scenarioId);
-        if (!ids.includes(scenario.id)) {
-            unreachable.push(`${scenario.id}: probe "${probe}" ranked [${ids.slice(0, 3).join(', ') || 'nothing'}]`);
+
+        // `ranked` is the WHOLE catalog sorted, zero-confidence entries and
+        // all — so membership proves nothing. Position and confidence do.
+        const position = ranked.ranked.findIndex((r) => r.hypothesis.scenarioId === scenario.id);
+        const entry = position === -1 ? null : ranked.ranked[position];
+        const top = ranked.ranked.slice(0, 3).map((r) => r.hypothesis.scenarioId).join(', ');
+
+        if (!entry) {
+            unreachable.push(`${scenario.id}: absent from the ranking entirely`);
+        } else if (entry.hypothesis.confidence <= 0) {
+            unreachable.push(`${scenario.id}: probe "${probe}" scores 0 — its own words produce no evidence for it`);
+        } else if (position >= OWN_RANK_LIMIT) {
+            unreachable.push(
+                `${scenario.id}: probe "${probe}" ranks it #${position + 1} behind [${top}] — ` +
+                `no customer reaches a scenario ${position + 1} places down`
+            );
         }
     }
 
