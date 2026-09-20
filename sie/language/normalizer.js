@@ -279,14 +279,36 @@ function isTokenInsideAnyMatch(token, glossaryMatches) {
  */
 const ARABIC_CLITIC_PREFIXES = ['وال', 'بال', 'فال', 'كال', 'لل', 'ال', 'و', 'ب', 'ف', 'ل', 'ك'];
 
-function stripArabicClitic(word, vocabulary) {
+/**
+ * @param {string} word
+ * @param {Set<string>} vocabulary
+ * @param {Object} [options]
+ * @param {boolean} [options.trustVocabulary=true] when false, strips even a
+ *   word the glossary knows. Only safe as a FALLBACK after an unstripped
+ *   lookup has already failed — see the note in foldNormalizedPhrases.
+ */
+function stripArabicClitic(word, vocabulary, { trustVocabulary = true } = {}) {
     if (!word || !vocabulary) return null;
     // A word the glossary already knows is never re-analysed. Without this
     // guard "بتشتغل" (it works) gets stripped to "تشتغل", which is also a
     // real vocabulary word — so the remainder test alone happily destroys
     // a perfectly good match. Known words are taken at face value; only
     // unknown ones are candidates for carrying a clitic.
-    if (vocabulary.has(word)) return null;
+    //
+    // THE GUARD IS ALSO HOW THIS BROKE. The vocabulary is built from every
+    // word of every pattern, so a pattern that happens to contain a
+    // clitic-prefixed form puts that form in the vocabulary — and the guard
+    // then refuses to strip it anywhere in the engine. Exactly one pattern,
+    // `symptom_stuck_loading :: "بيلف ومش بيخلص"`, put "ومش" in the
+    // vocabulary, and that single entry stopped 32.2% of Arabic glossary
+    // patterns (868 of 2,699) from matching after the conjunction "و" — one
+    // of the commonest words in the language.
+    //
+    // 413 of the 2,430 vocabulary words are clitic-prefixed forms of another
+    // vocabulary word, so this is a class, not an incident. The guard is
+    // still right by default: "كده" and "الوقت" must be taken at face value.
+    // What was wrong was having no fallback when the face value finds nothing.
+    if (trustVocabulary && vocabulary.has(word)) return null;
     for (const prefix of ARABIC_CLITIC_PREFIXES) {
         if (!word.startsWith(prefix) || word.length <= prefix.length) continue;
         const remainder = word.slice(prefix.length);
@@ -411,8 +433,47 @@ function foldNormalizedPhrases(tokens, phraseIndex, maxWords, vocabulary) {
             const window = tokens.slice(i, i + span);
             if (!window.every(foldable)) continue;
 
-            const words = window.map((t) => stripArabicClitic(t.canonical, vocabulary) || t.canonical);
-            const canonical = phraseIndex.get(words.join(' '));
+            // THREE KEYS, IN INCREASING ORDER OF LIBERTY. Each one is tried
+            // only after the previous fails, so this can add matches and
+            // cannot remove them.
+            //
+            //   1. as written          — a phrase that matches verbatim
+            //   2. guarded strip       — today's behaviour: clitics come off
+            //                            words the glossary does NOT know
+            //   3. unguarded FIRST word — the blocked case below
+            //
+            // Key 3 exists because the vocabulary is built from every word of
+            // every pattern, so a pattern containing a clitic-prefixed form
+            // puts that form in the vocabulary and the guard then refuses to
+            // strip it anywhere. Exactly one pattern,
+            // `symptom_stuck_loading :: "بيلف ومش بيخلص"`, put "ومش" in the
+            // vocabulary, and that single entry stopped 32% of Arabic patterns
+            // from matching after the conjunction "و".
+            //
+            // WHY ONLY THE FIRST WORD. Dropping the guard on every word was
+            // tried and measured WORSE — 59.2% against 67.8%. Unguarded, "كده"
+            // strips to "ده" and "الوقت" to "وقت", both real vocabulary words,
+            // so phrases that used to match stopped. A conjunction attaches to
+            // the front of a phrase, so that is the only position where the
+            // guard needs relaxing, and relaxing it anywhere else destroys
+            // more than it recovers.
+            const words = window.map((t) => t.canonical);
+            const asWritten = words.join(' ');
+            let canonical = phraseIndex.get(asWritten);
+
+            if (!canonical) {
+                const guarded = window.map((t) => stripArabicClitic(t.canonical, vocabulary) || t.canonical);
+                const guardedKey = guarded.join(' ');
+                if (guardedKey !== asWritten) canonical = phraseIndex.get(guardedKey);
+
+                if (!canonical) {
+                    const head = stripArabicClitic(words[0], vocabulary, { trustVocabulary: false });
+                    if (head) {
+                        const headKey = [head, ...guarded.slice(1)].join(' ');
+                        if (headKey !== guardedKey && headKey !== asWritten) canonical = phraseIndex.get(headKey);
+                    }
+                }
+            }
             if (!canonical) continue;
 
             result.push({
@@ -545,7 +606,13 @@ export async function normalize(text, options = {}) {
         maxInputChars = MAX_INPUT_CHARS
     } = options;
 
-    const received = text || '';
+    // COERCED, not assumed. `text` arrives from a channel webhook's JSON, and
+    // a field that is normally a string is not guaranteed to be one: a number,
+    // a boolean, null, or an object all reach here in practice. Before this,
+    // every one of them threw inside the glossary matcher's `text.matchAll`,
+    // taking down the whole turn — a crash caused by the SHAPE of the input
+    // rather than its content, which is the cheapest kind of outage to cause.
+    const received = typeof text === 'string' ? text : (text === null || text === undefined ? '' : String(text));
     // The hard bound. See MAX_INPUT_CHARS for why it lives here and not in
     // the trust layer.
     const truncated = received.length > maxInputChars;

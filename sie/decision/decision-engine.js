@@ -89,8 +89,44 @@ function findUnaskedCandidateQuestion(candidateQuestions, askedQuestionIds, scen
  *   and a complaint both produce tokens — so it is supplied by the caller,
  *   which has the language layer's read of the message.
  */
+/**
+ * Fills a stored decision state out to the full shape, replacing anything of
+ * the wrong type with its default. Arrays in particular: several rules spread
+ * or iterate them, and `[...undefined]` and `for (const x of 42)` both throw.
+ *
+ * @param {Object|null} stored
+ * @returns {Object} a complete DecisionState
+ */
+export function normalizeDecisionState(stored) {
+    const base = createEmptyDecisionState();
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return base;
+
+    const out = { ...base };
+    for (const key of Object.keys(base)) {
+        const value = stored[key];
+        if (value === undefined || value === null) continue;
+        if (Array.isArray(base[key])) { if (Array.isArray(value)) out[key] = value; continue; }
+        if (typeof base[key] === 'number') { if (Number.isFinite(value)) out[key] = value; continue; }
+        if (typeof base[key] === 'boolean') { if (typeof value === 'boolean') out[key] = value; continue; }
+        out[key] = value;
+    }
+    // `history` is not in the empty state's own shape in every version, and it
+    // is spread unconditionally, so it is pinned separately.
+    if (!Array.isArray(out.history)) out.history = Array.isArray(stored.history) ? stored.history : [];
+    return out;
+}
+
 export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy: rawPolicy = {}, customerSignal = null }) {
-    const prevState = previousDecisionState || createEmptyDecisionState();
+    // NORMALISED, not trusted. `previousDecisionState` comes back out of a
+    // JSONB column that a previous deployment wrote, so a field being absent
+    // or the wrong type is an ordinary occurrence — not a programming error
+    // this code may assume away. A partial object used to reach
+    // `[...prevState.history]` and throw, taking down the turn because of a
+    // malformed row rather than anything the customer sent.
+    //
+    // Merging over the empty state fills every field with a safe default and
+    // costs one object spread per turn.
+    const prevState = normalizeDecisionState(previousDecisionState);
     const noNewEvidence = !newEvidenceAddedThisTurn || newEvidenceAddedThisTurn === 0;
     const consecutiveNoNewEvidenceTurns = noNewEvidence ? prevState.consecutiveNoNewEvidenceTurns + 1 : 0;
     const policy = resolvePolicy(rawPolicy);
@@ -143,13 +179,27 @@ function finalize(action, opts, turn, evaluatedRules, clock) {
 function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNewEvidenceTurns, policy, customerSignal = null }, evaluatedRules, clock) {
     const { topHypothesis, runnerUp, isAmbiguous, candidateDiscriminatingQuestions } = ranking;
 
-    const rule0Matches = noNewEvidence && !topHypothesis && prevState.lastAction === null;
+    // R0 — genuinely nothing to respond to yet.
+    //
+    // THE CATALOG GUARD IS LOAD-BEARING, for the same reason as R4's. Under a
+    // full scan `topHypothesis` is never null while a catalog exists, so this
+    // rule could only fire with an empty catalog. Retrieval makes `!topHypothesis`
+    // the ordinary outcome for a message with no diagnostic vocabulary — and
+    // without the guard, a customer whose first message is "؟؟؟" or an emoji
+    // gets WAIT_FOR_USER, which is silence.
+    //
+    // Found by deliberately probing evidence-free input, not by the corpora:
+    // no real trace message was that empty. It is a good example of why
+    // "the comparator agrees on 98% of real traffic" is not sufficient
+    // evidence to ship.
+    const catalogIsEmpty = (ranking.catalogSize ?? ranking.scopeSize ?? 0) === 0;
+    const rule0Matches = noNewEvidence && !topHypothesis && prevState.lastAction === null && catalogIsEmpty;
     evaluatedRules.push({
         rule: 'R0_WAIT_FOR_USER',
         matched: rule0Matches,
         detail: rule0Matches
-            ? 'No evidence yet and no prior decision this session.'
-            : 'Either evidence exists, a hypothesis exists, or this is not the first turn.'
+            ? 'No evidence yet, no prior decision this session, and nothing in the catalog to reason with.'
+            : 'Either evidence exists, a hypothesis exists, this is not the first turn, or the catalog is non-empty.'
     });
     if (rule0Matches) {
         return finalize(
@@ -213,24 +263,68 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         );
     }
 
-    const rule4Matches = !topHypothesis;
-    evaluatedRules.push({ rule: 'R4_NO_HYPOTHESES', matched: rule4Matches, detail: rule4Matches ? 'ranking.topHypothesis is null.' : 'At least one hypothesis exists.' });
+    // R4 — an EMPTY SCOPE, which means the engine itself has nothing to reason
+    // with. Not the same as a vague message, and the difference matters.
+    //
+    // Before retrieval existed, `ranked` always held the whole catalog, so
+    // `topHypothesis` was never null and this rule was unreachable outside an
+    // empty catalog. Retrieval brings it to life — and the comparator caught
+    // that its FALLBACK is the wrong answer for the case it now fires on.
+    //
+    // A message that matched no scenario and a catalog that failed to load
+    // produce an identical empty ranking, and they demand opposite responses:
+    // ask the customer for detail, versus admit the engine is broken.
+    // `ranking.catalogSize` is what separates them — NOT `scopeSize`, which
+    // is zero in both cases once retrieval is narrowing the scope. That
+    // distinction is the whole fix and it took a second comparator run to
+    // find, because the first attempt used scopeSize and changed nothing.
+    const rule4Matches = !topHypothesis && (ranking.catalogSize ?? ranking.scopeSize ?? 0) === 0;
+    evaluatedRules.push({
+        rule: 'R4_EMPTY_SCOPE',
+        matched: rule4Matches,
+        detail: rule4Matches
+            ? 'No scenarios were in scope at all — the catalog is empty or failed to load.'
+            : `catalogSize=${ranking.catalogSize ?? 'unknown'}, scopeSize=${ranking.scopeSize ?? 'unknown'}`
+    });
     if (rule4Matches) {
-        return finalize(ACTIONS.FALLBACK, { explanation: 'No ranked hypotheses are available to reason about.' }, turn, evaluatedRules, clock);
+        return finalize(ACTIONS.FALLBACK, { explanation: 'No scenarios are available to reason about.' }, turn, evaluatedRules, clock);
     }
 
-    const rule5Matches = topHypothesis.hypothesis.confidence < policy.activationThreshold;
+    // R5 — nothing is a real candidate yet.
+    //
+    // Covers BOTH "no hypothesis scored above zero" and "the leader is below
+    // the activation threshold". They are the same situation from the
+    // customer's side — the engine does not yet know what they are talking
+    // about — and the correct response to both is to ask, not to fall back.
+    //
+    // Under a full scan the first case cannot arise (650 zero-confidence
+    // hypotheses exist, so a leader always does). Under retrieval it is the
+    // common case for a message with no diagnostic vocabulary, and routing it
+    // to FALLBACK was a customer-visible regression the comparator found on
+    // real production traffic.
+    //
+    // Worth noting what the full scan was actually doing here: with every
+    // scenario at confidence 0 the "leader" is whichever id sorts first —
+    // `a11y_screen_reader` — so the recorded reasoning named a scenario the
+    // customer never mentioned. The action was reasonable; the explanation
+    // behind it was noise. Retrieval makes the trace honest as a side effect.
+    const noCandidates = !topHypothesis;
+    const rule5Matches = noCandidates || topHypothesis.hypothesis.confidence < policy.activationThreshold;
     evaluatedRules.push({
         rule: 'R5_BELOW_ACTIVATION',
         matched: rule5Matches,
-        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, activationThreshold=${policy.activationThreshold}`
+        detail: noCandidates
+            ? `no scenario shared any evidence with this message (scope ${ranking.scopeSize ?? '?'} of ${ranking.catalogSize ?? '?'})`
+            : `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)}, activationThreshold=${policy.activationThreshold}`
     });
     if (rule5Matches) {
         if (prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
             return finalize(
                 ACTIONS.ASK_CLARIFYING_QUESTION,
                 {
-                    explanation: `Top hypothesis "${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the activation threshold (${policy.activationThreshold}); no scenario is a real candidate yet, requesting more detail.`,
+                    explanation: noCandidates
+                        ? 'No scenario shares any evidence with this message yet; requesting more detail.'
+                        : `Top hypothesis "${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the activation threshold (${policy.activationThreshold}); no scenario is a real candidate yet, requesting more detail.`,
                     attemptNumber: prevState.questionsAskedCount
                 },
                 turn, evaluatedRules, clock

@@ -65,6 +65,8 @@ export const MAX_CANDIDATE_QUESTIONS_SCENARIOS = 3;
  * @property {number|null} confidenceGap - gap between the top two CANDIDATES (confidence >= activation
  *   threshold); null if fewer than 2 candidates exist (nothing to compare)
  * @property {boolean} isAmbiguous - true when >=2 candidates are within AMBIGUITY_MARGIN of each other
+ * @property {number} scopeSize - how many scenarios were scored this turn
+ * @property {number} catalogSize - how many scenarios exist (see the field's own note)
  * @property {CandidateDiscriminatingQuestion[]} candidateDiscriminatingQuestions
  */
 
@@ -73,8 +75,8 @@ export const MAX_CANDIDATE_QUESTIONS_SCENARIOS = 3;
  *
  * @param {import('../diagnostics/evidence-types.js').Hypothesis[]} hypotheses
  * @param {import('../scenarios/scenario-types.js').Scenario[]} scenarios
- * @param {{activationThreshold?: number}} [options] - omit for the module's
- *   own threshold, i.e. the behaviour this function has always had
+ * @param {{activationThreshold?: number, catalogSize?: number}} [options] - omit for
+ *   the module's own threshold, i.e. the behaviour this function has always had
  * @returns {RankingResult}
  */
 export function rankHypotheses(hypotheses, scenarios, options = {}) {
@@ -111,7 +113,28 @@ export function rankHypotheses(hypotheses, scenarios, options = {}) {
         candidates.slice(0, MAX_CANDIDATE_QUESTIONS_SCENARIOS)
     );
 
-    return { ranked, topHypothesis, runnerUp, confidenceGap, isAmbiguous, candidateDiscriminatingQuestions };
+    return {
+        ranked, topHypothesis, runnerUp, confidenceGap, isAmbiguous, candidateDiscriminatingQuestions,
+        /**
+         * How many scenarios were in SCOPE this turn — the ones actually
+         * scored. Equals the catalog size under a full scan; equals the
+         * retrieved candidate count under retrieval.
+         */
+        scopeSize: (scenarios || []).length,
+        /**
+         * How many scenarios EXIST. Defaults to the scope, which is correct
+         * for a full scan; a caller that narrowed the scope must pass the real
+         * catalog size.
+         *
+         * The two are the same number today and the distinction still has to
+         * exist, because an empty ranking means opposite things depending on
+         * which one is zero. Scope empty with a catalog behind it is a vague
+         * message — ask for detail. Catalog empty is the engine being broken —
+         * fall back. Collapsing them sent every message with no diagnostic
+         * vocabulary to FALLBACK, which the comparator caught on real traffic.
+         */
+        catalogSize: typeof options.catalogSize === 'number' ? options.catalogSize : (scenarios || []).length
+    };
 }
 
 /**

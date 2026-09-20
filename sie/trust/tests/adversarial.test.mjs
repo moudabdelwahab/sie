@@ -40,15 +40,26 @@ async function classify(text) {
  *     attack strings by construction. Measuring a false-positive rate against
  *     a file full of attacks measures nothing except that the sensors work.
  *
- *     "Attack side" means lives in the trust layer OR imports it, and both
- *     halves are load-bearing. The path-only version shipped first and was
- *     wrong within a day: the bridge's flag integration test lives in
- *     sie-integration/tests, has every reason to contain an attack string, and
- *     its single string took the measured rate from 0.00% to 0.30%. Replacing
- *     it with the import rule alone was wrong too — this directory's corpus
- *     fixture declares 24 attacks and imports nothing, which took the rate to
- *     2.74%. A number that moves when an unrelated test file is added was
- *     never measuring the engine.
+ *     A file declares itself by putting the marker `@no-legitimate-corpus` in
+ *     its header. That is an EXPLICIT opt-out, and it replaced two successive
+ *     attempts to infer the same thing, each of which leaked:
+ *
+ *       path-based   skip sie/trust/tests — missed the bridge's flag
+ *                    integration test in sie-integration/tests, which has
+ *                    every reason to contain an attack string. Rate went
+ *                    0.00% -> 0.30%.
+ *       import-based skip files importing the trust layer — missed this
+ *                    directory's own corpus fixture, which declares 24
+ *                    attacks and imports nothing. Rate went to 2.74%.
+ *       then both    missed sie/pipeline/tests/robustness.test.mjs, which
+ *                    imports the trust layer only TRANSITIVELY through the
+ *                    pipeline. Rate went to 0.31%.
+ *
+ *     Three leaks of one kind is enough evidence that the property is not
+ *     inferable from a file's path or its imports. It is a fact about the
+ *     file's CONTENT that only its author knows, so the author states it.
+ *     The two inferred rules are kept as a backstop, not as the mechanism.
+ *
  *   - strings that are plainly source code are skipped. The extractor cannot
  *     tell a template literal holding a code sample from a message, and a
  *     multi-line code block carries far more distinct tokens than any real
@@ -79,6 +90,8 @@ const LOOKS_LIKE_CODE = /=>|\bfunction\b|\bconst \w|\}\s*\)|;\s*$|^\s*[{\[]/m;
  */
 const TRUST_IMPORT = /['"][^'"]*\/trust\/[^'"]*['"]/;
 const inTrustLayer = (file) => file.includes(`${path.sep}trust${path.sep}`);
+/** The explicit opt-out. Any file whose header carries this is attack-side. */
+const OPTED_OUT = /@no-legitimate-corpus/;
 
 function testFilesUnder(dir, out = []) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -98,7 +111,7 @@ function legitimateCorpus() {
     for (const file of files) {
         if (inTrustLayer(file)) continue;
         const source = fs.readFileSync(file, 'utf8');
-        if (TRUST_IMPORT.test(source)) continue;
+        if (OPTED_OUT.test(source) || TRUST_IMPORT.test(source)) continue;
         for (const m of source.matchAll(STRING_LITERAL)) {
             const raw = m[1] ?? m[2] ?? m[3];
             if (!raw || !ARABIC.test(raw)) continue;
