@@ -41,6 +41,31 @@ import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js'
 import { buildTraceEvent } from '../sie/observability/trace-logger.js';
 import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
 import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
+import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace } from '../sie/trust/trust-boundary.js';
+import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
+import { toSparseState } from '../sie/diagnostics/sparse-state.js';
+
+/**
+ * How the trust boundary is configured for this turn, from settings.
+ *
+ * Two flags rather than one, because the rollout has two stages and they carry
+ * very different risk. `trust_boundary_enabled` alone runs every checkpoint and
+ * writes every verdict to the trace while enforcing nothing — which is how the
+ * false-positive rate gets measured on real traffic rather than on the test-suite
+ * proxy corpus the thresholds were calibrated against. `trust_boundary_enforce`
+ * is the second stage, and it can refuse to act on a customer's turn.
+ *
+ * Both default off. See sie/trust/README.md.
+ *
+ * @param {Object} settings
+ * @returns {{enabled: boolean, observeOnly: boolean}}
+ */
+function trustConfig(settings) {
+    return {
+        enabled: settings.trust_boundary_enabled === true,
+        observeOnly: settings.trust_boundary_enforce !== true
+    };
+}
 
 /**
  * الحالات اللي الإعدادات سامحة للمحرك يقراها.
@@ -209,7 +234,7 @@ async function closeConversation({ responseLanguage, sessionId, botState, port }
  * Returns null when there is nothing to do, so the caller falls through to
  * the normal pipeline rather than swallowing the turn.
  */
-async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage }) {
+async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage, trustEnvelope }) {
     const lang = responseLanguage === 'en' ? 'en' : 'ar';
     let replyText;
 
@@ -222,10 +247,25 @@ async function handleMemoryIntent({ intent, supabase, userId, sessionId, botStat
     } else if (intent.facts.length === 0) {
         replyText = MEMORY_REPLIES.nothingToSave;
     } else {
-        const { saved } = await rememberFacts(supabase, userId, intent.facts);
+        // CP3. A fact outlives the session — it is read back on every future
+        // conversation and quoted into replies — so it gets its own
+        // authorization rather than riding on the evidence budget. When the
+        // boundary is off, or observing, `admitFacts` receives a trusted
+        // envelope and passes everything through unchanged.
+        const stored = await recallFacts(supabase, userId).catch(() => []);
+        const { facts: admitted, rejected } = admitFacts(
+            intent.facts,
+            trustEnvelope,
+            { storedFacts: Object.fromEntries((stored || []).map((f) => [f.key, f.value])) }
+        );
+        if (rejected.length > 0) {
+            console.warn('[sie] fact writes refused:', rejected.map((r) => `${r.key} (${r.reason})`).join(', '));
+        }
+        const { saved } = admitted.length > 0 ? await rememberFacts(supabase, userId, admitted) : { saved: 0 };
         // A failed write must not be reported as a success — the customer
-        // would rely on a fact the engine does not actually hold.
-        replyText = saved > 0 ? MEMORY_REPLIES.saved(intent.facts) : MEMORY_REPLIES.nothingToSave;
+        // would rely on a fact the engine does not actually hold. A REFUSED
+        // write is the same promise: report only what was actually stored.
+        replyText = saved > 0 ? MEMORY_REPLIES.saved(admitted) : MEMORY_REPLIES.nothingToSave;
     }
 
     // Diagnostic state is carried through untouched: saving a fact is not
@@ -727,10 +767,31 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // 2.4. «احفظ ده في ذاكرتك» / «انت فاكر إيه عني» — تعليمات عن
         //      المحادثة نفسها، مش مشكلة نشخّصها. لو عدّت على التشخيص،
         //      المحرك بيرد بحل مالوش علاقة — وده اللي كان بيحصل.
+        // 2.35. CP1 — the trust boundary classifies this turn, once.
+        //
+        // Placed here and not earlier: half of what the boundary needs to know
+        // only exists after normalization. "How many distinct diagnostic signals
+        // does this message carry" is its most discriminative measurement, and
+        // it does not exist until the glossary has resolved the text. A gate in
+        // front of Language could only read raw characters.
+        //
+        // Placed here and not later: the envelope has to exist before the memory
+        // path, which can write durable state and return without ever reaching
+        // diagnosis.
+        //
+        // Extraction runs twice — once here and once inside processTurn. It is
+        // pure, it is measured in microseconds, and the alternative is handing
+        // diagnostics a trust dependency it should not have.
+        const trustEnvelope = openTurn(
+            { rawText: text, evidence: extractTextEvidence(normalizedTokens, turn) },
+            trustConfig(settings)
+        );
+
         const memoryIntent = detectMemoryIntent(text, prevSie?.lastCustomerText || '');
         if (memoryIntent) {
             const handled = await handleMemoryIntent({
-                intent: memoryIntent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage
+                intent: memoryIntent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage,
+                trustEnvelope
             });
             if (handled) return handled;
         }
@@ -786,13 +847,26 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             );
         }
 
+        // CP2 travels in as a filter. processTurn applies it immediately before
+        // the accumulator — the first irreversible step of a turn — so the cap
+        // is arithmetic rather than detection: a turn the boundary constrained
+        // moves belief no further than one ordinary sentence, however phrased.
+        let evidenceDropped = 0;
         const diagnosticState = await processTurn({
             normalizedTokens,
             turn,
             previousState: prevSie?.diagnosticState,
             liveEvidenceContext: { userId },
-            scenarioProvider
+            scenarioProvider,
+            evidenceFilter: (evidence) => {
+                const { evidence: kept, dropped } = admitEvidence(evidence, trustEnvelope);
+                evidenceDropped = dropped;
+                return kept;
+            }
         });
+        if (evidenceDropped > 0) {
+            console.warn(`[sie] trust boundary dropped ${evidenceDropped} evidence item(s) (${trustEnvelope.rationale})`);
+        }
 
         // How much genuinely new evidence landed this turn, derived from the
         // accumulator's own append-only log rather than re-deriving extraction.
@@ -859,7 +933,23 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 ? await rescueWithArticle(decisionWithKnowledge, ranking)
                 : null;
 
-        const finalDecision = articleRescue || decisionWithKnowledge;
+        // CP3b — authorize effects that leave the engine.
+        //
+        // LAST, after the article rescue and everything else that can change the
+        // action. An authorization check that runs before the action is final
+        // authorizes an action that was never taken.
+        //
+        // Speech is never gated: an untrusted turn still gets an answer, because
+        // refusing to talk to a customer is its own kind of failure. What is
+        // withheld is a TICKET — a row in someone's queue and a human's
+        // attention, manufactured by a turn that behaved like an attempt to
+        // manufacture one.
+        const { decision: authorizedDecision, downgraded: actionDowngraded } =
+            admitAction(articleRescue || decisionWithKnowledge, trustEnvelope);
+        if (actionDowngraded) {
+            console.warn(`[sie] trust boundary withheld ${authorizedDecision.trustDowngradedFrom}: ${trustEnvelope.rationale}`);
+        }
+        const finalDecision = authorizedDecision;
 
         // 7. Dialogue (Module 6) — presentation choices are attached here, not
         //    decided in Module 5: whether to name the likely cause and whether
@@ -882,10 +972,24 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
 
         // 8. Action (Module 8) — the sole writer. Persists the bot's message +
         //    session state (+ ticket, if this turn created one) in one transaction.
+        // The session's diagnostic state, compressed if the flag is on.
+        //
+        // Measured on a real conversation against the shipped 650-scenario
+        // catalog: 203.7 KB becomes 0.34 KB on turn 1 and 207 KB becomes 9.8 KB
+        // on turn 3. The evidence ledger is the only part that cannot be
+        // recomputed — 0.1% of what was being written every turn.
+        //
+        // Compressed at the WRITE and expanded at the read (processTurn handles
+        // either shape), so turning the flag on needs no migration and turning
+        // it off leaves every session already stored still readable.
+        const persistedDiagnosticState = settings.sparse_diagnostic_state === true
+            ? toSparseState(diagnosticState)
+            : diagnosticState;
+
         const nextBotState = {
             ...(botState || {}),
             sie: {
-                diagnosticState,
+                diagnosticState: persistedDiagnosticState,
                 decisionState,
                 language: responseLanguage,
                 turnCount: turn,
@@ -982,7 +1086,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 ranking,
                 decision: finalDecision,
                 responseText: rendered.text,
-                timestamp: decisionWithKnowledge.timestamp
+                timestamp: decisionWithKnowledge.timestamp,
+                // In observe-only mode this carries the verdict that WOULD have
+                // applied, which is what makes the shadow comparison a diff of
+                // two fields on one row instead of a join across two tables.
+                trust: trustTrace(trustEnvelope)
             });
             await logTraceEvent({
                 sessionId, turn, traceEvent, port,

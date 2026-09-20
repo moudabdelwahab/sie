@@ -39,7 +39,8 @@ export const SETTING_GROUPS = Object.freeze([
     { id: 'knowledge', title: 'المعرفة', desc: 'المحرك بياخد إجاباته منين، وإيه الأولوية بين المصادر.' },
     { id: 'memory', title: 'الذاكرة', desc: 'قد إيه المحرك يفتكر من المحادثة ومن اللي قبلها.' },
     { id: 'support', title: 'إدارة الدعم', desc: 'إمتى يسلّم المشكلة لموظف بشري وإزاي.' },
-    { id: 'behavior', title: 'الذكاء والسلوك', desc: 'قد إيه المحرك يبقى جريء في إجاباته ولا يفضل متحفّظ.' }
+    { id: 'behavior', title: 'الذكاء والسلوك', desc: 'قد إيه المحرك يبقى جريء في إجاباته ولا يفضل متحفّظ.' },
+    { id: 'safety', title: 'الحماية والحجم', desc: 'حدود الثقة في رسائل العملاء، وشكل الحالة المخزّنة لكل محادثة.' }
 ]);
 
 /**
@@ -59,6 +60,34 @@ export const SETTING_GROUPS = Object.freeze([
  *   dependsOn  المفتاح اللي لو اتقفل، الإعداد ده مالوش لازمة
  */
 export const SETTINGS = Object.freeze([
+    // ── الحماية والحجم ──────────────────────────────────────────────
+    // All three default OFF. Each changes behaviour a customer can notice, and
+    // a switch that ships on is a switch nobody has measured in production.
+    // The intended rollout is documented in sie/trust/README.md: enable the
+    // trust boundary in observe mode first, read the traces, and only then
+    // turn on enforcement.
+    {
+        key: 'trust_boundary_enabled', group: 'safety', type: 'boolean', default: false,
+        title: 'طبقة الثقة شغّالة',
+        desc: 'بتفحص كل رسالة قبل ما تأثر على التشخيص: محاولات تغيير قواعد المحرك، انتحال صوت النظام، ادعاء صلاحيات، أو إغراق الأدلة.',
+        warn: 'مقفولة دلوقتي — الرسائل بتدخل التشخيص من غير أي تصنيف ثقة.',
+        effect: 'sie/trust: admission-control classifies the turn; the trace records the verdict'
+    },
+    {
+        key: 'trust_boundary_enforce', group: 'safety', type: 'boolean', default: false,
+        dependsOn: 'trust_boundary_enabled',
+        title: 'طبقة الثقة تنفّذ فعلاً',
+        desc: 'لما تكون مقفولة، الطبقة بتصنّف وتسجّل بس ومابتمنعش حاجة — ده الوضع المناسب أول ما تشتغل، عشان تقيس نسبة الإنذارات الغلط على ترافيك حقيقي.',
+        warn: 'الطبقة بتلاحظ ومابتنفّذش — مفيد للقياس، مش للحماية.',
+        effect: 'sie/trust: observeOnly=false — the evidence budget, fact writes and action gating apply'
+    },
+    {
+        key: 'sparse_diagnostic_state', group: 'safety', type: 'boolean', default: false,
+        title: 'حالة تشخيصية مضغوطة',
+        desc: 'بتخزّن سجل الأدلة بدل سجل كامل لكل سيناريو في الكتالوج. قيست على محادثة حقيقية: ٢٠٣ كيلوبايت بتبقى ٠.٣ كيلوبايت.',
+        warn: 'مقفولة دلوقتي — كل محادثة بتخزّن ٦٥٠ سجل، ومنهم واحد بس فيه معلومة.',
+        effect: 'sie/diagnostics/sparse-state: the session persists the sparse shape; reads migrate either shape'
+    },
     // ── التشغيل ────────────────────────────────────────────────────
     {
         key: 'engine_enabled', group: 'operation', type: 'boolean', default: true,
