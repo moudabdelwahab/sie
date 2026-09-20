@@ -12,6 +12,9 @@
  * The exhaustive test is the important one: every scenario in the catalog,
  * probed with its own vocabulary, compared between variants. A sampled test
  * would not notice a whole category going missing.
+ *
+ * @no-legitimate-corpus — this file contains adversarial strings, so it is
+ * excluded from the legitimate-traffic corpus in sie/trust/tests.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';

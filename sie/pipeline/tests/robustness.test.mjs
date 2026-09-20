@@ -17,6 +17,9 @@
  * differently on identical input is silent, and it is the failure the real
  * production traces already show ("كلمني عن منصة مدعوم" produced
  * ASK_CLARIFYING_QUESTION in one session and FALLBACK in another).
+ *
+ * @no-legitimate-corpus — this file contains adversarial strings, so it is
+ * excluded from the legitimate-traffic corpus in sie/trust/tests.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';

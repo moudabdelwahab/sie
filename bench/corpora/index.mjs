@@ -6,6 +6,9 @@
  * A conversation is the unit, not a message. A per-message comparison cannot
  * see a divergence that only appears once state has accumulated, and the two
  * production failures below are both multi-turn.
+ *
+ * @no-legitimate-corpus — this file contains adversarial strings, so it is
+ * excluded from the legitimate-traffic corpus in sie/trust/tests.
  */
 import { generateCatalog } from '../catalog-generator.mjs';
 
