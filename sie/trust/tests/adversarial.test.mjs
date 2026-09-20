@@ -36,9 +36,19 @@ async function classify(text) {
  *
  * TWO EXCLUSIONS, BOTH LOAD-BEARING:
  *
- *   - sie/trust/tests is skipped, because it holds the ATTACK corpus.
- *     Measuring a false-positive rate against a file full of attacks measures
- *     nothing except that the sensors work.
+ *   - any test file on the ATTACK side is skipped, because those files contain
+ *     attack strings by construction. Measuring a false-positive rate against
+ *     a file full of attacks measures nothing except that the sensors work.
+ *
+ *     "Attack side" means lives in the trust layer OR imports it, and both
+ *     halves are load-bearing. The path-only version shipped first and was
+ *     wrong within a day: the bridge's flag integration test lives in
+ *     sie-integration/tests, has every reason to contain an attack string, and
+ *     its single string took the measured rate from 0.00% to 0.30%. Replacing
+ *     it with the import rule alone was wrong too — this directory's corpus
+ *     fixture declares 24 attacks and imports nothing, which took the rate to
+ *     2.74%. A number that moves when an unrelated test file is added was
+ *     never measuring the engine.
  *   - strings that are plainly source code are skipped. The extractor cannot
  *     tell a template literal holding a code sample from a message, and a
  *     multi-line code block carries far more distinct tokens than any real
@@ -60,6 +70,16 @@ const ARABIC = /[\u0600-\u06FF]/;
 const STRING_LITERAL = /'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"|`((?:[^`\\$]|\\.)*)`/g;
 const LOOKS_LIKE_CODE = /=>|\bfunction\b|\bconst \w|\}\s*\)|;\s*$|^\s*[{\[]/m;
 
+/**
+ * A file belongs to the attack side if it LIVES in the trust layer or if it
+ * IMPORTS the trust layer. Both halves are needed and each caught a real
+ * leak: the path rule alone missed the bridge's flag integration test, and
+ * the import rule alone missed this directory's own corpus fixture, which
+ * declares 24 attacks and imports nothing.
+ */
+const TRUST_IMPORT = /['"][^'"]*\/trust\/[^'"]*['"]/;
+const inTrustLayer = (file) => file.includes(`${path.sep}trust${path.sep}`);
+
 function testFilesUnder(dir, out = []) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
         const full = path.join(dir, entry.name);
@@ -72,11 +92,14 @@ function testFilesUnder(dir, out = []) {
 function legitimateCorpus() {
     const files = ['sie', 'sie-integration', 'channels']
         .flatMap((d) => testFilesUnder(path.join(ROOT, d)))
-        .filter((f) => f.includes(`${path.sep}tests${path.sep}`) && !f.includes(`${path.sep}trust${path.sep}tests${path.sep}`));
+        .filter((f) => f.includes(`${path.sep}tests${path.sep}`));
 
     const corpus = new Set();
     for (const file of files) {
-        for (const m of fs.readFileSync(file, 'utf8').matchAll(STRING_LITERAL)) {
+        if (inTrustLayer(file)) continue;
+        const source = fs.readFileSync(file, 'utf8');
+        if (TRUST_IMPORT.test(source)) continue;
+        for (const m of source.matchAll(STRING_LITERAL)) {
             const raw = m[1] ?? m[2] ?? m[3];
             if (!raw || !ARABIC.test(raw)) continue;
             if (raw.length < 2 || raw.length > 400) continue;
