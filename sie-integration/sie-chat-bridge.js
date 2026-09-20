@@ -44,6 +44,7 @@ import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolv
 import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace } from '../sie/trust/trust-boundary.js';
 import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
 import { toSparseState } from '../sie/diagnostics/sparse-state.js';
+import { runShadowComparison } from './sie-shadow.js';
 
 /**
  * How the trust boundary is configured for this turn, from settings.
@@ -982,6 +983,33 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // Compressed at the WRITE and expanded at the read (processTurn handles
         // either shape), so turning the flag on needs no migration and turning
         // it off leaves every session already stored still readable.
+        // ── تشغيل الظل ────────────────────────────────────────────
+        //
+        // Runs the vNext pipeline on this same turn and records what it WOULD
+        // have decided. It cannot reach the customer: `runTurn` stops at the
+        // Decision, so Dialogue and Action — everything that renders a reply,
+        // writes the session, opens a ticket or spends quota — are not in it
+        // and are not reachable from it.
+        //
+        // Placed AFTER the live decision so a shadow that misbehaves cannot
+        // delay the reply, and awaited rather than fired-and-forgotten because
+        // an edge isolate can be frozen the moment the response is returned —
+        // a floating promise there is not "background work", it is work that
+        // silently never happens. The 250 ms budget inside the harness is what
+        // keeps that await honest.
+        let shadowRecord = null;
+        let shadowState = null;
+        if (settings.shadow_run_enabled === true) {
+            const shadow = await runShadowComparison({
+                text,
+                catalog: await scenarioProvider.getAllScenarios(),
+                liveResult: { interpretation: null, decision: finalDecision, ranking },
+                shadowPrevious: prevSie?.shadowState || null
+            });
+            shadowRecord = shadow.record;
+            shadowState = shadow.shadowState;
+        }
+
         const persistedDiagnosticState = settings.sparse_diagnostic_state === true
             ? toSparseState(diagnosticState)
             : diagnosticState;
@@ -998,7 +1026,15 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 // «يفتكر آخر مشكلة» — بيفضل موجود حتى بعد ما السياق ينتهي.
                 lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null,
                 // بيخلّي «احفظ ده» في الرسالة الجاية يعرف «ده» دي إيه.
-                lastCustomerText: text.slice(0, 500)
+                lastCustomerText: text.slice(0, 500),
+                // The shadow's OWN state, threaded between shadow turns only.
+                // Kept apart from the live state so a divergence in it cannot
+                // reach the session that answers the customer, and dropped
+                // entirely if it grows past a sane bound — a measurement that
+                // can bloat a session record is not worth the measurement.
+                ...(shadowState && JSON.stringify(shadowState).length < 64 * 1024
+                    ? { shadowState }
+                    : {})
             }
         };
 
@@ -1090,7 +1126,10 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 // In observe-only mode this carries the verdict that WOULD have
                 // applied, which is what makes the shadow comparison a diff of
                 // two fields on one row instead of a join across two tables.
-                trust: trustTrace(trustEnvelope)
+                trust: trustTrace(trustEnvelope),
+                // null unless the shadow ran. This is the field an offline
+                // analysis of production agreement reads.
+                shadow: shadowRecord
             });
             await logTraceEvent({
                 sessionId, turn, traceEvent, port,

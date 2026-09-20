@@ -88,6 +88,13 @@ export const SETTINGS = Object.freeze([
         warn: 'مقفولة دلوقتي — كل محادثة بتخزّن ٦٥٠ سجل، ومنهم واحد بس فيه معلومة.',
         effect: 'sie/diagnostics/sparse-state: the session persists the sparse shape; reads migrate either shape'
     },
+    {
+        key: 'shadow_run_enabled', group: 'safety', type: 'boolean', default: false,
+        title: 'تجربة النسخة الجديدة بالتوازي',
+        desc: 'بتشغّل النسخة الجديدة من المحرك جنب النسخة الحالية على نفس الرسالة، وتسجّل كانت هتعمل إيه — من غير ما توصل للعميل أي حاجة منها.',
+        warn: 'مقفولة دلوقتي — يعني مفيش مقارنة بترتسم من ترافيك حقيقي.',
+        effect: 'sie-integration/sie-shadow: runs the vNext pipeline beside the live turn and records the comparison in the trace'
+    },
     // ── التشغيل ────────────────────────────────────────────────────
     {
         key: 'engine_enabled', group: 'operation', type: 'boolean', default: true,
