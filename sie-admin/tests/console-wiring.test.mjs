@@ -273,3 +273,82 @@ test('مركز المراجعة مابقاش بيوصّل لصفحة الحصص 
     const html = await readFile(fileURLToPath(new URL('../../sie/observability/admin-ui/review-center.html', import.meta.url)), 'utf8');
     assert.ok(!html.includes('quota-management.html'), 'لسه فيه لينك لصفحة اتنقلت');
 });
+
+// ══════════════════ قسم قدرات المحرك ══════════════════
+//
+// القسم ده مركز التحكم، والخطر فيه مختلف عن باقي اللوحة: مفتاح بيبان
+// إنه بيتحكم في قدرة وهو مش مربوط بيها أسوأ من مفتاح مش موجود، لأن
+// المسؤول هيفتكر إنه ظبط حاجة وهو ماظبطش.
+
+test('قسم قدرات المحرك متسجّل وليه لوحة', async () => {
+    const [html, js] = await Promise.all([read('settings.html'), read('settings.js')]);
+    assert.match(js, /id: 'engine'/, 'القسم مش متسجّل في القايمة');
+    assert.match(html, /data-view-panel="engine"/, 'القسم مالوش لوحة في الـmarkup');
+});
+
+test('كل مفتاح بتعرضه القدرات موجود فعلاً في وصف الإعدادات', async () => {
+    const { describeCapabilities } = await import('../../sie/config/engine-status.js');
+    const { SETTINGS_BY_KEY } = await import('../../sie/config/settings-schema.js');
+
+    const unknown = [];
+    for (const cap of describeCapabilities({}, {})) {
+        for (const key of cap.keys) {
+            if (!SETTINGS_BY_KEY[key]) unknown.push(`${cap.id} → ${key}`);
+        }
+    }
+    assert.deepEqual(unknown, [], `مفاتيح بتتعرض ومش موجودة في الإعدادات: ${unknown.join(', ')}`);
+});
+
+test('كل الأعلام الجديدة ليها تحكم من اللوحة', async () => {
+    const { describeCapabilities } = await import('../../sie/config/engine-status.js');
+    const controlled = new Set(describeCapabilities({}, {}).flatMap((c) => c.keys));
+
+    // الأعلام اللي اتبنت في المرحلة اللي فاتت. أي واحد فيهم من غير تحكم
+    // معناه قدرة موجودة في المحرك ومحدش يقدر يوصلها.
+    for (const key of ['trust_boundary_enabled', 'trust_boundary_enforce',
+        'sparse_diagnostic_state', 'shadow_run_enabled']) {
+        assert.ok(controlled.has(key), `«${key}» اتبنى في المحرك ومالوش تحكم في اللوحة`);
+    }
+});
+
+test('الإعدادات الحسّاسة بتعدي من بوابة تأكيد واحدة', async () => {
+    const js = await read('settings.js');
+    // البوابة لازم تكون جوه `commitSetting` — ده المسار الوحيد اللي كل
+    // مفتاح في اللوحة بيعدي منه. لو اتحطت في مكان تاني، هتفضل شغالة من
+    // صفحة وتسيب التانية مكشوفة.
+    const commit = js.slice(js.indexOf('async function commitSetting'));
+    const body = commit.slice(0, commit.indexOf('\n}\n'));
+    assert.match(body, /isSensitiveSetting\(key\)/, 'البوابة مش في مسار الحفظ');
+    assert.match(body, /confirmAction/, 'مفيش تأكيد فعلي');
+    assert.ok(
+        body.indexOf('isSensitiveSetting') < body.indexOf('saveSieSetting'),
+        'التأكيد لازم يسبق الحفظ، مش بعده'
+    );
+});
+
+test('مفيش مصطلح إنجليزي في الكلام اللي بيتعرض للمسؤول', async () => {
+    const html = await read('settings.html');
+
+    // النص اللي بين الوسوم بس — الكلاسات والمعرّفات والسكريبت إنجليزي
+    // بطبيعته ومش بيتعرض لحد.
+    const body = html
+        .replace(/<script[\s\S]*?<\/script>/g, ' ')
+        .replace(/<style[\s\S]*?<\/style>/g, ' ')
+        .replace(/<[^>]+>/g, '\u0000');
+
+    const offenders = body.split('\u0000')
+        .map((t) => t.trim())
+        .filter((t) => t && /[A-Za-z]{4,}/.test(t))
+        // أسماء علامات تجارية ومختصرات متعارف عليها بتفضل زي ما هي —
+        // «واتساب» مالهاش ترجمة أحسن من اسمها، و«md» امتداد ملف مش مصطلح.
+        .filter((t) => !/^(SIE|API|WhatsApp|Telegram|Messenger|CSV|JSON|URL|ID)$/i.test(t))
+        .filter((t) => !/^(?:[a-z]{2,8}\s*·\s*)*[a-z]{2,8}$/i.test(t.replace(/\s+/g, ' ')));
+
+    assert.deepEqual(offenders, [], `نصوص فيها إنجليزي:\n${offenders.slice(0, 10).join('\n')}`);
+});
+
+test('الصفحة كلها من اليمين لليسار', async () => {
+    const html = await read('settings.html');
+    assert.match(html, /<html[^>]*dir="rtl"/, 'الصفحة لازم تكون rtl من الجذر');
+    assert.match(html, /<html[^>]*lang="ar"/, 'ولغتها عربي');
+});

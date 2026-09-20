@@ -159,10 +159,10 @@
             <section class="card">
               <div class="card-head">
                 <div class="card-head-text">
-                  <h2 class="card-title">حالة المحرك</h2>
-                  <p class="card-desc">المفاتيح اللي بتحدد إزاي المحرك بيرد على العملاء دلوقتي.</p>
+                  <h2 class="card-title">محتاج انتباهك</h2>
+                  <p class="card-desc">القدرات المقفولة أو اللي بتراقب بس. اللي مفتوح وشغّال مش محتاج يتعرض.</p>
                 </div>
-                <a class="btn btn--secondary btn--sm" href="#/settings">اضبط الإعدادات</a>
+                <a class="btn btn--secondary btn--sm" href="#/engine">قدرات المحرك</a>
               </div>
               <div class="card-body" id="healthList"></div>
             </section>
@@ -187,6 +187,46 @@
                 <a class="btn btn--secondary btn--sm" href="#/usage">الاستهلاك</a>
               </div>
               <div class="card-body card-body--tight" id="attentionList"></div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ══════════ قدرات المحرك ══════════ -->
+        <!--
+          مركز التحكم. القدرات اللي المحرك اتبنى عليها، كل واحدة بكلام بسيط
+          ومفتاح واحد وحالة حقيقية — مش قايمة إعدادات.
+        -->
+        <section class="view" data-view-panel="engine" tabindex="-1">
+          <div id="engineAlerts" class="dash-alerts"></div>
+
+          <section class="card card--hero" id="engineMasterCard">
+            <div class="card-body" id="engineMaster"></div>
+          </section>
+
+          <h2 class="section-heading">قدرات المحرك</h2>
+          <p class="section-sub">كل قدرة ليها مفتاح واحد. تحت كل واحدة مكتوب معناها للعميل دلوقتي.</p>
+          <div class="capability-grid" id="capabilityGrid"></div>
+
+          <div class="dash-grid dash-grid--pair">
+            <section class="card">
+              <div class="card-head">
+                <div class="card-head-text">
+                  <h2 class="card-title">حد الطلبات</h2>
+                  <p class="card-desc">بيمنع إغراق المحرك بطلبات كتير في وقت قصير.</p>
+                </div>
+                <a class="btn btn--secondary btn--sm" href="#/usage">تفاصيل لكل عميل</a>
+              </div>
+              <div class="card-body" id="rateLimitStatus"></div>
+            </section>
+
+            <section class="card">
+              <div class="card-head">
+                <div class="card-head-text">
+                  <h2 class="card-title">النسخة الحالية والنسخة التجريبية</h2>
+                  <p class="card-desc">النسخة التجريبية بتشتغل في الخلفية للمقارنة بس، والعميل مابيشوفش منها حاجة.</p>
+                </div>
+              </div>
+              <div class="card-body" id="shadowStatus"></div>
             </section>
           </div>
         </section>

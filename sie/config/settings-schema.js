@@ -40,7 +40,7 @@ export const SETTING_GROUPS = Object.freeze([
     { id: 'memory', title: 'الذاكرة', desc: 'قد إيه المحرك يفتكر من المحادثة ومن اللي قبلها.' },
     { id: 'support', title: 'إدارة الدعم', desc: 'إمتى يسلّم المشكلة لموظف بشري وإزاي.' },
     { id: 'behavior', title: 'الذكاء والسلوك', desc: 'قد إيه المحرك يبقى جريء في إجاباته ولا يفضل متحفّظ.' },
-    { id: 'safety', title: 'الحماية والحجم', desc: 'حدود الثقة في رسائل العملاء، وشكل الحالة المخزّنة لكل محادثة.' }
+    { id: 'safety', title: 'قدرات متقدمة', desc: 'الحماية، وشكل التخزين، وتجربة النسخة الجديدة. أسهل طريقة تتحكم فيهم من قسم «قدرات المحرك».' }
 ]);
 
 /**
@@ -87,6 +87,13 @@ export const SETTINGS = Object.freeze([
         desc: 'بتخزّن سجل الأدلة بدل سجل كامل لكل سيناريو في الكتالوج. قيست على محادثة حقيقية: ٢٠٣ كيلوبايت بتبقى ٠.٣ كيلوبايت.',
         warn: 'مقفولة دلوقتي — كل محادثة بتخزّن ٦٥٠ سجل، ومنهم واحد بس فيه معلومة.',
         effect: 'sie/diagnostics/sparse-state: the session persists the sparse shape; reads migrate either shape'
+    },
+    {
+        key: 'shadow_run_enabled', group: 'safety', type: 'boolean', default: false,
+        title: 'تجربة النسخة الجديدة بالتوازي',
+        desc: 'بتشغّل النسخة الجديدة من المحرك جنب النسخة الحالية على نفس الرسالة، وتسجّل كانت هتعمل إيه — من غير ما توصل للعميل أي حاجة منها.',
+        warn: 'مقفولة دلوقتي — يعني مفيش مقارنة بترتسم من ترافيك حقيقي.',
+        effect: 'sie-integration/sie-shadow: runs the vNext pipeline beside the live turn and records the comparison in the trace'
     },
     // ── التشغيل ────────────────────────────────────────────────────
     {

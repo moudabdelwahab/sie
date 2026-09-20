@@ -239,3 +239,43 @@ test('كل إعداد بيتقرا في كود المحرك فعلاً', async (
     const unused = SETTINGS.map((s) => s.key).filter((key) => !haystack.includes(key));
     assert.deepEqual(unused, [], `الإعدادات دي معروضة في اللوحة بس محدش بيقراها: ${unused.join('، ')}`);
 });
+
+// ── اللغة: كل كلام بيتعرض للمسؤول عربي ─────────────────────────
+//
+// اللوحة موجهة لمسؤول مش متخصص، والقاعدة دي بتتكسر بالتدريج: مفتاح جديد
+// بيتكتب بسرعة بوصف إنجليزي «مؤقت» وبيفضل. الاختبار بيخلي الكسر يبان في
+// نفس الـcommit بدل ما يتلاقى في اللوحة بعد شهور.
+
+test('كل نص بيتعرض للمسؤول مفيهوش مصطلح إنجليزي', () => {
+    const offenders = [];
+    const check = (where, value) => {
+        if (typeof value !== 'string' || !value) return;
+        // أسماء القنوات والمختصرات المتعارف عليها بتفضل زي ما هي.
+        const stripped = value.replace(/\b(SIE|API|WhatsApp|Telegram|Messenger|CSV|JSON|URL|ID)\b/gi, '');
+        if (/[A-Za-z]{3,}/.test(stripped)) offenders.push(`${where}: ${value}`);
+    };
+
+    for (const group of SETTING_GROUPS) {
+        check(`group.${group.id}.title`, group.title);
+        check(`group.${group.id}.desc`, group.desc);
+    }
+    for (const def of SETTINGS) {
+        check(`${def.key}.title`, def.title);
+        check(`${def.key}.desc`, def.desc);
+        check(`${def.key}.warn`, def.warn);
+        for (const option of def.options || []) {
+            check(`${def.key}.option.label`, option.label);
+            check(`${def.key}.option.desc`, option.desc);
+        }
+    }
+
+    assert.deepEqual(offenders, [], `نصوص بتتعرض للمسؤول وفيها إنجليزي:\n${offenders.join('\n')}`);
+});
+
+test('حقل «التأثير» إنجليزي عن قصد — وده مايوصلش للمسؤول', () => {
+    // `effect` بيوصف الموديول اللي بيقرا الإعداد، وده كلام لمطوّر مش
+    // لمسؤول. الاختبار بيتأكد إنه موجود لكل إعداد، وإن اللوحة مابترسمهوش.
+    for (const def of SETTINGS) {
+        assert.ok(def.effect, `«${def.key}» مالوش تأثير معلن`);
+    }
+});

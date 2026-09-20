@@ -71,6 +71,13 @@ import {
 import { icon } from './ui/icons.js';
 import { createAppShell } from './ui/app-shell.js';
 import {
+    describeCapabilities, describeRateLimit, isSensitiveSetting, confirmTextFor,
+    SWITCH_STATE
+} from '../sie/config/engine-status.js';
+import {
+    engineMasterHtml, capabilityGridHtml, rateLimitHtml, shadowHtml, engineAlerts
+} from './ui/engine-view.js';
+import {
     esc, toast, confirmAction, openDialog, closeDialog, guardUnsaved, closeOnBackdrop,
     renderPager, emptyState, errorState, skeletonRows, skeletonCards, badge, meter, avatar,
     fmtNumber, fmtDate, fmtRelative, withBusy, debounce
@@ -106,7 +113,18 @@ const state = {
     /** آخر ملف اتقرا، جاهز للحفظ. */
     importParsed: null,
     /** لقطة من نموذج مفتوح، عشان نعرف لو فيه تغيير مش متحفوظ. */
-    dirtySnapshot: null
+    dirtySnapshot: null,
+    /**
+     * إشارات من الواقع، مش من الإعدادات.
+     *
+     * الفرق مقصود: الإعداد بيقول إيه **المفروض** يحصل، والإشارة بتقول إيه
+     * اللي **حصل فعلاً**. القدرة اللي مفتوحة من غير إشارة بتتعرض «لسه مافيش
+     * قياس» — مش علامة خضراء.
+     */
+    engineSignals: null,
+    rateLimitBuckets: null,
+    /** أقسام الإعدادات المتقدمة المفتوحة. */
+    openAdvanced: new Set()
 };
 
 /**
@@ -161,6 +179,10 @@ const VIEWS = [
     {
         id: 'dashboard', label: 'لوحة التحكم', iconName: 'dashboard', group: 'نظرة عامة',
         title: 'لوحة التحكم', desc: 'حالة المحرك والكتالوج والعملاء في شاشة واحدة.'
+    },
+    {
+        id: 'engine', label: 'قدرات المحرك', iconName: 'zap', group: 'نظرة عامة',
+        title: 'قدرات المحرك', desc: 'إيه اللي شغّال دلوقتي، ومعناه إيه للعميل.'
     },
     {
         id: 'scenarios', label: 'السيناريوهات', iconName: 'scenarios', group: 'المعرفة',
@@ -244,6 +266,10 @@ let shell;
     // فالصفحة مابتستناش أبطأ طلب عشان تبان.
     await Promise.all([loadSettings(), loadScenarios(), loadUsers()]);
     renderDashboard();
+    renderEngine();
+    // الإشارات بتتأخر عن الإعدادات، والبطاقات بتتحدّث أول ما توصل — عشان
+    // القسم يبان فورًا بدل ما يستنى أبطأ استعلام.
+    loadEngineSignals().then(renderEngine);
     // المعرفة بتتأخر شوية عن الباقي، والبطاقة بتاعتها بتتحدّث لما توصل.
     loadKnowledge().then(renderDashboard);
 })();
@@ -262,6 +288,7 @@ function paintLoadingStates() {
     $('healthList').innerHTML = '<div class="skeleton skeleton-line" style="width:80%"></div>'
         + '<div class="skeleton skeleton-line" style="width:60%"></div>'
         + '<div class="skeleton skeleton-line" style="width:70%"></div>';
+    $('capabilityGrid').innerHTML = skeletonCards(6);
 }
 
 function onNavigate(view) {
@@ -269,6 +296,7 @@ function onNavigate(view) {
     // مش محتاج يستهلك رسم.
     if (view.id === 'usage' && state.users.length) renderUsage();
     if (view.id === 'dashboard') renderDashboard();
+    if (view.id === 'engine') renderEngine();
 }
 
 function wireChrome() {
@@ -276,6 +304,133 @@ function wireChrome() {
         await supabase.auth.signOut();
         window.location.replace(LOGIN_PAGE);
     });
+}
+
+// ═════════════════════════════════════════════════════════════
+// قدرات المحرك — مركز التحكم
+//
+// القسم ده بيجاوب على سؤالين بس عن كل قدرة: شغّالة ولا لأ، ومعناها إيه
+// للعميل دلوقتي. الوصف والحالة بيتولّدوا من `sie/config/engine-status.js`
+// عشان مايبقاش فيه مصدرين للحقيقة — الإعدادات في مكان والكلام في مكان تاني.
+// ═════════════════════════════════════════════════════════════
+
+/**
+ * الإشارات اللي بتفرّق بين «المفتاح مفتوح» و«القدرة بتشتغل فعلاً».
+ *
+ * كلها قراءة بس، وكلها بتفشل بهدوء: لوحة مابتعرفش تقرا الأثر لازم تقول
+ * «مش عارفين»، مش تفترض صفر ولا تفترض إنه شغّال.
+ */
+async function loadEngineSignals() {
+    const [traces, buckets] = await Promise.all([
+        readTraceSignals(),
+        readRateLimitBuckets()
+    ]);
+    state.engineSignals = traces;
+    state.rateLimitBuckets = buckets;
+}
+
+async function readTraceSignals() {
+    try {
+        const { data, error } = await supabase
+            .from('chat_engine_trace_events')
+            .select('trust, shadow')
+            .order('created_at', { ascending: false })
+            .limit(500);
+        if (error) return null;
+        const rows = data || [];
+        return {
+            tracesTotal: rows.length,
+            tracesWithTrust: rows.filter((r) => r.trust).length,
+            tracesWithShadow: rows.filter((r) => r.shadow).length,
+            shadowRecords: rows.map((r) => r.shadow).filter(Boolean)
+        };
+    } catch {
+        return null;
+    }
+}
+
+async function readRateLimitBuckets() {
+    try {
+        const { data, error } = await supabase
+            .from('sie_rate_limit_buckets')
+            .select('total_requests, total_rejected, last_request_at')
+            .limit(1000);
+        return error ? null : (data || []);
+    } catch {
+        return null;
+    }
+}
+
+function renderEngine() {
+    const signals = state.engineSignals || {};
+    const caps = describeCapabilities(state.settings, signals);
+
+    renderEngineMaster(caps);
+    renderCapabilityGrid(caps);
+    renderRateLimitStatus();
+    renderShadowStatus(signals);
+    renderEngineAlerts(caps);
+}
+
+/**
+ * الرسم: كل واحدة بتاخد النص من `ui/engine-view.js` وتحطه وتربط الأحداث.
+ *
+ * البناء نفسه في ملف تاني عشان يبقى قابل للاختبار من غير متصفح — المستودع
+ * مافيهوش ولا حزمة npm عن قصد، وإضافة متصفح عشان نتأكد من نص تكسر الخاصية
+ * دي. اللي فاضل هنا قصير لدرجة إن الخطأ فيه بيبان من أول فتحة للصفحة.
+ */
+const viewHelpers = { esc, icon, badge, fmtNumber, fmtRelative };
+
+function renderEngineMaster(caps) {
+    $('engineMaster').innerHTML = engineMasterHtml(caps, { isStaff: state.isStaff, helpers: viewHelpers });
+    wireSettingSwitches($('engineMaster'));
+}
+
+/**
+ * كل مفتاح في القسم ده بيتربط بنفس الطريقة: `data-key` بيقول المفتاح،
+ * و`commitSetting` بياخد الباقي — التأكيد للإعدادات الحسّاسة، والحفظ،
+ * والتراجع لو الحفظ فشل.
+ *
+ * مربوط بالـ`data-key` مش بمعرّف ثابت عشان الاختبار اللي بيتأكد إن كل
+ * معرّف بيتنده عليه في الجافاسكريبت ليه عنصر في الـHTML يفضل صادق:
+ * العنصر اللي بيتولّد وقت التشغيل مالوش مكان في الـmarkup، فمالوش لازمة
+ * معرّف ثابت أصلاً.
+ */
+function wireSettingSwitches(host) {
+    if (!host) return;
+    host.querySelectorAll('input[data-key]').forEach((input) => {
+        input.addEventListener('change', (e) => {
+            commitSetting(e.target.dataset.key, e.target.checked, e.target,
+                () => { e.target.checked = !e.target.checked; });
+        });
+    });
+}
+
+function renderCapabilityGrid(caps) {
+    $('capabilityGrid').innerHTML = capabilityGridHtml(caps, { isStaff: state.isStaff, helpers: viewHelpers });
+    wireSettingSwitches($('capabilityGrid'));
+}
+
+function renderRateLimitStatus() {
+    $('rateLimitStatus').innerHTML = rateLimitHtml(
+        describeRateLimit(state.settings, state.rateLimitBuckets), { helpers: viewHelpers });
+}
+
+function renderShadowStatus(signals) {
+    $('shadowStatus').innerHTML = shadowHtml({
+        enabled: state.settings.shadow_run_enabled === true,
+        records: signals.shadowRecords || []
+    }, { helpers: viewHelpers });
+}
+
+function renderEngineAlerts(caps) {
+    const alerts = engineAlerts(caps, state.settings, { isStaff: state.isStaff });
+    // نفس عنصر التنبيه المستخدم في لوحة التحكم — مش نسخة تانية منه.
+    $('engineAlerts').innerHTML = alerts.map((a) => `
+      <div class="alert alert--${esc(a.tone)}">
+        ${icon(a.tone === 'danger' ? 'alert' : 'info')}
+        <div class="alert-body">${esc(a.text)}</div>
+      </div>`).join('');
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -297,88 +452,66 @@ function statCard({ label, value, meta = '', iconName = 'sparkles', tone = 'prim
 /** مجموع رقم من كل صفوف الوصول/المعدل، مع تجاهل الناقص بدل تصفيره. */
 const sumBy = (rows, pick) => rows.reduce((total, row) => total + (Number(pick(row)) || 0), 0);
 
+/**
+ * لوحة التحكم — أربع بطاقات، مش تمانية.
+ *
+ * النسخة القديمة كانت بتعرض تمن بطاقات بنفس الحجم ونفس اللون: حالة المحرك
+ * جنب «مداخل معرفة» جنب «طلبات على الواجهة». لما كل حاجة مهمة، مفيش حاجة
+ * مهمة — والمسؤول بيقرا الصف الأول ويسيب الباقي.
+ *
+ * دلوقتي بتجاوب على أربع أسئلة بس، بالترتيب ده: المحرك بخير؟ فيه حد محتاج
+ * تدخّل؟ فيه حاجة مستنياني؟ المحرك عنده إيه يرد بيه؟ الأرقام التانية موجودة
+ * في أقسامها، واللي محتاجها بيروحلها.
+ */
 function renderDashboard() {
     const auto = state.scenarios.filter((s) => s.resolution.hasAutoResolution).length;
     const pendingDrafts = state.drafts.filter((d) => d.status !== 'published').length;
-    const enabled = state.users.filter((u) => evaluateSieAccessRow(u.access).available).length;
+    const pendingKnowledge = state.knowledgeError
+        ? 0 : state.knowledge.filter((k) => k.status !== 'published').length;
     const attention = state.users.filter((u) => ['warning', 'almost', 'exhausted'].includes(u.quota?.status));
-    const messagesUsed = sumBy(state.users, (u) => u.access?.messages_used);
-    const requests = sumBy(state.users, (u) => u.rateLimit?.total_requests);
     const rejected = sumBy(state.users, (u) => u.rateLimit?.total_rejected);
-    const quotaUsers = state.users.filter((u) => u.access?.access_mode === 'quota');
-    const remaining = sumBy(quotaUsers, (u) => u.quota?.remaining);
     const engineOn = state.settings.engine_enabled !== false;
-    const changed = changedSettingsCount();
+    const caps = describeCapabilities(state.settings, state.engineSignals || {});
+    const liveCaps = caps.filter((c) => c.id !== 'engine' && c.switchState !== SWITCH_STATE.OFF).length;
 
     $('dashboardStats').innerHTML = [
         statCard({
-            label: 'حالة المحرك',
+            label: 'المحرك',
             value: engineOn ? 'شغّال' : 'متوقف',
             meta: engineOn
-                ? (changed ? `${changed} إعداد متغيّر عن المعتاد` : 'كل الإعدادات على المعتاد')
+                ? `<b class="num">${liveCaps}</b> من ${caps.length - 1} قدرات إضافية مفتوحة`
                 : 'العملاء بيرد عليهم البوت العادي',
             iconName: 'power',
             tone: engineOn ? 'success' : 'danger',
-            href: '#/settings'
-        }),
-        statCard({
-            label: 'سيناريوهات شغّالة',
-            value: fmtNumber(state.scenarios.length),
-            meta: `<b class="num">${fmtNumber(auto)}</b> بيردوا بحل جاهز`,
-            iconName: 'scenarios',
-            href: '#/scenarios'
-        }),
-        statCard({
-            label: 'مستنية تفعيل',
-            value: fmtNumber(pendingDrafts),
-            meta: pendingDrafts ? 'مسودات المحرك لسه مابيستخدمهاش' : 'مفيش مسودات معلّقة',
-            iconName: 'inbox',
-            tone: pendingDrafts ? 'warning' : 'neutral',
-            href: '#/scenarios'
-        }),
-        statCard({
-            label: 'المستخدمون',
-            value: fmtNumber(state.users.length),
-            meta: `<b class="num">${fmtNumber(enabled)}</b> مسموح لهم يستخدموا المحرك`,
-            iconName: 'users',
-            href: '#/users'
-        }),
-        statCard({
-            label: 'رسائل مستهلكة',
-            value: fmtNumber(messagesUsed),
-            meta: quotaUsers.length
-                ? `<b class="num">${fmtNumber(remaining)}</b> متبقية على ${fmtNumber(quotaUsers.length)} حساب برصيد`
-                : 'مفيش حسابات برصيد محدد',
-            iconName: 'message',
-            href: '#/usage'
-        }),
-        statCard({
-            label: 'طلبات على الواجهة',
-            value: fmtNumber(requests),
-            meta: rejected
-                ? `<b class="num">${fmtNumber(rejected)}</b> اترفضوا لتجاوز الحد`
-                : 'مفيش طلبات مرفوضة',
-            iconName: 'gauge',
-            tone: rejected ? 'warning' : 'neutral',
-            href: '#/usage'
+            href: '#/engine'
         }),
         statCard({
             label: 'محتاجين متابعة',
             value: fmtNumber(attention.length),
-            meta: attention.length ? 'قرّبوا من الحد أو استنفدوه' : 'مفيش حد قرّب من حدّه',
+            meta: attention.length
+                ? 'قرّبوا من حدّهم أو استنفدوه'
+                : (rejected ? `<b class="num">${fmtNumber(rejected)}</b> طلب اترفض لتجاوز الحد` : 'مفيش حد قرّب من حدّه'),
             iconName: 'alert',
             tone: attention.length ? 'warning' : 'success',
             href: '#/usage'
         }),
         statCard({
-            label: 'مداخل معرفة',
-            value: state.knowledgeError ? '—' : fmtNumber(state.knowledge.length),
-            meta: state.knowledgeError
-                ? 'مقدرناش نقراها'
-                : `<b class="num">${fmtNumber(state.knowledge.filter((k) => k.status !== 'published').length)}</b> مستنية تفعيل`,
-            iconName: 'knowledge',
-            tone: 'neutral',
-            href: '#/knowledge'
+            label: 'مستنية تفعيل',
+            value: fmtNumber(pendingDrafts + pendingKnowledge),
+            meta: (pendingDrafts + pendingKnowledge)
+                ? `<b class="num">${fmtNumber(pendingDrafts)}</b> سيناريو و<b class="num">${fmtNumber(pendingKnowledge)}</b> معرفة`
+                : 'مفيش حاجة معلّقة',
+            iconName: 'inbox',
+            tone: (pendingDrafts + pendingKnowledge) ? 'warning' : 'neutral',
+            href: '#/scenarios'
+        }),
+        statCard({
+            label: 'اللي المحرك بيرد بيه',
+            value: fmtNumber(state.scenarios.length),
+            meta: `<b class="num">${fmtNumber(auto)}</b> منهم بحل جاهز`
+                + (state.knowledgeError ? '' : ` · <b class="num">${fmtNumber(state.knowledge.length)}</b> مدخل معرفة`),
+            iconName: 'scenarios',
+            href: '#/scenarios'
         })
     ].join('');
 
@@ -388,28 +521,37 @@ function renderDashboard() {
     renderSystemAlerts({ pendingDrafts, attention, rejected });
 }
 
-/** المفاتيح اللي بتغيّر سلوك المحرك جذريًا، بحالتها الحالية. */
-const HEALTH_KEYS = [
-    'engine_enabled', 'answer_directly', 'use_published_scenarios',
-    'knowledge_use_articles', 'auto_ticket_enabled', 'rate_limit_enabled'
-];
-
+/**
+ * ملخّص قصير للقدرات، مش قايمة إعدادات تانية.
+ *
+ * قبل كده الكارت ده كان بيعيد رسم ست مفاتيح بوصفها الكامل — نسخة تانية من
+ * صفحة الإعدادات جوه لوحة التحكم. دلوقتي بيقول اللي مقفول بس، لأن ده اللي
+ * محتاج قرار؛ واللي مفتوح مالوش لازمة يتكرّر.
+ */
 function renderHealth() {
-    $('healthList').innerHTML = HEALTH_KEYS
-        .filter((key) => SETTINGS_BY_KEY[key])
-        .map((key) => {
-            const def = SETTINGS_BY_KEY[key];
-            const on = state.settings[key] !== false;
-            return `
-              <div class="health-row">
-                <span class="health-dot health-dot--${on ? 'on' : 'off'}"></span>
-                <span class="health-text">
-                  <b>${esc(def.title)}</b>
-                  <span class="sub">${esc(def.desc)}</span>
-                </span>
-                ${badge(on ? 'مفتوح' : 'مقفول', on ? 'success' : 'neutral')}
-              </div>`;
-        }).join('');
+    const caps = describeCapabilities(state.settings, state.engineSignals || {});
+    const off = caps.filter((c) => c.switchState === SWITCH_STATE.OFF);
+    const watching = caps.filter((c) => c.switchState === SWITCH_STATE.WATCHING);
+
+    if (off.length === 0 && watching.length === 0) {
+        $('healthList').innerHTML = `
+          <div class="health-row">
+            <span class="health-dot health-dot--on"></span>
+            <span class="health-text"><b>كل القدرات مفتوحة</b>
+              <span class="sub">المحرك شغّال بكامل إمكانياته.</span></span>
+          </div>`;
+        return;
+    }
+
+    $('healthList').innerHTML = [...off, ...watching].map((cap) => `
+      <div class="health-row">
+        <span class="health-dot health-dot--${cap.switchState === SWITCH_STATE.OFF ? 'off' : 'warn'}"></span>
+        <span class="health-text">
+          <b>${esc(cap.title)}</b>
+          <span class="sub">${esc(cap.means)}</span>
+        </span>
+        ${badge(cap.switchLabel, cap.switchState === SWITCH_STATE.OFF ? 'neutral' : 'warning')}
+      </div>`).join('');
 }
 
 function renderDraftsPreview(pendingDrafts) {
@@ -1432,7 +1574,17 @@ function renderSettingGroups() {
         return;
     }
 
-    container.innerHTML = groups.map((group) => `
+    container.innerHTML = groups.map((group) => {
+        const settings = matchingSettings(group);
+        // أثناء البحث بتتعرض كل النتايج — إخفاء نتيجة بحث جوه قسم مطوي
+        // معناها إن البحث بيكدب.
+        const [essential, advanced] = searching
+            ? [settings, []]
+            : splitByDepth(group, settings);
+        const open = state.openAdvanced.has(group.id);
+        const advancedChanged = advanced.filter((d) => state.settings[d.key] !== SIE_DEFAULT_SETTINGS[d.key]).length;
+
+        return `
         <section class="settings-section" id="settings-${esc(group.id)}">
           <header class="settings-section-head">
             <div>
@@ -1443,15 +1595,59 @@ function renderSettingGroups() {
                 ? `<span class="badge badge--primary">${changedInGroup(group)} متغيّر</span>` : ''}
           </header>
           <div class="setting-list">
-            ${matchingSettings(group).map(renderSetting).join('')}
+            ${essential.map(renderSetting).join('')}
           </div>
-        </section>`).join('');
+          ${advanced.length ? `
+            <button type="button" class="advanced-toggle${open ? ' is-open' : ''}" data-advanced="${esc(group.id)}"
+                    aria-expanded="${open}">
+              ${icon('chevronDown')}
+              <span>إعدادات متقدمة <span class="advanced-count">${advanced.length}</span></span>
+              ${advancedChanged ? `<span class="badge badge--primary">${advancedChanged} متغيّر</span>` : ''}
+            </button>
+            <div class="setting-list setting-list--advanced"${open ? '' : ' hidden'}>
+              ${advanced.map(renderSetting).join('')}
+            </div>` : ''}
+        </section>`;
+    }).join('');
+
+    container.querySelectorAll('[data-advanced]').forEach((button) =>
+        button.addEventListener('click', () => {
+            const id = button.dataset.advanced;
+            if (state.openAdvanced.has(id)) state.openAdvanced.delete(id);
+            else state.openAdvanced.add(id);
+            renderSettingGroups();
+        }));
 
     wireSettingInputs();
 
     if (!state.isStaff) {
         container.querySelectorAll('input, select').forEach((el) => { el.disabled = true; });
     }
+}
+
+/**
+ * المهم الأول، والتفاصيل جوه قسم اختياري.
+ *
+ * ٤٧ إعداد معروضين مرة واحدة بنفس الحجم معناهم إن المسؤول لازم يقرا ٤٧
+ * سطر عشان يلاقي الاتنين اللي بيدوروا عليهم. التقسيم هنا مش بالنوع ولا
+ * بالأهمية النظرية — بالسؤال العملي: **ده مفتاح حد هيلمسه، ولا رقم
+ * هيتظبط مرة واحدة ويتنسي؟**
+ *
+ * القاعدة: المفاتيح الرئيسية (اللي مالهاش `dependsOn`) أساسية، واللي
+ * بتعتمد على مفتاح تاني متقدمة — لأن الإعداد اللي مالوش معنى غير لما
+ * تفتح حاجة قبله هو بالتعريف تفصيلة في حاجة، مش قرار بذاته. الأرقام
+ * كمان متقدمة: القيمة الافتراضية بتنفع في الأغلب، واللي محتاج يغيّرها
+ * بيعرف إنه بيدوّر على تفصيلة.
+ */
+function splitByDepth(group, settings) {
+    const essential = [];
+    const advanced = [];
+    for (const def of settings) {
+        const isAdvanced = Boolean(def.dependsOn) || def.type === 'number';
+        (isAdvanced ? advanced : essential).push(def);
+    }
+    // قسم كله متقدم مالوش لازمة يتطوي — مش هيفضل فيه حاجة تتعرض.
+    return essential.length === 0 ? [advanced, []] : [essential, advanced];
 }
 
 /** One control, chosen by the setting's own declared type. */
@@ -1643,6 +1839,22 @@ function wireSettingInputs() {
  * at the page would believe it.
  */
 async function commitSetting(key, value, control, revert) {
+    // ── بوابة الإعدادات الحسّاسة ──────────────────────────────
+    //
+    // شوية إعدادات تغييرها بيأثر على كل العملاء فورًا — إيقاف المحرك، فتح
+    // حد الطلبات، تشغيل المنع الحقيقي. دي مش محتاجة تحذير مكتوب جنبها،
+    // محتاجة وقفة.
+    //
+    // البوابة هنا مش في اللوحة عشان تشتغل من **كل** مكان المفتاح بيتغيّر
+    // منه: صفحة الإعدادات، وقسم القدرات، وأي زرار يتضاف بعد كده. قايمة
+    // المفاتيح نفسها في `engine-status.js` جنب الإعدادات، وفيه اختبار
+    // بيتأكد إنها لسه مغطية اللي المفروض تغطيه.
+    if (isSensitiveSetting(key)) {
+        const text = confirmTextFor(key, value, SETTINGS_BY_KEY[key]);
+        const agreed = await confirmAction(text);
+        if (!agreed) { revert(); return; }
+    }
+
     control.disabled = true;
     const { error } = await saveSieSetting(supabase, key, value);
     control.disabled = false;
@@ -1671,6 +1883,7 @@ async function commitSetting(key, value, control, revert) {
     renderSettingGroups();
     renderLiveBanner();
     renderDashboard();
+    renderEngine();
     toast('اتحفظ، وشغّال على المحادثات الجديدة على طول.');
 }
 
