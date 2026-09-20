@@ -189,3 +189,64 @@ test('normalize: the cap is overridable, so a caller can be stricter', async () 
     assert.equal(result.rawText.length, 5);
     assert.equal(result.truncated, true);
 });
+
+// ══════════════════ السوابق المتصلة قبل العبارات ══════════════════
+//
+// Arabic writes several one-letter function words straight onto the next
+// word — و (and), ف (so), ب (with), ك (like), ل (to) — and the glossary
+// lists its phrases without them. A customer writing naturally produces
+// "ومش عارف ادخل", which matched nothing at all.
+//
+// Single-word clitic stripping already existed. The PHRASE path was broken by
+// its own guard: the vocabulary is built from every word of every pattern, so
+// the single pattern `symptom_stuck_loading :: "بيلف ومش بيخلص"` put "ومش" in
+// the vocabulary, and the guard then refused to strip it anywhere in the
+// engine. Measured: 32.2% of Arabic patterns (868 of 2,699) stopped matching
+// after "و", one of the commonest words in the language.
+
+test('normalizer: عبارة بعد واو العطف بتتعرف زي ما هي من غيرها', async () => {
+    const bare = await normalize('مش عارف ادخل', { previousLanguage: 'ar', ...providers() });
+    const prefixed = await normalize('ومش عارف ادخل', { previousLanguage: 'ar', ...providers() });
+    assert.deepEqual(tokenSummary(bare), ['glossary:symptom_login_failed']);
+    assert.deepEqual(
+        prefixed.normalizedTokens.map((t) => t.canonical),
+        ['symptom_login_failed'],
+        'the conjunction must not cost the phrase its match'
+    );
+});
+
+test('normalizer: الجملة الطبيعية اللي كانت بتضيع بالكامل', async () => {
+    // Produced zero canonical tokens before the fix — every word came out as
+    // a raw surface form, so the turn carried no diagnostic evidence at all.
+    const result = await normalize('انا صاحب الحساب ومش عارف ادخل', { previousLanguage: 'ar', ...providers() });
+    assert.ok(
+        result.normalizedTokens.some((t) => t.canonical === 'symptom_login_failed'),
+        `expected symptom_login_failed, got ${result.normalizedTokens.map((t) => t.canonical).join(', ')}`
+    );
+});
+
+test('normalizer: النمط اللي فيه الواو أصلًا لسه بيطابق حرفيًا', async () => {
+    // The pattern that caused the bug. The verbatim key is tried FIRST, so
+    // relaxing the guard cannot cost this its match.
+    const result = await normalize('بيلف ومش بيخلص', { previousLanguage: 'ar', ...providers() });
+    assert.ok(result.normalizedTokens.some((t) => t.canonical === 'symptom_stuck_loading'));
+});
+
+test('normalizer: الحارس لسه شغال على باقي كلمات العبارة', async () => {
+    // Dropping the guard on EVERY word was tried and measured worse (59.2%
+    // against 67.8%): unguarded, "كده" strips to "ده" and "الوقت" to "وقت",
+    // both real vocabulary words, so phrases that used to match stopped. Only
+    // the FIRST word is unguarded, because that is where a conjunction goes.
+    const result = await normalize('مش شغال خالص', { previousLanguage: 'ar', ...providers() });
+    assert.ok(result.normalizedTokens.some((t) => t.canonical === 'symptom_not_working'));
+});
+
+test('normalizer: كل السوابق المتصلة، مش الواو بس', async () => {
+    for (const clitic of ['و', 'ف', 'ب', 'ك', 'ل']) {
+        const result = await normalize(`${clitic}مش شغال`, { previousLanguage: 'ar', ...providers() });
+        assert.ok(
+            result.normalizedTokens.some((t) => t.canonical === 'symptom_not_working'),
+            `"${clitic}مش شغال" lost its match`
+        );
+    }
+});
