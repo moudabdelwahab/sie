@@ -102,16 +102,31 @@ export function scopeCandidates({ scenarios, tokenPresences, previousHypotheses 
     };
 }
 
-/** Every scenario id the decision state names. */
+/**
+ * Every scenario id the decision state names.
+ *
+ * Every field is checked for SHAPE, not just presence. This state is read back
+ * out of a database column that another deployment wrote, so a field being the
+ * wrong type is an ordinary occurrence rather than a programming error — and
+ * `for (const x of 42)` throws, which would take down a turn because of a
+ * malformed row rather than anything the customer did.
+ */
 function referencedIds(decisionState) {
-    if (!decisionState) return [];
+    if (!decisionState || typeof decisionState !== 'object') return [];
     const ids = new Set();
-    if (decisionState.lastScenarioId) ids.add(decisionState.lastScenarioId);
-    for (const id of decisionState.answeredScenarioIds || []) ids.add(id);
+    if (typeof decisionState.lastScenarioId === 'string') ids.add(decisionState.lastScenarioId);
+
+    if (Array.isArray(decisionState.answeredScenarioIds)) {
+        for (const id of decisionState.answeredScenarioIds) {
+            if (typeof id === 'string') ids.add(id);
+        }
+    }
     // A question already asked belongs to a scenario the next turn may answer
     // about, and question ids are `${scenarioId}:${questionId}` by convention.
-    for (const asked of decisionState.askedQuestionIds || []) {
-        if (typeof asked === 'string' && asked.includes(':')) ids.add(asked.slice(0, asked.indexOf(':')));
+    if (Array.isArray(decisionState.askedQuestionIds)) {
+        for (const asked of decisionState.askedQuestionIds) {
+            if (typeof asked === 'string' && asked.includes(':')) ids.add(asked.slice(0, asked.indexOf(':')));
+        }
     }
     return [...ids];
 }

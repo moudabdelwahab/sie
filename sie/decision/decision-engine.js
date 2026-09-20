@@ -89,8 +89,44 @@ function findUnaskedCandidateQuestion(candidateQuestions, askedQuestionIds, scen
  *   and a complaint both produce tokens — so it is supplied by the caller,
  *   which has the language layer's read of the message.
  */
+/**
+ * Fills a stored decision state out to the full shape, replacing anything of
+ * the wrong type with its default. Arrays in particular: several rules spread
+ * or iterate them, and `[...undefined]` and `for (const x of 42)` both throw.
+ *
+ * @param {Object|null} stored
+ * @returns {Object} a complete DecisionState
+ */
+export function normalizeDecisionState(stored) {
+    const base = createEmptyDecisionState();
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return base;
+
+    const out = { ...base };
+    for (const key of Object.keys(base)) {
+        const value = stored[key];
+        if (value === undefined || value === null) continue;
+        if (Array.isArray(base[key])) { if (Array.isArray(value)) out[key] = value; continue; }
+        if (typeof base[key] === 'number') { if (Number.isFinite(value)) out[key] = value; continue; }
+        if (typeof base[key] === 'boolean') { if (typeof value === 'boolean') out[key] = value; continue; }
+        out[key] = value;
+    }
+    // `history` is not in the empty state's own shape in every version, and it
+    // is spread unconditionally, so it is pinned separately.
+    if (!Array.isArray(out.history)) out.history = Array.isArray(stored.history) ? stored.history : [];
+    return out;
+}
+
 export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedThisTurn, clock = defaultClock, policy: rawPolicy = {}, customerSignal = null }) {
-    const prevState = previousDecisionState || createEmptyDecisionState();
+    // NORMALISED, not trusted. `previousDecisionState` comes back out of a
+    // JSONB column that a previous deployment wrote, so a field being absent
+    // or the wrong type is an ordinary occurrence — not a programming error
+    // this code may assume away. A partial object used to reach
+    // `[...prevState.history]` and throw, taking down the turn because of a
+    // malformed row rather than anything the customer sent.
+    //
+    // Merging over the empty state fills every field with a safe default and
+    // costs one object spread per turn.
+    const prevState = normalizeDecisionState(previousDecisionState);
     const noNewEvidence = !newEvidenceAddedThisTurn || newEvidenceAddedThisTurn === 0;
     const consecutiveNoNewEvidenceTurns = noNewEvidence ? prevState.consecutiveNoNewEvidenceTurns + 1 : 0;
     const policy = resolvePolicy(rawPolicy);

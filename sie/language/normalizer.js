@@ -606,7 +606,13 @@ export async function normalize(text, options = {}) {
         maxInputChars = MAX_INPUT_CHARS
     } = options;
 
-    const received = text || '';
+    // COERCED, not assumed. `text` arrives from a channel webhook's JSON, and
+    // a field that is normally a string is not guaranteed to be one: a number,
+    // a boolean, null, or an object all reach here in practice. Before this,
+    // every one of them threw inside the glossary matcher's `text.matchAll`,
+    // taking down the whole turn — a crash caused by the SHAPE of the input
+    // rather than its content, which is the cheapest kind of outage to cause.
+    const received = typeof text === 'string' ? text : (text === null || text === undefined ? '' : String(text));
     // The hard bound. See MAX_INPUT_CHARS for why it lives here and not in
     // the trust layer.
     const truncated = received.length > maxInputChars;
