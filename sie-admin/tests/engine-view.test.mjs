@@ -96,7 +96,7 @@ test('الدليل: «لسه مافيش قياس» بيتعرض رمادي، و�
 
     const proven = capabilityGridHtml(caps({ trust_boundary_enabled: true }, { tracesWithTrust: 12 }));
     assert.match(proven, /cap-proof--yes/);
-    assert.match(proven, /١٢/, 'الرقم الحقيقي بيتعرض');
+    assert.match(proven, /12/, 'الرقم الحقيقي بيتعرض');
 });
 
 test('المستخدم اللي مش من الفريق مايقدرش يلمس أي مفتاح', () => {

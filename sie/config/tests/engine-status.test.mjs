@@ -58,7 +58,7 @@ test('قدرة مفتوحة من غير إشارة بتتعرض «لسه ماف�
 test('الإشارة الحقيقية بتخلي الدليل مؤكد، والرقم بيتعرض', () => {
     const cap = byId(describeCapabilities({ trust_boundary_enabled: true }, { tracesWithTrust: 42 }), 'trust');
     assert.equal(cap.proofState, PROOF_STATE.CONFIRMED);
-    assert.match(cap.proofLabel, /٤٢/, 'الرقم بيتعرض بالعربي');
+    assert.match(cap.proofLabel, /42/, 'الرقم بيتعرض بنفس شكل أرقام اللوحة');
 });
 
 test('إشارة بصفر معناها «مافيش نشاط»، مش مؤكدة', () => {

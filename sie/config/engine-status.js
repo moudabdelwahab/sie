@@ -29,6 +29,12 @@
  * من علامة رمادية بصراحة.
  */
 
+/**
+ * الأرقام بالشكل اللي اللوحة كلها ماشية عليه — لاتيني بفواصل آلاف.
+ * الاتساق هنا مش تفصيلة: ١٢ جنب 12 في نفس الشاشة بتقرا كغلطة.
+ */
+const formatCount = (n) => Number(n).toLocaleString('en-US');
+
 /** الحالات اللي بتترسم. */
 export const SWITCH_STATE = Object.freeze({
     ON: 'on',            // شغّالة ومؤثّرة
@@ -182,7 +188,9 @@ function proofStateFor(cap, switchState, signals) {
     const seen = counts[cap.id];
     if (typeof seen !== 'number') return { state: PROOF_STATE.NONE, label: 'لسه مافيش قياس' };
     if (seen <= 0) return { state: PROOF_STATE.NONE, label: 'مافيش نشاط متسجّل لسه' };
-    return { state: PROOF_STATE.CONFIRMED, label: `اشتغلت في ${seen.toLocaleString('ar-EG')} حالة` };
+    // أرقام لاتينية زي باقي اللوحة. الخلط بين ١٢ و12 في نفس الشاشة بيبان
+    // غلطة مطبعية، واللوحة كلها ماشية على اللاتيني من الأول.
+    return { state: PROOF_STATE.CONFIRMED, label: `اشتغلت في ${formatCount(seen)} حالة` };
 }
 
 /**
@@ -239,8 +247,8 @@ export function describeRateLimit(settings = {}, buckets = null) {
         enabled: true, tone: rejected > 0 ? 'warning' : 'success',
         headline: 'شغّال ومؤكَّد',
         detail: rejected > 0
-            ? `عدّى عليه ${requests.toLocaleString('ar-EG')} طلب، ورفض منهم ${rejected.toLocaleString('ar-EG')}.`
-            : `عدّى عليه ${requests.toLocaleString('ar-EG')} طلب، ومارفضش ولا واحد — يعني مفيش حد قرّب من الحد.`,
+            ? `عدّى عليه ${formatCount(requests)} طلب، ورفض منهم ${formatCount(rejected)}.`
+            : `عدّى عليه ${formatCount(requests)} طلب، ومارفضش ولا واحد — يعني مفيش حد قرّب من الحد.`,
         perMinute, burst, requests, rejected, lastSeen, verified: true
     };
 }
