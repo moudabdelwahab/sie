@@ -56,7 +56,15 @@ import { json } from '../_shared/http.ts';
 // Same reasoning, and the same verified-working import FORM, as
 // supabase/functions/sie-channel-telegram/index.remote.ts — see the long
 // note there about eszip resolving the graph at deploy time.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@820b79f464c5365bc4329c58b1c92d8e989557a0/sie-integration/sie-runtime.js';
+//
+// Supabase Edge Functions allow ~2 s of CPU per request. The engine at the
+// previous pins (39d6d70 live, 820b79f in this file) needed 3.6-5.7 s of
+// CPU for a cold "اهلا" — every website SIE turn died with HTTP 546
+// ("CPU Time exceeded") AFTER sie_consume_message had spent the quota.
+// cba70f3 (glossary word lookup + inverted-index retrieval) answers the
+// same turn in ~190 ms cold / ~10 ms warm. Measure before moving this pin:
+// a cold turn must stay well under the 2 s budget.
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@cba70f39dfebdfb2b1c03c011c2d6e162273e975/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;
