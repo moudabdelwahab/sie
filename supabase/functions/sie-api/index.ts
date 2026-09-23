@@ -34,7 +34,7 @@ import { handleAccessStatus } from './handlers/access-status.ts';
 import { handleAccessSet } from './handlers/access-set.ts';
 import { handleAccessReset } from './handlers/access-reset.ts';
 import { handleChatReply } from './handlers/chat-reply.ts';
-import { describeScenarioCatalog, getSieSettings } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@820b79f464c5365bc4329c58b1c92d8e989557a0/sie-integration/sie-runtime.js';
+import { describeScenarioCatalog, getSieSettings } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@cba70f39dfebdfb2b1c03c011c2d6e162273e975/sie-integration/sie-runtime.js';
 
 const MOUNT_PREFIXES = ['/functions/v1/sie-api', '/sie-api'];
 
