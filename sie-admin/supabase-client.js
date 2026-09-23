@@ -25,7 +25,7 @@
  * The anon key is meant to be public (it ships in every browser bundle
  * of any Supabase app) — Row Level Security on the tables is what
  * actually protects data, not secrecy of this key. It DOES need to be
- * the anon key for the SAME project mad3oom.online/mad3oom.com uses —
+ * the anon key for the SAME project mad3oom.com uses —
  * pointing at a different project's keys would create a second,
  * disconnected user base with no shared sessions or data.
  */
