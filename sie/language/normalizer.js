@@ -584,6 +584,120 @@ function buildGlossaryDerivation(entries) {
     };
 }
 
+// ------------------------------------------------------------
+// Glossary layers — the vocabulary an edition adds.
+// ------------------------------------------------------------
+
+/**
+ * طبقات المعجم — edition vocabulary on top of the base glossary.
+ *
+ * ------------------------------------------------------------
+ * THE PROPERTY THIS EXISTS TO GUARANTEE
+ *
+ * Pro and Max add scenarios, and new scenarios need new words. The obvious
+ * implementation — concatenate the edition's entries onto the base glossary
+ * — silently changes what the BASE glossary produces: a new two-word phrase
+ * can claim a span that one of the base's one-word patterns used to own, and
+ * a base scenario that matched that word stops matching it. Nothing fails;
+ * a Free-behaviour scenario just quietly loses a way in, in Pro.
+ *
+ * So layers never compete with the base. They run after the base pipeline
+ * has finished — spans, word index, clitics, phrase folding, all of it — and
+ * they may only rewrite tokens the base left UNRESOLVED (words that became
+ * no glossary canonical). Therefore, for every message:
+ *
+ *     the base canonicals an edition produces  ==  the base canonicals Free produces
+ *
+ * and every base scenario's confidence is identical in every edition. The
+ * only way an edition can answer differently from Free is that one of ITS
+ * scenarios competes — which is exactly the difference the comparator
+ * measures, and nothing else. `layers.test.mjs` asserts the invariant on the
+ * whole behaviour corpus.
+ *
+ * ------------------------------------------------------------
+ * MATCHING
+ *
+ * Longest window of consecutive unresolved tokens first, keyed on the
+ * tokens' normalized forms, with one retry that strips a clitic from the
+ * window's first word ("والتذكرة" -> "التذكرة"). Exact written form ->
+ * source 'glossary' (presence 1.0); matched only after normalization ->
+ * source 'arabic' (0.8) — the same two strengths the base uses.
+ */
+const LAYER_CLITICS = ['وال', 'بال', 'فال', 'لل', 'و', 'ف', 'ب'];
+const layerDerivationCache = new WeakMap();
+
+function deriveLayers(layers, baseEntries) {
+    const cached = layerDerivationCache.get(layers);
+    if (cached) return cached;
+    const baseCanonicals = new Set((baseEntries || []).map((e) => e.canonical));
+    const index = new Map();
+    let maxWords = 1;
+    for (const entries of layers) {
+        for (const entry of entries || []) {
+            if (!entry || typeof entry.canonical !== 'string') continue;
+            // A layer never re-defines a base canonical: that would be the
+            // back door to changing base behaviour this whole design closes.
+            if (baseCanonicals.has(entry.canonical)) continue;
+            for (const pattern of entry.patterns || []) {
+                const words = layerWords(pattern);
+                if (!words.length) continue;
+                const key = words.join(' ');
+                if (!index.has(key)) index.set(key, entry.canonical); // earlier layer wins
+                if (words.length > maxWords) maxWords = words.length;
+            }
+        }
+    }
+    const derived = { index, maxWords, baseCanonicals };
+    layerDerivationCache.set(layers, derived);
+    return derived;
+}
+
+function layerWords(text) {
+    return String(text || '')
+        .split(/\s+/)
+        .map((w) => (/[\u0600-\u06FF]/.test(w) ? normalizeArabicToken(w) : w.toLowerCase().replace(/[^\p{L}\p{N}_]/gu, '')))
+        .filter(Boolean);
+}
+
+const LAYER_OPEN_SOURCES = new Set(['arabic', 'arabizi', 'unrecognized-latin']);
+
+function applyGlossaryLayers(tokens, layers, baseEntries) {
+    const { index, maxWords, baseCanonicals } = deriveLayers(layers, baseEntries);
+    if (index.size === 0) return tokens;
+    const open = (t) => t && LAYER_OPEN_SOURCES.has(t.source) && !baseCanonicals.has(t.canonical);
+
+    const out = [];
+    for (let i = 0; i < tokens.length;) {
+        let matched = null;
+        if (open(tokens[i])) {
+            for (let span = Math.min(maxWords, tokens.length - i); span >= 1 && !matched; span--) {
+                const window = tokens.slice(i, i + span);
+                if (!window.every(open)) continue;
+                const words = window.map((t) => (t.source === 'unrecognized-latin' ? t.canonical : normalizeArabicToken(t.canonical))).filter(Boolean);
+                if (words.length !== span) continue;
+                let canonical = index.get(words.join(' '));
+                if (!canonical) {
+                    for (const prefix of LAYER_CLITICS) {
+                        const head = words[0];
+                        if (head.startsWith(prefix) && head.length - prefix.length >= 2) {
+                            canonical = index.get([head.slice(prefix.length), ...words.slice(1)].join(' '));
+                            if (canonical) break;
+                        }
+                    }
+                }
+                if (canonical) {
+                    const raw = window.map((t) => t.raw).join(' ');
+                    const exact = layerWords(raw).join(' ') === words.join(' ') && window.every((t) => t.source !== 'arabizi');
+                    matched = { token: { canonical, source: exact ? 'glossary' : 'arabic', raw }, span };
+                }
+            }
+        }
+        if (matched) { out.push(matched.token); i += matched.span; }
+        else out.push(tokens[i++]);
+    }
+    return out;
+}
+
 /**
  * Normalizes one customer message end-to-end.
  *
@@ -592,6 +706,9 @@ function buildGlossaryDerivation(entries) {
  * @param {'ar'|'en'} [options.previousLanguage='ar'] - session's current response language
  * @param {{getEntries: Function}} [options.glossaryProvider] - defaults to local-JSON provider
  * @param {{getMap: Function}} [options.arabiziProvider] - defaults to local-JSON provider
+ * @param {number} [options.maxInputChars] - lower the input bound (never raises it past MAX_INPUT_CHARS)
+ * @param {Array<Array>} [options.glossaryLayers] - edition vocabulary; see applyGlossaryLayers.
+ *        Must be a STABLE array (same identity across calls): derived indexes are cached on it.
  * @returns {Promise<{
  *   rawText: string,
  *   normalizedTokens: Array<{canonical: string, source: string, raw: string}>,
@@ -603,7 +720,8 @@ export async function normalize(text, options = {}) {
         previousLanguage = 'ar',
         glossaryProvider = technicalGlossaryProvider,
         arabiziProvider = arabiziMapProvider,
-        maxInputChars = MAX_INPUT_CHARS
+        maxInputChars = MAX_INPUT_CHARS,
+        glossaryLayers = null
     } = options;
 
     // COERCED, not assumed. `text` arrives from a channel webhook's JSON, and
@@ -615,8 +733,13 @@ export async function normalize(text, options = {}) {
     const received = typeof text === 'string' ? text : (text === null || text === undefined ? '' : String(text));
     // The hard bound. See MAX_INPUT_CHARS for why it lives here and not in
     // the trust layer.
-    const truncated = received.length > maxInputChars;
-    const rawText = truncated ? received.slice(0, maxInputChars) : received;
+    // A caller may LOWER the bound (an edition's message cap); nothing may
+    // raise it. A non-number or a value above the hard cap means the hard cap.
+    const cap = Number.isFinite(maxInputChars) && maxInputChars > 0
+        ? Math.min(Math.floor(maxInputChars), MAX_INPUT_CHARS)
+        : MAX_INPUT_CHARS;
+    const truncated = received.length > cap;
+    const rawText = truncated ? received.slice(0, cap) : received;
     const tokens = tokenize(rawText);
 
     const [glossaryEntries, arabiziMap] = await Promise.all([
@@ -732,9 +855,15 @@ export async function normalize(text, options = {}) {
         tokens: languagePolicyTokens
     });
 
+    const baseTokens = foldNormalizedPhrases(normalizedTokens, normalizedPhraseIndex, maxPhraseWords, normalizedVocabulary);
+
     return {
         rawText,
-        normalizedTokens: foldNormalizedPhrases(normalizedTokens, normalizedPhraseIndex, maxPhraseWords, normalizedVocabulary),
+        // Edition vocabulary is applied AFTER the base pipeline has finished,
+        // to base-unresolved tokens only — see applyGlossaryLayers.
+        normalizedTokens: Array.isArray(glossaryLayers) && glossaryLayers.length
+            ? applyGlossaryLayers(baseTokens, glossaryLayers, glossaryEntries)
+            : baseTokens,
         responseLanguage,
         // Additive: existing callers ignore it, and a caller that cares (the
         // trust layer's size sensor, the trace) can see that the text it is

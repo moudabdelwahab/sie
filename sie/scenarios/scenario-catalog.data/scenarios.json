@@ -573,8 +573,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "الترقية بتتم من صفحة \"الاشتراكات\" — اختار الباقة الأكبر واضغط ترقية.\n\nالفرق في السعر بيتحسب بالتناسب مع المدة المتبقية في اشتراكك الحالي، يعني مش بتدفع مرتين، والباقة الجديدة بتشتغل فورًا بعد تأكيد الدفع.\n\nلو مش متأكد أنهي باقة تناسب حجم شغلك، قولي بتستخدم إيه أكتر وأنا أرشحلك.",
-          "en": "Upgrades happen from the \"Subscriptions\" page — pick the larger plan and click upgrade.\n\nThe price difference is prorated against the time remaining on your current subscription, so you never pay twice, and the new plan activates as soon as payment is confirmed.\n\nNot sure which plan fits your usage? Tell me what you use most and I'll recommend one."
+          "ar": "الترقية بتتطلب من «الباقات والاشتراك»: اختار الباقة الأكبر واطلب الترقية، وبعدين ادفع بالوسيلة اللي تناسبك.\n\nلو الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي، لازم ترفع إثبات التحويل مع الطلب، والطلب بيتراجع يدويًا — وبيفتح تذكرة تتابع منها. ولو مش متأكد أنهي باقة تناسبك، قولّي بتستخدم إيه أكتر وأنا أرشحلك.",
+          "en": "Upgrades are requested from \"Plans & subscription\": pick the larger plan, request the upgrade, then pay with the method that suits you.\n\nFor bank transfer, cash wallet or InstaPay you must upload proof of transfer with the request, which is reviewed manually — it opens a ticket you can follow. If you are not sure which plan fits, tell me what you use most and I will suggest one."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -4215,8 +4215,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "لما الرصيد يخلص، الرسائل الصادرة بتتوقف فورًا — بس الرسائل الواردة من العملاء بتفضل توصلك عادي، فمفيش حاجة بتضيع منك.\n\nاشحن من صفحة \"المحفظة\"، والخدمة بترجع خلال دقايق من تأكيد الدفع.\n\nنصيحة: فعّل تنبيه الرصيد المنخفض من الإعدادات — بيبعتلك إشعار قبل ما الرصيد يخلص، وده بيمنع توقف الحملات في نص الشغل.",
-          "en": "When the balance runs out, outgoing messages stop immediately — but incoming customer messages still reach you, so nothing is lost.\n\nTop up from the \"Wallet\" page; service resumes within minutes of payment confirming.\n\nTip: enable the low-balance alert in settings. It notifies you before the balance runs out and prevents campaigns stopping mid-run."
+          "ar": "لما رصيد الواتساب يخلص، الإرسال بيتوقف لحد ما الرصيد يتشحن.\n\nالشحن مش متاح من لوحتك مباشرة — الرصيد هناك للعرض بس (مع آخر ٥ حركات). اطلب الشحن من فريق الدعم: قولّي «افتح تذكرة شحن رصيد» وأنا أبعتها. وبتوصلك في «حالة حسابك» تنبيهات لما الرصيد ينزل تحت الحد الأدنى المحدد لحسابك.",
+          "en": "When the WhatsApp balance runs out, sending stops until it is topped up.\n\nTop-ups are not available from your dashboard — the balance there is read-only (with the last 5 transactions). Ask the support team to top up: say \"open a top-up ticket\" and I will send it. Your account-health panel also alerts you when the balance drops below the minimum set for your account."
         }
       },
       "requiresTicketIfUnresolved": false,

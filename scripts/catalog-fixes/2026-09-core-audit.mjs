@@ -91,7 +91,17 @@ const CORRECTIONS = {
     subscription_cancel_request: answer(
         'إلغاء الاشتراك مش متاح كزرار في حسابك — بيتم عن طريق فريق الدعم عشان يراجع معاك المدة المدفوعة ومصير البيانات.\n\nقولّي «افتح تذكرة» وأنا أبعت طلب الإلغاء للفريق بالتفاصيل. ولو فيه حاجة معيّنة مضايقاك في الخدمة، قولهالي — يمكن نحلها بدل ما تلغي [[icon:smile]]',
         'Cancelling is not a button in your account — the support team handles it, so they can go over the paid period and what happens to your data with you.\n\nSay "open a ticket" and I will send the cancellation request to the team with the details. And if something specific is bothering you, tell me — we may be able to fix it instead.'),
-    subscription_upgrade_request: null,
+    // KB audit: upgrade is a REQUEST (new / renew / upgrade), paid by one of the
+    // four methods and reviewed; "instant" and "prorated" have no source.
+    subscription_upgrade_request: answer(
+        'الترقية بتتطلب من «الباقات والاشتراك»: اختار الباقة الأكبر واطلب الترقية، وبعدين ادفع بالوسيلة اللي تناسبك.\n\nلو الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي، لازم ترفع إثبات التحويل مع الطلب، والطلب بيتراجع يدويًا — وبيفتح تذكرة تتابع منها. ولو مش متأكد أنهي باقة تناسبك، قولّي بتستخدم إيه أكتر وأنا أرشحلك.',
+        'Upgrades are requested from "Plans & subscription": pick the larger plan, request the upgrade, then pay with the method that suits you.\n\nFor bank transfer, cash wallet or InstaPay you must upload proof of transfer with the request, which is reviewed manually — it opens a ticket you can follow. If you are not sure which plan fits, tell me what you use most and I will suggest one.'),
+    // KB audit: WhatsApp balance is read-only in the dashboard ("تواصل مع الدعم للشحن");
+    // the low-balance alert is raised by the account-health panel against a
+    // threshold set for the account, not a customer setting.
+    wa_wallet_insufficient: answer(
+        'لما رصيد الواتساب يخلص، الإرسال بيتوقف لحد ما الرصيد يتشحن.\n\nالشحن مش متاح من لوحتك مباشرة — الرصيد هناك للعرض بس (مع آخر ٥ حركات). اطلب الشحن من فريق الدعم: قولّي «افتح تذكرة شحن رصيد» وأنا أبعتها. وبتوصلك في «حالة حسابك» تنبيهات لما الرصيد ينزل تحت الحد الأدنى المحدد لحسابك.',
+        'When the WhatsApp balance runs out, sending stops until it is topped up.\n\nTop-ups are not available from your dashboard — the balance there is read-only (with the last 5 transactions). Ask the support team to top up: say "open a top-up ticket" and I will send it. Your account-health panel also alerts you when the balance drops below the minimum set for your account.'),
     billing_downgrade_request: answer(
         'النزول لباقة أقل مش متاح من حسابك مباشرة — المتاح من صفحة الاشتراكات هو الاشتراك الجديد والتجديد والترقية بس. التخفيض بيتم عن طريق فريق الدعم.\n\nقبل ما تطلبه، خد بالك: لو عدد المستخدمين أو الأرقام المربوطة عندك أكبر من حد الباقة الأقل، هتحتاج تقلّلهم. قولّي «افتح تذكرة» وأنا أبعت الطلب للفريق.',
         'Moving to a smaller plan is not available from your account — the Subscriptions page offers new subscriptions, renewals and upgrades only. Downgrades go through the support team.\n\nBefore asking, note: if you have more users or linked numbers than the smaller plan allows, you will need to reduce them. Say "open a ticket" and I will send the request to the team.'),
@@ -141,7 +151,6 @@ const CORRECTIONS = {
         'الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي بيتراجع يدويًا: طلبك بيفتح تذكرة تلقائيًا، وهدف أول رد عليها ساعة واحدة.\n\nعشان المراجعة تمشي بسرعة، اتأكد إن إثبات التحويل (صورة أو PDF لحد ٨ ميجا) اترفع وإنه واضح فيه المبلغ والتاريخ. تقدر تتابع التذكرة من «تذاكري».',
         'Payments by bank transfer, cash wallet or InstaPay are reviewed manually: your request opens a ticket automatically, with a first-response target of one hour.\n\nTo keep the review quick, make sure the proof of transfer (an image or PDF up to 8MB) was uploaded and clearly shows the amount and date. You can follow the ticket from "My tickets".')
 };
-delete CORRECTIONS.subscription_upgrade_request;
 
 // ------------------------------------------------------------
 // Apply.
