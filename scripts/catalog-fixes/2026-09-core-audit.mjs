@@ -1,0 +1,217 @@
+/**
+ * 2026-09-core-audit.mjs
+ * ------------------------------------------------------------
+ * The changeset produced by auditing the 650 shipped (Free) scenarios.
+ * Kept as a script rather than a hand-edited JSON diff so every change is
+ * named, justified, and re-runnable: `node scripts/catalog-fixes/2026-09-core-audit.mjs`
+ * applied to the pre-audit files produces the committed files exactly, and
+ * applied twice changes nothing (each step checks before it acts).
+ *
+ * Three kinds of change, and nothing else:
+ *
+ *   1. MERGES — pairs that are the same case to a customer. Found by the
+ *      intent-key inventory (scripts/data/core-intents.tsv), confirmed by
+ *      reading both answers. The survivor keeps its own signature and takes
+ *      the removed scenario's signature as an ALTERNATIVE (see
+ *      scenarioSignatures in scenario-types.js), so on every message it scores
+ *      exactly max(old survivor, old removed): no wording that reached either
+ *      stops reaching the case, and the glossary is not touched. Removed ids
+ *      are recorded in aliases.json so stored sessions and traces resolve.
+ *
+ *   2. SIGNATURE FIXES — a scenario keyed on the wrong token.
+ *
+ *   3. FACT CORRECTIONS — answers that state behaviour the platform's own
+ *      code contradicts. Every one is traced to a line in Mad3oom's
+ *      docs/KNOWLEDGE_BASE_AUDIT_AR.md evidence matrix (itself traced to
+ *      source). Claims that are merely UNVERIFIED are listed in the report,
+ *      not rewritten: replacing one guess with another is not a fix.
+ *
+ * @no-legitimate-corpus — contains replacement answer text, not customer messages.
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const CATALOG = path.join(ROOT, 'sie/scenarios/scenario-catalog.data/scenarios.json');
+const ALIASES = path.join(ROOT, 'sie/scenarios/scenario-catalog.data/aliases.json');
+const INTENTS = path.join(ROOT, 'scripts/data/core-intents.tsv');
+
+const catalogFile = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
+const scenarios = catalogFile.scenarios;
+const byId = () => new Map(scenarios.map((s) => [s.id, s]));
+const log = [];
+
+const sig = (pairs) => pairs.map(([token, weight]) => ({ token, weight, source: 'text' }));
+
+// ------------------------------------------------------------
+// 1. Merges: removed -> survivor, with the survivor's new signature where
+//    it needs one to absorb the removed scenario's vocabulary.
+// ------------------------------------------------------------
+const MERGES = [
+    { remove: 'convo_trial_extension_request', into: 'billing_trial_extension_request',
+      why: 'Same request ("extend my trial"); both open a ticket.' },
+    { remove: 'report_scheduled_delivery_new', into: 'report_scheduled_delivery',
+      why: 'Same request; the "_new" copy was added without noticing the first.' },
+    { remove: 'infra_data_location', into: 'compliance_data_residency',
+      why: 'Same question ("where is my data stored"); both open a ticket.' },
+    { remove: 'scale_attachment_too_big', into: 'ticket_attachment_too_large',
+      why: 'Same complaint, with contradictory limits in the two answers (see the fact correction below).' },
+    { remove: 'convo_seasonal_rush', into: 'ops_seasonal_capacity',
+      why: 'Same primary token (social_seasonal_rush) and the same advice at two lengths.' },
+    { remove: 'everything_broken_urgent', into: 'platform_wide_outage',
+      why: 'Same case ("everything is down"); both open a ticket.' },
+    { remove: 'bot_flow_testing', into: 'bot_test_mode',
+      why: 'Same question ("test the bot before publishing"); one answered, one only opened a ticket.' },
+    { remove: 'api_test_credentials', into: 'api_sandbox_request',
+      why: 'Same request (a test environment / credentials for the API), same primary token.' },
+    { remove: 'convo_asks_shorter_answer', into: 'convo_answer_too_long',
+      why: 'Same request ("shorter, please").' },
+    { remove: 'convo_sent_by_mistake', into: 'convo_wrong_message',
+      why: 'Same case (message sent by mistake).' },
+    { remove: 'convo_apologizes_after_anger', into: 'convo_angry_calming_down',
+      why: 'Same case (customer apologises for earlier anger).' },
+    { remove: 'wa_number_suspended_by_meta', into: 'whatsapp_number_banned',
+      why: 'Same event: a banned WhatsApp number is a number suspended by Meta. Both open a ticket.' },
+    { remove: 'convo_short_ok', into: 'convo_neutral_acknowledgement',
+      why: 'Identical answers to a bare "ok".' },
+    { remove: 'wa_emoji_arabic_garbled', into: 'data_import_encoding',
+      why: 'Same cause and same fix (file not saved as UTF-8). The survivor only opened a ticket; it now carries the answer.',
+      takeResolutionFromRemoved: true },
+    { remove: 'team_remove_agent_data', into: 'team_offboarding_agent',
+      why: 'Same situation with CONTRADICTORY answers (one said open tickets move to unassigned automatically, the other that they are left without an owner). The survivor keeps the safe ordering (reassign, then disable).' }
+];
+
+// ------------------------------------------------------------
+// 3. Fact corrections. Each cites the evidence row it follows.
+// ------------------------------------------------------------
+const answer = (ar, en) => ({ hasAutoResolution: true, text: { ar, en } });
+const CORRECTIONS = {
+    // KB audit §3: "لا مسار عميل للتخفيض ولا لإلغاء اشتراك فعّال" (whatsapp-subscription-service.js knows new/renew/upgrade only).
+    subscription_cancel_request: answer(
+        'إلغاء الاشتراك مش متاح كزرار في حسابك — بيتم عن طريق فريق الدعم عشان يراجع معاك المدة المدفوعة ومصير البيانات.\n\nقولّي «افتح تذكرة» وأنا أبعت طلب الإلغاء للفريق بالتفاصيل. ولو فيه حاجة معيّنة مضايقاك في الخدمة، قولهالي — يمكن نحلها بدل ما تلغي [[icon:smile]]',
+        'Cancelling is not a button in your account — the support team handles it, so they can go over the paid period and what happens to your data with you.\n\nSay "open a ticket" and I will send the cancellation request to the team with the details. And if something specific is bothering you, tell me — we may be able to fix it instead.'),
+    subscription_upgrade_request: null,
+    billing_downgrade_request: answer(
+        'النزول لباقة أقل مش متاح من حسابك مباشرة — المتاح من صفحة الاشتراكات هو الاشتراك الجديد والتجديد والترقية بس. التخفيض بيتم عن طريق فريق الدعم.\n\nقبل ما تطلبه، خد بالك: لو عدد المستخدمين أو الأرقام المربوطة عندك أكبر من حد الباقة الأقل، هتحتاج تقلّلهم. قولّي «افتح تذكرة» وأنا أبعت الطلب للفريق.',
+        'Moving to a smaller plan is not available from your account — the Subscriptions page offers new subscriptions, renewals and upgrades only. Downgrades go through the support team.\n\nBefore asking, note: if you have more users or linked numbers than the smaller plan allows, you will need to reduce them. Say "open a ticket" and I will send the request to the team.'),
+    // KB audit §3: PAYMENT_METHODS = bank transfer / cash wallet / InstaPay / internal gateway; proof mandatory.
+    billing_change_payment_method: answer(
+        'وسيلة الدفع بتختارها مع كل عملية دفع أو تجديد، مش بتتخزن في الحساب. الوسائل المتاحة: تحويل بنكي، محفظة كاش، إنستاباي، أو بوابة الدفع الداخلية.\n\nلو هتدفع بتحويل أو محفظة أو إنستاباي، لازم ترفع إثبات التحويل (صورة أو PDF لحد ٨ ميجا) مع الطلب — من غيره الطلب مابيكملش.',
+        'You choose the payment method with each payment or renewal; it is not stored on the account. Available methods: bank transfer, cash wallet, InstaPay, or the internal payment gateway.\n\nFor a transfer, wallet or InstaPay payment you must upload proof of transfer (an image or PDF up to 8MB) with the request — without it the request cannot complete.'),
+    subscription_payment_rejected: answer(
+        'لو الدفع اترفض، راجع حسب الوسيلة اللي استخدمتها:\n• بوابة الدفع: اتأكد إن الكارت مفعّل عليه الشراء أونلاين وإن الرصيد كافي.\n• تحويل بنكي أو محفظة كاش أو إنستاباي: الطلب مابيكملش من غير إثبات التحويل (صورة أو PDF لحد ٨ ميجا) — اتأكد إنه اترفع وإنه واضح.\n\nلو كل ده مظبوط والدفع لسه مرفوض، قولّي وأصعّدها للفريق المالي.',
+        'If a payment was rejected, check according to the method you used:\n• Payment gateway: make sure the card allows online purchases and has enough balance.\n• Bank transfer, cash wallet or InstaPay: the request does not complete without proof of transfer (an image or PDF up to 8MB) — make sure it was uploaded and is legible.\n\nIf all of that is right and it is still rejected, tell me and I will escalate it to the finance team.'),
+    // The retry schedule ("3 attempts over 7 days", "3 then 7 then 14 days") has no source anywhere in either repository.
+    billing_auto_renewal_failed: answer(
+        'لو التجديد مااتمّش، غالبًا الدفع نفسه اللي ماكملش — مثلًا إثبات تحويل ماترفعش، أو كارت مرفوض على بوابة الدفع.\n\nجدّد من صفحة «الاشتراكات» بالوسيلة اللي تناسبك، ولو دفعت فعلًا والتجديد مش ظاهر، ابعتلي إثبات الدفع وأنا أفتح تذكرة للفريق المالي.',
+        'If a renewal did not go through, it is usually the payment itself that did not complete — for example, proof of transfer was not uploaded, or a card was declined on the payment gateway.\n\nRenew from the "Subscriptions" page with the method that suits you. If you already paid and the renewal is not showing, send me the proof of payment and I will open a ticket for the finance team.'),
+    billing_dunning_window: answer(
+        'لو الدفع فشل، أسرع حل إنك تجدّد تاني من صفحة «الاشتراكات» بوسيلة دفع تانية، وترفع إثبات التحويل لو دفعت بتحويل أو محفظة أو إنستاباي.\n\nالمدة اللي الخدمة بتفضل شغالة فيها بعد فشل الدفع بيحددها فريق الدعم حسب حالة حسابك — لو قلقان إنها تقف، قولّي وأفتحلك تذكرة عشان يأكدولك [[icon:note]]',
+        'If a payment failed, the quickest fix is to renew again from the "Subscriptions" page with another method, uploading proof of transfer if you pay by transfer, wallet or InstaPay.\n\nHow long service continues after a failed payment is decided by the support team for your account — if you are worried it will stop, tell me and I will open a ticket so they can confirm.'),
+    // "90 days" retention: no source in either repository.
+    billing_data_after_cancel: answer(
+        'بياناتك مش بتتمسح لحظة الإلغاء، لكن مدة الاحتفاظ بيها بيأكدها فريق الدعم وقت تنفيذ الإلغاء — فاسألهم عنها في نفس التذكرة.\n\nوقبل أي حاجة، صدّر اللي يهمك: التقارير في لوحة الشركة بتتصدّر CSV وXLSX وPDF — ده بياخد دقايق وبيفضل عندك مهما حصل.',
+        'Your data is not deleted the moment you cancel, but the retention period is confirmed by the support team when the cancellation is processed — ask them in the same ticket.\n\nBefore anything else, export what matters: reports in the company dashboard export to CSV, XLSX and PDF. It takes minutes and stays with you whatever happens.'),
+    convo_hesitant_worried_about_commitment: answer(
+        'سؤال في محله [[icon:note]] الاشتراك شهري أو سنوي، وبتجدده بنفسك من صفحة «الاشتراكات». أي تغيير زي الإلغاء أو النزول لباقة أقل بيتم عن طريق فريق الدعم، وبيراجعوا معاك المدة المدفوعة قبل أي حاجة.\n\nلو حابب تجرّب الأول قبل ما تلتزم، اسألني عن الفترة التجريبية.',
+        'A fair question. Plans are monthly or yearly and you renew them yourself from the "Subscriptions" page. Changes such as cancelling or moving to a smaller plan go through the support team, who review the paid period with you first.\n\nIf you would like to try before committing, ask me about the trial.'),
+    // KB audit evidence matrix: "المرفقات: 5 ملفات × 5MB، صور/PDF/txt/log/csv" and "لا رفع مرفقات مع الرد في واجهة العميل".
+    ticket_attachment_too_large: answer(
+        'حدود مرفقات التذكرة: لحد ٥ ملفات، كل ملف لحد ٥ ميجا، والأنواع المقبولة صور وPDF وملفات نصية (txt وlog وcsv).\n\nلو الملف أكبر:\n• الصور: صغّر الأبعاد أو احفظها JPG.\n• السجلات: قسّمها لأكتر من ملف أو خد الجزء اللي فيه الخطأ بس.\n• الفيديو: ارفعه على أي خدمة تخزين وحط الرابط في وصف التذكرة.\n\nخد بالك إن المرفقات بتترفع مع فتح التذكرة، مش مع الرد عليها.',
+        'Ticket attachment limits: up to 5 files, each up to 5MB; accepted types are images, PDF and text files (txt, log, csv).\n\nIf a file is bigger:\n• Images: reduce the dimensions or save as JPG.\n• Logs: split them, or include only the part with the error.\n• Video: upload it to any storage service and put the link in the ticket description.\n\nNote that attachments are added when opening a ticket, not when replying to one.'),
+    // KB audit §3: "ساعات دعم ثابتة 9ص–6م — Not Found، الساعات من إعدادات الإدارة".
+    convo_checking_availability: answer(
+        'أنا متاح معاك ٢٤ ساعة طول الأسبوع [[icon:smile]]\n\nمواعيد فريق الدعم البشري بيحددها الفريق نفسه وبتظهرلك في لوحتك في قسم «توفّر فريق الدعم» (متاح الآن / خارج ساعات العمل). وبرّه المواعيد تقدر تفتح تذكرة في أي وقت، وبتتسجل فورًا.',
+        'I am available 24/7.\n\nThe human team sets its own working hours, shown in your dashboard under "Support availability" (available now / outside working hours). Outside those hours you can open a ticket at any time and it is recorded immediately.'),
+    // KB audit §3: webhooks are managed from admin/settings.html only; no customer UI.
+    webhook_not_receiving: answer(
+        'لو الـ Webhook مش بيستقبل أحداث، راجع عندك الأول:\n• الـ endpoint لازم يكون HTTPS بشهادة صالحة.\n• لازم يرد بـ 2xx بسرعة؛ الرد البطيء بيتحسب فشل.\n• اتأكد إن الـ firewall مش بيحجب الطلبات الواردة.\n\nإعداد الـ Webhooks وسجل محاولاتها بيتدار من فريق المنصة مش من حسابك — لو كل اللي فوق مظبوط، قولّي وأفتحلك تذكرة عشان يراجعوا السجل.',
+        'If your webhook is not receiving events, check your side first:\n• The endpoint must be HTTPS with a valid certificate.\n• It must answer 2xx quickly; slow responses count as failures.\n• Make sure your firewall is not blocking incoming requests.\n\nWebhook configuration and its delivery log are managed by the platform team, not from your account — if everything above is fine, tell me and I will open a ticket so they can check the log.'),
+    // KB audit §3: migration 034 removed trg_reopen_ticket_on_owner_reply — a reply no longer reopens.
+    ticket_reopened_automatically: answer(
+        'الرد على تذكرة مقفولة مابيعيدش فتحها تلقائيًا — الرد بيتسجل بس الحالة مابتتغيرش. التذكرة بتتفتح تاني بس لو حد ضغط «إعادة الفتح» على تذكرة حالتها «تم الحل»، وجوّه التذكرة هتلاقي عدّاد «أُعيد فتحها X مرة».\n\nلو شايفها بتتفتح من غير ما حد يضغط الزرار، ابعتلي رقمها وأنا أفتح تذكرة للفريق يراجع سجلها.',
+        'Replying to a closed ticket does not reopen it — the reply is recorded but the status does not change. A ticket reopens only when someone presses "Reopen" on a ticket marked "Resolved", and inside the ticket you will see a "reopened X times" counter.\n\nIf you see it reopening without anyone pressing the button, send me its number and I will open a ticket for the team to check its history.'),
+    // KB audit evidence matrix: views all/open/awaiting reply/closed; "إخفاء من قائمتي" has no undo in the customer UI.
+    ticket_disappeared: answer(
+        'التذاكر مابتتمسحش، لكنها ممكن تختفي من القائمة اللي قدامك:\n• لو اتقفلت: غيّر العرض لـ «مغلقة» أو «كل التذاكر».\n• لو اخترت «إخفاء من قائمتي»: دي مابيتلغيش من حسابك — قولّي رقم التذكرة وأنا أفتح طلب للفريق يرجّعها.\n\nلو مش فاكر الرقم، قولّي عنوانها التقريبي وتاريخها.',
+        'Tickets are not deleted, but they can drop out of the list you are looking at:\n• If it was closed: switch the view to "Closed" or "All tickets".\n• If you chose "Hide from my list": that cannot be undone from your account — send me the ticket number and I will ask the team to restore it.\n\nIf you do not remember the number, give me its approximate title and date.'),
+    // KB audit: external payment requests open a ticket with a 1-hour first-response target; proof ≤ 8MB mandatory.
+    billing_bank_transfer_pending: answer(
+        'الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي بيتراجع يدويًا: طلبك بيفتح تذكرة تلقائيًا، وهدف أول رد عليها ساعة واحدة.\n\nعشان المراجعة تمشي بسرعة، اتأكد إن إثبات التحويل (صورة أو PDF لحد ٨ ميجا) اترفع وإنه واضح فيه المبلغ والتاريخ. تقدر تتابع التذكرة من «تذاكري».',
+        'Payments by bank transfer, cash wallet or InstaPay are reviewed manually: your request opens a ticket automatically, with a first-response target of one hour.\n\nTo keep the review quick, make sure the proof of transfer (an image or PDF up to 8MB) was uploaded and clearly shows the amount and date. You can follow the ticket from "My tickets".')
+};
+delete CORRECTIONS.subscription_upgrade_request;
+
+// ------------------------------------------------------------
+// Apply.
+// ------------------------------------------------------------
+const aliases = fs.existsSync(ALIASES) ? JSON.parse(fs.readFileSync(ALIASES, 'utf8')) : { note: '', aliases: {} };
+
+for (const m of MERGES) {
+    const map = byId();
+    const removed = map.get(m.remove);
+    const survivor = map.get(m.into);
+    if (!removed) continue; // already applied
+    const alternatives = survivor.alternativeSignatures || [];
+    for (const signature of [removed.evidenceSignature, ...(removed.alternativeSignatures || [])]) {
+        const key = JSON.stringify(signature);
+        if (JSON.stringify(survivor.evidenceSignature) !== key && !alternatives.some((a) => JSON.stringify(a) === key)) {
+            alternatives.push(signature);
+        }
+    }
+    survivor.alternativeSignatures = alternatives;
+    if (m.takeResolutionFromRemoved) {
+        survivor.resolution = removed.resolution;
+        survivor.requiresTicketIfUnresolved = removed.requiresTicketIfUnresolved;
+    }
+    scenarios.splice(scenarios.indexOf(removed), 1);
+    aliases.aliases[m.remove] = { into: m.into, why: m.why };
+    log.push(`merge: ${m.remove} -> ${m.into}`);
+}
+
+for (const [id, resolution] of Object.entries(CORRECTIONS)) {
+    const s = byId().get(id);
+    if (!s) throw new Error(`correction target missing: ${id}`);
+    if (JSON.stringify(s.resolution) !== JSON.stringify(resolution)) {
+        s.resolution = { ...resolution, ...(s.resolution.knowledgeSource ? { knowledgeSource: s.resolution.knowledgeSource } : {}) };
+        s.requiresTicketIfUnresolved = false;
+        log.push(`fact correction: ${id}`);
+    }
+}
+
+// convo_praise_for_arabic was keyed on behaviour_testing_bot — the TEST token.
+// A bare "do you understand Arabic?" therefore tied with convo_testing_the_bot
+// and the alphabetical tie-break answered it with "thanks for the compliment".
+{
+    const s = byId().get('convo_praise_for_arabic');
+    const wanted = sig([['social_praise', 3], ['behaviour_testing_bot', 2], ['emotion_grateful', 1]]);
+    if (JSON.stringify(s.evidenceSignature) !== JSON.stringify(wanted)) {
+        s.evidenceSignature = wanted;
+        log.push('signature: convo_praise_for_arabic keyed on praise, not on the testing token');
+    }
+}
+
+// The catch-all: never promoted by the ranking specificity rule.
+{
+    const s = byId().get('unknown');
+    if (s.catchAll !== true) { s.catchAll = true; log.push('flag: unknown is the catch-all'); }
+}
+
+// Intent keys: the inventory. Every scenario carries one; CI requires them unique.
+{
+    const intents = new Map(fs.readFileSync(INTENTS, 'utf8').trim().split('\n').map((l) => l.split('\t')));
+    // Two keys change meaning with the merges above.
+    intents.set('team_review_data', 'report/agent_review/advice');
+    for (const s of scenarios) {
+        const key = intents.get(s.id);
+        if (!key) throw new Error(`no intent key for ${s.id}`);
+        if (s.intent !== key) s.intent = key;
+    }
+}
+
+aliases.note = 'Scenario ids removed by the 2026-09 audit, and the scenario that now handles the same case. Read by the comparator and available to anything resolving a stored scenario id.';
+fs.writeFileSync(CATALOG, JSON.stringify(catalogFile, null, 2) + '\n');
+fs.writeFileSync(ALIASES, JSON.stringify(aliases, null, 2) + '\n');
+console.log(log.join('\n'));
+console.log(`scenarios: ${scenarios.length}`);

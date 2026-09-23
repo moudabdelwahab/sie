@@ -21,6 +21,7 @@
  * object alone, not just a single free-text explanation.
  */
 import { ACTIONS, createEmptyDecisionState } from './decision-types.js';
+import { scenarioSignatures } from '../scenarios/scenario-types.js';
 import {
     EVIDENCE_REQUEST_ACTION_BY_CATEGORY,
     DEFAULT_EVIDENCE_REQUEST_ACTION,
@@ -54,7 +55,7 @@ function buildTicketDraft(ranking, policy) {
 function hasMissingLiveEvidence(entry) {
     if (!entry?.scenario) return false;
     const liveTokens = new Set(
-        entry.scenario.evidenceSignature.filter((sig) => sig.source === 'live').map((sig) => sig.token)
+        scenarioSignatures(entry.scenario).flat().filter((sig) => sig.source === 'live').map((sig) => sig.token)
     );
     if (liveTokens.size === 0) return false;
     return (entry.hypothesis.missingEvidenceTokens || []).some((token) => liveTokens.has(token));
@@ -700,6 +701,9 @@ function updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns)
         consecutiveNoNewEvidenceTurns,
         lastAction: decision.action,
         lastScenarioId: decision.scenarioId,
+        pendingQuestion: decision.action === ACTIONS.ASK_CLARIFYING_QUESTION && decision.targetQuestion?.id && decision.scenarioId
+            ? { scenarioId: decision.scenarioId, questionId: decision.targetQuestion.id }
+            : null,
         answeredScenarioIds,
         resolvedByCustomer: prevState.resolvedByCustomer || decision.action === ACTIONS.COMPLETE,
         ticketAlreadyCreated,

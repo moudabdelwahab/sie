@@ -51,6 +51,7 @@ import { openTurn, admitEvidence, admitAction, trustTrace } from '../trust/trust
 import { migrateState, updateSparseState, expandHypotheses, isSparseState } from '../diagnostics/sparse-state.js';
 import { interpretTurn, interpretationTrace, TURN_KINDS } from './interpretation.js';
 import { scopeCandidates } from './candidate-scope.js';
+import { evidenceFromQuestionAnswer } from '../diagnostics/question-answer.js';
 
 export { TURN_KINDS };
 
@@ -93,7 +94,7 @@ const now = () => Number(process.hrtime.bigint()) / 1e6;
  * @param {Object} [params.providers]           language providers, for Node tests
  * @returns {Promise<Object>}
  */
-export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {} }) {
+export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {}, rankingOptions = {} }) {
     const cfg = resolveVariant(variant);
     const timings = {};
     const turn = (previous?.turnCount || 0) + 1;
@@ -135,7 +136,19 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
 
     // ── Evidence, bounded by CP2 ───────────────────────────────
     t = now();
-    const { evidence: admitted, dropped } = admitEvidence(evidence, trustEnvelope);
+    // A tapped discriminating-question option becomes the evidence it was
+    // written to imply. It joins the text evidence BEFORE the trust boundary,
+    // so it is bounded exactly like everything else the customer sends.
+    const answered = await evidenceFromQuestionAnswer({
+        text,
+        decisionState: previous?.decisionState,
+        lookup: (id) => catalog.find((s) => s.id === id) || null,
+        turn
+    });
+    const { evidence: admitted, dropped } = admitEvidence(
+        answered ? [...evidence, ...answered.evidence] : evidence,
+        trustEnvelope
+    );
     const priorState = previous?.diagnosticState || null;
     const priorAccumulator = priorState?.accumulator || { entries: [] };
     const accumulator = mergeEvidence(priorAccumulator, admitted, turn);
@@ -174,7 +187,7 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     // is empty whenever the message shares no vocabulary with any scenario,
     // and the decision engine has to be able to tell that from a catalog that
     // failed to load. See R4_EMPTY_SCOPE.
-    const ranking = rankHypotheses(hypotheses, scope.scenarios, { activationThreshold, catalogSize: catalog.length });
+    const ranking = rankHypotheses(hypotheses, scope.scenarios, { ...rankingOptions, activationThreshold, catalogSize: catalog.length });
     timings.ranking = now() - t;
 
     // ── Decision ───────────────────────────────────────────────
@@ -207,6 +220,7 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
         ranking, decision: authorized, actionDowngraded: downgraded, decisionState,
         diagnosticState,
         evidenceAdmitted: admitted.length, evidenceDropped: dropped,
+        questionAnswer: answered ? { scenarioId: answered.scenarioId, questionId: answered.questionId, option: answered.optionValue } : null,
         scope: scope.stats, timings,
         trace: { interpretation: interpretationTrace(interpretation), trust: trustTrace(trustEnvelope) }
     };

@@ -43,6 +43,7 @@ import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
 import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
 import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace } from '../sie/trust/trust-boundary.js';
 import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
+import { evidenceFromQuestionAnswer } from '../sie/diagnostics/question-answer.js';
 import { toSparseState } from '../sie/diagnostics/sparse-state.js';
 import { runShadowComparison } from './sie-shadow.js';
 
@@ -853,11 +854,21 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // is arithmetic rather than detection: a turn the boundary constrained
         // moves belief no further than one ordinary sentence, however phrased.
         let evidenceDropped = 0;
+        // A tapped discriminating-question option carries the evidence its
+        // option declares (question-answer.js). Passed as additionalEvidence
+        // so the trust boundary's evidenceFilter below bounds it too.
+        const questionAnswer = await evidenceFromQuestionAnswer({
+            text,
+            decisionState: prevSie?.decisionState,
+            lookup: (id) => scenarioProvider.getScenarioById(id),
+            turn
+        });
         const diagnosticState = await processTurn({
             normalizedTokens,
             turn,
             previousState: prevSie?.diagnosticState,
             liveEvidenceContext: { userId },
+            additionalEvidence: questionAnswer ? questionAnswer.evidence : [],
             scenarioProvider,
             evidenceFilter: (evidence) => {
                 const { evidence: kept, dropped } = admitEvidence(evidence, trustEnvelope);

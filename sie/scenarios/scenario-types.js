@@ -54,6 +54,44 @@
  * @property {string} category - Kept aligned with existing tickets.category values
  */
 
+/**
+ * Every evidence signature a scenario can be reached by: the primary one,
+ * then any `alternativeSignatures`, in order.
+ *
+ * ------------------------------------------------------------
+ * WHY ALTERNATIVES EXIST
+ *
+ * Confidence is a coverage ratio over ONE signature, so a scenario can only
+ * express AND ("these words together"). It cannot express OR ("these words,
+ * or those"). The catalog worked around that the only way it could — by
+ * adding a second scenario for the second vocabulary — and the 2026-09 audit
+ * found fifteen such duplicates. Merging them into one signature lost one of
+ * the two vocabularies every time.
+ *
+ * An alternative signature is that OR, stated directly: the scenario's
+ * confidence is the MAXIMUM over its signatures. A merged scenario therefore
+ * scores, on every message, exactly max(old A, old B) — its reach is provably
+ * the union of the two it replaces, with one fewer competitor in the ranking.
+ *
+ * @param {Scenario} scenario
+ * @returns {EvidenceSignatureEntry[][]}
+ */
+export function scenarioSignatures(scenario) {
+    const out = [];
+    if (Array.isArray(scenario?.evidenceSignature)) out.push(scenario.evidenceSignature);
+    if (Array.isArray(scenario?.alternativeSignatures)) {
+        for (const alt of scenario.alternativeSignatures) if (Array.isArray(alt) && alt.length) out.push(alt);
+    }
+    return out;
+}
+
+/** Every token any of the scenario's signatures names. */
+export function scenarioTokens(scenario) {
+    const tokens = new Set();
+    for (const signature of scenarioSignatures(scenario)) for (const e of signature) tokens.add(e.token);
+    return tokens;
+}
+
 const REQUIRED_TOP_LEVEL_FIELDS = [
     'id',
     'label',
@@ -115,6 +153,26 @@ export function validateScenario(scenario) {
                 errors.push(`evidenceSignature[${i}].source must be one of text|live|any`);
             }
         });
+    }
+    if ('alternativeSignatures' in scenario && scenario.alternativeSignatures !== undefined) {
+        if (!Array.isArray(scenario.alternativeSignatures)) {
+            errors.push('alternativeSignatures, when present, must be an array of signatures');
+        } else {
+            scenario.alternativeSignatures.forEach((alt, a) => {
+                if (!Array.isArray(alt) || alt.length === 0) {
+                    errors.push(`alternativeSignatures[${a}] must be a non-empty array`);
+                    return;
+                }
+                alt.forEach((entry, i) => {
+                    if (!entry || typeof entry.token !== 'string' || entry.token.trim() === '') {
+                        errors.push(`alternativeSignatures[${a}][${i}].token must be a non-empty string`);
+                    }
+                    if (typeof entry?.weight !== 'number' || !Number.isFinite(entry.weight) || entry.weight <= 0) {
+                        errors.push(`alternativeSignatures[${a}][${i}].weight must be a positive finite number`);
+                    }
+                });
+            });
+        }
     }
     if (!Array.isArray(scenario.discriminatingQuestions)) {
         errors.push('discriminatingQuestions must be an array (can be empty)');

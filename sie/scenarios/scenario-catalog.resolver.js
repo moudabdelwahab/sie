@@ -66,7 +66,7 @@
  * database blip narrows the catalog to the reviewed one rather than
  * breaking the turn — and the reason is visible instead of inferred.
  */
-import { validateCatalog } from './scenario-types.js';
+import { validateCatalog, scenarioTokens } from './scenario-types.js';
 import { scenarioCatalogProvider } from './scenario-catalog.local.js';
 
 /**
@@ -195,7 +195,7 @@ function providerOver(scenarios, warnings) {
         async getEvidenceVocabulary() {
             const tokens = new Set();
             for (const scenario of scenarios) {
-                for (const entry of scenario.evidenceSignature) tokens.add(entry.token);
+                for (const token of scenarioTokens(scenario)) tokens.add(token);
             }
             return Array.from(tokens);
         },
