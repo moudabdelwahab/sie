@@ -42,7 +42,7 @@ export default {
         // (symptom_otp_not_received) — so a bare «وصل متأخر» stays there.
         T('entity_arrived_after', 'وصل بعد ما وقته خلص', 'arrived after it expired', ['وصل بعد', 'وصلني بعد', 'وصلي بعد', 'جالي بعد', 'بيوصل بعد', 'بيوصلني بعد', 'بيجي بعد', 'بيجيلي بعد', 'جه بعد', 'arrived after', 'comes after', 'came after']),
         T('entity_resend_blocked', 'طلب كود تاني', 'requesting another code', ['ابعتلي تاني', 'اعادة الارسال', 'اعاده الارسال', 'اعادة ارسال', 'ارسال مره تانيه', 'ارسال مرة تانية', 'ارسل تاني', 'resend', 'send again', 'استنى قبل ما', 'حاول بعد شوية', 'try again later']),
-        T('entity_two_accounts', 'أكتر من حساب', 'more than one account', ['حسابين', 'عندي حسابين', 'اكتر من حساب', 'الحساب التاني', 'two accounts', 'another account', 'switch account', 'switch accounts']),
+        T('entity_two_accounts', 'أكتر من حساب', 'more than one account', ['حسابين', 'عندي حسابين', 'اكونتين', 'الاكونتين', 'اكتر من حساب', 'الحساب التاني', 'two accounts', 'another account', 'switch account', 'switch accounts']),
         // «شغال عادي» — the working half of "works here, not there". Generic:
         // alone it means nothing (policy GENERIC_WORDS).
         T('entity_works_normally', 'شغال عادي', 'works normally', ['عادي', 'شغال عادي', 'بيفتح عادي', 'works fine', 'works normally']),

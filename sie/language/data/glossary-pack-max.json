@@ -519,6 +519,8 @@
       "patterns": [
         "حسابين",
         "عندي حسابين",
+        "اكونتين",
+        "الاكونتين",
         "اكتر من حساب",
         "الحساب التاني",
         "two accounts",
@@ -947,7 +949,6 @@
       "patterns": [
         "cookie too large",
         "header or cookie too large",
-        "request header or cookie too large",
         "request header too large",
         "header too large"
       ]
@@ -1327,8 +1328,6 @@
         "لما ادوس عليه",
         "بدوس عليه",
         "ادوس عليه",
-        "مش بيتداس",
-        "مابيتداسش",
         "tap the link",
         "click the link",
         "link not clickable"
@@ -1608,6 +1607,216 @@
       ]
     },
     {
+      "canonical": "entity_save_word",
+      "labels": {
+        "ar": "الحفظ",
+        "en": "save"
+      },
+      "patterns": [
+        "الحفظ",
+        "زرار الحفظ",
+        "زر الحفظ",
+        "save button"
+      ]
+    },
+    {
+      "canonical": "entity_greyed_out",
+      "labels": {
+        "ar": "رمادي",
+        "en": "greyed out"
+      },
+      "patterns": [
+        "رمادي",
+        "رماديه",
+        "باهت",
+        "مطفي",
+        "greyed out",
+        "grayed out",
+        "disabled button"
+      ]
+    },
+    {
+      "canonical": "entity_red_field",
+      "labels": {
+        "ar": "بتحمر",
+        "en": "turns red"
+      },
+      "patterns": [
+        "بتحمر",
+        "بيحمر",
+        "احمر",
+        "حمرا",
+        "لونها احمر",
+        "باللون الاحمر",
+        "turns red",
+        "red border",
+        "highlighted in red"
+      ]
+    },
+    {
+      "canonical": "entity_undo",
+      "labels": {
+        "ar": "أرجّعه زي ما كان",
+        "en": "undo"
+      },
+      "patterns": [
+        "ارجعه",
+        "ارجعها",
+        "ارجع التعديل",
+        "ارجعه زي ما كان",
+        "زي ما كان",
+        "undo",
+        "تراجع",
+        "revert"
+      ]
+    },
+    {
+      "canonical": "entity_setting_word",
+      "labels": {
+        "ar": "الإعداد",
+        "en": "the setting"
+      },
+      "patterns": [
+        "الاعداد ده",
+        "الخاصيه دي",
+        "الخاصية دي",
+        "الاوبشن ده",
+        "this setting",
+        "this option"
+      ]
+    },
+    {
+      "canonical": "entity_spelling",
+      "labels": {
+        "ar": "الإملاء",
+        "en": "spelling"
+      },
+      "patterns": [
+        "بالهمزه",
+        "الهمزه",
+        "همزه",
+        "بالتاء",
+        "التاء",
+        "الالف",
+        "ي ولا ى",
+        "ه ولا ة"
+      ]
+    },
+    {
+      "canonical": "entity_not_finding",
+      "labels": {
+        "ar": "مش بيلاقي",
+        "en": "not finding"
+      },
+      "patterns": [
+        "مش بيلاقي",
+        "مابيلاقيش",
+        "مبيلاقيش",
+        "مش بيطلع",
+        "مش بيجيب",
+        "doesnt find",
+        "not finding"
+      ]
+    },
+    {
+      "canonical": "entity_site_builder",
+      "labels": {
+        "ar": "ووردبريس / شوبيفاي / ويكس",
+        "en": "site builder"
+      },
+      "patterns": [
+        "ووردبريس",
+        "وورد بريس",
+        "wordpress",
+        "shopify",
+        "wix",
+        "ويكس",
+        "blogger",
+        "بلوجر",
+        "gtm",
+        "webflow"
+      ]
+    },
+    {
+      "canonical": "entity_csp",
+      "labels": {
+        "ar": "سياسة أمان المحتوى",
+        "en": "Content Security Policy"
+      },
+      "patterns": [
+        "refused to load",
+        "refused to connect",
+        "refused to frame",
+        "violates",
+        "csp"
+      ]
+    },
+    {
+      "canonical": "entity_ownership",
+      "labels": {
+        "ar": "ملكية الحساب",
+        "en": "account ownership"
+      },
+      "patterns": [
+        "ملكيه",
+        "ملكية",
+        "انقل الملكيه",
+        "نقل الملكيه",
+        "صاحب الحساب الجديد",
+        "transfer ownership",
+        "account owner"
+      ]
+    },
+    {
+      "canonical": "entity_merge_word",
+      "labels": {
+        "ar": "أدمج",
+        "en": "merge"
+      },
+      "patterns": [
+        "ادمجهم",
+        "ندمج",
+        "دمجهم",
+        "merge them",
+        "merge accounts",
+        "combine accounts"
+      ]
+    },
+    {
+      "canonical": "entity_vulnerability",
+      "labels": {
+        "ar": "ثغرة أمنية",
+        "en": "security vulnerability"
+      },
+      "patterns": [
+        "ثغره",
+        "ثغرة",
+        "ثغره امنيه",
+        "ثغرة أمنية",
+        "vulnerability",
+        "xss",
+        "sql injection",
+        "responsible disclosure"
+      ]
+    },
+    {
+      "canonical": "entity_deceased",
+      "labels": {
+        "ar": "اتوفى",
+        "en": "passed away"
+      },
+      "patterns": [
+        "اتوفى",
+        "اتوفي",
+        "توفى",
+        "توفي",
+        "الله يرحمه",
+        "الله يرحمها",
+        "passed away",
+        "deceased"
+      ]
+    },
+    {
       "canonical": "entity_login",
       "synonym": true,
       "labels": {
@@ -1831,6 +2040,20 @@
       "patterns": [
         "الاكسل",
         "اكسل"
+      ]
+    },
+    {
+      "canonical": "symptom_permission_denied",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_permission_denied",
+        "en": "symptom_permission_denied"
+      },
+      "patterns": [
+        "ليس لديك صلاحيه",
+        "ليس لديك صلاحية",
+        "you dont have permission",
+        "not authorized"
       ]
     },
     {

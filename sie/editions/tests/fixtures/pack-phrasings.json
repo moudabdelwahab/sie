@@ -1354,6 +1354,58 @@
     [
       "gen_screenshot_privacy",
       "ينفع ابعت صورة فيها بياناتي ولا اخبي حاجة"
+    ],
+    [
+      "gen_save_button_disabled",
+      "زرار الحفظ رمادي ومش بيتداس"
+    ],
+    [
+      "gen_form_field_turns_red",
+      "الخانة بتحمر ومش راضية تقبل"
+    ],
+    [
+      "gen_undo_accidental_change",
+      "عملت تعديل بالغلط وعايز ارجعه زي ما كان"
+    ],
+    [
+      "gen_cannot_find_setting",
+      "مش لاقي الاعداد ده فين"
+    ],
+    [
+      "gen_arabic_search_spelling",
+      "البحث مش بيلاقي بالهمزه"
+    ],
+    [
+      "gen_install_code_site_builder",
+      "احط الكود في ووردبريس"
+    ],
+    [
+      "gen_csp_blocks_script",
+      "refused to load the script violates csp"
+    ],
+    [
+      "gen_transfer_account_ownership",
+      "عايز انقل ملكيه الحساب"
+    ],
+    [
+      "gen_merge_two_accounts",
+      "عندي حسابين وعايز ادمجهم"
+    ],
+    [
+      "gen_report_security_vulnerability",
+      "لقيت ثغره امنيه"
+    ],
+    [
+      "gen_account_owner_deceased",
+      "صاحب الحساب اتوفى"
+    ],
+    [
+      "gen_transfer_account_ownership",
+      "الحساب باسمي وعايز اخلي زميلي هو صاحب الحساب الجديد"
+    ],
+    [
+      "gen_merge_two_accounts",
+      "فتحت اكونتين بالغلط ينفع ندمج الاتنين في واحد"
     ]
   ],
   "max_heldout": [
@@ -1668,6 +1720,50 @@
     [
       "gen_screenshot_privacy",
       "هصور الشاشة بس فيها رقم الفيزا اعمل ايه"
+    ],
+    [
+      "gen_save_button_disabled",
+      "زر الحفظ باهت ومش بيشتغل لما ادوس"
+    ],
+    [
+      "gen_form_field_turns_red",
+      "كل ما اكتب رقمي الخانه تبقى باللون الاحمر"
+    ],
+    [
+      "gen_undo_accidental_change",
+      "غيرت حاجه بالغلط ينفع تراجع"
+    ],
+    [
+      "gen_cannot_find_setting",
+      "قالولي فعل الخاصيه دي بس مش لاقيها فين"
+    ],
+    [
+      "gen_arabic_search_spelling",
+      "لما اكتب الاسم من غير همزه البحث مش بيجيب حاجه"
+    ],
+    [
+      "gen_install_code_site_builder",
+      "فين احط كود الشات في wix"
+    ],
+    [
+      "gen_csp_blocks_script",
+      "الكونسول بيقول refused to connect because it violates the content security policy"
+    ],
+    [
+      "gen_report_security_vulnerability",
+      "I found an xss vulnerability on your site"
+    ],
+    [
+      "gen_account_owner_deceased",
+      "والدي الله يرحمه كان عامل الحساب ومحتاجين نوصله"
+    ],
+    [
+      "gen_transfer_account_ownership",
+      "ممكن حد تاني يمسك الحساب بداله انا هسيب الشغل ومحتاج انقل الملكيه"
+    ],
+    [
+      "gen_merge_two_accounts",
+      "سجلت مرتين بايميلين مختلفين وعايز اجمع البيانات في حساب واحد عايز ادمجهم"
     ]
   ]
 }

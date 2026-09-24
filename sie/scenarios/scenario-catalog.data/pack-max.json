@@ -13,7 +13,8 @@
     "entity_stuck_word",
     "entity_convert_word",
     "entity_caller",
-    "entity_someone_asked"
+    "entity_someone_asked",
+    "entity_tap_link"
   ],
   "scenarios": [
     {
@@ -3021,6 +3022,368 @@
           }
         ]
       ]
+    },
+    {
+      "id": "gen_save_button_disabled",
+      "intent": "forms/save/button_greyed",
+      "label": {
+        "ar": "زرار الحفظ رمادي ومش بيتداس",
+        "en": "The save button is greyed out"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_greyed_out",
+          "weight": 430,
+          "source": "text"
+        },
+        {
+          "token": "entity_save_word",
+          "weight": 430,
+          "source": "text"
+        },
+        {
+          "token": "atom_button",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "زرار الحفظ بيفضل رمادي لحد ما النموذج يبقى جاهز يتحفظ:\n• فيه خانة إجبارية فاضية — دوّر على علامة (*) أو خانة عليها تنبيه، وانزل لآخر الصفحة.\n• فيه خانة قيمتها مش مقبولة (بتبقى بلون أحمر أو تحتها رسالة صغيرة).\n• لو ماغيّرتش حاجة، الزرار بيفضل مقفول لأنه مفيش حاجة تتحفظ.\n\nولو كل ده مظبوط وبرضه رمادي، قولّي انت في أنهي صفحة.",
+          "en": "A save button stays grey until the form is ready to save:\n• A required field is empty — look for an asterisk (*) or a field with a warning, and scroll to the bottom of the page.\n• A field has a value that isn't accepted (usually shown in red or with a small message under it).\n• If you haven't changed anything, the button stays disabled because there's nothing to save.\n\nIf all of that is fine and it's still grey, tell me which page you're on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_form_field_turns_red",
+      "intent": "forms/validation/field_red",
+      "label": {
+        "ar": "الخانة بتحمر ومش راضية تقبل اللي بكتبه",
+        "en": "A form field turns red and won't accept what I type"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_red_field",
+          "weight": 810,
+          "source": "text"
+        },
+        {
+          "token": "entity_form_field",
+          "weight": 190,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الخانة الحمرا معناها إن القيمة مش بالشكل المطلوب — اقرا الرسالة الصغيرة اللي تحتها أو جنبها. الأسباب الأشهر:\n• الإيميل: لازم يبقى فيه @ ونقطة، ومن غير مسافات.\n• رقم الموبايل: أرقام بس، بالأرقام الإنجليزي (123)، ومن غير مسافات أو شرط.\n• الخانة إجبارية واتسابت فاضية.\n• النص أقصر أو أطول من المسموح.\n\nلو مش واضح المطلوب، ابعتلي اسم الخانة واللي بتكتبه (من غير كلمات مرور).",
+          "en": "A red field means the value isn't in the required form — read the small message under or next to it. The most common causes:\n• E-mail: it needs an @ and a dot, with no spaces.\n• Phone number: digits only, as Western digits (123), with no spaces or dashes.\n• The field is required and was left empty.\n• The text is shorter or longer than allowed.\n\nIf it's not clear what's needed, send me the field's name and what you're typing (no passwords)."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_undo_accidental_change",
+      "intent": "forms/edit/undo_change",
+      "label": {
+        "ar": "عملت تعديل بالغلط وعايز أرجّعه",
+        "en": "I changed something by mistake and want to undo it"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_undo",
+          "weight": 720,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_mistake",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "atom_change",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• لو لسه ماحفظتش: اخرج من الصفحة من غير حفظ، أو اضغط Ctrl+Z (على ماك Cmd+Z) جوه الخانة.\n• لو حفظت: رجّع القيمة القديمة بإيدك لو فاكرها، واحفظ تاني.\n• لو التعديل مسح حاجة (رسالة، ملف، عنصر)، قولّي إيه اللي اتمسح وإمتى تقريبًا، وأنا أشوف إمكانية الاسترجاع مع الفريق.",
+          "en": "• If you haven't saved yet: leave the page without saving, or press Ctrl+Z (Cmd+Z on a Mac) inside the field.\n• If you saved: put the old value back by hand if you remember it, and save again.\n• If the change deleted something (a message, a file, an item), tell me what was deleted and roughly when, and I'll check with the team whether it can be restored."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_cannot_find_setting",
+      "intent": "forms/navigation/cannot_find_setting",
+      "label": {
+        "ar": "مش لاقي الإعداد أو الاختيار اللي بيقولوا عليه",
+        "en": "I can't find the setting or option I was told about"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_setting_word",
+          "weight": 570,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 290,
+          "source": "text"
+        },
+        {
+          "token": "atom_where",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "قولّي اسم اللي بتدوّر عليه، أو إنت عايز تعمل إيه بيه، وأنا أقولك مكانه بالظبط.\n\nولحد ما تقولّي: أغلب الإعدادات بتبقى في القائمة الجانبية أو من صورة حسابك فوق — وعلى الموبايل القائمة بتتفتح من زرار (☰). ولو الاختيار مش ظاهر خالص، ممكن يكون مرتبط بصلاحية حسابك أو بباقتك.",
+          "en": "Tell me the name of what you're looking for, or what you want to do with it, and I'll tell you exactly where it is.\n\nMeanwhile: most settings live in the side menu or under your profile picture at the top — on a phone the menu opens from the (☰) button. If the option doesn't appear at all, it may depend on your account's permissions or your plan."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_arabic_search_spelling",
+      "intent": "search/arabic/spelling_variants",
+      "label": {
+        "ar": "البحث مش بيلاقي عشان الهمزة أو التاء المربوطة",
+        "en": "Search misses results because of Arabic spelling (hamza, taa marbuta)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_spelling",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_not_finding",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_search",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "البحث في كتير من الأنظمة بيدوّر على الكتابة زي ما هي، فـ «أحمد» غير «احمد»، و«مدرسة» غير «مدرسه». جرّب:\n• من غير همزة: «احمد» بدل «أحمد».\n• التاء المربوطة والهاء: «مدرسه» و«مدرسة».\n• الياء والألف المقصورة: «مصطفي» و«مصطفى».\n• جزء من الكلمة بس، أو ابحث برقم الموبايل أو الإيميل بدل الاسم.",
+          "en": "Search in many systems matches the spelling exactly, so «أحمد» differs from «احمد» and «مدرسة» from «مدرسه». Try:\n• Without the hamza: «احمد» instead of «أحمد».\n• Taa marbuta and haa: both «مدرسه» and «مدرسة».\n• Yaa and alif maqsura: both «مصطفي» and «مصطفى».\n• Only part of the word, or search by phone number or e-mail instead of the name."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_install_code_site_builder",
+      "intent": "website/install/site_builder_code",
+      "label": {
+        "ar": "أحط الكود في موقعي على ووردبريس أو شوبيفاي أو ويكس",
+        "en": "Add the code to my WordPress, Shopify or Wix site"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_site_builder",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_code",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كل منصة ليها مكان للكود الإضافي — الكود بيتحط في آخر الصفحة (قبل نهاية الـ body) في كل الصفحات:\n• ووردبريس: إضافة زي «WPCode» ← Footer، أو من القالب: المظهر ← محرر القالب ← footer.php.\n• شوبيفاي: المتجر الإلكتروني ← القوالب ← (…) ← تعديل الكود ← theme.liquid ← قبل نهاية الـ body.\n• ويكس: الإعدادات ← الكود المخصص ← إضافة كود ← «Body — end» ← كل الصفحات.\n• Google Tag Manager: وسم «HTML مخصص» على «كل الصفحات».\n\nبعد الحفظ افتح الموقع في نافذة تصفح خفي — إضافات الكاش ساعات بتأخر ظهوره.",
+          "en": "Each platform has a place for extra code — it goes at the very end of the page (just before the body closes) on every page:\n• WordPress: a plugin such as \"WPCode\" ▸ Footer, or in the theme: Appearance ▸ Theme File Editor ▸ footer.php.\n• Shopify: Online Store ▸ Themes ▸ (…) ▸ Edit code ▸ theme.liquid ▸ just before the body closes.\n• Wix: Settings ▸ Custom Code ▸ Add Custom Code ▸ \"Body — end\" ▸ All pages.\n• Google Tag Manager: a \"Custom HTML\" tag on \"All Pages\".\n\nAfter saving, open your site in a private window — caching plugins sometimes delay it appearing."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_csp_blocks_script",
+      "intent": "website/security/csp_refused",
+      "label": {
+        "ar": "Console بيقول «Refused to load … Content Security Policy»",
+        "en": "The console says \"Refused to load … Content Security Policy\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_csp",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_security",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده معناه إن موقعك نفسه عامل «سياسة أمان محتوى» (CSP) بتسمح بمصادر معيّنة بس، والسكربت جه من مصدر مش في القائمة:\n• في رسالة الخطأ هتلاقي الرابط اللي اترفض والتوجيه (زي script-src أو connect-src أو frame-src).\n• ضيف دومين الرابط ده للتوجيه نفسه في الـ CSP بتاع موقعك (من إعدادات السيرفر أو الـ headers أو إضافة الأمان).\n\nلو مش انت اللي بتدير الموقع، ابعت الرسالة دي للمطوّر.",
+          "en": "This means your own site has a Content Security Policy (CSP) that only allows certain sources, and the script came from one not on the list:\n• The error names the refused URL and the directive (such as script-src, connect-src or frame-src).\n• Add that URL's domain to the same directive in your site's CSP (in the server config, the headers, or a security plugin).\n\nIf you don't manage the site yourself, send this message to your developer."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_csp",
+            "weight": 688,
+            "source": "text"
+          },
+          {
+            "token": "atom_security",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_policy_word",
+            "weight": 172,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_transfer_account_ownership",
+      "intent": "account/requests/transfer_ownership",
+      "label": {
+        "ar": "عايز أنقل ملكية الحساب لشخص تاني",
+        "en": "I want to transfer the account's ownership to someone else"
+      },
+      "category": "account",
+      "evidenceSignature": [
+        {
+          "token": "entity_ownership",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_ownership",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_colleague",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_merge_two_accounts",
+      "intent": "account/requests/merge_accounts",
+      "label": {
+        "ar": "عندي حسابين وعايز أدمجهم",
+        "en": "I have two accounts and want to merge them"
+      },
+      "category": "account",
+      "evidenceSignature": [
+        {
+          "token": "entity_merge_word",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_two_accounts",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "gen_report_security_vulnerability",
+      "intent": "security/requests/vulnerability_report",
+      "label": {
+        "ar": "لقيت ثغرة أمنية وعايز أبلّغ عنها",
+        "en": "I found a security vulnerability and want to report it"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_vulnerability",
+          "weight": 5,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "gen_account_owner_deceased",
+      "intent": "account/requests/owner_deceased",
+      "label": {
+        "ar": "صاحب الحساب اتوفّى",
+        "en": "The account holder has passed away"
+      },
+      "category": "account",
+      "evidenceSignature": [
+        {
+          "token": "entity_deceased",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
     }
   ]
 }

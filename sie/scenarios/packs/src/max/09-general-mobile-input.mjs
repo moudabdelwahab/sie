@@ -25,7 +25,7 @@ export default {
     tokens: [
         T('entity_keyboard', 'الكيبورد', 'keyboard', ['الكيبورد', 'كيبورد', 'لوحه المفاتيح', 'لوحة المفاتيح', 'اللغه العربيه للكيبورد', 'keyboard']),
         T('entity_copy', 'نسخ', 'copy', ['انسخ', 'نسخ', 'انسخه', 'انسخها', 'كوبي', 'كوبي بيست', 'copy', 'copy paste']),
-        T('entity_tap_link', 'أدوس على الرابط', 'tapping the link', ['لما ادوس عليه', 'بدوس عليه', 'ادوس عليه', 'مش بيتداس', 'مابيتداسش', 'tap the link', 'click the link', 'link not clickable']),
+        T('entity_tap_link', 'أدوس على الرابط', 'tapping the link', ['لما ادوس عليه', 'بدوس عليه', 'ادوس عليه', 'tap the link', 'click the link', 'link not clickable']),
         T('entity_desktop_site', 'نسخة الكمبيوتر', 'desktop site', ['نسخه الكمبيوتر', 'نسخة الكمبيوتر', 'عرض سطح المكتب', 'موقع سطح المكتب', 'النسخه الكامله', 'النسخة الكاملة', 'desktop site', 'desktop version', 'request desktop site']),
         T('entity_home_screen', 'الشاشة الرئيسية', 'home screen', ['الشاشه الرييسيه', 'الشاشة الرئيسية', 'الهوم سكرين', 'اختصار للموقع', 'ايقونه للموقع', 'home screen', 'add to home screen']),
         T('entity_microphone', 'الميكروفون', 'microphone', ['الميكروفون', 'الميك', 'المايك', 'مايك', 'microphone', 'mic']),

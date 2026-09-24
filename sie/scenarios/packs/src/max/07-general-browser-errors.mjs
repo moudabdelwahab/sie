@@ -30,7 +30,7 @@ import { S, T } from '../dsl.mjs';
 export default {
     tokens: [
         T('entity_site_unreachable', 'تعذّر الوصول للموقع', 'site can\'t be reached', ['this site cant be reached', 'site cant be reached', 'cant be reached', 'can t be reached', 'dns probe finished nxdomain', 'nxdomain', 'err name not resolved', 'err connection refused', 'تعذر الوصول', 'لا يمكن الوصول', 'مش قادر اوصل للموقع', 'مش قادر اوصل']),
-        T('entity_cookie_too_large', 'الكوكي كبير', 'cookie too large', ['cookie too large', 'header or cookie too large', 'request header or cookie too large', 'request header too large', 'header too large']),
+        T('entity_cookie_too_large', 'الكوكي كبير', 'cookie too large', ['cookie too large', 'header or cookie too large', 'request header too large', 'header too large']),
         T('entity_form_resubmission', 'تأكيد إعادة إرسال النموذج', 'confirm form resubmission', ['تاكيد اعاده ارسال النموذج', 'اعاده ارسال النموذج', 'confirm form resubmission', 'form resubmission', 'resubmit the form', 'resubmission']),
         T('entity_tab_crashed', 'الصفحة وقعت', 'the tab crashed', ['aw snap', 'الصفحه وقعت', 'التاب وقع', 'التبويب وقع', 'page unresponsive', 'الصفحه مش مستجيبه', 'صفحه غير مستجيبه', 'out of memory', 'something went wrong while displaying']),
         T('entity_javascript', 'JavaScript', 'JavaScript', ['الجافاسكريبت', 'جافاسكريبت', 'جافا سكريبت', 'javascript', 'enable javascript', 'js disabled']),
