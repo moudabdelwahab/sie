@@ -1234,6 +1234,54 @@
     [
       "gen_characters_show_as_boxes",
       "الايموجي بتظهر مربعات"
+    ],
+    [
+      "gen_downloaded_file_where",
+      "نزلت الملف ومش لاقيه في التنزيلات"
+    ],
+    [
+      "gen_downloaded_file_wont_open",
+      "الملف اللي نزلته مابيفتحش"
+    ],
+    [
+      "gen_download_blocked_warning",
+      "المتصفح بيقول الملف ممكن يكون ضار ومش راضي ينزله"
+    ],
+    [
+      "gen_save_page_as_pdf",
+      "عايز احفظ الصفحة pdf"
+    ],
+    [
+      "gen_zip_file_open",
+      "جالي ملف مضغوط ومش عارف افك الضغط"
+    ],
+    [
+      "gen_arabic_filename_garbled",
+      "اسم الملف بالعربي بقى رموز"
+    ],
+    [
+      "gen_scan_document_phone",
+      "عايز اسكان للورقة من الموبايل"
+    ],
+    [
+      "gen_convert_word_to_pdf",
+      "ازاي احول الوورد pdf"
+    ],
+    [
+      "gen_excel_drops_leading_zero",
+      "الاكسيل شال الصفر اللي في الاول من الارقام"
+    ],
+    [
+      "gen_excel_long_numbers_scientific",
+      "الارقام الطويلة في الاكسيل بقت شكلها غريب"
+    ],
+    [
+      "gen_csv_opens_in_one_column",
+      "ملف csv بيفتح كله في عمود واحد"
+    ],
+    [
+      "gen_upload_stuck",
+      "الرفع واقف ومش بيخلص"
     ]
   ],
   "max_heldout": [
@@ -1428,6 +1476,54 @@
     [
       "gen_characters_show_as_boxes",
       "الرموز اللي بعتها ظاهرة مربعات فاضية عند العميل"
+    ],
+    [
+      "gen_downloaded_file_where",
+      "حملت التقرير ومش عارف اتحفظ فين على الجهاز"
+    ],
+    [
+      "gen_downloaded_file_wont_open",
+      "بدوس على الفايل اللي نزل مفيش حاجة بتحصل"
+    ],
+    [
+      "gen_download_blocked_warning",
+      "كروم مانع التحميل وبيقول ملف خطير"
+    ],
+    [
+      "gen_save_page_as_pdf",
+      "ازاي اخلي الصفحة دي ملف pdf عندي"
+    ],
+    [
+      "gen_zip_file_open",
+      "الملف جالي rar ومش بيفتح"
+    ],
+    [
+      "gen_arabic_filename_garbled",
+      "الفايلات اللي اساميها عربي ظاهرة حروف غريبة"
+    ],
+    [
+      "gen_scan_document_phone",
+      "عايز اصور البطاقة والسجل التجاري واضحين"
+    ],
+    [
+      "gen_convert_word_to_pdf",
+      "محتاج الملف يبقى pdf بدل docx"
+    ],
+    [
+      "gen_excel_drops_leading_zero",
+      "ارقام العملاء في الشيت بقت من غير صفر في الاول"
+    ],
+    [
+      "gen_excel_long_numbers_scientific",
+      "رقم العملية في الاكسيل بقى 2.01E+11"
+    ],
+    [
+      "gen_csv_opens_in_one_column",
+      "لما افتح التصدير في الاكسيل البيانات كلها لازقة في خانة واحدة"
+    ],
+    [
+      "gen_upload_stuck",
+      "بيفضل يرفع في الصورة وخلاص مش بيكمل"
     ]
   ]
 }

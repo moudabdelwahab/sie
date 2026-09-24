@@ -1047,6 +1047,240 @@
       ]
     },
     {
+      "canonical": "entity_downloaded",
+      "labels": {
+        "ar": "نزّلته",
+        "en": "downloaded"
+      },
+      "patterns": [
+        "نزلت",
+        "نزلته",
+        "نزلتها",
+        "نزلتهم",
+        "downloaded"
+      ]
+    },
+    {
+      "canonical": "entity_downloads_folder",
+      "labels": {
+        "ar": "التنزيلات",
+        "en": "the downloads folder"
+      },
+      "patterns": [
+        "التنزيلات",
+        "التحميلات",
+        "مجلد التنزيلات",
+        "فولدر التنزيلات",
+        "downloads",
+        "download folder"
+      ]
+    },
+    {
+      "canonical": "entity_file_open_fail",
+      "labels": {
+        "ar": "مش راضي يتفتح",
+        "en": "will not open"
+      },
+      "patterns": [
+        "مابيفتحش",
+        "مبيفتحش",
+        "مش بيتفتح",
+        "مش راضي يتفتح",
+        "cant open the file",
+        "wont open",
+        "cannot open"
+      ]
+    },
+    {
+      "canonical": "entity_download_blocked",
+      "labels": {
+        "ar": "التنزيل اتمنع",
+        "en": "download blocked"
+      },
+      "patterns": [
+        "ممكن يكون ضار",
+        "ممكن يكون خطر",
+        "حظر التنزيل",
+        "التنزيل اتمنع",
+        "اتمنع التحميل",
+        "download blocked",
+        "blocked download",
+        "may be harmful",
+        "dangerous file",
+        "virus scan failed"
+      ]
+    },
+    {
+      "canonical": "entity_save_as_pdf",
+      "labels": {
+        "ar": "أحفظ الصفحة PDF",
+        "en": "save the page as PDF"
+      },
+      "patterns": [
+        "احفظ الصفحه",
+        "احفظ الصفحة",
+        "اطبع الصفحه",
+        "اطبع الصفحة",
+        "اطبعها",
+        "save as pdf",
+        "print to pdf",
+        "save page as pdf"
+      ]
+    },
+    {
+      "canonical": "entity_zip",
+      "labels": {
+        "ar": "ملف مضغوط",
+        "en": "compressed file"
+      },
+      "patterns": [
+        "مضغوط",
+        "ملف مضغوط",
+        "فك الضغط",
+        "افك الضغط",
+        "فك ضغط",
+        "unzip",
+        "extract",
+        "compressed"
+      ]
+    },
+    {
+      "canonical": "entity_filename",
+      "labels": {
+        "ar": "اسم الملف",
+        "en": "file name"
+      },
+      "patterns": [
+        "اسم الملف",
+        "اسماء الملفات",
+        "أسماء الملفات",
+        "file name",
+        "filename"
+      ]
+    },
+    {
+      "canonical": "entity_scan_document",
+      "labels": {
+        "ar": "تصوير مستند",
+        "en": "scanning a document"
+      },
+      "patterns": [
+        "اصور مستند",
+        "اصور ورقه",
+        "اصور ورقة",
+        "اصور الورق",
+        "اسكان",
+        "سكان",
+        "اسكانر",
+        "scan a document",
+        "scanner",
+        "scan it"
+      ]
+    },
+    {
+      "canonical": "entity_convert_word",
+      "labels": {
+        "ar": "أحوّل",
+        "en": "convert"
+      },
+      "patterns": [
+        "احول",
+        "احوله",
+        "احولها",
+        "تحويل",
+        "convert",
+        "converting"
+      ]
+    },
+    {
+      "canonical": "entity_word_doc",
+      "labels": {
+        "ar": "ملف وورد",
+        "en": "Word document"
+      },
+      "patterns": [
+        "الوورد",
+        "وورد",
+        "ملف الوورد",
+        "word document",
+        "ms word"
+      ]
+    },
+    {
+      "canonical": "entity_leading_zero",
+      "labels": {
+        "ar": "الصفر اللي في الأول",
+        "en": "the leading zero"
+      },
+      "patterns": [
+        "شال الصفر",
+        "بيشيل الصفر",
+        "مسح الصفر",
+        "الصفر اللي في الاول",
+        "الصفر من الاول",
+        "الصفر اللي علي الشمال",
+        "leading zero",
+        "drops the zero",
+        "removes the zero"
+      ]
+    },
+    {
+      "canonical": "entity_long_numbers",
+      "labels": {
+        "ar": "الأرقام الطويلة",
+        "en": "long numbers"
+      },
+      "patterns": [
+        "الارقام الطويله",
+        "الارقام الطويلة",
+        "ارقام طويله",
+        "scientific notation",
+        "long numbers"
+      ]
+    },
+    {
+      "canonical": "entity_one_column",
+      "labels": {
+        "ar": "كله في عمود واحد",
+        "en": "all in one column"
+      },
+      "patterns": [
+        "عمود واحد",
+        "في عمود واحد",
+        "كله في عمود",
+        "one column",
+        "single column"
+      ]
+    },
+    {
+      "canonical": "entity_uploading",
+      "labels": {
+        "ar": "الرفع",
+        "en": "uploading"
+      },
+      "patterns": [
+        "الرفع",
+        "بيرفع",
+        "يرفع",
+        "بترفع",
+        "uploading"
+      ]
+    },
+    {
+      "canonical": "entity_stuck_word",
+      "labels": {
+        "ar": "واقف",
+        "en": "stuck"
+      },
+      "patterns": [
+        "واقف",
+        "ومش بيخلص",
+        "مش بيخلص",
+        "stuck",
+        "hanging"
+      ]
+    },
+    {
       "canonical": "entity_login",
       "synonym": true,
       "labels": {
