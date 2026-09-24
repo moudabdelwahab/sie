@@ -5,7 +5,11 @@
     "entity_policy_word",
     "entity_forgot",
     "entity_broke",
-    "entity_inside"
+    "entity_inside",
+    "entity_works_normally",
+    "entity_remember_word",
+    "entity_shared_with_someone",
+    "entity_strength_word"
   ],
   "scenarios": [
     {
@@ -825,6 +829,546 @@
           {
             "token": "entity_spreadsheet",
             "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_signup_email_already_used",
+      "intent": "account/signup/email_already_registered",
+      "label": {
+        "ar": "بيقولي الإيميل متسجّل قبل كده وأنا بعمل حساب",
+        "en": "Signing up says the e-mail is already registered"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_already_exists",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_signup",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معناها إن فيه حساب معمول بالإيميل ده قبل كده — غالبًا انت أو حد من شركتك سجّل بيه:\n• ادخل بيه من صفحة الدخول بدل ما تعمل حساب جديد.\n• لو مش فاكر كلمة المرور: «نسيت كلمة المرور» — اللينك بيوصل للإيميل ده نفسه.\n\nولو متأكد إنك عمرك ما سجّلت بيه، قولّي وأنا أفتح طلب للفريق يراجع الحساب — ومتعملش حساب تاني بإيميل مختلف قبل ما نتأكد.",
+          "en": "It means an account already exists with this e-mail — most likely you or someone at your company signed up with it:\n• Sign in with it from the sign-in page instead of creating a new account.\n• If you don't remember the password: \"Forgot password\" — the link goes to this same e-mail.\n\nIf you're sure you never signed up with it, tell me and I'll open a request for the team to review the account — and don't create a second account with another e-mail until we've checked."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_username_forgotten",
+      "intent": "account/access/username_forgotten",
+      "label": {
+        "ar": "نسيت اسم المستخدم",
+        "en": "I forgot my username"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_username",
+          "weight": 700,
+          "source": "text"
+        },
+        {
+          "token": "entity_forgot",
+          "weight": 299,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش محتاجه عشان تدخل: خانة الدخول بتقبل كمان الإيميل أو رقم الموبايل المسجّلين. ادخل بأي واحد منهم، وهتلاقي اسم المستخدم في بيانات حسابك.\n\nولو ناسي كلمة المرور كمان، استخدم «نسيت كلمة المرور» بالإيميل.",
+          "en": "You don't need it to sign in: the sign-in field also accepts your registered e-mail or phone number. Sign in with either, and you'll find your username in your account details.\n\nIf you've also forgotten the password, use \"Forgot password\" with your e-mail."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_switch_between_accounts",
+      "intent": "account/access/switch_accounts",
+      "label": {
+        "ar": "عندي أكتر من حساب وعايز أبدّل بينهم",
+        "en": "I have more than one account and want to switch"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_two_accounts",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيفتكر حساب واحد في المرة:\n• عشان تبدّل: سجّل خروج من القائمة، وادخل بالحساب التاني.\n• ولو محتاج الاتنين مفتوحين مع بعض: افتح التاني في نافذة تصفح خفي أو في متصفح تاني.\n\nولو عملت حاجة من الحساب الغلط (زي تذكرة أو طلب)، قولّي وأنا أظبطها معاك.",
+          "en": "A browser keeps one account signed in at a time:\n• To switch: sign out from the menu and sign in with the other account.\n• If you need both open together: open the second one in a private window or another browser.\n\nIf you did something from the wrong account (such as a ticket or a request), tell me and I'll sort it out with you."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_two_accounts",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_wrong_account",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_works_on_one_device_only",
+      "intent": "device/compare/one_device_only",
+      "label": {
+        "ar": "شغال على جهاز ومش شغال على التاني",
+        "en": "It works on one device but not the other"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_computer",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_mobile",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_works_normally",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو نفس الحساب شغال على جهاز ومش شغال على التاني، المشكلة في الجهاز اللي مش شغال — مش في حسابك:\n١. على الجهاز ده: امسح بيانات موقعنا (الكوكيز وبيانات الموقع) وادخل تاني.\n٢. جرّب عليه نافذة تصفح خفي — لو اشتغل، السبب إضافة أو بيانات قديمة.\n٣. اتأكد إن تاريخ ووقت الجهاز «تلقائي».\n٤. جرّب متصفح تاني على نفس الجهاز.\n\nولو الجهازين على نفس الشبكة، يبقى السبب مش النت.",
+          "en": "If the same account works on one device and not the other, the problem is the device that fails — not your account:\n1. On that device: clear our site's data (cookies and site data) and sign in again.\n2. Try a private window on it — if that works, an extension or old data is the cause.\n3. Make sure the device's date and time are set to automatic.\n4. Try another browser on the same device.\n\nIf both devices are on the same network, the internet isn't the cause."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_computer",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "qualifier_mobile",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_browser_not_saving_password",
+      "intent": "device/browser/password_not_saved",
+      "label": {
+        "ar": "المتصفح مش بيعرض يحفظ كلمة المرور",
+        "en": "The browser does not offer to save my password"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_not_saving",
+          "weight": 520,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 256,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيعرض حفظ كلمة المرور بعد ما تدخل بنجاح. لو مابيعرضش:\n• كروم: الإعدادات ← الملء التلقائي وكلمات المرور ← مدير كلمات المرور: اتأكد إن «عرض حفظ كلمات المرور» مفعّل، وإن موقعنا مش في قائمة المواقع اللي رفضت حفظها.\n• سفاري: الإعدادات ← كلمات المرور.\n• في التصفح الخفي المتصفح مابيحفظش أصلًا.\n\nولو الجهاز مش بتاعك، الأحسن ماتحفظهاش.",
+          "en": "The browser offers to save a password after you sign in successfully. If it doesn't:\n• Chrome: Settings ▸ Autofill and passwords ▸ Password Manager: make sure \"Offer to save passwords\" is on, and that our site isn't on the list of sites you declined.\n• Safari: Settings ▸ Passwords.\n• A private window never saves passwords.\n\nIf the device isn't yours, it's better not to save it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_remember_word",
+            "weight": 557,
+            "source": "text"
+          },
+          {
+            "token": "entity_password",
+            "weight": 256,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 186,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_verification_code_rejected",
+      "intent": "account/codes/rejected",
+      "label": {
+        "ar": "كود التحقق وصل بس بيقول إنه غلط",
+        "en": "The verification code arrived but is rejected"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_code_rejected",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الكود بيوصلك في رسالة وبيترفض:\n• استخدم آخر كود وصلك بس — أي طلب جديد بيلغي اللي قبله.\n• اكتبه بنفسك بدل النسخ: النسخ ساعات بيجيب مسافة أو حرف زيادة.\n• اتأكد إنه كود الخطوة دي بالظبط، مش كود قديم أو من موقع تاني.\n• الأكواد عمرها قصير — لو عدّى وقت، اطلب واحد جديد.\n\nولو الكود من تطبيق مصادقة (زي Google Authenticator) وبيترفض، السبب غالبًا ساعة الموبايل — خليها «تلقائي».",
+          "en": "If the code reaches you in a message and is rejected:\n• Use only the latest code you received — every new request cancels the previous one.\n• Type it yourself instead of pasting: pasting sometimes brings an extra space or character.\n• Make sure it's the code for this exact step, not an old one or one from another site.\n• Codes are short-lived — if time has passed, request a new one.\n\nIf the code comes from an authenticator app (such as Google Authenticator) and is rejected, the phone's clock is the usual cause — set it to automatic."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_verification_code_late",
+      "intent": "account/codes/arrives_late",
+      "label": {
+        "ar": "كود التحقق بيوصل متأخر بعد ما وقته يخلص",
+        "en": "The verification code arrives after it has expired"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_arrived_after",
+          "weight": 675,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        },
+        {
+          "token": "symptom_expired",
+          "weight": 135,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الكود بيوصلك بعد ما وقته يخلص:\n• اطلب كود جديد وافضل على نفس الصفحة لحد ما يوصل — ماتطلبش تاني قبل ما دقيقة أو اتنين يعدّوا، لأن كل طلب جديد بيلغي اللي قبله.\n• لو بيوصل على الإيميل: الإيميلات أحيانًا بتتأخر — بصّ في الـ Spam وفي «الترويج» (Promotions).\n• لو بيوصل على الموبايل: الشبكة الضعيفة بتأخّر الرسايل — جرّب مكان إشارته أحسن أو واي فاي.",
+          "en": "If the code reaches you after it has expired:\n• Request a new one and stay on the same page until it arrives — don't request again before a minute or two has passed, because every new request cancels the previous one.\n• If it comes by e-mail: e-mails are sometimes delayed — check Spam and Promotions.\n• If it comes to your phone: a weak signal delays messages — try somewhere with better signal or Wi-Fi."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_code_resend_blocked",
+      "intent": "account/codes/resend_blocked",
+      "label": {
+        "ar": "مش راضي يبعت كود تاني — بيقولي استنى",
+        "en": "It will not send another code — it says to wait"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_resend_blocked",
+          "weight": 810,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده غالبًا حماية من الإرسال المتكرر: بعد كذا طلب ورا بعض، طلب كود جديد بيتقفل شوية.\n• استنى الوقت اللي ظاهر (أو دقايق قليلة)، وبعدين اطلب مرة واحدة بس.\n• استخدم آخر كود يوصلك.\n\nولو كل طلب بيفشل حتى بعد الانتظار، قولّي انت فين بالظبط (الدخول ولا التسجيل ولا غيره) عشان أشوفها.",
+          "en": "This is usually protection against repeated sending: after several requests in a row, requesting a new code is paused for a while.\n• Wait the time shown (or a few minutes), then request once only.\n• Use the latest code you receive.\n\nIf every request still fails after waiting, tell me exactly where you are (signing in, signing up or elsewhere) so I can look into it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_authenticator_new_phone",
+      "intent": "account/2fa/move_to_new_phone",
+      "label": {
+        "ar": "غيّرت موبايلي وعايز أنقل تطبيق المصادقة",
+        "en": "I changed phones and want to move my authenticator"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_new_phone",
+          "weight": 610,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 390,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "طول ما الموبايل القديم لسه معاك، النقل سهل:\n• Google Authenticator: من الموبايل القديم ← القائمة ← «نقل الحسابات» ← «تصدير»، وامسح الكود اللي هيظهر من الجديد.\n• أو من حسابك وانت داخل: وقّف التحقق بخطوتين، وفعّله تاني من الموبايل الجديد.\n\nمتمسحش التطبيق من القديم قبل ما تتأكد إن الجديد بيطلّع أكواد شغالة. ولو القديم مش معاك خلاص، ادخل بواحد من رموز الاستعادة.",
+          "en": "As long as you still have the old phone, moving is easy:\n• Google Authenticator: on the old phone ▸ menu ▸ \"Transfer accounts\" ▸ \"Export\", and scan the code shown with the new phone.\n• Or, while signed in: turn two-step verification off, then turn it on again from the new phone.\n\nDon't delete the app from the old phone until the new one produces working codes. If you no longer have the old phone, sign in with one of your recovery codes."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_new_phone",
+            "weight": 810,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 190,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_signup_email_not_me",
+      "intent": "account/security/signup_not_me",
+      "label": {
+        "ar": "جالي إيميل تسجيل حساب وأنا ماعملتش حساب",
+        "en": "I got a sign-up e-mail but did not create an account"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_me",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_signup",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "غالبًا حد كتب إيميلك بالغلط وهو بيسجّل.\n• متدوسش على أي لينك في الإيميل ده.\n• لو مش ناوي تستخدم الحساب، سيبه — ولو عايز نقفله، قولّي وأنا أفتح طلب للفريق.",
+          "en": "Most likely someone typed your e-mail by mistake while signing up.\n• Don't click any link in that e-mail.\n• If you don't intend to use the account, leave it — and if you'd like it closed, tell me and I'll open a request for the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_reset_email_not_requested",
+      "intent": "account/security/reset_not_requested",
+      "label": {
+        "ar": "جالي إيميل تغيير كلمة المرور وأنا ماطلبتش",
+        "en": "I got a password reset e-mail I did not request"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_requested",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كلمة المرور بتاعتك ماتغيرتش. الإيميل ده بيتبعت لما حد يطلب «نسيت كلمة المرور» بإيميلك، واللينك مابيعملش حاجة لو ماحدش ضغط عليه.\n• متدوسش على اللينك، وامسح الإيميل.\n• لو اتكرر كتير أو حاسس إن حد بيحاول يدخل: غيّر كلمة المرور من جوه حسابك، وفعّل التحقق بخطوتين.",
+          "en": "Your password hasn't changed. This e-mail is sent when someone requests \"Forgot password\" with your address, and the link does nothing unless it's clicked.\n• Don't click the link; delete the e-mail.\n• If it keeps happening or you think someone is trying to get in: change your password from inside your account and turn on two-step verification."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_mobile_capitalizes_first_letter",
+      "intent": "device/keyboard/auto_capitalize",
+      "label": {
+        "ar": "الموبايل بيكتب أول حرف كابيتال في الإيميل أو الباسورد",
+        "en": "My phone capitalizes the first letter of my e-mail or password"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_capital_letter",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الإيميل مش بيفرق بين الحروف الكبيرة والصغيرة، فأول حرف كابيتال فيه مش مشكلة. لكن كلمة المرور بتفرق — لو الموبايل بيكبّر أول حرف فيها، الدخول هيترفض:\n• اكتب كلمة المرور، ودوس على «عرض كلمة المرور» (رمز العين) وبصّ على أول حرف قبل ما تدخل.\n• ولو الكيبورد بيصحّح الكلام لوحده، قفّل التصحيح التلقائي مؤقتًا من إعدادات الكيبورد.",
+          "en": "E-mail addresses ignore capital letters, so a capital first letter there is no problem. Passwords don't — if the phone capitalizes the first letter, sign-in is refused:\n• Type the password, tap \"show password\" (the eye icon) and check the first letter before signing in.\n• If the keyboard corrects words on its own, turn autocorrect off for a moment in the keyboard settings."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_password_shared_by_mistake",
+      "intent": "account/security/password_shared",
+      "label": {
+        "ar": "بعت كلمة المرور لحد بالغلط",
+        "en": "I sent my password to someone by mistake"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_shared_with_someone",
+          "weight": 743,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 256,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "غيّرها دلوقتي — دي أهم خطوة:\n• من إعدادات حسابك غيّر كلمة المرور لواحدة جديدة مااستخدمتهاش قبل كده.\n• بعدها سجّل خروج من كل الأجهزة، عشان أي حد دخل بيها يطلع.\n• فعّل التحقق بخطوتين: حتى لو حد عرف كلمة المرور بعد كده، مش هيقدر يدخل من غير الكود.\n\nولو نفس كلمة المرور مستخدمة في مواقع تانية، غيّرها هناك كمان.",
+          "en": "Change it now — that's the most important step:\n• From your account settings, change the password to a new one you haven't used before.\n• Then sign out of all devices, so anyone who got in with it is signed out.\n• Turn on two-step verification: even if someone learns the password later, they can't get in without the code.\n\nIf you use the same password on other sites, change it there too."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_strong_password_how",
+      "intent": "account/security/strong_password_how",
+      "label": {
+        "ar": "أعمل كلمة مرور قوية إزاي",
+        "en": "How do I make a strong password"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_strong_password",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أسهل طريقة لكلمة مرور قوية وسهلة تفتكرها:\n• ٣–٤ كلمات مالهمش علاقة ببعض، ومعاهم رقم ورمز.\n• كل ما كانت أطول كانت أقوى — ١٢ حرف أو أكتر.\n• متستخدمهاش في أي موقع تاني، ومتحطش فيها اسمك أو رقم موبايلك أو تاريخ ميلادك.\n• لو ده جهازك، سيب مدير كلمات المرور في المتصفح يحفظها.",
+          "en": "The easiest way to a strong password you can remember:\n• 3–4 unrelated words, plus a number and a symbol.\n• Longer is stronger — 12 characters or more.\n• Don't reuse it on any other site, and don't put your name, phone number or birthday in it.\n• If this is your own device, let the browser's password manager save it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_strength_word",
+            "weight": 557,
+            "source": "text"
+          },
+          {
+            "token": "entity_password",
+            "weight": 256,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 186,
             "source": "text"
           }
         ]

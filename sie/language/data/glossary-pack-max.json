@@ -429,6 +429,269 @@
       ]
     },
     {
+      "canonical": "entity_code_rejected",
+      "labels": {
+        "ar": "الكود بيترفض",
+        "en": "code rejected"
+      },
+      "patterns": [
+        "الكود غلط",
+        "الكود بيقول غلط",
+        "كود غير صحيح",
+        "رمز غير صحيح",
+        "الرمز غلط",
+        "الكود مش مقبول",
+        "invalid code",
+        "wrong code",
+        "incorrect code",
+        "code is invalid"
+      ]
+    },
+    {
+      "canonical": "entity_already_exists",
+      "labels": {
+        "ar": "موجود بالفعل",
+        "en": "already exists"
+      },
+      "patterns": [
+        "موجود بالفعل",
+        "مسجل بالفعل",
+        "متسجل بالفعل",
+        "موجود قبل كده",
+        "already exists",
+        "already in use",
+        "exists already"
+      ]
+    },
+    {
+      "canonical": "entity_arrived_after",
+      "labels": {
+        "ar": "وصل بعد ما وقته خلص",
+        "en": "arrived after it expired"
+      },
+      "patterns": [
+        "وصل بعد",
+        "وصلني بعد",
+        "وصلي بعد",
+        "جالي بعد",
+        "بيوصل بعد",
+        "بيوصلني بعد",
+        "بيجي بعد",
+        "بيجيلي بعد",
+        "جه بعد",
+        "arrived after",
+        "comes after",
+        "came after"
+      ]
+    },
+    {
+      "canonical": "entity_resend_blocked",
+      "labels": {
+        "ar": "طلب كود تاني",
+        "en": "requesting another code"
+      },
+      "patterns": [
+        "ابعتلي تاني",
+        "اعادة الارسال",
+        "اعاده الارسال",
+        "اعادة ارسال",
+        "ارسال مره تانيه",
+        "ارسال مرة تانية",
+        "ارسل تاني",
+        "resend",
+        "send again",
+        "استنى قبل ما",
+        "حاول بعد شوية",
+        "try again later"
+      ]
+    },
+    {
+      "canonical": "entity_two_accounts",
+      "labels": {
+        "ar": "أكتر من حساب",
+        "en": "more than one account"
+      },
+      "patterns": [
+        "حسابين",
+        "عندي حسابين",
+        "اكتر من حساب",
+        "الحساب التاني",
+        "two accounts",
+        "another account",
+        "switch account",
+        "switch accounts"
+      ]
+    },
+    {
+      "canonical": "entity_works_normally",
+      "labels": {
+        "ar": "شغال عادي",
+        "en": "works normally"
+      },
+      "patterns": [
+        "عادي",
+        "شغال عادي",
+        "بيفتح عادي",
+        "works fine",
+        "works normally"
+      ]
+    },
+    {
+      "canonical": "entity_computer",
+      "labels": {
+        "ar": "الكمبيوتر",
+        "en": "computer"
+      },
+      "patterns": [
+        "من الكمبيوتر",
+        "على الكمبيوتر",
+        "اللابتوب",
+        "لابتوب",
+        "الكمبيوتر بتاعي",
+        "الديسكتوب",
+        "laptop",
+        "desktop",
+        "pc"
+      ]
+    },
+    {
+      "canonical": "entity_remember_word",
+      "labels": {
+        "ar": "يفتكر",
+        "en": "remember"
+      },
+      "patterns": [
+        "يفتكر",
+        "بيفتكر",
+        "مابيفتكرش",
+        "يفتكرها",
+        "remember",
+        "remembers",
+        "save"
+      ]
+    },
+    {
+      "canonical": "entity_new_phone",
+      "labels": {
+        "ar": "موبايل جديد",
+        "en": "new phone"
+      },
+      "patterns": [
+        "موبايل جديد",
+        "تليفون جديد",
+        "غيرت الموبايل",
+        "غيرت موبايلي",
+        "غيرت التليفون",
+        "جهاز جديد",
+        "موبايلي الجديد",
+        "new phone",
+        "changed my phone",
+        "new device"
+      ]
+    },
+    {
+      "canonical": "entity_not_me",
+      "labels": {
+        "ar": "مش أنا اللي عملت كده",
+        "en": "it was not me"
+      },
+      "patterns": [
+        "ماعملتش حساب",
+        "معملتش حساب",
+        "ماسجلتش",
+        "مسجلتش",
+        "مش انا اللي سجلت",
+        "انا ماعملتش",
+        "didnt sign up",
+        "did not sign up",
+        "i didnt register"
+      ]
+    },
+    {
+      "canonical": "entity_not_requested",
+      "labels": {
+        "ar": "ماطلبتش",
+        "en": "did not request it"
+      },
+      "patterns": [
+        "ماطلبتش",
+        "مطلبتش",
+        "من غير ما اطلب",
+        "انا مطلبتش",
+        "انا ماطلبتش",
+        "didnt request",
+        "did not request",
+        "i didnt ask for"
+      ]
+    },
+    {
+      "canonical": "entity_capital_letter",
+      "labels": {
+        "ar": "حرف كبير (كابيتال)",
+        "en": "capital letter"
+      },
+      "patterns": [
+        "حرف كابيتال",
+        "اول حرف كابيتال",
+        "حرف كبير",
+        "بيكبر اول حرف",
+        "بيكتب اول حرف كبير",
+        "capital letter",
+        "uppercase",
+        "auto capitalize",
+        "autocapitalize"
+      ]
+    },
+    {
+      "canonical": "entity_shared_with_someone",
+      "labels": {
+        "ar": "بعتها لحد",
+        "en": "shared with someone"
+      },
+      "patterns": [
+        "بعت",
+        "بعته",
+        "بعتها",
+        "بعتله",
+        "شيرت",
+        "شيرته",
+        "شاركت",
+        "حد عرف",
+        "حد عارف",
+        "shared it",
+        "sent it"
+      ]
+    },
+    {
+      "canonical": "entity_strong_password",
+      "labels": {
+        "ar": "كلمة مرور قوية",
+        "en": "strong password"
+      },
+      "patterns": [
+        "كلمة سر قوية",
+        "كلمة سر قويه",
+        "كلمة مرور قوية",
+        "كلمة سر صعبة"
+      ]
+    },
+    {
+      "canonical": "entity_strength_word",
+      "labels": {
+        "ar": "قوية",
+        "en": "strong"
+      },
+      "patterns": [
+        "قوي",
+        "قوية",
+        "قويه",
+        "صعب",
+        "صعبة",
+        "strong",
+        "secure"
+      ]
+    },
+    {
       "canonical": "entity_login",
       "synonym": true,
       "labels": {

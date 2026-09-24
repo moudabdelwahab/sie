@@ -1102,6 +1102,62 @@
     [
       "gen_csv_garbled_in_excel",
       "صدرت csv وفتحته طلع حروف غريبة بدل العربي"
+    ],
+    [
+      "gen_signup_email_already_used",
+      "بعمل حساب جديد وبيقولي الايميل موجود بالفعل"
+    ],
+    [
+      "gen_username_forgotten",
+      "نسيت اليوزر بتاعي"
+    ],
+    [
+      "gen_switch_between_accounts",
+      "عندي حسابين وعايز اتنقل بينهم"
+    ],
+    [
+      "gen_works_on_one_device_only",
+      "على الكمبيوتر مش بيفتح بس على الموبايل عادي"
+    ],
+    [
+      "gen_browser_not_saving_password",
+      "المتصفح مش بيحفظ الباسورد خالص"
+    ],
+    [
+      "gen_verification_code_rejected",
+      "الكود وصلني بس بيقولي كود غير صحيح"
+    ],
+    [
+      "gen_verification_code_late",
+      "كود التحقق بيوصلني بعد ما وقته يخلص"
+    ],
+    [
+      "gen_code_resend_blocked",
+      "عايز الكود يتبعت تاني ومش راضي اعادة الارسال"
+    ],
+    [
+      "gen_authenticator_new_phone",
+      "جبت موبايل جديد وعايز انقل التحقق بخطوتين عليه"
+    ],
+    [
+      "gen_signup_email_not_me",
+      "جالي ايميل ترحيب بحساب جديد وانا ماسجلتش"
+    ],
+    [
+      "gen_reset_email_not_requested",
+      "جالي ايميل اغير كلمة السر وانا ماطلبتش"
+    ],
+    [
+      "gen_mobile_capitalizes_first_letter",
+      "الموبايل بيكتب اول حرف كابيتال في الباسورد"
+    ],
+    [
+      "gen_password_shared_by_mistake",
+      "بعت الباسورد بتاعي لحد بالغلط"
+    ],
+    [
+      "gen_strong_password_how",
+      "ازاي اعمل كلمة سر قوية"
     ]
   ],
   "max_heldout": [
@@ -1184,6 +1240,62 @@
     [
       "gen_csv_garbled_in_excel",
       "الملف اللي نزلته علامات استفهام بدل الكلام العربي في الاكسيل"
+    ],
+    [
+      "gen_signup_email_already_used",
+      "لما جيت اسجل قالي الايميل ده مستخدم"
+    ],
+    [
+      "gen_username_forgotten",
+      "مش فاكر اسم اليوزرنيم اللي عملته"
+    ],
+    [
+      "gen_switch_between_accounts",
+      "ازاي اطلع من حساب وادخل بحساب تاني"
+    ],
+    [
+      "gen_works_on_one_device_only",
+      "اللابتوب مش راضي يفتح الموقع والموبايل فاتحه عادي"
+    ],
+    [
+      "gen_browser_not_saving_password",
+      "كروم مابيعرضش انه يحفظ كلمة المرور"
+    ],
+    [
+      "gen_verification_code_rejected",
+      "بكتب الرمز اللي جالي ويقولي انه غلط"
+    ],
+    [
+      "gen_verification_code_late",
+      "الرمز بيجيلي بعد ما يكون خلص وقته"
+    ],
+    [
+      "gen_code_resend_blocked",
+      "طلبت كود تاني قالي حاول بعد شوية"
+    ],
+    [
+      "gen_authenticator_new_phone",
+      "هغير التليفون وتطبيق جوجل اوثنتيكيتور عليه اعمل ايه"
+    ],
+    [
+      "gen_signup_email_not_me",
+      "في حد عمل حساب بايميلي انا مسجلتش عندكم"
+    ],
+    [
+      "gen_reset_email_not_requested",
+      "وصلني لينك ريست للباسورد من غير ما اطلب"
+    ],
+    [
+      "gen_mobile_capitalizes_first_letter",
+      "الكيبورد بيحول اول حرف لكبير في كلمة السر"
+    ],
+    [
+      "gen_password_shared_by_mistake",
+      "حد من زمايلي عرف كلمة السر بتاعتي اعمل ايه"
+    ],
+    [
+      "gen_strong_password_how",
+      "عايز باسورد صعب محدش يعرف يخمنه"
     ]
   ]
 }
