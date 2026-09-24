@@ -6,6 +6,8 @@
  * loads — the engine never imports this file, so packs stay data.
  *
  *   T(canonical, labelAr, labelEn, patterns)            a glossary-layer token
+ *   Y(baseCanonical, patterns)                           a SYNONYM: more words for an
+ *                                                        existing BASE token (Max vocabulary track)
  *   S(id, intent, category, labelAr, labelEn, sig, answerAr, answerEn, opts)
  *
  * `sig` is "token:weight token:weight …". A null answer makes the scenario a
@@ -18,6 +20,19 @@
 
 export function T(canonical, ar, en, patterns) {
     return { canonical, labels: { ar, en }, patterns };
+}
+
+/**
+ * A synonym entry: words the BASE glossary leaves unresolved that mean an
+ * existing base token (colloquial, Arabizi, English, spelling variants).
+ * Applied only to unresolved words (normalizer.applyGlossaryLayers), so it
+ * can give a meaning to a word Free ignores but can never change the meaning
+ * of a word Free understands. The target must exist in the base glossary —
+ * the normalizer drops a synonym that points anywhere else, and the audit
+ * reports it (synonym_unknown_target).
+ */
+export function Y(canonical, patterns) {
+    return { canonical, synonym: true, labels: { ar: canonical, en: canonical }, patterns };
 }
 
 function parseSig(sig) {

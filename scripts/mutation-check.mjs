@@ -72,17 +72,41 @@ export const MUTATIONS = [
       file: 'sie/editions/edition-catalog.js',
       find: "                        if (seen.has(s.id)) { warnings.push(`Skipped ${name} scenario \"${s.id}\": id already defined by an earlier pack`); continue; }",
       replace: '',
-      tests: [T('pack-security.test.mjs')] }
+      tests: [T('pack-security.test.mjs')] },
+    { id: 'M11', what: 'a synonym may name a token the base does not have',
+      file: 'sie/language/normalizer.js',
+      find: '            if (isSynonym && !baseCanonicals.has(entry.canonical)) continue;',
+      replace: '',
+      tests: [T('pack-security.test.mjs')] },
+    { id: 'M12', what: 'audit rule synonym_unknown_target removed',
+      file: 'sie/editions/edition-audit.js',
+      find: "            if (!baseCanonicals.has(e.canonical)) add('synonym_unknown_target', { pack: name, token: e.canonical });",
+      replace: '',
+      tests: [T('audit-rules.test.mjs')] },
+    // Two edits: with only the first, resolved tokens are keyed on their
+    // canonical («entity_agent»), which no pattern spells — an inert mutation.
+    { id: 'M13', what: 'layers rewrite words the base already resolved',
+      file: 'sie/language/normalizer.js',
+      edits: [
+          { find: '    const open = (t) => t && LAYER_OPEN_SOURCES.has(t.source) && !baseCanonicals.has(t.canonical);',
+            replace: '    const open = (t) => !!t;' },
+          { find: "                const words = window.map((t) => (t.source === 'unrecognized-latin' ? t.canonical : normalizeArabicToken(t.canonical))).filter(Boolean);",
+            replace: "                const words = window.map((t) => (/[\\u0600-\\u06FF]/.test(t.raw) ? normalizeArabicToken(t.raw) : String(t.raw).toLowerCase())).filter(Boolean);" }
+      ],
+      tests: [T('layers-invariant.test.mjs')] }
 ];
 
 function run(m) {
     const file = path.join(ROOT, m.file);
     const original = fs.readFileSync(file, 'utf8');
-    const count = original.split(m.find).length - 1;
-    if (count !== 1) return { ...m, verdict: 'STALE', detail: `anchor found ${count}× — update the mutation` };
+    const edits = m.edits || [{ find: m.find, replace: m.replace }];
+    for (const e of edits) {
+        const count = original.split(e.find).length - 1;
+        if (count !== 1) return { ...m, verdict: 'STALE', detail: `anchor found ${count}× — update the mutation` };
+    }
     const tests = m.tests.filter((t) => fs.existsSync(path.join(ROOT, t)));
     try {
-        fs.writeFileSync(file, original.replace(m.find, m.replace));
+        fs.writeFileSync(file, edits.reduce((src, e) => src.replace(e.find, () => e.replace), original));
         const r = spawnSync(process.execPath, ['--test', ...tests], { cwd: ROOT, encoding: 'utf8', timeout: 600000 });
         const failed = (r.stdout.match(/^# fail (\d+)/m) || [])[1];
         return { ...m, tests, verdict: r.status !== 0 ? 'KILLED' : 'SURVIVED', detail: `${failed ?? '?'} failing` };

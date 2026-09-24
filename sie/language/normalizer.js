@@ -611,7 +611,8 @@ function buildGlossaryDerivation(entries) {
  * and every base scenario's confidence is identical in every edition. The
  * only way an edition can answer differently from Free is that one of ITS
  * scenarios competes — which is exactly the difference the comparator
- * measures, and nothing else. `layers.test.mjs` asserts the invariant on the
+ * measures, and nothing else. sie/editions/tests/layers-invariant.test.mjs
+ * asserts the invariant (and the synonym exception to it) on the
  * whole behaviour corpus.
  *
  * ------------------------------------------------------------
@@ -641,7 +642,14 @@ function deriveLayers(layers, baseEntries) {
             if (!entry || typeof entry.canonical !== 'string') continue;
             // A layer never re-defines a base canonical: that would be the
             // back door to changing base behaviour this whole design closes.
-            if (baseCanonicals.has(entry.canonical)) continue;
+            // The one exception is explicit: a SYNONYM entry (synonym: true)
+            // adds words for an EXISTING base token. It is still applied only
+            // to words the base left unresolved (see `open` below), so it can
+            // give meaning to a word Free ignores, never change a word Free
+            // understands. A synonym aimed at a non-base token is dropped.
+            const isSynonym = entry.synonym === true;
+            if (baseCanonicals.has(entry.canonical) && !isSynonym) continue;
+            if (isSynonym && !baseCanonicals.has(entry.canonical)) continue;
             for (const pattern of entry.patterns || []) {
                 const words = layerWords(pattern);
                 if (!words.length) continue;

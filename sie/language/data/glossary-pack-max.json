@@ -427,6 +427,347 @@
         "garbled",
         "weird characters"
       ]
+    },
+    {
+      "canonical": "entity_login",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_login",
+        "en": "entity_login"
+      },
+      "patterns": [
+        "لوجين",
+        "اللوجين",
+        "log in",
+        "sign in"
+      ]
+    },
+    {
+      "canonical": "entity_account",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_account",
+        "en": "entity_account"
+      },
+      "patterns": [
+        "الاكونت",
+        "اكونت",
+        "الاكاونت",
+        "اكاونت"
+      ]
+    },
+    {
+      "canonical": "entity_password",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_password",
+        "en": "entity_password"
+      },
+      "patterns": [
+        "الباس",
+        "باسوردي",
+        "el password"
+      ]
+    },
+    {
+      "canonical": "symptom_login_failed",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_login_failed",
+        "en": "symptom_login_failed"
+      },
+      "patterns": [
+        "مش قادر اخش",
+        "مش قادره ادخل",
+        "مش قادرة ادخل",
+        "cannot log in",
+        "cant login"
+      ]
+    },
+    {
+      "canonical": "intent_cancel",
+      "synonym": true,
+      "labels": {
+        "ar": "intent_cancel",
+        "en": "intent_cancel"
+      },
+      "patterns": [
+        "اكنسل",
+        "كنسل",
+        "اكانسل",
+        "a-cancel"
+      ]
+    },
+    {
+      "canonical": "entity_subscription",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_subscription",
+        "en": "entity_subscription"
+      },
+      "patterns": [
+        "السبسكريبشن",
+        "سبسكريبشن",
+        "el subscription",
+        "el eshterak",
+        "eshterak"
+      ]
+    },
+    {
+      "canonical": "intent_upgrade",
+      "synonym": true,
+      "labels": {
+        "ar": "intent_upgrade",
+        "en": "intent_upgrade"
+      },
+      "patterns": [
+        "اطلع باقة اعلى",
+        "اطلع باقه اعلي"
+      ]
+    },
+    {
+      "canonical": "entity_invoice",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_invoice",
+        "en": "entity_invoice"
+      },
+      "patterns": [
+        "fatora",
+        "el fatora",
+        "الفتورة",
+        "الفتوره"
+      ]
+    },
+    {
+      "canonical": "entity_whatsapp",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_whatsapp",
+        "en": "entity_whatsapp"
+      },
+      "patterns": [
+        "الواتس",
+        "واتس",
+        "الوتس",
+        "el whatsapp",
+        "wts"
+      ]
+    },
+    {
+      "canonical": "qualifier_mobile",
+      "synonym": true,
+      "labels": {
+        "ar": "qualifier_mobile",
+        "en": "qualifier_mobile"
+      },
+      "patterns": [
+        "الابليكيشن",
+        "ابليكيشن",
+        "الابلكيشن",
+        "الأبليكيشن",
+        "الابلكيشن بتاعكم"
+      ]
+    },
+    {
+      "canonical": "symptom_slow",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_slow",
+        "en": "symptom_slow"
+      },
+      "patterns": [
+        "تقيله",
+        "تقيلة",
+        "تقيل اوي",
+        "laggy",
+        "lagging"
+      ]
+    },
+    {
+      "canonical": "symptom_not_working",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_not_working",
+        "en": "symptom_not_working"
+      },
+      "patterns": [
+        "msh sha8al",
+        "mesh shaghal",
+        "mesh sha8al",
+        "doesnt work",
+        "wont work"
+      ]
+    },
+    {
+      "canonical": "symptom_blank_page",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_blank_page",
+        "en": "symptom_blank_page"
+      },
+      "patterns": [
+        "wont load",
+        "doesnt load",
+        "مش بتحمل",
+        "مش بيحمل"
+      ]
+    },
+    {
+      "canonical": "symptom_crash",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_crash",
+        "en": "symptom_crash"
+      },
+      "patterns": [
+        "keeps crashing",
+        "crashing",
+        "بيقفل اول ما افتحه",
+        "بيقفل اول ما بفتحه"
+      ]
+    },
+    {
+      "canonical": "symptom_not_saving",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_not_saving",
+        "en": "symptom_not_saving"
+      },
+      "patterns": [
+        "مش بيتسيف",
+        "مبيتسيفش",
+        "مش بتتسيف",
+        "مفيش حاجة بتتسيف",
+        "مفيش حاجه بتتسيف"
+      ]
+    },
+    {
+      "canonical": "entity_spreadsheet",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_spreadsheet",
+        "en": "entity_spreadsheet"
+      },
+      "patterns": [
+        "الاكسل",
+        "اكسل"
+      ]
+    },
+    {
+      "canonical": "trigger_nothing_else",
+      "synonym": true,
+      "labels": {
+        "ar": "trigger_nothing_else",
+        "en": "trigger_nothing_else"
+      },
+      "patterns": [
+        "خلاص مش عايز",
+        "سيبك منها",
+        "سيبك من الموضوع",
+        "انسى الموضوع",
+        "مش مهم خلاص",
+        "never mind",
+        "nevermind"
+      ]
+    },
+    {
+      "canonical": "social_asks_to_wait",
+      "synonym": true,
+      "labels": {
+        "ar": "social_asks_to_wait",
+        "en": "social_asks_to_wait"
+      },
+      "patterns": [
+        "متعملش حاجة",
+        "ماتعملش حاجة",
+        "hold on",
+        "wait a sec"
+      ]
+    },
+    {
+      "canonical": "social_wrong_message",
+      "synonym": true,
+      "labels": {
+        "ar": "social_wrong_message",
+        "en": "social_wrong_message"
+      },
+      "patterns": [
+        "كتبت غلط",
+        "قصدي حاجة تانية",
+        "هشرح تاني",
+        "wrong message"
+      ]
+    },
+    {
+      "canonical": "trigger_it_works_now",
+      "synonym": true,
+      "labels": {
+        "ar": "trigger_it_works_now",
+        "en": "trigger_it_works_now"
+      },
+      "patterns": [
+        "اتحلت لوحدها",
+        "اشتغلت لوحدها",
+        "اتظبطت",
+        "works now",
+        "its working now"
+      ]
+    },
+    {
+      "canonical": "social_bot_answered_wrong",
+      "synonym": true,
+      "labels": {
+        "ar": "social_bot_answered_wrong",
+        "en": "social_bot_answered_wrong"
+      },
+      "patterns": [
+        "الاجابة دي غلط",
+        "الرد ده غلط",
+        "ده مش سؤالي",
+        "انت فهمت غلط",
+        "الرد ده مش ليه علاقة",
+        "wrong answer"
+      ]
+    },
+    {
+      "canonical": "behaviour_wants_human",
+      "synonym": true,
+      "labels": {
+        "ar": "behaviour_wants_human",
+        "en": "behaviour_wants_human"
+      },
+      "patterns": [
+        "اكلم حد من الدعم",
+        "اكلم حد",
+        "real person",
+        "talk to someone"
+      ]
+    },
+    {
+      "canonical": "trigger_confused",
+      "synonym": true,
+      "labels": {
+        "ar": "trigger_confused",
+        "en": "trigger_confused"
+      },
+      "patterns": [
+        "مش فاهم حاجة خالص",
+        "تايه خالص"
+      ]
+    },
+    {
+      "canonical": "trigger_back_later",
+      "synonym": true,
+      "labels": {
+        "ar": "trigger_back_later",
+        "en": "trigger_back_later"
+      },
+      "patterns": [
+        "هجرب وارجعلك",
+        "هشوف وارجعلك",
+        "ارجعلك"
+      ]
     }
   ]
 }

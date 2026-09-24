@@ -18,6 +18,8 @@ import { readPack } from './helpers/node-editions.js';
 import { runTurn } from '../../pipeline/pipeline.js';
 import { SIE_DEFAULT_SETTINGS } from '../../config/settings-schema.js';
 import { nodeEdition } from './helpers/node-editions.js';
+import { vocabHeldout } from '../../../scripts/check-vocab-heldout.mjs';
+import { generalProbeRows } from '../../../bench/corpora/general-probe.mjs';
 
 const fixture = JSON.parse(fs.readFileSync(new URL('./fixtures/pack-phrasings.json', import.meta.url), 'utf8'));
 
@@ -77,3 +79,44 @@ for (const pack of ['pro', 'max']) {
         assert.deepEqual(worse, []);
     });
 }
+
+// The Max vocabulary track (packs/src/max/90-synonyms.mjs) against its own
+// frozen held-out set, committed before any synonym existed. Measured
+// 2026-09-24: Free 12/40, Pro 12/40 (no synonyms), Max 20/40.
+const VOCAB_FLOOR = { max: 20 };
+
+test('vocabulary held-out: Max never drops below what was measured, and keeps every row Free lands', async () => {
+    const free = await vocabHeldout('free');
+    const max = await vocabHeldout('max');
+    assert.ok(max.landed >= VOCAB_FLOOR.max, `vocabulary held-out ${max.landed}/${max.results.length} < measured ${VOCAB_FLOOR.max}`);
+    const lost = free.results.filter((r, i) => r.ok && !max.results[i].ok).map((r) => `${r.expect} «${r.text}»`);
+    assert.deepEqual(lost, []);
+    const E = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
+    const worse = free.results.filter((r, i) => E.has(max.results[i].action) && !E.has(r.action)).map((r) => `«${r.text}»`);
+    assert.deepEqual(worse, []);
+});
+
+// The behaviour corpus (edition-no-regression) did not contain the messages
+// that showed a synonym carrying a CORE stand-off to new words («التيكت محدش
+// رد» → ambiguous ticket, like the core's «التذكرة محدش رد عليها»). Every
+// other message set we hold is checked here, Pro → Max.
+test('Max vs Pro on every phrasing, held-out and probe message: no new ambiguity, nothing more effectful, no decision lost', async () => {
+    const texts = new Set();
+    for (const k of ['pro', 'pro_heldout', 'max', 'max_heldout']) for (const [, t] of readPhrasings(k)) texts.add(t);
+    const vocab = JSON.parse(fs.readFileSync(new URL('./fixtures/vocabulary-heldout.json', import.meta.url), 'utf8')).rows;
+    for (const [, t] of vocab) texts.add(t);
+    for (const r of generalProbeRows()) texts.add(r.text);
+    assert.ok(texts.size > 400, `too few messages: ${texts.size}`);
+    const eds = { pro: await nodeEdition('pro', SIE_DEFAULT_SETTINGS), max: await nodeEdition('max', SIE_DEFAULT_SETTINGS) };
+    const run = (n, text) => runTurn({ text, catalog: eds[n].scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only',
+        providers: { glossaryProvider: eds[n].providers.glossaryProvider, arabiziProvider: eds[n].providers.arabiziProvider }, edition: eds[n] });
+    const E = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
+    const bad = [];
+    for (const t of texts) {
+        const p = await run('pro', t), m = await run('max', t);
+        if (!p.ranking?.isAmbiguous && m.ranking?.isAmbiguous) bad.push(`ambiguity «${t}»`);
+        if (E.has(m.decision?.action) && !E.has(p.decision?.action)) bad.push(`effect «${t}» ${p.decision?.action} → ${m.decision?.action}`);
+        if (p.decision?.scenarioId && !m.decision?.scenarioId) bad.push(`lost «${t}» ${p.decision.scenarioId}`);
+    }
+    assert.deepEqual(bad, []);
+});

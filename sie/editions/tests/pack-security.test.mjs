@@ -123,6 +123,30 @@ test('T-3: a layer cannot redefine or capture words the base glossary owns', asy
     assert.ok(!layered.includes('entity_hijack'), 'a layer must not capture base-owned words');
 });
 
+test('T-3: a synonym gives meaning to an open word only — never captures a base word, never names a non-base token', async () => {
+    const opts = { glossaryProvider: createRealGlossaryProvider(), arabiziProvider: createRealArabiziProvider() };
+    const canon = async (text, layers) => (await normalize(text, { ...opts, glossaryLayers: layers })).normalizedTokens.map((t) => t.canonical);
+    const syn = (canonical, patterns) => ({ canonical, synonym: true, labels: { ar: 'x', en: 'x' }, patterns });
+
+    // 1. Aimed at base-owned words: the base reading is untouched. («عايز» is
+    //    left out on purpose: the base does NOT resolve it, so a synonym may.)
+    const owned = 'الغي الاشتراك';
+    const capture = [[syn('entity_whatsapp', ['الغي', 'الاشتراك', 'الغي الاشتراك'])]];
+    const before = await canon(owned, null);
+    assert.ok(before.includes('intent_cancel'), 'the fixture must be base-resolved words');
+    assert.deepEqual(await canon(owned, capture), before);
+
+    // 2. Aimed at a token the base does not have: dropped entirely.
+    const open = 'زززززكلمه';
+    const rogue = [[syn('entity_rogue_token', ['زززززكلمه'])]];
+    assert.ok(!(await canon(open, rogue)).includes('entity_rogue_token'));
+    assert.deepEqual(await canon(open, rogue), await canon(open, null));
+
+    // 3. The legitimate case, so 1 and 2 are not passing by doing nothing.
+    const legit = [[syn('entity_login', ['زززززكلمه'])]];
+    assert.ok((await canon(open, legit)).includes('entity_login'));
+});
+
 // ── T-4 attacks through a bigger catalog ────────────────────────────────
 
 const EFFECTFUL = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
