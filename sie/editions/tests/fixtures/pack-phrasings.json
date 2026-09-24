@@ -1198,6 +1198,42 @@
     [
       "gen_statement_other_merchant_name",
       "لقيت خصم في البنك باسم شركة معرفهاش"
+    ],
+    [
+      "gen_site_cant_be_reached",
+      "المتصفح بيقول this site cant be reached"
+    ],
+    [
+      "gen_site_cant_be_reached",
+      "بيطلعلي تعذر الوصول الى هذا الموقع"
+    ],
+    [
+      "gen_http_400_cookie_too_large",
+      "بيطلعلي 400 bad request cookie too large"
+    ],
+    [
+      "gen_form_resubmission_prompt",
+      "كل ما اعمل ريفريش بيقولي تاكيد اعاده ارسال النموذج"
+    ],
+    [
+      "gen_browser_tab_crashed",
+      "الصفحة وقعت وطلعلي aw snap"
+    ],
+    [
+      "gen_javascript_disabled",
+      "بيقولي لازم افعل الجافاسكريبت"
+    ],
+    [
+      "gen_page_unstyled",
+      "الصفحة ظاهرة كلام بس من غير تصميم"
+    ],
+    [
+      "gen_arabic_letters_disconnected",
+      "الحروف العربي ظاهرة مقطعة"
+    ],
+    [
+      "gen_characters_show_as_boxes",
+      "الايموجي بتظهر مربعات"
     ]
   ],
   "max_heldout": [
@@ -1360,6 +1396,38 @@
     [
       "gen_statement_other_merchant_name",
       "اسم التاجر في رسالة الخصم مش هو اسم موقعكم"
+    ],
+    [
+      "gen_site_cant_be_reached",
+      "كروم كاتب DNS_PROBE_FINISHED_NXDOMAIN"
+    ],
+    [
+      "gen_http_400_cookie_too_large",
+      "طالعلي Request Header Or Cookie Too Large"
+    ],
+    [
+      "gen_form_resubmission_prompt",
+      "رجعت للصفحة اللي قبلها وطلعلي confirm form resubmission"
+    ],
+    [
+      "gen_browser_tab_crashed",
+      "التبويب بيقفل ويقولي حدث خطأ اثناء عرض الصفحة"
+    ],
+    [
+      "gen_javascript_disabled",
+      "مكتوب محتاج javascript عشان الموقع يشتغل"
+    ],
+    [
+      "gen_page_unstyled",
+      "الموقع فتح بس شكله متلخبط كله نصوص ولينكات من غير الوان"
+    ],
+    [
+      "gen_arabic_letters_disconnected",
+      "الكلام العربي ظاهر حروف منفصلة عن بعض"
+    ],
+    [
+      "gen_characters_show_as_boxes",
+      "الرموز اللي بعتها ظاهرة مربعات فاضية عند العميل"
     ]
   ]
 }

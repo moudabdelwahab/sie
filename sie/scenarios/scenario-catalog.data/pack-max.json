@@ -1684,6 +1684,260 @@
           }
         ]
       ]
+    },
+    {
+      "id": "gen_site_cant_be_reached",
+      "intent": "device/browser/site_unreachable",
+      "label": {
+        "ar": "المتصفح بيقول «تعذّر الوصول إلى هذا الموقع»",
+        "en": "The browser says \"This site can't be reached\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_site_unreachable",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي معناها إن جهازك مش قادر يوصل لعنوان الموقع أصلًا — المشكلة في الاتصال، مش في حسابك:\n• افتح أي موقع تاني: لو مفيش حاجة بتفتح، النت نفسه واقف.\n• لو المواقع التانية شغالة: جرّب نت الموبايل بدل الواي فاي (أو العكس)، واقفل أي VPN.\n• على أندرويد: لو مفعّل «DNS خاص» (Private DNS)، خليه «تلقائي».\n• اقفل الراوتر دقيقة وشغّله تاني.\n\nولو مش بيفتح على أي شبكة ولا أي جهاز، قولّي.",
+          "en": "This message means your device can't reach the site's address at all — the problem is the connection, not your account:\n• Open any other site: if nothing opens, the internet itself is down.\n• If other sites work: try mobile data instead of Wi-Fi (or the reverse), and turn off any VPN.\n• On Android: if \"Private DNS\" is on, set it to \"Automatic\".\n• Turn the router off for a minute and back on.\n\nIf it won't open on any network or device, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_http_400_cookie_too_large",
+      "intent": "device/browser/cookie_too_large",
+      "label": {
+        "ar": "الصفحة بتقول 400 أو «Cookie Too Large»",
+        "en": "The page says 400 Bad Request or \"Cookie Too Large\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_cookie_too_large",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "http_status_400",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "دي غالبًا سببها بيانات موقع قديمة متراكمة في المتصفح:\n• امسح بيانات موقعنا بس (الكوكيز وبيانات الموقع) من إعدادات المتصفح ← الخصوصية.\n• أو جرّب نافذة تصفح خفي — لو اشتغلت، يبقى ده السبب.\n\nوبعدين سجّل دخولك من جديد.",
+          "en": "This is usually caused by old site data piling up in the browser:\n• Clear our site's data only (cookies and site data) from the browser's settings ▸ Privacy.\n• Or try a private window — if it works there, that's the cause.\n\nThen sign in again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "http_status_400",
+            "weight": 583,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "entity_cache",
+            "weight": 194,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_form_resubmission_prompt",
+      "intent": "device/browser/form_resubmission",
+      "label": {
+        "ar": "المتصفح بيسألني «تأكيد إعادة إرسال النموذج»",
+        "en": "The browser asks to \"Confirm Form Resubmission\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_form_resubmission",
+          "weight": 5,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي بتظهر لما تعمل تحديث أو ترجع لصفحة كانت بعتت بيانات (زي نموذج أو دفع):\n• متدوسش «متابعة» — ده ممكن يبعت نفس الطلب تاني، ويتكرر الدفع أو الرسالة.\n• افتح الصفحة من القائمة أو اكتب العنوان بدل التحديث.\n• ولو مش متأكد الطلب الأول اتبعت ولا لأ، افتح المكان اللي بيظهر فيه (الطلبات أو التذاكر أو الاشتراك) وشوف.",
+          "en": "This appears when you refresh or go back to a page that had sent data (such as a form or a payment):\n• Don't press \"Continue\" — it can send the same request again and repeat the payment or message.\n• Open the page from the menu, or type the address, instead of refreshing.\n• If you're not sure the first request went through, open where it would show (requests, tickets or subscription) and check."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_tab_crashed",
+      "intent": "device/browser/tab_crashed",
+      "label": {
+        "ar": "الصفحة وقعت («Aw, Snap!» أو «الصفحة مش مستجيبة»)",
+        "en": "The tab crashed (\"Aw, Snap!\" or \"Page unresponsive\")"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_tab_crashed",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "دي معناها إن تبويب المتصفح نفسه وقع — مش الموقع:\n• اعمل تحديث للصفحة.\n• اقفل التابات والبرامج اللي مش محتاجها — الغالب إن ذاكرة الجهاز خلصت.\n• حدّث المتصفح لآخر نسخة.\n• جرّب نافذة تصفح خفي؛ لو اشتغلت، إضافة من الإضافات هي السبب.\n\nولو بتقع في صفحة واحدة بالذات كل مرة، قولّي هي أنهي.",
+          "en": "This means the browser tab itself crashed — not the site:\n• Reload the page.\n• Close tabs and programs you don't need — the device most likely ran out of memory.\n• Update the browser to the latest version.\n• Try a private window; if it works there, one of your extensions is the cause.\n\nIf it crashes on one particular page every time, tell me which."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_javascript_disabled",
+      "intent": "device/browser/javascript_disabled",
+      "label": {
+        "ar": "المتصفح بيقول فعّل JavaScript",
+        "en": "The browser says to enable JavaScript"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_javascript",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المنصة محتاجة JavaScript يكون شغّال في المتصفح:\n• كروم: الإعدادات ← الخصوصية والأمان ← إعدادات المواقع ← JavaScript ← «يمكن للمواقع استخدام JavaScript».\n• سفاري (آيفون): الإعدادات ← سفاري ← متقدم ← JavaScript.\n• إضافات زي NoScript بتقفله — ضيف موقعنا للمسموح.\n\nوبعدين حدّث الصفحة.",
+          "en": "The platform needs JavaScript enabled in the browser:\n• Chrome: Settings ▸ Privacy and security ▸ Site settings ▸ JavaScript ▸ \"Sites can use JavaScript\".\n• Safari (iPhone): Settings ▸ Safari ▸ Advanced ▸ JavaScript.\n• Extensions such as NoScript block it — add our site to the allowed list.\n\nThen refresh the page."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_page_unstyled",
+      "intent": "device/browser/page_unstyled",
+      "label": {
+        "ar": "الصفحة ظاهرة كلام بس من غير تصميم",
+        "en": "The page shows as plain text without its design"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_unstyled",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الصفحة ظاهرة كلام وروابط بس من غير ألوان ولا ترتيب، يبقى ملفات التصميم ماتحمّلتش:\n• اعمل تحديث قسري (Ctrl+Shift+R).\n• اقفل مانع الإعلانات أو أي إضافة بتحجب محتوى.\n• لو على شبكة شغل أو فيها فلتر، ممكن تكون حاجبة ملفات من الموقع — جرّب نت تاني.\n• جرّب نافذة تصفح خفي.",
+          "en": "If the page shows only text and links, with no colours or layout, its design files didn't load:\n• Do a hard refresh (Ctrl+Shift+R).\n• Turn off your ad blocker or any extension that blocks content.\n• A work or filtered network may be blocking files from the site — try another connection.\n• Try a private window."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_arabic_letters_disconnected",
+      "intent": "device/display/arabic_letters_disconnected",
+      "label": {
+        "ar": "الحروف العربي ظاهرة مقطّعة (مش متوصلة ببعض)",
+        "en": "Arabic letters show disconnected"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_letters_disconnected",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحروف العربي بتظهر مقطّعة لما الخط أو المتصفح مش بيوصّل الحروف ببعض صح:\n• حدّث المتصفح.\n• لو مفعّل خط مخصّص، أو إضافة بتغيّر الخطوط، أو وضع القراءة — اقفلها.\n• لو الترجمة التلقائية شغالة، اقفلها للموقع.\n• على جهاز قديم جدًا، جرّب متصفح تاني زي كروم أو فايرفوكس.",
+          "en": "Arabic letters show disconnected when the font or the browser doesn't join them properly:\n• Update the browser.\n• If a custom font, a font-changing extension or reading mode is on — turn it off.\n• If automatic translation is on, turn it off for the site.\n• On a very old device, try another browser such as Chrome or Firefox."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_characters_show_as_boxes",
+      "intent": "device/display/characters_as_boxes",
+      "label": {
+        "ar": "الإيموجي أو الحروف ظاهرة مربعات",
+        "en": "Emoji or letters show as empty boxes"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_boxes",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_emoji_only",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المربعات الفاضية مكان الحروف أو الإيموجي معناها إن الجهاز مفيهوش خط بيعرض الرموز دي:\n• حدّث نظام التشغيل والمتصفح — التحديثات بتضيف خطوط الإيموجي الجديدة.\n• لو الحروف العربي نفسها مربعات، الجهاز محتاج إعدادات اللغة العربية أو خط عربي.\n\nالرسالة نفسها سليمة — اللي يفتحها على جهاز أحدث هيشوفها عادي.",
+          "en": "Empty boxes in place of letters or emoji mean the device has no font that can show those characters:\n• Update the operating system and the browser — updates add fonts for newer emoji.\n• If the Arabic letters themselves are boxes, the device needs Arabic language settings or an Arabic font.\n\nThe message itself is fine — anyone opening it on a newer device will see it normally."
+        }
+      },
+      "requiresTicketIfUnresolved": false
     }
   ]
 }

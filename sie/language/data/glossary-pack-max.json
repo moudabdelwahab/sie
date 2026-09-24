@@ -913,6 +913,140 @@
       ]
     },
     {
+      "canonical": "entity_site_unreachable",
+      "labels": {
+        "ar": "تعذّر الوصول للموقع",
+        "en": "site can't be reached"
+      },
+      "patterns": [
+        "this site cant be reached",
+        "site cant be reached",
+        "cant be reached",
+        "can t be reached",
+        "dns probe finished nxdomain",
+        "nxdomain",
+        "err name not resolved",
+        "err connection refused",
+        "تعذر الوصول",
+        "لا يمكن الوصول",
+        "مش قادر اوصل للموقع",
+        "مش قادر اوصل"
+      ]
+    },
+    {
+      "canonical": "entity_cookie_too_large",
+      "labels": {
+        "ar": "الكوكي كبير",
+        "en": "cookie too large"
+      },
+      "patterns": [
+        "cookie too large",
+        "header or cookie too large",
+        "request header or cookie too large",
+        "request header too large",
+        "header too large"
+      ]
+    },
+    {
+      "canonical": "entity_form_resubmission",
+      "labels": {
+        "ar": "تأكيد إعادة إرسال النموذج",
+        "en": "confirm form resubmission"
+      },
+      "patterns": [
+        "تاكيد اعاده ارسال النموذج",
+        "اعاده ارسال النموذج",
+        "confirm form resubmission",
+        "form resubmission",
+        "resubmit the form",
+        "resubmission"
+      ]
+    },
+    {
+      "canonical": "entity_tab_crashed",
+      "labels": {
+        "ar": "الصفحة وقعت",
+        "en": "the tab crashed"
+      },
+      "patterns": [
+        "aw snap",
+        "الصفحه وقعت",
+        "التاب وقع",
+        "التبويب وقع",
+        "page unresponsive",
+        "الصفحه مش مستجيبه",
+        "صفحه غير مستجيبه",
+        "out of memory",
+        "something went wrong while displaying"
+      ]
+    },
+    {
+      "canonical": "entity_javascript",
+      "labels": {
+        "ar": "JavaScript",
+        "en": "JavaScript"
+      },
+      "patterns": [
+        "الجافاسكريبت",
+        "جافاسكريبت",
+        "جافا سكريبت",
+        "javascript",
+        "enable javascript",
+        "js disabled"
+      ]
+    },
+    {
+      "canonical": "entity_unstyled",
+      "labels": {
+        "ar": "من غير تصميم",
+        "en": "without styling"
+      },
+      "patterns": [
+        "من غير شكل",
+        "من غير تصميم",
+        "من غير تنسيق",
+        "من غير الوان",
+        "كلام بس",
+        "نص بس",
+        "no styling",
+        "unstyled",
+        "plain text only",
+        "no css"
+      ]
+    },
+    {
+      "canonical": "entity_letters_disconnected",
+      "labels": {
+        "ar": "حروف مقطّعة",
+        "en": "disconnected letters"
+      },
+      "patterns": [
+        "مقطعه",
+        "مقطعة",
+        "متقطعه",
+        "متقطعة",
+        "مش متوصله",
+        "مش متوصلة",
+        "منفصله",
+        "منفصلة",
+        "disconnected"
+      ]
+    },
+    {
+      "canonical": "entity_boxes",
+      "labels": {
+        "ar": "مربعات",
+        "en": "boxes"
+      },
+      "patterns": [
+        "مربعات",
+        "مربعات فاضيه",
+        "boxes",
+        "squares",
+        "empty boxes"
+      ]
+    },
+    {
       "canonical": "entity_login",
       "synonym": true,
       "labels": {
