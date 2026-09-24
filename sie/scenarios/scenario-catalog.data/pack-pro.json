@@ -6500,8 +6500,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "في صفحة «التحقق بخطوتين» اضغط «استخدام رمز الاستعادة؟» تحت خانة الكود، واكتب واحد من رموز الاستعادة اللي حفظتها وقت التفعيل.\n\nبعد ما تدخل، الأفضل تعيد إعداد التحقق بخطوتين على جهازك الجديد. ولو مش لاقي رموز الاستعادة خالص، قولّي وأفتح تذكرة استرجاع وصول.",
-          "en": "On the \"Two-step verification\" page, click \"Use a recovery code?\" under the code field and enter one of the recovery codes you saved when you enabled it.\n\nOnce in, it's best to set up two-step verification again on your new device. If you can't find any recovery codes, tell me and I'll open an access-recovery ticket."
+          "ar": "رمز الاستعادة بيتكتب مكان كود التطبيق: في صفحة الدخول اكتبه في نفس خانة الرمز (أو من «استخدام رمز الاستعادة؟» في صفحة التحقق).\n\n• كل رمز بيتستخدم مرة واحدة بس.\n• بعد الدخول بيظهرلك عدد الرموز الفاضلة.\n• لو قربت تخلص: من «حماية الحساب» أوقف التحقق بخطوتين وفعّله تاني — ده بيطلّع رموز جديدة (والقديمة بتبطل).\n\nولو مش لاقي أي رمز والموبايل ضاع، قولّي وأفتح تذكرة استرجاع وصول.",
+          "en": "A recovery code goes where the app code goes: on the sign-in page type it in the same code field (or use \"Use a recovery code?\" on the verification page).\n\n• Each code works once only.\n• After signing in you're shown how many codes are left.\n• If you're running low: in \"Account protection\" turn two-step verification off and on again — that issues new codes (the old ones stop working).\n\nIf you can't find any code and the phone is lost, tell me and I'll open an access-recovery ticket."
         }
       },
       "requiresTicketIfUnresolved": false
@@ -6530,8 +6530,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "ده حماية مؤقتة بعد كذا كود غلط ورا بعض. استنى كام دقيقة وجرّب تاني بكود جديد من التطبيق (مش القديم).\n\nلو الأكواد بتترفض رغم إنها صح، الغالب إن ساعة الموبايل مش مظبوطة: خلّي التاريخ والوقت «تلقائي» قبل المحاولة الجاية.",
-          "en": "It's a temporary protection after several wrong codes in a row. Wait a few minutes and try again with a fresh code from the app (not the old one).\n\nIf correct codes keep getting rejected, your phone's clock is most likely off: set date & time to \"automatic\" before the next attempt."
+          "ar": "ده حماية مؤقتة بعد كذا كود غلط ورا بعض: استنى ١٥ دقيقة، وبعدين جرّب بكود جديد من التطبيق (مش القديم).\n\nلو الأكواد بتترفض رغم إنها صح، الغالب إن ساعة الموبايل مش مظبوطة: خلّي التاريخ والوقت «تلقائي» قبل المحاولة الجاية. ولو الموبايل مش معاك، تقدر تدخل بواحد من رموز الاستعادة في نفس الخانة.",
+          "en": "It's a temporary protection after several wrong codes in a row: wait 15 minutes, then try a fresh code from the app (not the old one).\n\nIf correct codes keep getting rejected, your phone's clock is most likely off: set date & time to \"automatic\" before the next attempt. If you don't have your phone, you can sign in with one of your recovery codes in the same field."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -6579,8 +6579,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "الرسالة دي معناها إن خدمة إرسال الأكواد على تليجرام مش متاحة في اللحظة دي، مش مشكلة في حسابك.\n\nارجع لصفحة الدخول وسجّل دخول من جديد — ده بيبدأ جلسة تحقق جديدة. لو نفس الرسالة ظهرت تاني، قولّي وأفتح تذكرة عشان الفريق يساعدك تدخل.",
-          "en": "That message means the Telegram code delivery isn't available at the moment — not a problem with your account.\n\nGo back to the sign-in page and sign in again — that starts a new verification session. If the same message appears again, tell me and I'll open a ticket so the team can help you in."
+          "ar": "رمز الدخول عبر تيليجرام ميزة لسه مش مكتملة، ومش مطلوبة عند الدخول — فالرسالة دي مش مشكلة في حسابك.\n\nارجع لصفحة الدخول وسجّل دخول من جديد عادي. ولحماية حسابك اعتمد على التحقق بخطوتين من «حماية الحساب». لو الرسالة دي منعتك تدخل خالص، قولّي وأفتح تذكرة.",
+          "en": "The Telegram sign-in code is an unfinished feature and isn't required at sign-in — so this message isn't a problem with your account.\n\nGo back to the sign-in page and sign in again normally. To protect your account, rely on two-step verification under \"Account protection\". If the message actually stops you from signing in, tell me and I'll open a ticket."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -7003,6 +7003,688 @@
         "text": {
           "ar": "دخولك سليم — بس الرابط اللي فتحته بيخص نوع حساب تاني: صفحات بوابة العميل لحسابات العملاء، وصفحات لوحة الإدارة لفريق المنصة.\n\nارجع للوحة بتاعتك (للشركات: «لوحة الشركة») وكمّل منها. لو الصفحة دي مفروض تكون متاحة ليك، قولّي اسمها وأنا أتأكد.",
           "en": "Your sign-in is fine — but the link you opened belongs to another account type: customer-portal pages are for customer accounts, and admin pages are for the platform team.\n\nGo back to your own dashboard (for companies: the \"company dashboard\") and continue from there. If that page should be available to you, tell me its name and I'll check."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_company_member_mode",
+      "intent": "login/account_type/company_member",
+      "label": {
+        "ar": "أدخل إزاي بحساب تابع لشركة",
+        "en": "How to sign in as a company member"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_company_mode",
+          "weight": 843,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 156,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "في صفحة الدخول اختار «حساب تابع لشركة» فوق، وبعدين:\n١. في الخانة الأولى: بريد الشركة أو رقم سجلها التجاري.\n٢. بياناتك إنت (إيميلك أو رقمك أو اسم المستخدم) وكلمة المرور.\n\nلو ظهر «بيانات الشركة أو العضو غير صحيحة، أو العضو غير تابع لهذه الشركة»: اتأكد من بيانات الشركة، وإن مدير الشركة ضافك فعلًا كعضو فيها.",
+          "en": "On the sign-in page choose \"Company member account\" at the top, then:\n1. In the first field: the company's e-mail or commercial-register number.\n2. Your own details (e-mail, phone or username) and password.\n\nIf \"the company or member details are incorrect, or the member doesn't belong to this company\" appears: check the company details, and that the company admin actually added you as a member."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_company_mode",
+            "weight": 633,
+            "source": "text"
+          },
+          {
+            "token": "entity_login",
+            "weight": 156,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 211,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_company_mode",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "symptom_login_failed",
+            "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "login_identifier_options",
+      "intent": "login/identifier/options",
+      "label": {
+        "ar": "أدخل باسم المستخدم أو رقم الموبايل؟",
+        "en": "Can I sign in with my username or phone?"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_username",
+          "weight": 843,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 156,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أيوه — خانة الدخول بتقبل الإيميل أو رقم الهاتف أو اسم المستخدم، أيهم تكتبه.\n\n• «لا يوجد حساب مرتبط بهذا الرقم»: الرقم مش متسجل بالشكل ده — جرّب الإيميل.\n• «اسم المستخدم غير موجود»: اتأكد إنك كاتبه بالحروف الإنجليزية زي ما سجّلته.",
+          "en": "Yes — the sign-in field accepts your e-mail, phone number or username, whichever you type.\n\n• \"No account is linked to this number\": the number isn't registered that way — try your e-mail.\n• \"Username not found\": check you typed it in English letters exactly as registered."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "signup_username_rules",
+      "intent": "account/signup/username_rules",
+      "label": {
+        "ar": "اسم المستخدم مش مقبول وأنا بسجل",
+        "en": "Username not accepted at sign-up"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_username",
+          "weight": 430,
+          "source": "text"
+        },
+        {
+          "token": "entity_signup",
+          "weight": 430,
+          "source": "text"
+        },
+        {
+          "token": "entity_not_accepted",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اسم المستخدم لازم يكون:\n• من ٣ لـ٢٠ حرف.\n• حروف إنجليزية وأرقام وشرطة سفلية (_) بس — من غير مسافات ولا عربي.\n• مش مستخدم قبل كده، ومش من الأسماء المحجوزة.\n\nتحت الخانة بيظهرلك وانت بتكتب إذا كان الاسم متاح.",
+          "en": "The username must be:\n• 3 to 20 characters;\n• English letters, digits and underscore (_) only — no spaces, no Arabic;\n• not already taken, and not one of the reserved names.\n\nBelow the field you're told, as you type, whether it's available."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_username",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_name_taken",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_signup",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_username",
+            "weight": 480,
+            "source": "text"
+          },
+          {
+            "token": "entity_not_accepted",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "atom_register",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_signup",
+            "weight": 240,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "login_pi_network",
+      "intent": "login/pi_network/how",
+      "label": {
+        "ar": "الدخول بـ Pi Network",
+        "en": "Signing in with Pi Network"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_pi_network",
+          "weight": 843,
+          "source": "text"
+        },
+        {
+          "token": "entity_login",
+          "weight": 156,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«المتابعة بـ Pi Network» بتدخلك بحساب Pi بتاعك من غير كلمة مرور. الخيار ده بيشتغل لما تفتح المنصة من متصفح Pi — من متصفح عادي الزرار مش هيكمّل.\n\nلو ظهر «تم إلغاء تسجيل الدخول بـ Pi Network» يبقى الموافقة اتلغت من ناحية Pi؛ جرّب تاني ووافق. ولو ظهر خطأ تاني، ابعتلي نصه.",
+          "en": "\"Continue with Pi Network\" signs you in with your Pi account without a password. It works when you open the platform from the Pi Browser — from a regular browser the button won't complete.\n\nIf \"Pi Network sign-in cancelled\" appears, the approval was cancelled on Pi's side; try again and approve. For any other error, send me its text."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "login_subdomain_not_yours",
+      "intent": "login/subdomain/not_linked",
+      "label": {
+        "ar": "بيقول النطاق ده مش مرتبط بحسابك",
+        "en": "It says this subdomain is not linked to my account"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_linked_account",
+          "weight": 610,
+          "source": "text"
+        },
+        {
+          "token": "entity_domain",
+          "weight": 390,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إنت فاتح صفحة دخول بوابة شركة (اسمها.mad3oom.com) وحسابك مش تبعها. سجّل الدخول بالحساب المالك للنطاق ده، أو ادخل من الموقع الرئيسي بدل رابط البوابة.\n\nولو مكتوب «هذا النطاق الفرعي غير موجود أو تم حذفه»، يبقى الرابط قديم أو فيه غلطة — اطلب الرابط الصحيح من الشركة.",
+          "en": "You're on a company portal's sign-in page (name.mad3oom.com) and your account doesn't belong to it. Sign in with the account that owns that subdomain, or sign in from the main site instead of the portal link.\n\nIf it says \"this subdomain doesn't exist or was deleted\", the link is old or mistyped — ask the company for the correct link."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_not_linked_account",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "entity_subdomain",
+            "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "security_logout_other_devices",
+      "intent": "security/sessions/logout_others",
+      "label": {
+        "ar": "عايز أسجّل خروج من كل الأجهزة",
+        "en": "Sign out of all other devices"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_all_devices",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_logout",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من إعدادات الحساب ← حماية الحساب ← الجلسات: «تسجيل الخروج من كل الأجهزة الأخرى» — الجهاز اللي انت عليه بيفضل داخل.\n\nالمنصة لسه مابتعرضش قائمة تفصيلية بالجلسات. ولو شاكك إن حد دخل على حسابك: اعمل الخروج من كل الأجهزة، وغيّر كلمة المرور (التغيير نفسه كمان بيقفل الجلسات التانية).",
+          "en": "From Account settings → Account protection → Sessions: \"Sign out of all other devices\" — the device you're on stays signed in.\n\nThe platform doesn't show a detailed session list yet. If you suspect someone signed in to your account: sign out everywhere else, and change your password (the change itself also closes other sessions)."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "security_trusted_devices_manage",
+      "intent": "security/trusted_devices/manage",
+      "label": {
+        "ar": "أشيل جهاز من الأجهزة الموثوقة",
+        "en": "Remove a trusted device"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_trust_device",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_delete",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«الأجهزة الموثوقة» في «حماية الحساب» هي الأجهزة اللي اخترت عليها «تذكّر هذا الجهاز»، فمابيتطلبش منها كود التحقق.\n\nاضغط «إزالة» جنب الجهاز، أو «إزالة كل الأجهزة». الإزالة مابتطلّعش حد من حسابه — بس بترجّع طلب الكود في الدخول الجاي من الجهاز ده. لو عايز تطلّع حد فعلًا، استخدم «تسجيل الخروج من كل الأجهزة الأخرى».",
+          "en": "\"Trusted devices\" in Account protection are the devices where you chose \"Remember this device\", so they aren't asked for the verification code.\n\nPress \"Remove\" next to a device, or \"Remove all devices\". Removing doesn't sign anyone out — it just brings the code back on the next sign-in from that device. To actually sign someone out, use \"Sign out of all other devices\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_trust_device",
+            "weight": 860,
+            "source": "text"
+          },
+          {
+            "token": "atom_remove",
+            "weight": 139,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "security_2fa_turn_off",
+      "intent": "security/2fa/disable",
+      "label": {
+        "ar": "عايز أوقف التحقق بخطوتين",
+        "en": "Turn off two-step verification"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_turn_off",
+          "weight": 610,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 390,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من «حماية الحساب» ← التحقق بخطوتين: اكتب رمز حالي من تطبيق المصادقة، أو واحد من رموز الاستعادة، واضغط «إيقاف التحقق بخطوتين».\n\nالإيقاف بيقلل حماية حسابك، فلو السبب إن الموبايل اتغير، الأفضل توقفه وتفعّله تاني على الموبايل الجديد على طول.",
+          "en": "From Account protection → Two-step verification: enter a current code from the authenticator app, or one of your recovery codes, and press \"Turn off two-step verification\".\n\nTurning it off lowers your account's protection, so if the reason is a new phone, turn it off and immediately back on with the new phone."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "security_2fa_new_recovery_codes",
+      "intent": "security/2fa/recovery_codes_regenerate",
+      "label": {
+        "ar": "رموز الاستعادة خلصت أو ضاعت — عايز جداد",
+        "en": "Recovery codes used up or lost — I need new ones"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_codes_word",
+          "weight": 508,
+          "source": "text"
+        },
+        {
+          "token": "intent_recover",
+          "weight": 323,
+          "source": "text"
+        },
+        {
+          "token": "symptom_expired",
+          "weight": 169,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رموز الاستعادة بتظهر مرة واحدة وقت التفعيل ومتخزنة بشكل مشفّر، فمحدش يقدر يعرضهالك تاني.\n\nعشان تاخد رموز جديدة: من «حماية الحساب» أوقف التحقق بخطوتين (برمز حالي من التطبيق) وفعّله تاني — هتظهرلك رموز جديدة والقديمة بتبطل. احفظها في مكان آمن بعيد عن الموبايل.",
+          "en": "Recovery codes are shown once, when you enable two-step verification, and stored encrypted, so nobody can show them to you again.\n\nTo get new ones: in Account protection turn two-step verification off (with a current app code) and back on — new codes appear and the old ones stop working. Keep them somewhere safe, away from your phone."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_codes_word",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_2fa",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_recover",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "security_2fa_qr_not_showing",
+      "intent": "security/2fa/qr_setup_failed",
+      "label": {
+        "ar": "كود QR بتاع التحقق بخطوتين مش ظاهر أو مش بيتقري",
+        "en": "2FA QR code not showing or not scanning"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_qr_code",
+          "weight": 407,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 203,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو رمز QR مش ظاهر أو التطبيق مش قادر يقراه: تحته في مفتاح نصّي — في تطبيق المصادقة اختار «إدخال مفتاح يدويًا» وانسخه.\n\nبعدين اكتب الكود المكوّن من ٦ أرقام اللي ظهر في التطبيق واضغط «تأكيد وتفعيل». لو الكود اترفض، اضغط «ابدأ الإعداد من جديد» وجرّب تاني.",
+          "en": "If the QR code doesn't show or the app can't read it: below it there's a text key — in your authenticator app choose \"Enter a setup key\" and copy it in.\n\nThen type the 6-digit code shown in the app and press \"Confirm and enable\". If the code is rejected, press \"Start setup again\" and retry."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "account_email_change_pending",
+      "intent": "account/email/change_confirmation",
+      "label": {
+        "ar": "غيّرت الإيميل ولسه القديم هو اللي ظاهر",
+        "en": "Changed my e-mail but the old one still shows"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_email",
+          "weight": 344,
+          "source": "text"
+        },
+        {
+          "token": "atom_change",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_still_old",
+          "weight": 516,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده الطبيعي لحد ما تأكد: «طلب تغيير البريد» بيبعت لينك تأكيد على الإيميل الجديد، وإيميلك الحالي بيفضل هو المسجّل لحد ما تضغط اللينك.\n\nافتح الإيميل الجديد (وبصّ في الـ Spam) واضغط اللينك. لو ماوصلش، اطلب التغيير تاني واتأكد من كتابة العنوان.",
+          "en": "That's normal until you confirm: \"Request e-mail change\" sends a confirmation link to the NEW address, and your current e-mail stays registered until you click it.\n\nOpen the new mailbox (check Spam too) and click the link. If it didn't arrive, request the change again and check the address."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_email",
+            "weight": 344,
+            "source": "text"
+          },
+          {
+            "token": "entity_still_old",
+            "weight": 516,
+            "source": "text"
+          },
+          {
+            "token": "atom_unchanged",
+            "weight": 139,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "account_phone_not_verified_label",
+      "intent": "account/phone/not_verified",
+      "label": {
+        "ar": "رقم الهاتف مكتوب جنبه «غير موثّق»",
+        "en": "My phone number says \"not verified\""
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_unverified",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_phone_number",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«غير موثّق برمز» معناها إن الرقم متسجّل من غير كود تحقق — وده لأن المنصة لسه مافيهاش تحقق للرقم بكود أصلًا، مش مشكلة عندك.\n\nالرقم مطلوب عشان الحساب يفضل مفعّل وبيتستخدم في الدخول، فاتأكد بس إنه صحيح ومكتوب بالشكل ده: 01012345678 أو ‎+201012345678.",
+          "en": "\"Not verified by code\" means the number is registered without a verification code — because the platform has no phone code verification at all yet, not because of a problem on your side.\n\nThe number is required to keep the account active and is used to sign in, so just make sure it's correct and written like 01012345678 or +201012345678."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "account_bio_visibility",
+      "intent": "account/profile_bio/visibility",
+      "label": {
+        "ar": "النبذة اللي في حسابي بتظهر لمين",
+        "en": "Who sees the bio in my profile?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_bio",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "النبذة اختيارية، وبتظهر لفريق الدعم وهو بيتعامل مع طلباتك — مفيدة لو حابب يعرفوا مجال شغلك أو طريقة التواصل اللي تفضّلها.\n\nماتكتبش فيها بيانات حساسة زي كلمات مرور أو أرقام كروت.",
+          "en": "The bio is optional, and it's shown to the support team when they handle your requests — useful if you'd like them to know your line of work or how you prefer to be contacted.\n\nDon't put sensitive data in it, such as passwords or card numbers."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "assistant_rate_limited_wait",
+      "intent": "assistant/rate_limit/wait",
+      "label": {
+        "ar": "المساعد بيقولي بعت رسايل كتير واستنى",
+        "en": "The assistant says I sent too many messages and to wait"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_too_many_messages",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_assistant",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المساعد بيحدّ عدد الرسايل في وقت قصير عشان يفضل سريع للكل. استنى الثواني المكتوبة في الرسالة، وبعدين ابعت رسالة واحدة فيها كل التفاصيل بدل كذا رسالة ورا بعض.\n\nالانتظار ده مابيتحسبش من حصة رسايلك.",
+          "en": "The assistant limits how many messages it takes in a short time so it stays fast for everyone. Wait the seconds stated in the message, then send one message with all the details instead of several in a row.\n\nThis wait doesn't count against your message quota."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "notif_ticket_updates_on_whatsapp",
+      "intent": "notification/ticket_whatsapp/availability",
+      "label": {
+        "ar": "ينفع توصلني إشعارات التذاكر على الواتساب؟",
+        "en": "Can I get ticket notifications on WhatsApp?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_notify_me",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لسه لأ. إشعارات التذاكر (فتح وحل) بتوصل حاليًا جوه المنصة، وعلى الإيميل، وعلى تليجرام لو رابط حسابك.\n\nإشعارات الواتساب موجودة في خارطة الطريق كخطوة جاية. لحد ما تتفعّل، تليجرام أسرع طريقة توصلك بيها الإشعارات على الموبايل.",
+          "en": "Not yet. Ticket notifications (opened and resolved) currently arrive inside the platform, by e-mail, and on Telegram if your account is linked.\n\nWhatsApp notifications are on the roadmap as a next step. Until then, Telegram is the fastest way to get them on your phone."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "forum_post_topic_how",
+      "intent": "community/forum/post_how",
+      "label": {
+        "ar": "أنشر موضوع في المنتدى إزاي",
+        "en": "How to post a topic in the forum"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_post_topic",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_forum",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لازم تكون مسجّل دخول. بعدين:\n١. افتح المنتدى واختار القسم المناسب.\n٢. اكتب موضوعك وانشره.\n\nتقدر تعلّق على مواضيع غيرك وتعجب بيها، وبيوصلك إشعار لما حد يتفاعل معاك. ولو ظهر «يرجى تسجيل الدخول أولاً»، سجّل دخول وارجع للمنتدى.",
+          "en": "You need to be signed in. Then:\n1. Open the forum and choose the right section.\n2. Write your topic and publish it.\n\nYou can comment on and like other people's topics, and you're notified when someone interacts with yours. If \"please sign in first\" appears, sign in and come back to the forum."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_post_topic",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "entity_forum",
+            "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "platform_voice_support_availability",
+      "intent": "platform/roadmap/voice_support",
+      "label": {
+        "ar": "فيه دعم بالمكالمات أو صوتي؟",
+        "en": "Is there phone or voice support?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_voice_support",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المنصة نصية حاليًا — مفيش مكالمات ولا دعم صوتي.\n\nفي خارطة الطريق: الدعم الصوتي خطوة جاية، والمكالمات بالذكاء الاصطناعي ورسائل الصوت رؤية مستقبلية مش ضمن الجدول الحالي. لحد كده، التذاكر والمحادثة الفورية هما أسرع طريق للدعم.",
+          "en": "The platform is text-based today — there are no calls and no voice support.\n\nOn the roadmap: voice support is a next step, while AI voice calls and voice messages are a future vision outside the current schedule. Until then, tickets and live chat are the fastest route to support."
         }
       },
       "requiresTicketIfUnresolved": false

@@ -63,8 +63,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "الحساب بيتقفل تلقائيًا بعد عدة محاولات دخول خاطئة، وده إجراء حماية مؤقت.\n\nغالبًا هيتفتح لوحده بعد ٣٠ دقيقة — جرّب تاني بعد المدة دي. ولو محتاج تدخل حالًا، أو الحساب لسه مقفول بعد الوقت ده، قولي وهصعّد الموضوع لفريق الدعم فورًا عشان يفكّوه يدويًا.",
-          "en": "Accounts lock automatically after several failed sign-in attempts — it's a temporary security measure.\n\nIt usually unlocks itself after 30 minutes, so try again after that. If you need access sooner, or it's still locked after that window, tell me and I'll escalate it to support to unlock it manually."
+          "ar": "بعد كذا محاولة دخول غلط ورا بعض، الدخول بيتوقف مؤقتًا كإجراء حماية.\n\nاستنى شوية قبل المحاولة الجاية، وبدل التخمين استخدم «نسيت كلمة المرور» من صفحة الدخول. ولو الحساب لسه مش بيفتح أو محتاج تدخل حالًا، قولّي وأصعّد الموضوع لفريق الدعم.",
+          "en": "After several wrong sign-in attempts in a row, sign-in is paused as a protection measure.\n\nWait a little before the next attempt, and instead of guessing use \"Forgot password\" on the sign-in page. If the account still won't open, or you need in now, tell me and I'll escalate it to the support team."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -168,8 +168,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "لو كود التحقق مش واصل:\n• استنى دقيقة كاملة قبل ما تطلب كود جديد — الطلبات المتكررة بتلغي بعضها.\n• لو الكود على الإيميل، بصّ في الـ Spam والـ Promotions.\n• لو على SMS، اتأكد إن الرقم صحيح وإن الشبكة عندك شغالة.\n\nقولي الكود بيتبعت على إيميل ولا رقم موبايل، وهساعدك بالخطوة اللي بعدها.",
-          "en": "If your verification code isn't arriving:\n• Wait a full minute before requesting a new one — rapid requests invalidate each other.\n• If it's sent by email, check Spam and Promotions.\n• If it's by SMS, confirm the number is correct and you have signal.\n\nTell me whether the code goes to your email or your phone and I'll take it from there."
+          "ar": "المنصة مابتبعتش أكواد على الموبايل (SMS) خالص، فخلّينا نحدد الكود ده جاي منين:\n• كود التحقق بخطوتين: مش بيتبعت — بيظهر في تطبيق المصادقة على موبايلك (زي Google Authenticator) وبيتغيّر كل شوية.\n• تأكيد الإيميل أو تغيير كلمة المرور: ده لينك مش كود، بيوصل على الإيميل — بصّ في الـ Spam والـ Promotions، واستنى دقيقة قبل ما تطلب واحد جديد.\n• كود تليجرام للدخول: الميزة دي لسه مش مكتملة ومش مطلوبة عند الدخول.\n\nقولّي الشاشة اللي بتطلب الكود مكتوب فيها إيه، وأنا أكمل معاك.",
+          "en": "The platform doesn't send codes to your phone (SMS) at all, so let's pin down where this code comes from:\n• Two-step verification code: it isn't sent — it appears in the authenticator app on your phone (such as Google Authenticator) and changes every few seconds.\n• E-mail confirmation or password change: that's a LINK, not a code, sent by e-mail — check Spam and Promotions, and wait a minute before requesting another.\n• Telegram sign-in code: that feature isn't complete yet and isn't required at sign-in.\n\nTell me what the screen asking for the code says and I'll take it from there."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -2844,8 +2844,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "تغيير كلمة المرور وانت داخل على حسابك:\n١. افتح إعدادات الحساب ← الأمان.\n٢. اضغط \"تغيير كلمة المرور\".\n٣. اكتب كلمة المرور الحالية، وبعدين الجديدة مرتين.\n\nكلمة المرور لازم تكون ٨ حروف على الأقل وفيها حروف وأرقام. بعد التغيير هيتم تسجيل خروجك من باقي الأجهزة تلقائيًا — ده مقصود لحمايتك.",
-          "en": "To change your password while signed in:\n1. Open Account settings → Security.\n2. Click \"Change password\".\n3. Enter your current password, then the new one twice.\n\nPasswords must be at least 8 characters and mix letters and numbers. After changing it you'll be signed out of your other devices automatically — that's intentional, for your security."
+          "ar": "تغيير كلمة المرور وانت داخل على حسابك:\n١. افتح إعدادات الحساب ← حماية الحساب.\n٢. اكتب كلمة المرور الحالية، وبعدين الجديدة مرتين.\n٣. اضغط «تحديث كلمة المرور».\n\nالجديدة لازم تكون ٨ حروف على الأقل وفيها حرف كبير وحرف صغير ورقم، ومختلفة عن الحالية. بعد التغيير بيتم تسجيل خروجك من باقي الأجهزة تلقائيًا — ده مقصود لحمايتك.",
+          "en": "Changing your password while signed in:\n1. Open Account settings → Account protection.\n2. Enter your current password, then the new one twice.\n3. Press \"Update password\".\n\nThe new one must be at least 8 characters with an upper-case letter, a lower-case letter and a digit, and different from the current one. Afterwards you're signed out of your other devices automatically — that's intentional, for your protection."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -7606,8 +7606,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "متطلبات الصورة: JPG أو PNG، أقل من ٢ ميجا، وأبعاد لا تقل عن ٢٠٠×٢٠٠ بكسل.\n\nلو الرفع بيفشل رغم كده:\n• جرّب تفتح الصورة وتحفظها من جديد — الملفات المحمّلة من واتساب أحيانًا بتبقى بامتداد غلط.\n• لو الصورة من آيفون بصيغة HEIC، حوّلها لـ JPG الأول.\n• جرّب من متصفح تاني.",
-          "en": "Requirements: JPG or PNG, under 2 MB, at least 200×200 pixels.\n\nIf it still fails:\n• Open and re-save the image — files downloaded from WhatsApp sometimes carry the wrong extension.\n• If it is an iPhone HEIC file, convert it to JPG first.\n• Try another browser."
+          "ar": "متطلبات الصورة: PNG أو JPG أو WEBP، ومايزيدش حجمها عن ٢ ميجا.\n\nلو الرفع بيفشل رغم كده:\n• جرّب تفتح الصورة وتحفظها من جديد — الملفات المحمّلة من واتساب أحيانًا بتبقى بامتداد غلط.\n• لو الصورة من آيفون بصيغة HEIC، حوّلها لـ JPG الأول.\n• جرّب من متصفح تاني.",
+          "en": "Image requirements: PNG, JPG or WEBP, no larger than 2 MB.\n\nIf uploading still fails:\n• Open the image and save it again — files downloaded from WhatsApp sometimes carry the wrong extension.\n• If it's an iPhone HEIC image, convert it to JPG first.\n• Try another browser."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -8572,8 +8572,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "تدوير المفتاح من غير انقطاع:\n١. أنشئ مفتاح جديد بنفس الصلاحيات (المفاتيح القديمة بتفضل شغالة).\n٢. حدّث أنظمتك تستخدم الجديد.\n٣. راقب سجل الاستخدام ٢٤ ساعة وتأكد إن مفيش حاجة لسه بتستخدم القديم.\n٤. امسح المفتاح القديم.\n\nالترتيب ده مهم — لو مسحت القديم الأول هيحصل انقطاع. ونصيحة: دوّر المفاتيح كل ٩٠ يوم، وفورًا لو حد من الفريق ساب الشغل.",
-          "en": "Rotating a key without downtime:\n1. Create a new key with the same scopes (old keys keep working).\n2. Update your systems to use the new one.\n3. Watch the usage log for 24 hours and confirm nothing still uses the old key.\n4. Delete the old key.\n\nThe order matters — deleting first causes an outage. Tip: rotate every 90 days, and immediately whenever someone leaves the team."
+          "ar": "تدوير المفتاح من غير انقطاع:\n١. أنشئ مفتاح جديد بنفس الصلاحيات (القديم بيفضل شغال).\n٢. حدّث أنظمتك تستخدم الجديد.\n٣. راقب «آخر النداءات» وتأكد إن مفيش حاجة لسه بتستخدم القديم.\n٤. أوقف المفتاح القديم من القائمة (زرار «إيقاف») — الإيقاف بيسري على الخادم على طول.\n\nالترتيب ده مهم — لو أوقفت القديم الأول هيحصل انقطاع. ونصيحة: دوّر المفاتيح كل ٩٠ يوم، وفورًا لو حد من الفريق ساب الشغل.",
+          "en": "Rotating a key without downtime:\n1. Create a new key with the same scopes (the old one keeps working).\n2. Update your systems to use the new one.\n3. Watch \"Recent calls\" and make sure nothing still uses the old one.\n4. Stop the old key from the list (\"Stop\") — it takes effect on the server at once.\n\nThe order matters — stopping the old one first causes downtime. Tip: rotate keys every 90 days, and immediately if someone leaves the team."
         }
       },
       "requiresTicketIfUnresolved": false,

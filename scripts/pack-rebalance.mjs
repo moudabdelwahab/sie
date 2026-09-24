@@ -125,7 +125,7 @@ for (const s of packScenarios) {
 // large" and tied with an unrelated core reading of the rest of a message.
 const GLUE = new Set([
     'entity_too_big', 'atom_request', 'entity_service_word', 'atom_link', 'entity_arabic_word',
-    'entity_what_is', 'symptom_not_happening', 'atom_code', 'entity_key_word', 'entity_merge_plan'
+    'entity_what_is', 'symptom_not_happening', 'atom_code', 'entity_key_word', 'entity_merge_plan', 'entity_not_accepted'
 ]);
 
 function cap(t, scenarioId, authoredShare = 1) {

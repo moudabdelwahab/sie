@@ -87,6 +87,30 @@ const MERGES = [
 // ------------------------------------------------------------
 const answer = (ar, en) => ({ hasAutoResolution: true, text: { ar, en } });
 const CORRECTIONS = {
+    // Mad3oom assets/js/account/account-core.js: «لا يوجد تحقق برمز للهاتف حتى
+    // الآن» and «رمز الدخول عبر تيليجرام — غير متاح حاليًا». No SMS code exists;
+    // the only codes are the authenticator app's (2FA) and e-mailed LINKS.
+    login_otp_not_received: answer(
+        'المنصة مابتبعتش أكواد على الموبايل (SMS) خالص، فخلّينا نحدد الكود ده جاي منين:\n• كود التحقق بخطوتين: مش بيتبعت — بيظهر في تطبيق المصادقة على موبايلك (زي Google Authenticator) وبيتغيّر كل شوية.\n• تأكيد الإيميل أو تغيير كلمة المرور: ده لينك مش كود، بيوصل على الإيميل — بصّ في الـ Spam والـ Promotions، واستنى دقيقة قبل ما تطلب واحد جديد.\n• كود تليجرام للدخول: الميزة دي لسه مش مكتملة ومش مطلوبة عند الدخول.\n\nقولّي الشاشة اللي بتطلب الكود مكتوب فيها إيه، وأنا أكمل معاك.',
+        'The platform doesn\'t send codes to your phone (SMS) at all, so let\'s pin down where this code comes from:\n• Two-step verification code: it isn\'t sent — it appears in the authenticator app on your phone (such as Google Authenticator) and changes every few seconds.\n• E-mail confirmation or password change: that\'s a LINK, not a code, sent by e-mail — check Spam and Promotions, and wait a minute before requesting another.\n• Telegram sign-in code: that feature isn\'t complete yet and isn\'t required at sign-in.\n\nTell me what the screen asking for the code says and I\'ll take it from there.'),
+    // account-core.js: PNG / JPG / WEBP, at most 2 MB. No minimum dimensions in the code.
+    ui_profile_picture_not_uploading: answer(
+        'متطلبات الصورة: PNG أو JPG أو WEBP، ومايزيدش حجمها عن ٢ ميجا.\n\nلو الرفع بيفشل رغم كده:\n• جرّب تفتح الصورة وتحفظها من جديد — الملفات المحمّلة من واتساب أحيانًا بتبقى بامتداد غلط.\n• لو الصورة من آيفون بصيغة HEIC، حوّلها لـ JPG الأول.\n• جرّب من متصفح تاني.',
+        'Image requirements: PNG, JPG or WEBP, no larger than 2 MB.\n\nIf uploading still fails:\n• Open the image and save it again — files downloaded from WhatsApp sometimes carry the wrong extension.\n• If it\'s an iPhone HEIC image, convert it to JPG first.\n• Try another browser.'),
+    // account-core.js: 8+ characters with an upper-case letter, a lower-case
+    // letter and a digit; account-settings.js: changing it ends other sessions.
+    howto_change_password: answer(
+        'تغيير كلمة المرور وانت داخل على حسابك:\n١. افتح إعدادات الحساب ← حماية الحساب.\n٢. اكتب كلمة المرور الحالية، وبعدين الجديدة مرتين.\n٣. اضغط «تحديث كلمة المرور».\n\nالجديدة لازم تكون ٨ حروف على الأقل وفيها حرف كبير وحرف صغير ورقم، ومختلفة عن الحالية. بعد التغيير بيتم تسجيل خروجك من باقي الأجهزة تلقائيًا — ده مقصود لحمايتك.',
+        'Changing your password while signed in:\n1. Open Account settings → Account protection.\n2. Enter your current password, then the new one twice.\n3. Press "Update password".\n\nThe new one must be at least 8 characters with an upper-case letter, a lower-case letter and a digit, and different from the current one. Afterwards you\'re signed out of your other devices automatically — that\'s intentional, for your protection.'),
+    // The 30-minute figure has no source in the platform's code; the one
+    // lockout with a stated duration is two-step verification (15 minutes).
+    login_account_locked: answer(
+        'بعد كذا محاولة دخول غلط ورا بعض، الدخول بيتوقف مؤقتًا كإجراء حماية.\n\nاستنى شوية قبل المحاولة الجاية، وبدل التخمين استخدم «نسيت كلمة المرور» من صفحة الدخول. ولو الحساب لسه مش بيفتح أو محتاج تدخل حالًا، قولّي وأصعّد الموضوع لفريق الدعم.',
+        'After several wrong sign-in attempts in a row, sign-in is paused as a protection measure.\n\nWait a little before the next attempt, and instead of guessing use "Forgot password" on the sign-in page. If the account still won\'t open, or you need in now, tell me and I\'ll escalate it to the support team.'),
+    // company-api.js: a customer can STOP / re-activate a key; there is no delete.
+    api_key_rotation: answer(
+        'تدوير المفتاح من غير انقطاع:\n١. أنشئ مفتاح جديد بنفس الصلاحيات (القديم بيفضل شغال).\n٢. حدّث أنظمتك تستخدم الجديد.\n٣. راقب «آخر النداءات» وتأكد إن مفيش حاجة لسه بتستخدم القديم.\n٤. أوقف المفتاح القديم من القائمة (زرار «إيقاف») — الإيقاف بيسري على الخادم على طول.\n\nالترتيب ده مهم — لو أوقفت القديم الأول هيحصل انقطاع. ونصيحة: دوّر المفاتيح كل ٩٠ يوم، وفورًا لو حد من الفريق ساب الشغل.',
+        'Rotating a key without downtime:\n1. Create a new key with the same scopes (the old one keeps working).\n2. Update your systems to use the new one.\n3. Watch "Recent calls" and make sure nothing still uses the old one.\n4. Stop the old key from the list ("Stop") — it takes effect on the server at once.\n\nThe order matters — stopping the old one first causes downtime. Tip: rotate keys every 90 days, and immediately if someone leaves the team.'),
     // KB audit §3: "لا مسار عميل للتخفيض ولا لإلغاء اشتراك فعّال" (whatsapp-subscription-service.js knows new/renew/upgrade only).
     subscription_cancel_request: answer(
         'إلغاء الاشتراك مش متاح كزرار في حسابك — بيتم عن طريق فريق الدعم عشان يراجع معاك المدة المدفوعة ومصير البيانات.\n\nقولّي «افتح تذكرة» وأنا أبعت طلب الإلغاء للفريق بالتفاصيل. ولو فيه حاجة معيّنة مضايقاك في الخدمة، قولهالي — يمكن نحلها بدل ما تلغي [[icon:smile]]',

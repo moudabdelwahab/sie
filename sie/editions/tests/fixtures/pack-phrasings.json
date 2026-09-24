@@ -712,6 +712,74 @@
     [
       "access_page_for_other_account_type",
       "فتحت صفحة مكتوب هذه الصفحة مخصصة لحسابات العملاء"
+    ],
+    [
+      "login_company_member_mode",
+      "ازاي ادخل بحساب تابع لشركة"
+    ],
+    [
+      "login_identifier_options",
+      "ينفع ادخل باسم المستخدم بدل الايميل"
+    ],
+    [
+      "signup_username_rules",
+      "اسم المستخدم مش مقبول وانا بعمل حساب"
+    ],
+    [
+      "login_pi_network",
+      "الدخول بـ pi network مش بيكمل"
+    ],
+    [
+      "login_subdomain_not_yours",
+      "مكتوب النطاق ده مش مرتبط بحسابك"
+    ],
+    [
+      "security_logout_other_devices",
+      "عايز اسجل خروج من كل الاجهزة"
+    ],
+    [
+      "security_trusted_devices_manage",
+      "عايز امسح جهاز من الاجهزة الموثوقة"
+    ],
+    [
+      "security_2fa_turn_off",
+      "عايز اوقف التحقق بخطوتين"
+    ],
+    [
+      "security_2fa_new_recovery_codes",
+      "رموز الاستعادة خلصت عايز رموز جديدة"
+    ],
+    [
+      "security_2fa_qr_not_showing",
+      "كود QR بتاع التحقق بخطوتين مش ظاهر"
+    ],
+    [
+      "account_email_change_pending",
+      "غيرت الايميل ولسه القديم هو اللي ظاهر"
+    ],
+    [
+      "account_phone_not_verified_label",
+      "رقم الهاتف مكتوب جنبه غير موثق"
+    ],
+    [
+      "account_bio_visibility",
+      "النبذة اللي في حسابي بتظهر لمين"
+    ],
+    [
+      "assistant_rate_limited_wait",
+      "المساعد بيقولي بعت رسايل كتير استنى"
+    ],
+    [
+      "notif_ticket_updates_on_whatsapp",
+      "ينفع توصلني اشعارات التذاكر على الواتساب"
+    ],
+    [
+      "forum_post_topic_how",
+      "ازاي انشر موضوع في المنتدى"
+    ],
+    [
+      "platform_voice_support_availability",
+      "في دعم صوتي ولا مكالمات"
     ]
   ],
   "known_limits": [

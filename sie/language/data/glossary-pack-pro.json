@@ -2148,7 +2148,11 @@
         "الثقه في الجهاز",
         "افتكر الجهاز",
         "الجهاز ده",
-        "trust this device"
+        "trust this device",
+        "الاجهزه الموثوقه",
+        "الاجهزة الموثوقة",
+        "جهاز موثوق",
+        "الموثوقه"
       ]
     },
     {
@@ -2590,6 +2594,235 @@
         "مخصصة لفريق",
         "الصفحه دي مش ليا",
         "الصفحة دي مش ليا"
+      ]
+    },
+    {
+      "canonical": "entity_company_mode",
+      "labels": {
+        "ar": "حساب تابع لشركة",
+        "en": "company member account"
+      },
+      "patterns": [
+        "حساب تابع لشركه",
+        "حساب تابع لشركة",
+        "تابع لشركه",
+        "تابع لشركة",
+        "حساب تابع"
+      ]
+    },
+    {
+      "canonical": "entity_username",
+      "labels": {
+        "ar": "اسم المستخدم",
+        "en": "username"
+      },
+      "patterns": [
+        "اسم المستخدم",
+        "اليوزر",
+        "يوزر",
+        "اليوزرنيم",
+        "username"
+      ]
+    },
+    {
+      "canonical": "entity_signup",
+      "labels": {
+        "ar": "إنشاء حساب",
+        "en": "signing up"
+      },
+      "patterns": [
+        "بعمل حساب",
+        "اعمل حساب",
+        "انشاء حساب",
+        "انشئ حساب",
+        "حساب جديد",
+        "بسجل",
+        "وانا بسجل"
+      ]
+    },
+    {
+      "canonical": "entity_not_accepted",
+      "labels": {
+        "ar": "مش مقبول",
+        "en": "not accepted"
+      },
+      "patterns": [
+        "مش مقبول",
+        "مش راضي يقبل"
+      ]
+    },
+    {
+      "canonical": "entity_pi_network",
+      "labels": {
+        "ar": "Pi Network",
+        "en": "Pi Network"
+      },
+      "patterns": [
+        "pi network",
+        "باي نتورك",
+        "باي نت ورك",
+        "متصفح pi"
+      ]
+    },
+    {
+      "canonical": "entity_not_linked_account",
+      "labels": {
+        "ar": "مش مرتبط بحسابك",
+        "en": "not linked to your account"
+      },
+      "patterns": [
+        "مش مرتبط بحسابك",
+        "ليس مرتبطا بحسابك",
+        "مش مرتبط"
+      ]
+    },
+    {
+      "canonical": "entity_all_devices",
+      "labels": {
+        "ar": "كل الأجهزة",
+        "en": "all devices"
+      },
+      "patterns": [
+        "كل الاجهزه",
+        "كل الاجهزة",
+        "باقي الاجهزه",
+        "باقي الاجهزة",
+        "الاجهزه التانيه",
+        "الاجهزة التانية"
+      ]
+    },
+    {
+      "canonical": "entity_logout",
+      "labels": {
+        "ar": "تسجيل خروج",
+        "en": "sign out"
+      },
+      "patterns": [
+        "تسجيل خروج",
+        "اسجل خروج",
+        "اعمل خروج",
+        "خروج",
+        "logout"
+      ]
+    },
+    {
+      "canonical": "entity_turn_off",
+      "labels": {
+        "ar": "أوقف",
+        "en": "turn off"
+      },
+      "patterns": [
+        "اوقف",
+        "اوقفه",
+        "اعطل",
+        "اعطله",
+        "الغي تفعيل",
+        "الغي التفعيل"
+      ]
+    },
+    {
+      "canonical": "entity_codes_word",
+      "labels": {
+        "ar": "رموز",
+        "en": "codes"
+      },
+      "patterns": [
+        "رموز",
+        "الرموز",
+        "اكواد",
+        "الاكواد"
+      ]
+    },
+    {
+      "canonical": "entity_still_old",
+      "labels": {
+        "ar": "لسه القديم",
+        "en": "still the old one"
+      },
+      "patterns": [
+        "لسه القديم",
+        "ولسه القديم",
+        "لسه هو القديم"
+      ]
+    },
+    {
+      "canonical": "entity_unverified",
+      "labels": {
+        "ar": "غير موثّق",
+        "en": "not verified"
+      },
+      "patterns": [
+        "غير موثق",
+        "مش موثق",
+        "غير متوثق",
+        "مش متوثق"
+      ]
+    },
+    {
+      "canonical": "entity_bio",
+      "labels": {
+        "ar": "النبذة",
+        "en": "bio"
+      },
+      "patterns": [
+        "النبذه",
+        "نبذه",
+        "نبذة عني",
+        "نبذه عني",
+        "bio"
+      ]
+    },
+    {
+      "canonical": "entity_too_many_messages",
+      "labels": {
+        "ar": "رسايل كتير",
+        "en": "too many messages"
+      },
+      "patterns": [
+        "رسايل كتير",
+        "رسائل كتير",
+        "رسايل كتيره",
+        "في وقت قصير"
+      ]
+    },
+    {
+      "canonical": "entity_notify_me",
+      "labels": {
+        "ar": "توصلني إشعارات",
+        "en": "notify me"
+      },
+      "patterns": [
+        "توصلني اشعارات",
+        "ابقي اعرف علي",
+        "تبعتولي اشعارات"
+      ]
+    },
+    {
+      "canonical": "entity_post_topic",
+      "labels": {
+        "ar": "أنشر موضوع",
+        "en": "post a topic"
+      },
+      "patterns": [
+        "انشر موضوع",
+        "انشر",
+        "اكتب موضوع",
+        "موضوع جديد",
+        "بوست"
+      ]
+    },
+    {
+      "canonical": "entity_voice_support",
+      "labels": {
+        "ar": "دعم صوتي",
+        "en": "voice support"
+      },
+      "patterns": [
+        "دعم صوتي",
+        "مكالمات",
+        "مكالمه صوتيه",
+        "كول سنتر",
+        "اتصال تليفوني"
       ]
     }
   ]
