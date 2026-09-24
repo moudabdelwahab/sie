@@ -36,3 +36,15 @@ psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/migrations/0010_sie
 psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/migrations/0010_sie_editions_owner_only.sql"
 psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/tests/sql/owner-editions.test.sql" 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
 test "${PIPESTATUS[0]}" -eq 0
+
+# 0011 (SIE Free for everyone, self-service downgrade, the customer's
+# entitlement), on a third scratch database with the same production shape.
+psql -q "$ADMIN_URL" -c 'drop database if exists sie_migration_test_0011' -c 'create database sie_migration_test_0011'
+DB11="${PGURL%/*}/sie_migration_test_0011"
+for f in tests/sql/supabase-stubs.sql migrations/0008_add_api_rate_limiting.sql tests/sql/production-2026-09-24.sql \
+         migrations/0009_sie_editions.sql tests/sql/production-authority-2026-09-24.sql \
+         migrations/0010_sie_editions_owner_only.sql migrations/0011_sie_self_service.sql migrations/0011_sie_self_service.sql; do
+    psql -q -v ON_ERROR_STOP=1 "$DB11" -f "$ROOT/sie-integration/$f" >/dev/null
+done
+psql -q -v ON_ERROR_STOP=1 "$DB11" -f "$ROOT/sie-integration/tests/sql/self-service.test.sql" 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
+test "${PIPESTATUS[0]}" -eq 0
