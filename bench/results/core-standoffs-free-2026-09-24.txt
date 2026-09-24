@@ -1,0 +1,61 @@
+# Free before/after scripts/catalog-fixes/2026-09-core-standoffs.mjs, on the FROZEN 6,183-message behaviour corpus (generated before the change).
+{
+ "before": {
+  "messages": 6183,
+  "answeredCorrect": 31,
+  "targetedCorrect": 62.7,
+  "ambiguous": 1864,
+  "answers": 2321,
+  "tickets": 1427,
+  "fallbacks": 0,
+  "latencyMs": {
+   "p50": 0.23460000000000036,
+   "p95": 0.4503890000000865,
+   "p99": 0.8086040000000025
+  }
+ },
+ "after": {
+  "messages": 6183,
+  "answeredCorrect": 31,
+  "targetedCorrect": 62.7,
+  "ambiguous": 1864,
+  "answers": 2322,
+  "tickets": 1409,
+  "fallbacks": 0,
+  "latencyMs": {
+   "p50": 0.22974999999996726,
+   "p95": 0.43457499999999527,
+   "p99": 0.8683069999999589
+  }
+ },
+ "changes": {
+  "same": 6164,
+  "action_changed": 14,
+  "different_scenario": 4,
+  "now_answers": 1
+ }
+}
+action_changed | phrase | استرداد المبلغ | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | استرداد الفلوس | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | ارجاع الفلوس | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | إرجاع الفلوس | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | فلوسي ترجع | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | استرجاع المبلغ | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | refund | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | money back | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | chargeback | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | استرداد | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | استرداد مبلغ | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | ارجاع مبلغ | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+action_changed | phrase | ترجيع الفلوس | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB
+different_scenario | probe | chargeback ودفعة من امبارح | CREATE_TICKET billing_refund_status AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB [expect subscription_refund_request]
+different_scenario | probe | عندي مشكلة ارجاع مبلغ دفعت | CREATE_TICKET billing_refund_status AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB [expect subscription_refund_request]
+now_answers | noisy | محدش رد عليييا من امبارح من امبارح | ASK_CLARIFYING_QUESTION convo_anyone_there  => ANSWER convo_anyone_there  [expect convo_nobody_replied]
+different_scenario | probe | لو سمحت استرداد على حساب مختلف واسترداد المبلغ | CREATE_TICKET convo_polite_request AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB [expect billing_refund_other_card]
+different_scenario | probe | ممكن تساعدني debit card واسترداد الفلوس والكارت الاول اتقفل | CREATE_TICKET billing_change_payment_method AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB [expect billing_refund_other_card]
+action_changed | repo | 
+# سيناريو: طلب استرداد
+المعرّف: refund
+القسم: الاشتراكات والفلوس
+
+##  | CREATE_TICKET billing_refund_policy AMB => ASK_CLARIFYING_QUESTION billing_refund_policy AMB

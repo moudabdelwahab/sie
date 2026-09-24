@@ -173,7 +173,26 @@
         }
       },
       "requiresTicketIfUnresolved": false,
-      "intent": "login/otp/not_received"
+      "intent": "login/otp/not_received",
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_otp",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_received",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_login",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "login_2fa_locked_out",
@@ -513,7 +532,53 @@
           "source": "text"
         }
       ],
-      "discriminatingQuestions": [],
+      "discriminatingQuestions": [
+        {
+          "id": "refund_what_needed",
+          "prompt": {
+            "ar": "تمام، بخصوص الاسترداد — محتاج إيه بالظبط؟",
+            "en": "Sure — about the refund, what do you need exactly?"
+          },
+          "resolvesEvidence": [
+            "intent_how_to",
+            "intent_status_check",
+            "entity_payment"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أطلب استرداد مبلغ دفعته",
+                "en": "Request a refund for something I paid"
+              },
+              "value": "request",
+              "impliesEvidence": [
+                "entity_payment",
+                "entity_subscription"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أتابع طلب استرداد قدّمته قبل كده",
+                "en": "Follow up on a refund I already requested"
+              },
+              "value": "status",
+              "impliesEvidence": [
+                "intent_status_check"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أعرف سياسة الاسترداد",
+                "en": "Learn the refund policy"
+              },
+              "value": "policy",
+              "impliesEvidence": [
+                "intent_how_to"
+              ]
+            }
+          ]
+        }
+      ],
       "resolution": {
         "hasAutoResolution": false
       },
@@ -1806,7 +1871,26 @@
         "hasAutoResolution": false
       },
       "requiresTicketIfUnresolved": true,
-      "intent": "ticket/reply/not_received"
+      "intent": "ticket/reply/not_received",
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_ticket",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "social_anyone_there",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_status_check",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_disappeared",
@@ -4788,7 +4872,53 @@
           "source": "text"
         }
       ],
-      "discriminatingQuestions": [],
+      "discriminatingQuestions": [
+        {
+          "id": "refund_what_needed",
+          "prompt": {
+            "ar": "تمام، بخصوص الاسترداد — محتاج إيه بالظبط؟",
+            "en": "Sure — about the refund, what do you need exactly?"
+          },
+          "resolvesEvidence": [
+            "intent_how_to",
+            "intent_status_check",
+            "entity_payment"
+          ],
+          "options": [
+            {
+              "label": {
+                "ar": "أطلب استرداد مبلغ دفعته",
+                "en": "Request a refund for something I paid"
+              },
+              "value": "request",
+              "impliesEvidence": [
+                "entity_payment",
+                "entity_subscription"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أتابع طلب استرداد قدّمته قبل كده",
+                "en": "Follow up on a refund I already requested"
+              },
+              "value": "status",
+              "impliesEvidence": [
+                "intent_status_check"
+              ]
+            },
+            {
+              "label": {
+                "ar": "أعرف سياسة الاسترداد",
+                "en": "Learn the refund policy"
+              },
+              "value": "policy",
+              "impliesEvidence": [
+                "intent_how_to"
+              ]
+            }
+          ]
+        }
+      ],
       "resolution": {
         "hasAutoResolution": false
       },
