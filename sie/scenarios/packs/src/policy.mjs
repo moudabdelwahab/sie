@@ -29,5 +29,5 @@ export const GENERIC_WORDS = Object.freeze({
         'entity_ticket_counter', 'entity_linked_word',
         'entity_traditional_mode', 'entity_sample_data', 'entity_reset_link'
     ]),
-    max: Object.freeze(['entity_browser_version', 'entity_policy_word', 'entity_forgot', 'entity_broke', 'entity_works_normally', 'entity_remember_word', 'entity_shared_with_someone', 'entity_strength_word', 'entity_failed_word', 'entity_stuck_word', 'entity_convert_word', 'entity_caller', 'entity_someone_asked', 'entity_tap_link'])
+    max: Object.freeze(['entity_browser_version', 'entity_policy_word', 'entity_forgot', 'entity_broke', 'entity_works_normally', 'entity_remember_word', 'entity_shared_with_someone', 'entity_strength_word', 'entity_failed_word', 'entity_stuck_word', 'entity_convert_word', 'entity_caller', 'entity_someone_asked', 'entity_tap_link', 'entity_my_data'])
 });

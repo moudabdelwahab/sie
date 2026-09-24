@@ -14,7 +14,8 @@
     "entity_convert_word",
     "entity_caller",
     "entity_someone_asked",
-    "entity_tap_link"
+    "entity_tap_link",
+    "entity_my_data"
   ],
   "scenarios": [
     {
@@ -88,7 +89,7 @@
       "evidenceSignature": [
         {
           "token": "entity_browser_version",
-          "weight": 583,
+          "weight": 518,
           "source": "text"
         },
         {
@@ -98,7 +99,7 @@
         },
         {
           "token": "intent_how_to",
-          "weight": 194,
+          "weight": 259,
           "source": "text"
         }
       ],
@@ -976,26 +977,7 @@
           "en": "If the same account works on one device and not the other, the problem is the device that fails — not your account:\n1. On that device: clear our site's data (cookies and site data) and sign in again.\n2. Try a private window on it — if that works, an extension or old data is the cause.\n3. Make sure the device's date and time are set to automatic.\n4. Try another browser on the same device.\n\nIf both devices are on the same network, the internet isn't the cause."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "entity_computer",
-            "weight": 305,
-            "source": "text"
-          },
-          {
-            "token": "qualifier_mobile",
-            "weight": 305,
-            "source": "text"
-          },
-          {
-            "token": "symptom_not_working",
-            "weight": 390,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "gen_browser_not_saving_password",
@@ -2374,17 +2356,17 @@
         [
           {
             "token": "entity_computer",
-            "weight": 3,
+            "weight": 161,
             "source": "text"
           },
           {
             "token": "social_asks_arabic",
-            "weight": 2,
+            "weight": 419,
             "source": "text"
           },
           {
             "token": "entity_keyboard",
-            "weight": 1,
+            "weight": 419,
             "source": "text"
           }
         ]
@@ -2985,7 +2967,7 @@
       "evidenceSignature": [
         {
           "token": "entity_my_data",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
@@ -2995,7 +2977,7 @@
         },
         {
           "token": "entity_wa_media",
-          "weight": 1,
+          "weight": 2,
           "source": "text"
         }
       ],
@@ -3007,21 +2989,7 @@
           "en": "Send it, but hide the sensitive parts first:\n• Cover or cross out: the full card number, PIN or CVV, passwords, and any verification code.\n• On a phone: after taking the screenshot, tap \"Edit\" and draw over the data.\n• The last 4 digits of the card, the date and the amount are fine to show — they help me find the transaction."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "entity_my_data",
-            "weight": 3,
-            "source": "text"
-          },
-          {
-            "token": "entity_wa_media",
-            "weight": 2,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "gen_save_button_disabled",

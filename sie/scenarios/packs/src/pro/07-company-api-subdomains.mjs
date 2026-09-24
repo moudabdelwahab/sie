@@ -35,10 +35,9 @@ export default {
     scenarios: [
         S('company_member_cannot_manage_members', 'team/member_management/permission_denied', 'other',
             'مش قادر أضيف أو أشيل أعضاء — بيقولي مالكش صلاحية', "Can't add or remove members — no permission",
-            'atom_member:330 entity_no_permission_msg:335 intent_add:335',
+            'atom_member:250 entity_no_permission_msg:500 intent_add:250',
             `إدارة الأعضاء (إضافة وإزالة) متاحة لدور «مدير الشركة» بس. لو دورك «عضو في الشركة»، الزرار مش هيشتغل معاك.\n\nاطلب من مدير الشركة يضيف العضو، أو يغيّر دورك لو المفروض تدير الأعضاء. ولو مفيش مدير متاح للشركة خالص، قولّي وأفتحلك تذكرة.`,
-            `Member management (adding and removing) is available to the "Company admin" role only. If your role is "Company member", it won't work for you.\n\nAsk a company admin to add the member, or to change your role if you should manage members. If no admin is available at all, tell me and I'll open a ticket.`,
-            { alt: ['atom_member:330 symptom_permission_denied:223 intent_add:447'] }),
+            `Member management (adding and removing) is available to the "Company admin" role only. If your role is "Company member", it won't work for you.\n\nAsk a company admin to add the member, or to change your role if you should manage members. If no admin is available at all, tell me and I'll open a ticket.`),
         S('company_profile_edit_admin_only', 'account/company_profile/edit_permission', 'other',
             'مش قادر أعدّل بيانات الشركة', "I can't edit the company details",
             'entity_company_data:777 symptom_permission_denied:223',

@@ -2440,7 +2440,21 @@
         }
       },
       "requiresTicketIfUnresolved": false,
-      "intent": "team/agent/how_to_add"
+      "intent": "team/agent/how_to_add",
+      "alternativeSignatures": [
+        [
+          {
+            "token": "intent_add",
+            "weight": 1,
+            "source": "text"
+          },
+          {
+            "token": "entity_agent",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "howto_setup_subdomain",

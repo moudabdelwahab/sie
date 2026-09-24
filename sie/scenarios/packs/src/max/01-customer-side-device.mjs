@@ -55,7 +55,7 @@ export default {
             `Your browser's zoom level has most likely changed:\n• Reset it: Ctrl+0 on Windows, or Cmd+0 on a Mac.\n• To zoom in or out: Ctrl (or Cmd) with + or −.\n• On a phone: pinch with two fingers, or browser menu ▸ Text size.\n\nIf it's back to normal and the layout still looks wrong, send me a screenshot.`),
         S('gen_browser_version_how', 'device/browser/version_how', 'inquiry',
             'أعرف إصدار المتصفح منين', 'How to find my browser version',
-            'entity_browser_version:583 entity_browser:223 intent_how_to:194',
+            'entity_browser_version:518 entity_browser:223 intent_how_to:259',
             `من قائمة المتصفح:\n• كروم أو إيدج: القائمة (⋮ أو …) ← مساعدة ← «حول» — والصفحة دي بتحدّث المتصفح لو فيه تحديث.\n• فايرفوكس: القائمة ← مساعدة ← «حول فايرفوكس».\n• سفاري: من قائمة Safari فوق ← «حول سفاري».\n\nابعتلي الرقم اللي ظاهر مع اسم المتصفح.`,
             `From the browser's menu:\n• Chrome or Edge: menu (⋮ or …) ▸ Help ▸ "About" — that page also installs any pending update.\n• Firefox: menu ▸ Help ▸ "About Firefox".\n• Safari: the Safari menu at the top ▸ "About Safari".\n\nSend me the number shown with the browser's name.`),
         S('gen_mixed_direction_paste', 'device/typing/mixed_direction', 'technical',

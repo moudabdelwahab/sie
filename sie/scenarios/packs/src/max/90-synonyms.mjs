@@ -42,6 +42,20 @@ export default {
         // core behaviour to new words, core stand-offs included, and Max may not
         // be more ambiguous or more effectful than Pro on any known message.
 
+        // ── re-examined after the core stand-offs were fixed (report §17.1) ──
+        // entity_ticket: RE-ADMITTED — «التذكرة محدش رد عليها» is no longer a
+        // core stand-off, and «التيكت …» now follows it.
+        // «اخش»: re-admitted as a PHRASE for symptom_login_failed, not as bare
+        // entity_login — bare «اخش» next to «مش عارف» (emotion_confused) still
+        // lands in the login_account_locked stand-off.
+        // symptom_not_received / entity_refund: STILL REJECTED — bare «الكود مش
+        // بيوصل» and bare «عايز استرداد» remain ambiguous in the core by design
+        // (the fix turned a ticket into a question, it did not remove the
+        // ambiguity), so each synonym would still make Max more ambiguous than
+        // Pro on «مش بيجيلي الكود» / «عايز ارجع فلوسي».
+        Y('entity_ticket', ['التيكت', 'تيكت', 'التكت', 'التيكيت']),
+        Y('symptom_login_failed', ['اخش على', 'اخش علي', 'مش بعرف اخش', 'مابعرفش اخش']),
+
         // ── subscription & money ──────────────────────────────────────────
         Y('intent_cancel', ['اكنسل', 'كنسل', 'اكانسل', 'a-cancel']),
         Y('entity_subscription', ['السبسكريبشن', 'سبسكريبشن', 'el subscription', 'el eshterak', 'eshterak']),

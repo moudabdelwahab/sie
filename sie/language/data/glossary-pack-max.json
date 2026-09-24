@@ -1873,6 +1873,34 @@
       ]
     },
     {
+      "canonical": "entity_ticket",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_ticket",
+        "en": "entity_ticket"
+      },
+      "patterns": [
+        "التيكت",
+        "تيكت",
+        "التكت",
+        "التيكيت"
+      ]
+    },
+    {
+      "canonical": "symptom_login_failed",
+      "synonym": true,
+      "labels": {
+        "ar": "symptom_login_failed",
+        "en": "symptom_login_failed"
+      },
+      "patterns": [
+        "اخش على",
+        "اخش علي",
+        "مش بعرف اخش",
+        "مابعرفش اخش"
+      ]
+    },
+    {
       "canonical": "intent_cancel",
       "synonym": true,
       "labels": {

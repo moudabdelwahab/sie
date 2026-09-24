@@ -93,6 +93,12 @@
 
 ---
 
+### T-13 — تغيير الإصدار من غير المالك (migration `0010`)
+- **التهديد:** أدمن SIE أو موظف أو عميل (أو مالك في وضع المعاينة) يغيّر إصدار عميل أو يفعّل/يوقف إصدارًا أو يغيّر `default_edition` — عبر الـ RPC أو بـ UPDATE مباشر من PostgREST يتخطى الواجهة.
+- **الحماية:** triggers قبل الكتابة على عمود `edition` في `customer_sie_access` وعلى مفاتيح الإصدارات في `sie_settings` (`sie_is_edition_setting_key`): أي جلسة لازم `sie_owner_authority()` (مالك بدور `platform_owner` ∧ مش في المعاينة)، وإلا 42501. الـ RPCs (`sie_owner_set_customer_edition`، `sie_owner_set_edition_setting`، `sie_owner_edition_overview`) بتتحقق من نفس القدرة، والتنفيذ مسحوب من `anon`. إصدار مجهول أو موقوف أو قيمة تفعيل تالفة ← **Free** (يفشل مغلقًا). الإيميل مش في الكود — الدور هو المصدر.
+- **التدقيق:** كل محاولة — نجاح أو رفض أو مدخل غلط — في `privileged_audit` عبر `log_privileged()` (`sie.edition.*`)، والسجل مايتعدّلش.
+- **الانحدار:** 68 فحص SQL على دوال سلطة منسوخة حرفيًا من الإنتاج، بثماني شخصيات (مالك، أدمن منصة، أدمن SIE، موظف، عميل، anon، مالك في المعاينة، service role)؛ طفرات M14–M16 (إرخاء الـ trigger، شيل فحص المالك من الـ RPC، إصدار موقوف يفضل شغّال) كلها KILLED.
+
 ## 3. نتائج خارج النطاق (موجودة قبل هذا العمل — مُبلّغ عنها، لم تُعدَّل)
 
 1. **صلاحيات جداول واسعة:** `anon` و`authenticated` عندهم كل صلاحيات الجدول (بما فيها `TRUNCATE`، `TRIGGER`، `REFERENCES`) على `customer_sie_access` و`sie_settings` — افتراضي Supabase. RLS مابتغطيش `TRUNCATE`. **غير قابل للاستغلال عبر PostgREST** (مابيصدرش TRUNCATE)، لكنه دفاع في العمق ناقص. **التوصية:** migration منفصلة تسحب `TRUNCATE, TRIGGER, REFERENCES` من `anon, authenticated` على الجدولين، بعد التأكد إن مفيش وظيفة بتعتمد عليها.
@@ -103,9 +109,10 @@
 ## 4. كيف تُعاد هذه النتائج
 
 ```
-npm test                                     # 982 اختبار
+npm test                                     # 1027 اختبار
 node scripts/audit-editions.mjs              # يجب: 0 findings
-node scripts/check-phrasings.mjs             # يجب: 195/195
-PGURL=… scripts/test-migrations.sh           # 50 فحص SQL
+node scripts/check-phrasings.mjs             # يجب: Pro 200/200 · Max 96/96
+PGURL=… scripts/test-migrations.sh           # 118 فحص SQL (T-13: 68)
+PGURL=… node scripts/mutation-check.mjs      # 16/16 KILLED
 node bench/edition-compare.mjs --from free --to pro
 ```

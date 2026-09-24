@@ -75,9 +75,8 @@ export default {
             `This is usually a browser extension or adware installed without you noticing — not the site:\n• Browser: open Extensions and remove anything you don't recognise or don't remember installing.\n• Chrome: Settings ▸ Reset settings ▸ "Restore settings to their original defaults".\n• Android: Settings ▸ Notifications — find any site or app sending ads and turn its notifications off.\n• Run a scan with a well-known security program.`),
         S('gen_screenshot_privacy', 'security/privacy/screenshot_redact', 'security',
             'أبعت صورة فيها بياناتي؟', 'Should I send a screenshot that shows my personal data?',
-            'entity_my_data:3 entity_redact:2 entity_wa_media:1',
+            'entity_my_data:2 entity_redact:2 entity_wa_media:2',
             `ابعتها، بس خبّي الحساس الأول:\n• غطّي أو اشطب: رقم الكارت كامل، الرقم السري أو الـ CVV، كلمات المرور، وأي كود تحقق.\n• على الموبايل: بعد ما تاخد الصورة، دوس «تعديل» وارسم فوق البيانات.\n• آخر ٤ أرقام من الكارت، والتاريخ والمبلغ، مفيش مشكلة تبان — بيساعدوني ألاقي العملية.`,
-            `Send it, but hide the sensitive parts first:\n• Cover or cross out: the full card number, PIN or CVV, passwords, and any verification code.\n• On a phone: after taking the screenshot, tap "Edit" and draw over the data.\n• The last 4 digits of the card, the date and the amount are fine to show — they help me find the transaction.`,
-            { alt: ['entity_my_data:3 entity_wa_media:2'] })
+            `Send it, but hide the sensitive parts first:\n• Cover or cross out: the full card number, PIN or CVV, passwords, and any verification code.\n• On a phone: after taking the screenshot, tap "Edit" and draw over the data.\n• The last 4 digits of the card, the date and the amount are fine to show — they help me find the transaction.`)
     ]
 };

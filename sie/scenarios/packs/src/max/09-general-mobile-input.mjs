@@ -40,7 +40,7 @@ export default {
             'entity_keyboard:860 entity_arabic_word:139',
             `لازم تضيف العربي للكيبورد مرة واحدة:\n• ويندوز: الإعدادات ← الوقت واللغة ← اللغة والمنطقة ← إضافة لغة ← العربية. وبعدها تبدّل بـ Alt+Shift أو Windows+Space.\n• ماك: إعدادات النظام ← لوحة المفاتيح ← مصادر الإدخال ← (+) ← العربية. والتبديل بـ Control+Space.\n\nولو الحروف مش مطبوعة على الكيبورد، ترتيبها زي أي كيبورد عربي — وفيه ملصقات حروف رخيصة.`,
             `You need to add Arabic to the keyboard once:\n• Windows: Settings ▸ Time & language ▸ Language & region ▸ Add a language ▸ Arabic. Then switch with Alt+Shift or Windows+Space.\n• Mac: System Settings ▸ Keyboard ▸ Input Sources ▸ (+) ▸ Arabic. Switch with Control+Space.\n\nIf the letters aren't printed on the keys, the layout is the standard Arabic one — cheap letter stickers are available.`,
-            { alt: ['entity_computer:3 social_asks_arabic:2 entity_keyboard:1'] }),
+            { alt: ['entity_computer:161 social_asks_arabic:419 entity_keyboard:419'] }),
         S('gen_copy_paste_how', 'device/input/copy_paste_how', 'technical',
             'أنسخ وألصق إزاي', 'How do I copy and paste',
             'entity_copy:4 entity_paste:2 intent_how_to:1',
