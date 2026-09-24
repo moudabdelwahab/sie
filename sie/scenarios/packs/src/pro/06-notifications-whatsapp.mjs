@@ -46,17 +46,17 @@ export default {
             `Each notification opens where it belongs: a ticket notification opens that ticket; subscription, balance or security notifications open their section of your dashboard.\n\nIf one opens an unrelated page, send me its title and I'll report it to the team.`),
         S('notif_categories_meaning', 'notification/categories/meaning', 'inquiry',
             'أنواع الإشعارات اللي بتوصلني', 'The kinds of notifications I get',
-            'entity_notif_categories:3 entity_notification:3',
+            'entity_notif_categories:510 entity_notification:490',
             `الإشعارات متقسمة لعشر تصنيفات: التذاكر، والاشتراكات، والرصيد والفوترة، وواتساب، والمحرك الذكي، والأمان، والحساب، والمكافآت، والمحادثة، والنظام.\n\nالتصنيف بيبان بلون وأيقونة جنب الإشعار، فتعرف أهميته من نظرة. إشعارات «الأمان» خصوصًا اقراها على طول.`,
             `Notifications fall into ten categories: tickets, subscriptions, balance & billing, WhatsApp, smart engine, security, account, rewards, chat and system.\n\nEach shows a colour and icon so you can gauge it at a glance. Read "Security" ones straight away.`),
         S('notif_security_alert', 'notification/security/what_to_do', 'login',
             'جالي إشعار أمان', 'I received a security notification',
-            'atom_security:3 entity_notification:3',
+            'atom_security:330 entity_notification:490 entity_account:180',
             `إشعارات الأمان بتخص حاجة حساسة على حسابك. افتحه واقرا هو بيتكلم عن إيه:\n• لو عن حاجة إنت عملتها (زي تغيير كلمة المرور) — مفيش مطلوب منك.\n• لو عن حاجة ماعملتهاش: غيّر كلمة المرور فورًا، وفعّل التحقق بخطوتين، وقولّي أفتحلك تذكرة أمان.`,
             `Security notifications concern something sensitive on your account. Open it and see what it's about:\n• if it's something you did (like changing your password), nothing is needed;\n• if not: change your password now, turn on two-step verification, and tell me so I can open a security ticket.`),
         S('email_official_senders', 'email/sender/official_addresses', 'inquiry',
             'الإيميلات الرسمية بتيجي من أنهي عنوان', 'Which addresses official e-mails come from',
-            'entity_sender_address:3 entity_email:3',
+            'entity_sender_address:610 entity_email:390',
             `إيميلات المنصة الرسمية بتيجي من عناوين دعم مدعوم المعروفة: support@ وno-reply@ وinfo@ على دومين مدعوم.\n\nأي إيميل من عنوان تاني بيدّعي إنه مننا، متفتحش روابطه وابعته لنا في تذكرة. واحنا عمرنا ما هنطلب كلمة المرور بتاعتك في إيميل.`,
             `Official platform e-mails come from Mad3oom's known support addresses: support@, no-reply@ and info@ on the Mad3oom domain.\n\nIf an e-mail from any other address claims to be us, don't open its links — forward it to us in a ticket. We never ask for your password by e-mail.`,
             { alt: ['entity_sender_address:3 entity_official_word:2'] }),
@@ -88,9 +88,9 @@ export default {
             `A link preview (image and title) is built from the page's own metadata, and won't show when:\n• the page has no preview image and title (og:image, og:title);\n• the link is shortened or redirects several times;\n• the link is glued to other text.\n\nThe message itself is delivered normally even without a preview.`),
         S('wa_change_connected_number', 'whatsapp/number/replace_connected', 'whatsapp',
             'عايز أغيّر رقم الواتساب المربوط برقم تاني', 'Replace the connected WhatsApp number',
-            'atom_change:3 entity_whatsapp_number:3',
+            'atom_change:139 entity_whatsapp_number:390 entity_whatsapp:235 intent_add:235',
             `تغيير الرقم المربوط برقم تاني بيتم كفصل للرقم الحالي وربط الجديد — والمحادثات القديمة بتفضل مرتبطة بالرقم القديم، والقوالب المعتمدة ممكن تحتاج تتقدم تاني للرقم الجديد.\n\nعشان التغيير مايوقفش شغلك في النص، قولّي «افتح تذكرة» وأنا أبعت الطلب للفريق يرتب معاك التوقيت.`,
             `Replacing the connected number means disconnecting the current one and linking the new one — past conversations stay tied to the old number, and approved templates may need resubmitting for the new one.\n\nSo the change doesn't interrupt your work, say "open a ticket" and I'll send the request so the team can arrange the timing with you.`,
-            { alt: ['intent_change:3 entity_whatsapp_number:3'] })
+            { alt: ['intent_change:223 entity_whatsapp_number:390 entity_whatsapp:387'] })
     ]
 };

@@ -102,17 +102,17 @@
       "evidenceSignature": [
         {
           "token": "symptom_rejected",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 470,
           "source": "text"
         },
         {
           "token": "atom_close",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -129,17 +129,17 @@
         [
           {
             "token": "symptom_rejected",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 2,
+            "weight": 407,
             "source": "text"
           },
           {
             "token": "intent_status_check",
-            "weight": 1,
+            "weight": 203,
             "source": "text"
           }
         ]
@@ -156,17 +156,22 @@
       "evidenceSignature": [
         {
           "token": "atom_unchanged",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "intent_status_check",
-          "weight": 2,
+          "weight": 480,
           "source": "text"
         },
         {
           "token": "atom_reply",
-          "weight": 2,
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 240,
           "source": "text"
         }
       ],
@@ -191,17 +196,17 @@
       "evidenceSignature": [
         {
           "token": "atom_reply",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
-          "token": "atom_close",
-          "weight": 2,
+          "token": "entity_closed_state",
+          "weight": 645,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 215,
           "source": "text"
         }
       ],
@@ -226,17 +231,17 @@
       "evidenceSignature": [
         {
           "token": "atom_reopen",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "symptom_not_visible",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "atom_button",
-          "weight": 1,
+          "weight": 280,
           "source": "text"
         }
       ],
@@ -253,17 +258,22 @@
         [
           {
             "token": "atom_reopen",
-            "weight": 2,
+            "weight": 330,
             "source": "text"
           },
           {
             "token": "symptom_disappeared",
-            "weight": 3,
+            "weight": 290,
             "source": "text"
           },
           {
             "token": "atom_button",
-            "weight": 1,
+            "weight": 190,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 190,
             "source": "text"
           }
         ]
@@ -280,17 +290,17 @@
       "evidenceSignature": [
         {
           "token": "atom_close",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         },
         {
           "token": "intent_how_to",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         }
       ],
@@ -410,17 +420,17 @@
       "evidenceSignature": [
         {
           "token": "atom_similar",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         },
         {
           "token": "entity_presubmit_alert",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         }
       ],
@@ -437,12 +447,12 @@
         [
           {
             "token": "entity_presubmit_alert",
-            "weight": 3,
+            "weight": 510,
             "source": "text"
           },
           {
             "token": "entity_notification",
-            "weight": 3,
+            "weight": 490,
             "source": "text"
           }
         ]
@@ -734,17 +744,22 @@
       "evidenceSignature": [
         {
           "token": "atom_by_mistake",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "atom_open_action",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 353,
+          "source": "text"
+        },
+        {
+          "token": "intent_cancel",
+          "weight": 177,
           "source": "text"
         }
       ],
@@ -769,17 +784,17 @@
       "evidenceSignature": [
         {
           "token": "entity_multi_issue",
-          "weight": 3,
+          "weight": 516,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 344,
           "source": "text"
         },
         {
           "token": "symptom_generic_problem",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -834,17 +849,17 @@
       "evidenceSignature": [
         {
           "token": "entity_without_asking",
-          "weight": 3,
+          "weight": 645,
           "source": "text"
         },
         {
           "token": "atom_close",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 1,
+          "weight": 215,
           "source": "text"
         }
       ],
@@ -989,22 +1004,22 @@
       "evidenceSignature": [
         {
           "token": "atom_by_itself",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 353,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 1,
+          "weight": 177,
           "source": "text"
         },
         {
           "token": "atom_open_action",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -1029,17 +1044,17 @@
       "evidenceSignature": [
         {
           "token": "entity_reply_unclear",
-          "weight": 4,
+          "weight": 720,
           "source": "text"
         },
         {
           "token": "atom_support",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "emotion_confused",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -1051,26 +1066,7 @@
           "en": "It happens, and asking is fine. Quickest route:\n• Reply on the same ticket quoting the unclear sentence and write \"I don't follow this step\" — clearer for the team than \"I don't understand\".\n• Or paste the reply here and I'll walk you through it.\n\nIf you followed steps that didn't work, say at which step you got stuck."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "atom_reply",
-            "weight": 2,
-            "source": "text"
-          },
-          {
-            "token": "atom_support",
-            "weight": 2,
-            "source": "text"
-          },
-          {
-            "token": "emotion_confused",
-            "weight": 2,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "ticket_support_asked_for_info",
@@ -1083,17 +1079,17 @@
       "evidenceSignature": [
         {
           "token": "entity_support_asked_info",
-          "weight": 4,
+          "weight": 688,
           "source": "text"
         },
         {
           "token": "atom_support",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 1,
+          "weight": 172,
           "source": "text"
         }
       ],
@@ -1110,17 +1106,17 @@
         [
           {
             "token": "entity_support_asked_info",
-            "weight": 4,
+            "weight": 688,
             "source": "text"
           },
           {
             "token": "atom_support",
-            "weight": 1,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "intent_how_to",
-            "weight": 1,
+            "weight": 172,
             "source": "text"
           }
         ]
@@ -1137,17 +1133,17 @@
       "evidenceSignature": [
         {
           "token": "entity_attach_in_reply",
-          "weight": 4,
+          "weight": 688,
           "source": "text"
         },
         {
           "token": "entity_file_upload",
-          "weight": 1,
+          "weight": 172,
           "source": "text"
         },
         {
           "token": "atom_reply",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -1256,17 +1252,17 @@
       "evidenceSignature": [
         {
           "token": "atom_follow",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         }
       ],
@@ -1326,22 +1322,22 @@
       "evidenceSignature": [
         {
           "token": "atom_follow",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 2,
+          "weight": 360,
           "source": "text"
         },
         {
           "token": "symptom_not_visible",
-          "weight": 2,
+          "weight": 360,
           "source": "text"
         },
         {
           "token": "atom_button",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -1366,7 +1362,7 @@
       "evidenceSignature": [
         {
           "token": "entity_rate_service",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
@@ -1400,13 +1396,18 @@
       "category": "other",
       "evidenceSignature": [
         {
-          "token": "entity_rate_service",
+          "token": "entity_rating_place",
           "weight": 2,
           "source": "text"
         },
         {
+          "token": "entity_rate_service",
+          "weight": 1,
+          "source": "text"
+        },
+        {
           "token": "symptom_not_visible",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
@@ -1427,18 +1428,18 @@
       "alternativeSignatures": [
         [
           {
-            "token": "entity_rate_service",
-            "weight": 3,
+            "token": "entity_rating_place",
+            "weight": 533,
             "source": "text"
           },
           {
             "token": "symptom_disappeared",
-            "weight": 2,
+            "weight": 290,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 1,
+            "weight": 178,
             "source": "text"
           }
         ]
@@ -1455,17 +1456,22 @@
       "evidenceSignature": [
         {
           "token": "entity_rate_service",
-          "weight": 2,
+          "weight": 172,
           "source": "text"
         },
         {
           "token": "atom_change",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 1,
+          "weight": 172,
+          "source": "text"
+        },
+        {
+          "token": "entity_given_rating",
+          "weight": 516,
           "source": "text"
         }
       ],
@@ -1482,12 +1488,17 @@
         [
           {
             "token": "entity_rate_service",
-            "weight": 3,
+            "weight": 194,
             "source": "text"
           },
           {
             "token": "intent_change",
-            "weight": 3,
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "entity_given_rating",
+            "weight": 583,
             "source": "text"
           }
         ]
@@ -1504,17 +1515,17 @@
       "evidenceSignature": [
         {
           "token": "atom_reply",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_notification",
-          "weight": 2,
+          "weight": 430,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 430,
           "source": "text"
         }
       ],
@@ -1531,17 +1542,17 @@
         [
           {
             "token": "atom_reply",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "atom_support",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_how_will_i_know",
-            "weight": 2,
+            "weight": 720,
             "source": "text"
           }
         ]
@@ -1558,17 +1569,17 @@
       "evidenceSignature": [
         {
           "token": "entity_email",
-          "weight": 2,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "atom_reply",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 470,
           "source": "text"
         }
       ],
@@ -1593,12 +1604,12 @@
       "evidenceSignature": [
         {
           "token": "entity_customer_tickets_stream",
-          "weight": 4,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "atom_company",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -1606,8 +1617,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "لوحة الشركة فيها مسارين للتذاكر:\n• تذاكر شركتك: اللي فريقك بيفتحها للدعم — وتقدر تفتح منها تذكرة جديدة.\n• تذاكر العملاء: التذاكر اللي عملاءك فتحوها، بتظهر باسم العميل وهي للعرض بس — مافيهاش زرار إنشاء.\n\nلو محتاج تفتح تذكرة بالنيابة عن عميل، افتحها في مسار تذاكر شركتك واذكر اسم العميل.",
-          "en": "The company dashboard has two ticket streams:\n• Your company's tickets: opened by your team to support — you can create new ones here.\n• Customer tickets: opened by your customers, shown with the customer's name, view-only — no create button.\n\nTo open a ticket on a customer's behalf, use your company's stream and mention the customer's name."
+          "ar": "لوحة الشركة فيها مسارين للتذاكر:\n• تذاكري مع مدعوم: اللي شركتك بتفتحها لفريق مدعوم — ومنها تفتح تذكرة جديدة.\n• تذاكر العملاء: التذاكر اللي فتحها المستخدمين التابعين لشركتك، باسم كل عميل. بتقراها وترد عليها («الرد على العميل»)، وتقدر تقفلها لما تتحل أو تعيد فتحها.\n\nمفيش زرار إنشاء في مسار العملاء — العميل هو اللي بيفتح تذكرته. والرد مابيغيّرش الحالة: القفل وإعادة الفتح زراير منفصلة.",
+          "en": "The company dashboard has two ticket streams:\n• My tickets with Mad3oom: the ones your company opens with the Mad3oom team — create new ones here.\n• Customer tickets: opened by users under your company, shown with each customer's name. You read and reply to them (\"Reply to customer\"), and can close them when solved or reopen them.\n\nThere's no create button in the customers' stream — the customer opens their own ticket. A reply doesn't change the status: close and reopen are separate buttons."
         }
       },
       "requiresTicketIfUnresolved": false
@@ -1623,17 +1634,17 @@
       "evidenceSignature": [
         {
           "token": "atom_company",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_importance_choice",
-          "weight": 2,
+          "weight": 470,
           "source": "text"
         },
         {
           "token": "symptom_not_visible",
-          "weight": 2,
+          "weight": 390,
           "source": "text"
         }
       ],
@@ -1641,8 +1652,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "صح — نموذج التذكرة في لوحة الشركة أبسط: عنوان ووصف بس، من غير اختيار أهمية ولا مرفقات. ده فرق مقصود بين النموذجين.\n\nلو محتاج تحدد الأهمية أو ترفق ملف، افتح التذكرة من بوابة العميل. أو اكتب في أول سطر من الوصف إن الموضوع عاجل وليه.",
-          "en": "Right — the company-dashboard ticket form is simpler: title and description only, no importance and no attachments. That difference between the two forms is intentional.\n\nIf you need to set importance or attach a file, open the ticket from the customer portal — or state in the first line of the description that it's urgent and why."
+          "ar": "صح — نموذج «فتح تذكرة دعم» في لوحة الشركة أبسط: عنوان وتصنيف ووصف بس، من غير اختيار أهمية ولا مرفقات.\n\nلو الموضوع عاجل، اكتب ده في أول سطر من الوصف وليه. ولو محتاج تبعت ملف، اذكر في التذكرة إن عندك ملف والفريق هيقولك تبعته إزاي.",
+          "en": "Right — the \"Open a support ticket\" form in the company dashboard is simpler: title, category and description only, with no importance choice and no attachments.\n\nIf it's urgent, say so and why in the first line of the description. If you need to send a file, mention it in the ticket and the team will tell you how to send it."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -1650,12 +1661,12 @@
         [
           {
             "token": "entity_company_dashboard",
-            "weight": 3,
+            "weight": 2,
             "source": "text"
           },
           {
             "token": "entity_importance_choice",
-            "weight": 2,
+            "weight": 3,
             "source": "text"
           },
           {
@@ -1667,17 +1678,17 @@
         [
           {
             "token": "atom_company",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_file_upload",
-            "weight": 2,
+            "weight": 470,
             "source": "text"
           },
           {
             "token": "symptom_not_visible",
-            "weight": 2,
+            "weight": 390,
             "source": "text"
           }
         ]
@@ -1693,18 +1704,18 @@
       "category": "inquiry",
       "evidenceSignature": [
         {
-          "token": "atom_member",
-          "weight": 2,
+          "token": "entity_colleague",
+          "weight": 645,
           "source": "text"
         },
         {
           "token": "atom_follow",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 215,
           "source": "text"
         }
       ],
@@ -1729,17 +1740,17 @@
       "evidenceSignature": [
         {
           "token": "entity_wrong_account",
-          "weight": 4,
+          "weight": 688,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 1,
+          "weight": 172,
           "source": "text"
         },
         {
           "token": "atom_open_action",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -1794,17 +1805,22 @@
       "evidenceSignature": [
         {
           "token": "atom_reply",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "atom_by_mistake",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 480,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 240,
           "source": "text"
         }
       ],
@@ -1851,17 +1867,22 @@
         [
           {
             "token": "entity_password",
-            "weight": 3,
+            "weight": 290,
             "source": "text"
           },
           {
             "token": "atom_by_mistake",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 1,
+            "weight": 285,
+            "source": "text"
+          },
+          {
+            "token": "entity_sensitive_data",
+            "weight": 285,
             "source": "text"
           }
         ]
@@ -1878,17 +1899,22 @@
       "evidenceSignature": [
         {
           "token": "entity_english_language",
-          "weight": 3,
+          "weight": 580,
           "source": "text"
         },
         {
           "token": "atom_reply",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "atom_support",
-          "weight": 1,
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -2142,12 +2168,12 @@
       "evidenceSignature": [
         {
           "token": "entity_my_name",
-          "weight": 3,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "atom_change",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -2164,12 +2190,12 @@
         [
           {
             "token": "entity_my_name",
-            "weight": 4,
+            "weight": 777,
             "source": "text"
           },
           {
             "token": "intent_change",
-            "weight": 2,
+            "weight": 223,
             "source": "text"
           }
         ]
@@ -2296,12 +2322,22 @@
       "evidenceSignature": [
         {
           "token": "entity_company_dashboard",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
           "token": "symptom_not_visible",
-          "weight": 3,
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_sidebar_menu",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 1,
           "source": "text"
         }
       ],
@@ -2318,17 +2354,22 @@
         [
           {
             "token": "entity_company_dashboard",
-            "weight": 3,
+            "weight": 355,
             "source": "text"
           },
           {
             "token": "symptom_disappeared",
-            "weight": 2,
+            "weight": 290,
             "source": "text"
           },
           {
             "token": "entity_sidebar_menu",
-            "weight": 1,
+            "weight": 178,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_visible",
+            "weight": 178,
             "source": "text"
           }
         ]
@@ -2671,12 +2712,17 @@
         [
           {
             "token": "entity_transfer_proof",
-            "weight": 3,
+            "weight": 516,
             "source": "text"
           },
           {
             "token": "entity_too_big",
-            "weight": 3,
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_upload_refused",
+            "weight": 344,
             "source": "text"
           }
         ]
@@ -2693,12 +2739,17 @@
       "evidenceSignature": [
         {
           "token": "entity_transfer_proof",
-          "weight": 3,
+          "weight": 458,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 3,
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 153,
           "source": "text"
         }
       ],
@@ -2722,18 +2773,18 @@
       "category": "subscription",
       "evidenceSignature": [
         {
-          "token": "atom_cancel",
-          "weight": 2,
-          "source": "text"
-        },
-        {
-          "token": "atom_by_itself",
-          "weight": 2,
+          "token": "entity_request_cancelled",
+          "weight": 645,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 2,
+          "weight": 215,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_itself",
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -2758,12 +2809,17 @@
       "evidenceSignature": [
         {
           "token": "intent_subscribe",
-          "weight": 3,
+          "weight": 470,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 3,
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "entity_service_word",
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -2788,17 +2844,22 @@
       "evidenceSignature": [
         {
           "token": "atom_topup",
-          "weight": 3,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "atom_balance",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 2,
+          "weight": 353,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 177,
           "source": "text"
         }
       ],
@@ -2845,17 +2906,17 @@
         [
           {
             "token": "atom_balance",
-            "weight": 3,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_whatsapp",
-            "weight": 1,
+            "weight": 370,
             "source": "text"
           },
           {
             "token": "entity_notification",
-            "weight": 2,
+            "weight": 490,
             "source": "text"
           }
         ]
@@ -2872,17 +2933,17 @@
       "evidenceSignature": [
         {
           "token": "entity_transactions",
-          "weight": 3,
+          "weight": 502,
           "source": "text"
         },
         {
           "token": "atom_balance",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 1,
+          "weight": 167,
           "source": "text"
         }
       ],
@@ -2907,17 +2968,17 @@
       "evidenceSignature": [
         {
           "token": "entity_date_notes",
-          "weight": 3,
+          "weight": 508,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 2,
+          "weight": 323,
           "source": "text"
         },
         {
           "token": "symptom_wrong_data",
-          "weight": 1,
+          "weight": 169,
           "source": "text"
         }
       ],
@@ -2925,8 +2986,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "لوحة الشركة بتعرض «ملاحظات على التواريخ» لما تواريخ اشتراك مش متسقة — مثلًا تاريخ نهاية قبل البداية، أو اشتراك فعّال وتاريخه عدّى.\n\nده تنبيه عرض مش خصم ولا إيقاف. ابعتلي اسم الاشتراك والتاريخ اللي شايفه غلط وأنا أفتح تذكرة للفريق يصححه.",
-          "en": "The company dashboard shows \"Notes on the dates\" when a subscription's dates are inconsistent — e.g. an end date before the start, or an active subscription whose date has passed.\n\nIt's a display warning, not a charge or a suspension. Send me the subscription name and the date that looks wrong and I'll open a ticket for the team to correct it."
+          "ar": "«ملاحظات على التواريخ» في لوحة الشركة بتشرح حاجة في تواريخ الاشتراك، ومش كلها مشكلة:\n• المدة خلصت والحالة لسه «نشط»: الخدمات اتسحبت فعلًا، والحالة بتتصحح لوحدها خلال ساعة.\n• تداخل مع اشتراك تاني في نفس الباقة: المدتين بيغطوا نفس الفترة، والخدمات مابتتضاعفش.\n• فترة انقطاع بين الاشتراك واللي قبله: أيام ماكانتش الخدمات متاحة فيها.\n• ساعة جهازك مختلفة عن الخادم بأكتر من يوم: الأرقام محسوبة على ساعة الخادم، وهي المعتمدة.\n\nأما «تاريخ النهاية قبل البداية» أو «تاريخ غير صالح» فده سجل غلط — ابعتلي اسم الاشتراك وأنا أفتح تذكرة للفريق يصححه.",
+          "en": "\"Notes on the dates\" in the company dashboard explain something about a subscription's dates, and not all of them are problems:\n• Period ended but status still \"active\": the services are already withdrawn, and the status corrects itself within an hour.\n• Overlaps another subscription on the same plan: both periods cover the same days, and services don't double.\n• A gap between this subscription and the previous one: days when the services weren't available.\n• Your device clock differs from the server's by more than a day: the figures use the server clock, which is authoritative.\n\n\"End date before start date\" or \"invalid date\" means the record itself is wrong — send me the subscription's name and I'll open a ticket for the team to fix it."
         }
       },
       "requiresTicketIfUnresolved": false
@@ -2972,17 +3033,17 @@
       "evidenceSignature": [
         {
           "token": "atom_renewal",
-          "weight": 3,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 2,
+          "weight": 323,
           "source": "text"
         },
         {
           "token": "intent_how_to",
-          "weight": 1,
+          "weight": 347,
           "source": "text"
         }
       ],
@@ -3102,12 +3163,17 @@
       "evidenceSignature": [
         {
           "token": "entity_link_code",
-          "weight": 3,
+          "weight": 470,
           "source": "text"
         },
         {
           "token": "entity_telegram",
-          "weight": 3,
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "atom_link",
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -3124,17 +3190,17 @@
         [
           {
             "token": "entity_assistant",
-            "weight": 2,
+            "weight": 407,
             "source": "text"
           },
           {
             "token": "entity_telegram",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "intent_how_to",
-            "weight": 1,
+            "weight": 203,
             "source": "text"
           }
         ]
@@ -3178,6 +3244,23 @@
         [
           {
             "token": "entity_link_code",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_rejected",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_link_code",
             "weight": 4,
             "source": "text"
           },
@@ -3188,6 +3271,11 @@
           },
           {
             "token": "entity_telegram",
+            "weight": 1,
+            "source": "text"
+          },
+          {
+            "token": "symptom_rejected",
             "weight": 1,
             "source": "text"
           }
@@ -3265,22 +3353,22 @@
       "evidenceSignature": [
         {
           "token": "entity_assistant",
-          "weight": 2,
+          "weight": 360,
           "source": "text"
         },
         {
           "token": "atom_open_action",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 360,
           "source": "text"
         },
         {
           "token": "atom_where",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -3297,17 +3385,17 @@
         [
           {
             "token": "entity_assistant",
-            "weight": 2,
+            "weight": 430,
             "source": "text"
           },
           {
             "token": "atom_open_action",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 2,
+            "weight": 430,
             "source": "text"
           }
         ]
@@ -3354,17 +3442,17 @@
       "evidenceSignature": [
         {
           "token": "entity_assistant",
-          "weight": 2,
+          "weight": 430,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 430,
           "source": "text"
         },
         {
           "token": "atom_similar",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -3389,17 +3477,17 @@
       "evidenceSignature": [
         {
           "token": "symptom_disabled",
-          "weight": 3,
+          "weight": 516,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 2,
+          "weight": 344,
           "source": "text"
         },
         {
           "token": "atom_open_action",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -3411,7 +3499,31 @@
           "en": "It means ticket creation through the assistant is currently switched off in the team's settings — not a problem with your account.\n\nYou can open the ticket yourself from \"My tickets\" → New ticket, or reach the team directly from \"Support availability\"."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_assistant",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_disabled",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "atom_open_action",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "assistant_where_available",
@@ -3424,12 +3536,12 @@
       "evidenceSignature": [
         {
           "token": "entity_assistant",
-          "weight": 3,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "atom_where",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -3460,6 +3572,11 @@
         {
           "token": "entity_assistant",
           "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
           "source": "text"
         }
       ],
@@ -3579,12 +3696,12 @@
       "evidenceSignature": [
         {
           "token": "entity_notif_categories",
-          "weight": 3,
+          "weight": 510,
           "source": "text"
         },
         {
           "token": "entity_notification",
-          "weight": 3,
+          "weight": 490,
           "source": "text"
         }
       ],
@@ -3609,12 +3726,17 @@
       "evidenceSignature": [
         {
           "token": "atom_security",
-          "weight": 3,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_notification",
-          "weight": 3,
+          "weight": 490,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 180,
           "source": "text"
         }
       ],
@@ -3639,12 +3761,12 @@
       "evidenceSignature": [
         {
           "token": "entity_sender_address",
-          "weight": 3,
+          "weight": 610,
           "source": "text"
         },
         {
           "token": "entity_email",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         }
       ],
@@ -3847,12 +3969,22 @@
       "evidenceSignature": [
         {
           "token": "atom_change",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_whatsapp_number",
-          "weight": 3,
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 235,
+          "source": "text"
+        },
+        {
+          "token": "intent_add",
+          "weight": 235,
           "source": "text"
         }
       ],
@@ -3869,12 +4001,17 @@
         [
           {
             "token": "intent_change",
-            "weight": 3,
+            "weight": 223,
             "source": "text"
           },
           {
             "token": "entity_whatsapp_number",
-            "weight": 3,
+            "weight": 390,
+            "source": "text"
+          },
+          {
+            "token": "entity_whatsapp",
+            "weight": 387,
             "source": "text"
           }
         ]
@@ -3891,17 +4028,17 @@
       "evidenceSignature": [
         {
           "token": "atom_member",
-          "weight": 2,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_no_permission_msg",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         },
         {
           "token": "intent_add",
-          "weight": 2,
+          "weight": 335,
           "source": "text"
         }
       ],
@@ -3918,17 +4055,17 @@
         [
           {
             "token": "atom_member",
-            "weight": 2,
+            "weight": 330,
             "source": "text"
           },
           {
             "token": "symptom_permission_denied",
-            "weight": 2,
+            "weight": 223,
             "source": "text"
           },
           {
             "token": "intent_add",
-            "weight": 2,
+            "weight": 447,
             "source": "text"
           }
         ]
@@ -3944,18 +4081,13 @@
       "category": "other",
       "evidenceSignature": [
         {
-          "token": "atom_company",
-          "weight": 2,
-          "source": "text"
-        },
-        {
-          "token": "atom_change",
-          "weight": 2,
+          "token": "entity_company_data",
+          "weight": 777,
           "source": "text"
         },
         {
           "token": "symptom_permission_denied",
-          "weight": 2,
+          "weight": 223,
           "source": "text"
         }
       ],
@@ -3971,30 +4103,30 @@
       "alternativeSignatures": [
         [
           {
-            "token": "atom_company",
+            "token": "entity_company_data",
             "weight": 3,
             "source": "text"
           },
           {
             "token": "symptom_cannot_edit",
-            "weight": 3,
+            "weight": 2,
             "source": "text"
           }
         ],
         [
           {
             "token": "atom_company",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "atom_change",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_no_permission_msg",
-            "weight": 2,
+            "weight": 720,
             "source": "text"
           }
         ]
@@ -4038,29 +4170,34 @@
         [
           {
             "token": "entity_api_key",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "entity_cannot_make",
-            "weight": 3,
+            "weight": 458,
+            "source": "text"
+          },
+          {
+            "token": "entity_api",
+            "weight": 153,
             "source": "text"
           }
         ],
         [
           {
             "token": "intent_create_key",
-            "weight": 3,
+            "weight": 583,
             "source": "text"
           },
           {
             "token": "symptom_permission_denied",
-            "weight": 2,
+            "weight": 223,
             "source": "text"
           },
           {
             "token": "entity_api",
-            "weight": 1,
+            "weight": 194,
             "source": "text"
           }
         ]
@@ -4077,12 +4214,12 @@
       "evidenceSignature": [
         {
           "token": "entity_key_state",
-          "weight": 3,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "entity_key_word",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -4099,12 +4236,17 @@
         [
           {
             "token": "symptom_expired",
-            "weight": 3,
+            "weight": 223,
             "source": "text"
           },
           {
             "token": "entity_key_word",
-            "weight": 3,
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_key_state",
+            "weight": 637,
             "source": "text"
           }
         ]
@@ -4181,12 +4323,12 @@
       "evidenceSignature": [
         {
           "token": "entity_key_no_scopes",
-          "weight": 4,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "entity_key_word",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -4241,17 +4383,17 @@
       "evidenceSignature": [
         {
           "token": "entity_webhook",
-          "weight": 3,
+          "weight": 490,
           "source": "text"
         },
         {
           "token": "intent_add",
-          "weight": 2,
+          "weight": 340,
           "source": "text"
         },
         {
           "token": "intent_how_to",
-          "weight": 1,
+          "weight": 170,
           "source": "text"
         }
       ],
@@ -4268,17 +4410,17 @@
         [
           {
             "token": "entity_webhook",
-            "weight": 3,
+            "weight": 490,
             "source": "text"
           },
           {
             "token": "atom_register",
-            "weight": 2,
+            "weight": 330,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 1,
+            "weight": 180,
             "source": "text"
           }
         ]
@@ -4295,17 +4437,17 @@
       "evidenceSignature": [
         {
           "token": "entity_mcp",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "entity_developers_word",
-          "weight": 2,
+          "weight": 407,
           "source": "text"
         },
         {
           "token": "intent_how_to",
-          "weight": 1,
+          "weight": 203,
           "source": "text"
         }
       ],
@@ -4322,24 +4464,29 @@
         [
           {
             "token": "entity_mcp",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "entity_api_docs",
-            "weight": 2,
+            "weight": 470,
+            "source": "text"
+          },
+          {
+            "token": "entity_what_is",
+            "weight": 139,
             "source": "text"
           }
         ],
         [
           {
             "token": "entity_mcp",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "intent_how_to",
-            "weight": 3,
+            "weight": 610,
             "source": "text"
           }
         ]
@@ -4356,17 +4503,17 @@
       "evidenceSignature": [
         {
           "token": "entity_subdomain_name_format",
-          "weight": 3,
+          "weight": 458,
           "source": "text"
         },
         {
           "token": "entity_subdomain",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 1,
+          "weight": 153,
           "source": "text"
         }
       ],
@@ -4383,12 +4530,12 @@
         [
           {
             "token": "entity_subdomain_name_format",
-            "weight": 3,
+            "weight": 610,
             "source": "text"
           },
           {
             "token": "entity_subdomain",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           }
         ]
@@ -4405,12 +4552,17 @@
       "evidenceSignature": [
         {
           "token": "symptom_name_taken",
-          "weight": 3,
+          "weight": 458,
           "source": "text"
         },
         {
           "token": "entity_subdomain",
-          "weight": 3,
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "intent_status_check",
+          "weight": 153,
           "source": "text"
         }
       ],
@@ -4435,12 +4587,17 @@
       "evidenceSignature": [
         {
           "token": "entity_subdomain",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 3,
+          "weight": 390,
+          "source": "text"
+        },
+        {
+          "token": "intent_status_check",
+          "weight": 220,
           "source": "text"
         }
       ],
@@ -4465,17 +4622,22 @@
       "evidenceSignature": [
         {
           "token": "entity_subdomain",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "atom_change",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "atom_remove",
-          "weight": 1,
+          "weight": 235,
+          "source": "text"
+        },
+        {
+          "token": "entity_domain",
+          "weight": 235,
           "source": "text"
         }
       ],
@@ -4492,24 +4654,34 @@
         [
           {
             "token": "entity_subdomain",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "intent_change",
-            "weight": 3,
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 387,
             "source": "text"
           }
         ],
         [
           {
             "token": "entity_subdomain",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "atom_remove",
-            "weight": 3,
+            "weight": 330,
+            "source": "text"
+          },
+          {
+            "token": "entity_domain",
+            "weight": 280,
             "source": "text"
           }
         ]
@@ -4588,6 +4760,11 @@
           "token": "entity_phone_number",
           "weight": 3,
           "source": "text"
+        },
+        {
+          "token": "entity_wrong_account",
+          "weight": 1,
+          "source": "text"
         }
       ],
       "discriminatingQuestions": [],
@@ -4611,12 +4788,12 @@
       "evidenceSignature": [
         {
           "token": "entity_invoice_verify",
-          "weight": 3,
+          "weight": 610,
           "source": "text"
         },
         {
           "token": "entity_invoice",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         }
       ],
@@ -4641,12 +4818,12 @@
       "evidenceSignature": [
         {
           "token": "entity_chat_ended",
-          "weight": 3,
+          "weight": 510,
           "source": "text"
         },
         {
           "token": "entity_chat_widget",
-          "weight": 3,
+          "weight": 490,
           "source": "text"
         }
       ],
@@ -4671,12 +4848,17 @@
       "evidenceSignature": [
         {
           "token": "entity_rate_service",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
           "token": "entity_chat_widget",
           "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_live_word",
+          "weight": 2,
           "source": "text"
         }
       ],
@@ -4728,17 +4910,17 @@
         [
           {
             "token": "entity_live_word",
-            "weight": 3,
+            "weight": 516,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 2,
+            "weight": 344,
             "source": "text"
           },
           {
             "token": "atom_open_action",
-            "weight": 1,
+            "weight": 139,
             "source": "text"
           }
         ]
@@ -4790,7 +4972,7 @@
         },
         {
           "token": "entity_article",
-          "weight": 3,
+          "weight": 1,
           "source": "text"
         }
       ],
@@ -4840,17 +5022,17 @@
       "evidenceSignature": [
         {
           "token": "entity_gateway_word",
-          "weight": 2,
+          "weight": 338,
           "source": "text"
         },
         {
           "token": "entity_payment",
-          "weight": 2,
+          "weight": 323,
           "source": "text"
         },
         {
           "token": "symptom_blank_page",
-          "weight": 2,
+          "weight": 338,
           "source": "text"
         }
       ],
@@ -4867,17 +5049,17 @@
         [
           {
             "token": "entity_gateway_word",
-            "weight": 2,
+            "weight": 338,
             "source": "text"
           },
           {
             "token": "entity_payment",
-            "weight": 2,
+            "weight": 323,
             "source": "text"
           },
           {
             "token": "symptom_not_working",
-            "weight": 2,
+            "weight": 338,
             "source": "text"
           }
         ]
@@ -4894,17 +5076,17 @@
       "evidenceSignature": [
         {
           "token": "entity_official_word",
-          "weight": 2,
+          "weight": 203,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 2,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "intent_compare",
-          "weight": 2,
+          "weight": 407,
           "source": "text"
         }
       ],
@@ -4989,12 +5171,12 @@
       "evidenceSignature": [
         {
           "token": "entity_pdf",
-          "weight": 3,
+          "weight": 510,
           "source": "text"
         },
         {
           "token": "entity_report",
-          "weight": 3,
+          "weight": 490,
           "source": "text"
         }
       ],
@@ -5068,17 +5250,17 @@
       "evidenceSignature": [
         {
           "token": "entity_2fa",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 2,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "entity_device_clock",
-          "weight": 1,
+          "weight": 220,
           "source": "text"
         }
       ],
@@ -5095,12 +5277,12 @@
         [
           {
             "token": "entity_device_clock",
-            "weight": 3,
+            "weight": 610,
             "source": "text"
           },
           {
             "token": "entity_2fa",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           }
         ]
@@ -5117,17 +5299,17 @@
       "evidenceSignature": [
         {
           "token": "entity_reset_link",
-          "weight": 2,
+          "weight": 487,
           "source": "text"
         },
         {
           "token": "entity_password",
-          "weight": 2,
+          "weight": 290,
           "source": "text"
         },
         {
           "token": "symptom_expired",
-          "weight": 2,
+          "weight": 223,
           "source": "text"
         }
       ],
@@ -5144,17 +5326,17 @@
         [
           {
             "token": "entity_reset_link",
-            "weight": 2,
+            "weight": 533,
             "source": "text"
           },
           {
             "token": "entity_password",
-            "weight": 2,
+            "weight": 290,
             "source": "text"
           },
           {
             "token": "symptom_already_registered",
-            "weight": 2,
+            "weight": 178,
             "source": "text"
           }
         ]
@@ -5235,12 +5417,12 @@
         [
           {
             "token": "entity_profile_picture",
-            "weight": 3,
+            "weight": 610,
             "source": "text"
           },
           {
             "token": "entity_subdomain",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           }
         ]
@@ -5275,8 +5457,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "تذاكر عملائك بتظهر في مسار «تذاكر العملاء» في لوحة الشركة (مش في «تذاكري»)، وده للعرض بس.\n\nلو المسار نفسه فاضي وعملاءك فاتحين تذاكر من بوابتك، ابعتلي رقم تذكرة واحدة من عندهم أو وقت فتحها وأنا أفتحلك تذكرة عشان الفريق يراجع الربط بين البوابة وشركتك.",
-          "en": "Your customers' tickets appear in the \"Customer tickets\" stream in the company dashboard (not in \"My tickets\"), and it's view-only.\n\nIf that stream is empty while your customers are opening tickets from your portal, send me one of their ticket numbers or when it was opened and I'll open a ticket for the team to check the link between the portal and your company."
+          "ar": "تذاكر عملائك بتظهر في مسار «تذاكر العملاء» في لوحة الشركة (مش في «تذاكري مع مدعوم»)، وتقدر تقراها وترد عليها من هناك.\n\nلو المسار نفسه فاضي وعملاءك فاتحين تذاكر من بوابتك، ابعتلي رقم تذكرة واحدة من عندهم أو وقت فتحها وأنا أفتحلك تذكرة عشان الفريق يراجع الربط بين البوابة وشركتك.",
+          "en": "Your customers' tickets appear in the \"Customer tickets\" stream in the company dashboard (not in \"My tickets with Mad3oom\"), where you can read and reply to them.\n\nIf that stream is empty while your customers are opening tickets from your portal, send me one of their ticket numbers or when it was opened and I'll open a ticket for the team to check the link between the portal and your company."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -5284,12 +5466,17 @@
         [
           {
             "token": "entity_customer_tickets_stream",
-            "weight": 3,
+            "weight": 470,
             "source": "text"
           },
           {
             "token": "symptom_not_visible",
-            "weight": 3,
+            "weight": 390,
+            "source": "text"
+          },
+          {
+            "token": "atom_company",
+            "weight": 139,
             "source": "text"
           }
         ]
@@ -5306,12 +5493,12 @@
       "evidenceSignature": [
         {
           "token": "entity_staff_complaint",
-          "weight": 4,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "atom_support",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -5336,12 +5523,12 @@
       "evidenceSignature": [
         {
           "token": "intent_thank_agent",
-          "weight": 3,
+          "weight": 610,
           "source": "text"
         },
         {
           "token": "entity_agent",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         }
       ],
@@ -5391,12 +5578,22 @@
       "evidenceSignature": [
         {
           "token": "entity_campaign",
-          "weight": 3,
+          "weight": 323,
           "source": "text"
         },
         {
           "token": "atom_by_mistake",
-          "weight": 3,
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 268,
+          "source": "text"
+        },
+        {
+          "token": "intent_cancel",
+          "weight": 268,
           "source": "text"
         }
       ],
@@ -5451,17 +5648,17 @@
       "evidenceSignature": [
         {
           "token": "entity_one_time_secret",
-          "weight": 3,
+          "weight": 430,
           "source": "text"
         },
         {
           "token": "trigger_lost_something",
-          "weight": 2,
+          "weight": 430,
           "source": "text"
         },
         {
           "token": "atom_where",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -5478,17 +5675,34 @@
         [
           {
             "token": "entity_one_time_secret",
-            "weight": 3,
+            "weight": 516,
             "source": "text"
           },
           {
             "token": "entity_key_word",
-            "weight": 2,
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "trigger_lost_something",
+            "weight": 344,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_one_time_secret",
+            "weight": 645,
+            "source": "text"
+          },
+          {
+            "token": "entity_key_word",
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "intent_recover",
-            "weight": 1,
+            "weight": 215,
             "source": "text"
           }
         ]
@@ -5505,12 +5719,12 @@
       "evidenceSignature": [
         {
           "token": "symptom_values_not_shown",
-          "weight": 4,
+          "weight": 860,
           "source": "text"
         },
         {
           "token": "entity_key_word",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -5565,17 +5779,17 @@
       "evidenceSignature": [
         {
           "token": "entity_bearer_token",
-          "weight": 3,
+          "weight": 516,
           "source": "text"
         },
         {
           "token": "intent_compare",
-          "weight": 2,
+          "weight": 344,
           "source": "text"
         },
         {
           "token": "entity_key_word",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -5592,17 +5806,17 @@
         [
           {
             "token": "entity_bearer_token",
-            "weight": 3,
+            "weight": 516,
             "source": "text"
           },
           {
             "token": "entity_one_time_secret",
-            "weight": 2,
+            "weight": 344,
             "source": "text"
           },
           {
             "token": "entity_key_word",
-            "weight": 1,
+            "weight": 139,
             "source": "text"
           }
         ]
@@ -5619,17 +5833,17 @@
       "evidenceSignature": [
         {
           "token": "entity_key_word",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_expiry_setting",
-          "weight": 3,
+          "weight": 645,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 1,
+          "weight": 215,
           "source": "text"
         }
       ],
@@ -5646,17 +5860,17 @@
         [
           {
             "token": "entity_key_word",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_date_notes",
-            "weight": 3,
+            "weight": 645,
             "source": "text"
           },
           {
             "token": "symptom_rejected",
-            "weight": 1,
+            "weight": 215,
             "source": "text"
           }
         ]
@@ -5757,17 +5971,17 @@
       "evidenceSignature": [
         {
           "token": "entity_mcp_tool",
-          "weight": 2,
+          "weight": 370,
           "source": "text"
         },
         {
           "token": "atom_close",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 1,
+          "weight": 490,
           "source": "text"
         }
       ],
@@ -5784,22 +5998,22 @@
         [
           {
             "token": "entity_ai_client",
-            "weight": 3,
+            "weight": 215,
             "source": "text"
           },
           {
             "token": "atom_close",
-            "weight": 3,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_ticket",
-            "weight": 1,
+            "weight": 430,
             "source": "text"
           },
           {
             "token": "symptom_rejected",
-            "weight": 1,
+            "weight": 215,
             "source": "text"
           }
         ]
@@ -5816,17 +6030,22 @@
       "evidenceSignature": [
         {
           "token": "entity_mcp_tool",
-          "weight": 2,
+          "weight": 268,
           "source": "text"
         },
         {
           "token": "atom_cancel",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 1,
+          "weight": 323,
+          "source": "text"
+        },
+        {
+          "token": "intent_cancel",
+          "weight": 268,
           "source": "text"
         }
       ],
@@ -5843,12 +6062,17 @@
         [
           {
             "token": "entity_ai_client",
-            "weight": 3,
+            "weight": 215,
             "source": "text"
           },
           {
             "token": "intent_cancel",
-            "weight": 3,
+            "weight": 645,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_happening",
+            "weight": 139,
             "source": "text"
           }
         ]
@@ -5865,12 +6089,17 @@
       "evidenceSignature": [
         {
           "token": "entity_leads",
-          "weight": 3,
+          "weight": 533,
           "source": "text"
         },
         {
           "token": "symptom_disappeared",
-          "weight": 2,
+          "weight": 290,
+          "source": "text"
+        },
+        {
+          "token": "intent_add",
+          "weight": 178,
           "source": "text"
         }
       ],
@@ -5944,17 +6173,17 @@
       "evidenceSignature": [
         {
           "token": "entity_review_state",
-          "weight": 3,
+          "weight": 508,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 2,
+          "weight": 323,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 1,
+          "weight": 169,
           "source": "text"
         }
       ],
@@ -5971,17 +6200,22 @@
         [
           {
             "token": "symptom_pending",
-            "weight": 3,
+            "weight": 223,
             "source": "text"
           },
           {
             "token": "intent_subscribe",
-            "weight": 2,
+            "weight": 424,
             "source": "text"
           },
           {
             "token": "entity_subscription",
-            "weight": 1,
+            "weight": 212,
+            "source": "text"
+          },
+          {
+            "token": "atom_request",
+            "weight": 139,
             "source": "text"
           }
         ]
@@ -5998,12 +6232,12 @@
       "evidenceSignature": [
         {
           "token": "atom_renewal",
-          "weight": 3,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_early_timing",
-          "weight": 3,
+          "weight": 860,
           "source": "text"
         }
       ],
@@ -6028,17 +6262,17 @@
       "evidenceSignature": [
         {
           "token": "atom_upgrade",
-          "weight": 3,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_date_notes",
-          "weight": 2,
+          "weight": 530,
           "source": "text"
         },
         {
           "token": "atom_unchanged",
-          "weight": 2,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -6055,12 +6289,12 @@
         [
           {
             "token": "entity_merge_plan",
-            "weight": 3,
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "entity_date_notes",
-            "weight": 2,
+            "weight": 860,
             "source": "text"
           }
         ]
@@ -6077,12 +6311,12 @@
       "evidenceSignature": [
         {
           "token": "entity_bonus_days",
-          "weight": 3,
+          "weight": 610,
           "source": "text"
         },
         {
           "token": "entity_auto_reply",
-          "weight": 2,
+          "weight": 390,
           "source": "text"
         }
       ],
@@ -6142,7 +6376,7 @@
         },
         {
           "token": "entity_gateway_word",
-          "weight": 2,
+          "weight": 1,
           "source": "text"
         },
         {
@@ -6172,17 +6406,17 @@
       "evidenceSignature": [
         {
           "token": "entity_2fa",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "entity_trust_device",
-          "weight": 2,
+          "weight": 470,
           "source": "text"
         },
         {
           "token": "atom_unchanged",
-          "weight": 1,
+          "weight": 139,
           "source": "text"
         }
       ],
@@ -6199,29 +6433,39 @@
         [
           {
             "token": "entity_2fa",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "entity_every_time",
-            "weight": 3,
+            "weight": 458,
+            "source": "text"
+          },
+          {
+            "token": "entity_login",
+            "weight": 153,
             "source": "text"
           }
         ],
         [
           {
             "token": "entity_2fa",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "entity_otp",
-            "weight": 1,
+            "weight": 153,
             "source": "text"
           },
           {
             "token": "atom_device",
-            "weight": 2,
+            "weight": 305,
+            "source": "text"
+          },
+          {
+            "token": "entity_trust_device",
+            "weight": 153,
             "source": "text"
           }
         ]
@@ -6237,18 +6481,18 @@
       "category": "login",
       "evidenceSignature": [
         {
-          "token": "intent_recover",
-          "weight": 3,
+          "token": "entity_use_code",
+          "weight": 508,
           "source": "text"
         },
         {
-          "token": "atom_code",
-          "weight": 2,
+          "token": "intent_recover",
+          "weight": 323,
           "source": "text"
         },
         {
           "token": "entity_2fa",
-          "weight": 1,
+          "weight": 169,
           "source": "text"
         }
       ],
@@ -6273,12 +6517,12 @@
       "evidenceSignature": [
         {
           "token": "symptom_too_many_attempts",
-          "weight": 3,
+          "weight": 610,
           "source": "text"
         },
         {
           "token": "entity_2fa",
-          "weight": 2,
+          "weight": 390,
           "source": "text"
         }
       ],
@@ -6295,12 +6539,12 @@
         [
           {
             "token": "symptom_too_many_attempts",
-            "weight": 3,
+            "weight": 777,
             "source": "text"
           },
           {
             "token": "entity_otp",
-            "weight": 2,
+            "weight": 223,
             "source": "text"
           }
         ]
@@ -6317,17 +6561,17 @@
       "evidenceSignature": [
         {
           "token": "entity_telegram",
-          "weight": 3,
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "entity_otp",
-          "weight": 2,
+          "weight": 223,
           "source": "text"
         },
         {
           "token": "symptom_not_working",
-          "weight": 1,
+          "weight": 387,
           "source": "text"
         }
       ],
@@ -6344,21 +6588,424 @@
         [
           {
             "token": "entity_telegram",
-            "weight": 3,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "atom_code",
-            "weight": 2,
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "symptom_name_taken",
+            "weight": 247,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 223,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_telegram",
+            "weight": 390,
+            "source": "text"
+          },
+          {
+            "token": "atom_code",
+            "weight": 139,
             "source": "text"
           },
           {
             "token": "symptom_not_working",
-            "weight": 1,
+            "weight": 247,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 223,
             "source": "text"
           }
         ]
       ]
+    },
+    {
+      "id": "chatbot_modes_compare",
+      "intent": "chat/bot_mode/options_compare",
+      "label": {
+        "ar": "الفرق بين أوضاع الشات بوت",
+        "en": "The difference between chatbot modes"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "atom_mode",
+          "weight": 330,
+          "source": "text"
+        },
+        {
+          "token": "entity_chatbot",
+          "weight": 335,
+          "source": "text"
+        },
+        {
+          "token": "intent_compare",
+          "weight": 335,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من «وضع الشات بوت» تختار البوت يرد عليك إزاي:\n• تقليدي: ردود جاهزة وقوائم اختيار سريعة، من غير ذكاء اصطناعي.\n• نموذج ذكاء اصطناعي: تختار المزوّد والموديل بنفسك.\n• تلقائي: المنصة بتختار أنسب موديل متاح مع كل رسالة.\n• محرك الدعم الذكي (SIE): بيفهم المحادثة ويشخّص المشكلة ويقرر يرد ولا يفتح تذكرة.\n\nالتلات الأخيرين للمشتركين بس. لو مش متأكد، «تلقائي» أسهل اختيار.",
+          "en": "From \"Chatbot mode\" you choose how the bot answers you:\n• Traditional: ready replies and quick menus, no AI.\n• AI model: you pick the provider and model yourself.\n• Automatic: the platform picks the best available model for each message.\n• Smart support engine (SIE): understands the conversation, diagnoses the issue and decides whether to answer or open a ticket.\n\nThe last three are for subscribers only. If unsure, \"Automatic\" is the easiest choice."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_mode",
+            "weight": 330,
+            "source": "text"
+          },
+          {
+            "token": "entity_chatbot",
+            "weight": 335,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 167,
+            "source": "text"
+          },
+          {
+            "token": "entity_ai_model",
+            "weight": 167,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "chatbot_advanced_modes_locked",
+      "intent": "chat/bot_mode/subscribers_only",
+      "label": {
+        "ar": "أوضاع الشات بوت مقفولة عندي",
+        "en": "Chatbot modes are locked for me"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_subscribers_only",
+          "weight": 516,
+          "source": "text"
+        },
+        {
+          "token": "entity_chatbot",
+          "weight": 344,
+          "source": "text"
+        },
+        {
+          "token": "atom_mode",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الأوضاع المتقدمة (نموذج ذكاء اصطناعي، تلقائي، SIE) متاحة للمشتركين بس — على الباقة المجانية بيفضل الوضع التقليدي.\n\nتقدر تشترك من صفحة الاشتراكات، والأوضاع بتفتح بعد تفعيل الاشتراك. لو مشترك فعلًا وشايفها مقفولة، سجّل خروج ودخول تاني، ولو فضلت قولّي.",
+          "en": "The advanced modes (AI model, Automatic, SIE) are for subscribers only — on the free plan the traditional mode stays.\n\nYou can subscribe from the subscriptions page; the modes unlock once the subscription is active. If you're already subscribed and still see them locked, sign out and in again, and tell me if it persists."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_mode",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_chatbot",
+            "weight": 430,
+            "source": "text"
+          },
+          {
+            "token": "symptom_account_locked",
+            "weight": 430,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "chatbot_switched_to_traditional",
+      "intent": "chat/bot_mode/auto_fallback_traditional",
+      "label": {
+        "ar": "البوت رجع للوضع التقليدي لوحده",
+        "en": "The bot switched back to traditional mode by itself"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_traditional_mode",
+          "weight": 645,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_itself",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_chatbot",
+          "weight": 215,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده بيحصل لما محرك الدعم الذكي (SIE) مابقاش متاح لحسابك: خلصت حصة رسائله، أو انتهت صلاحيته، أو اتلغى تفعيله. المنصة بتحوّلك للوضع التقليدي تلقائيًا عشان البوت مايقفش عن الرد، وبتحفظ الاختيار ده.\n\nتقدر تختار وضع تاني من «وضع الشات بوت»، ولتجديد SIE تواصل مع الدعم.",
+          "en": "This happens when the smart support engine (SIE) is no longer available to your account: its message quota ran out, its access expired, or it was deactivated. The platform switches you to traditional mode automatically so the bot keeps replying, and saves that choice.\n\nYou can pick another mode from \"Chatbot mode\"; to renew SIE, contact support."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_traditional_mode",
+            "weight": 720,
+            "source": "text"
+          },
+          {
+            "token": "atom_change",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "atom_by_itself",
+            "weight": 139,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "chatbot_model_list_empty",
+      "intent": "chat/bot_mode/no_models",
+      "label": {
+        "ar": "مفيش موديلات أختار منها",
+        "en": "No models to choose from"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_ai_model",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_chatbot",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "في وضع «نموذج ذكاء اصطناعي»:\n• لو المزوّد مفعّل بس مفيش موديلات ظاهرة له، مش مشكلة — بيتستخدم الموديل الافتراضي اللي الإدارة ضابطاه تلقائيًا.\n• لو مكتوب «لا يوجد مزوّدات متاحة حاليًا»، اختار «تلقائي» أو «تقليدي» لحد ما يتضافوا.\n\nولو ظهرت رسالة «تعذّر تحميل الموديلات»، حدّث الصفحة وجرّب تاني.",
+          "en": "In \"AI model\" mode:\n• If the provider is enabled but no models are listed, that's fine — the default model configured by the admins is used automatically.\n• If it says \"no providers available right now\", choose \"Automatic\" or \"Traditional\" until some are added.\n\nIf \"couldn't load models\" appears, refresh the page and try again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_ai_model",
+            "weight": 533,
+            "source": "text"
+          },
+          {
+            "token": "symptom_disappeared",
+            "weight": 290,
+            "source": "text"
+          },
+          {
+            "token": "entity_chatbot",
+            "weight": 178,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "company_onboarding_details_required",
+      "intent": "account/company_onboarding/details_required",
+      "label": {
+        "ar": "بعد الاشتراك بيطلب بيانات الشركة والسجل التجاري",
+        "en": "After subscribing it asks for company details and the commercial register"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_commercial_register",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_company",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الباقات اللي بتتطلب شركة بتطلب بيانات الشركة بعد الاشتراك: اسم الشركة، رقم السجل التجاري وتاريخ انتهائه، وإيميل وتليفون الشركة. السجل بيتحفظ ضمن بيانات الشركة للتحقق بعدين.\n\nاملاها واضغط «حفظ ومتابعة». لو ظهرلك «لم يتم الربط»، الاشتراك ماارتبطش بالشركة — قولّي اسم الشركة وأنا أفتح تذكرة للفريق يربطه.",
+          "en": "Plans that require a company ask for company details after subscribing: company name, commercial-register number and its expiry date, and the company e-mail and phone. The register is saved with the company data for later verification.\n\nFill it in and press \"Save and continue\". If \"not linked\" appears, the subscription wasn't attached to the company — tell me the company name and I'll open a ticket for the team to link it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_commercial_register",
+            "weight": 677,
+            "source": "text"
+          },
+          {
+            "token": "entity_subscription",
+            "weight": 323,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_vat_invoice",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_subscribe",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "subscription_status_not_started",
+      "intent": "subscription/record/not_started",
+      "label": {
+        "ar": "اشتراكي مكتوب عليه «لم يبدأ بعد»",
+        "en": "My subscription says \"not started yet\""
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_started",
+          "weight": 677,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 323,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده اشتراك تاريخ بدايته لسه جاي — مش منتهي ومش محتاج تجديد. خدماته بتبدأ تتحسب من تاريخ البداية المكتوب عليه.\n\nده بيحصل غالبًا لما تجدد قبل ما الاشتراك الحالي يخلص: الجديد بيستنى دوره. لو التاريخ نفسه غلط، قولّي وأفتح تذكرة.",
+          "en": "That's a subscription whose start date is still ahead — not expired and not in need of renewal. Its services start counting from the start date shown.\n\nIt usually happens when you renew before the current subscription ends: the new one waits its turn. If the date itself is wrong, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_expiry_popup_repeats",
+      "intent": "subscription/expiry_popup/repeats",
+      "label": {
+        "ar": "رسالة «اشتراكك سينتهي قريبًا» بتطلعلي كل شوية",
+        "en": "\"Your subscription ends soon\" pops up again and again"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_expiry_popup",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "النافذة دي بتظهر لما يفضل على اشتراكك ١٤ يوم أو أقل.\n• «تذكرني لاحقًا» بيخفيها ٢٤ ساعة — على نفس المتصفح بس، فمتصفح أو جهاز تاني هيعرضها تاني.\n• بتختفي خالص بعد ما التجديد يتأكد.\n\nلو جددت فعلًا وبرضه بتظهر، يبقى الطلب لسه قيد المراجعة — وبتختفي أول ما يتأكد.",
+          "en": "This window appears when 14 days or fewer are left on your subscription.\n• \"Remind me later\" hides it for 24 hours — in this browser only, so another browser or device will show it again.\n• It goes away for good once the renewal is confirmed.\n\nIf you've already renewed and it still shows, the request is still under review — it disappears once confirmed."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_expiry_popup",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_every_time",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "access_page_for_other_account_type",
+      "intent": "account/access/page_wrong_account_type",
+      "label": {
+        "ar": "مكتوب «هذه الصفحة مخصّصة لحسابات العملاء»",
+        "en": "It says \"this page is for customer accounts\""
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_page_not_for_me",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "دخولك سليم — بس الرابط اللي فتحته بيخص نوع حساب تاني: صفحات بوابة العميل لحسابات العملاء، وصفحات لوحة الإدارة لفريق المنصة.\n\nارجع للوحة بتاعتك (للشركات: «لوحة الشركة») وكمّل منها. لو الصفحة دي مفروض تكون متاحة ليك، قولّي اسمها وأنا أتأكد.",
+          "en": "Your sign-in is fine — but the link you opened belongs to another account type: customer-portal pages are for customer accounts, and admin pages are for the platform team.\n\nGo back to your own dashboard (for companies: the \"company dashboard\") and continue from there. If that page should be available to you, tell me its name and I'll check."
+        }
+      },
+      "requiresTicketIfUnresolved": false
     }
   ]
 }

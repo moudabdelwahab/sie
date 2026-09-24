@@ -31,6 +31,18 @@
  *                            decision
  *     intent_overlap         same subject+act in two domains, not reviewed
  *     oversized_signature    more than 5 tokens
+ *     single_token_competition
+ *                            one word alone makes a pack scenario tie with or
+ *                            outrank the best CORE reading of that word — the
+ *                            bigger edition turns a message Free handled into
+ *                            a new stand-off. Rule: for one token alone, a
+ *                            pack scenario is either not a candidate at all
+ *                            (below ACTIVATION_THRESHOLD) or at least
+ *                            AMBIGUITY_MARGIN below the best core scenario;
+ *                            on a pack-only token, at most one pack scenario
+ *                            leads (no tie within the margin). Found by bench/edition-compare.mjs:
+ *                            «مرفوض», «مشكلة», «تيليجرام» each became a Pro
+ *                            ticket where Free asked a question.
  *
  * The reviewed allowlist (sie/scenarios/tests/fixtures/reviewed-pairs.json)
  * is the ONLY way a flagged pair ships, and every entry carries the reason a
@@ -42,6 +54,8 @@ import {
     analyzeReachability, findStructuralDuplicates, findSemanticNearDuplicates, findSynonymTokens
 } from '../scenarios/catalog-audit.js';
 import { normalizeArabicToken } from '../language/dialect-normalizer.js';
+import { computeScenarioConfidence, ACTIVATION_THRESHOLD } from '../diagnostics/hypothesis-tracker.js';
+import { AMBIGUITY_MARGIN } from '../ranking/ranking-engine.js';
 
 function normPattern(p) {
     return String(p || '').split(/\s+/).map((w) => (/[؀-ۿ]/.test(w) ? normalizeArabicToken(w) : w.toLowerCase())).filter(Boolean).join(' ');
@@ -59,6 +73,7 @@ function jaccard(a, b) {
     return inter / (a.size + b.size - inter || 1);
 }
 
+const round3 = (x) => Math.round(x * 1000) / 1000;
 const pairKey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 
 /**
@@ -172,6 +187,49 @@ export async function auditEditions({ core, baseGlossary, packs, providers, revi
             if (r.outcome === 'decisive') continue;
             if (packIds.has(r.id)) add('not_decisive', { edition: ed.name, id: r.id, outcome: r.outcome, rivals: r.rivals, best: r.subset });
             else if (freeDecisive.has(r.id)) add('core_displaced', { edition: ed.name, id: r.id, outcome: r.outcome, rivals: r.rivals });
+        }
+    }
+
+    // One word alone must not create a stand-off Free did not have.
+    for (const ed of editions) {
+        if (ed.name === 'free') continue;
+        const coreSet = new Set(editions[0].catalog.map((sc) => sc.id));
+        const tokens = new Set(ed.catalog.flatMap((sc) => [...scenarioTokens(sc)]));
+        for (const t of tokens) {
+            const presence = new Map([[t, 1]]);
+            const coreRanked = [];
+            const pack = [];
+            for (const sc of ed.catalog) {
+                const c = computeScenarioConfidence(sc, presence).confidence;
+                // Below the activation bar a hypothesis is not a candidate and
+                // cannot take part in a stand-off (ranking-engine isCandidate).
+                if (c < ACTIVATION_THRESHOLD) continue;
+                if (coreSet.has(sc.id)) coreRanked.push({ sc, c });
+                else pack.push({ id: sc.id, c });
+            }
+            if (!pack.length) continue;
+            coreRanked.sort((a, b) => b.c - a.c);
+            const coreBest = coreRanked[0]?.c || 0;
+            // Displacement: when the word's two best core readings already
+            // tie and one of the top three carries a clarifying question, a
+            // pack scenario must not enter the top three (the decision engine
+            // takes its questions from there).
+            const tied = coreRanked.length >= 3 && coreRanked[0].c - coreRanked[1].c < AMBIGUITY_MARGIN;
+            const asks = coreRanked.slice(0, 3).some((x) => (x.sc.discriminatingQuestions || []).length > 0);
+            const third = tied && asks ? coreRanked[2].c : 0;
+            if (coreBest > 0) {
+                for (const x of pack) {
+                    if (x.c > coreBest - AMBIGUITY_MARGIN + 1e-9 || (third > 0 && x.c >= third - 1e-9)) {
+                        add('single_token_competition', { edition: ed.name, token: t, id: x.id, confidence: round3(x.c), coreBest: round3(coreBest), ...(third ? { coreThird: round3(third) } : {}) });
+                    }
+                }
+            } else {
+                pack.sort((a, b) => b.c - a.c);
+                if (pack.length > 1 && pack[0].c - pack[1].c < AMBIGUITY_MARGIN - 1e-9) {
+                    const tied = pack.filter((x) => pack[0].c - x.c < AMBIGUITY_MARGIN - 1e-9).map((x) => x.id);
+                    add('single_token_competition', { edition: ed.name, token: t, tied, confidence: round3(pack[0].c), coreBest: 0 });
+                }
+            }
         }
     }
 

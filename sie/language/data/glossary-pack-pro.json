@@ -16,8 +16,6 @@
         "قفلوا",
         "اتقفلت",
         "اتقفل",
-        "مقفولة",
-        "مقفوله",
         "يقفل",
         "يقفلها",
         "تقفل",
@@ -200,9 +198,6 @@
         "موظف",
         "عضو",
         "الاعضاء",
-        "زميلي",
-        "زميل",
-        "زملائي",
         "member",
         "teammate"
       ]
@@ -663,7 +658,10 @@
         "ردهم مش واضح",
         "مش فاهم ردهم",
         "ردهم",
-        "مش مفهوم"
+        "مش مفهوم",
+        "رد الدعم مش واضح",
+        "ردكم مش واضح",
+        "الرد بتاعهم مش واضح"
       ]
     },
     {
@@ -1025,9 +1023,7 @@
         "الشارات",
         "شارة",
         "شاره",
-        "الشاره",
-        "badges",
-        "badge"
+        "الشاره"
       ]
     },
     {
@@ -1136,7 +1132,9 @@
         "اشترك",
         "عايز اشترك",
         "ازاي اشترك",
-        "subscribe"
+        "subscribe",
+        "اشتركت",
+        "بعد ما اشتركت"
       ]
     },
     {
@@ -2293,6 +2291,305 @@
       "patterns": [
         "قيد المراجعه",
         "قيد المراجعة"
+      ]
+    },
+    {
+      "canonical": "atom_mode",
+      "labels": {
+        "ar": "وضع",
+        "en": "mode"
+      },
+      "patterns": [
+        "وضع",
+        "اوضاع",
+        "الوضع",
+        "الاوضاع",
+        "mode",
+        "modes"
+      ]
+    },
+    {
+      "canonical": "entity_traditional_mode",
+      "labels": {
+        "ar": "الوضع التقليدي",
+        "en": "traditional mode"
+      },
+      "patterns": [
+        "التقليدي",
+        "الوضع التقليدي",
+        "تقليدي"
+      ]
+    },
+    {
+      "canonical": "entity_subscribers_only",
+      "labels": {
+        "ar": "للمشتركين فقط",
+        "en": "subscribers only"
+      },
+      "patterns": [
+        "للمشتركين فقط",
+        "للمشتركين بس",
+        "للمشتركين"
+      ]
+    },
+    {
+      "canonical": "entity_ai_model",
+      "labels": {
+        "ar": "موديل الذكاء الاصطناعي",
+        "en": "AI model"
+      },
+      "patterns": [
+        "الموديل",
+        "موديل",
+        "الموديلات",
+        "موديلات",
+        "المزود",
+        "مزود",
+        "المزودات"
+      ]
+    },
+    {
+      "canonical": "entity_commercial_register",
+      "labels": {
+        "ar": "السجل التجاري",
+        "en": "commercial register"
+      },
+      "patterns": [
+        "سجل تجاري",
+        "رقم السجل",
+        "سجلي التجاري"
+      ]
+    },
+    {
+      "canonical": "entity_not_started",
+      "labels": {
+        "ar": "لم يبدأ بعد",
+        "en": "not started yet"
+      },
+      "patterns": [
+        "لم يبدأ بعد",
+        "لسه مابداش",
+        "لسه ما بدأش",
+        "مابدأش",
+        "مبدأش"
+      ]
+    },
+    {
+      "canonical": "entity_expiry_popup",
+      "labels": {
+        "ar": "نافذة تنبيه الانتهاء",
+        "en": "expiry pop-up"
+      },
+      "patterns": [
+        "سينتهي قريبا",
+        "هينتهي قريب",
+        "تذكرني لاحقا",
+        "تذكرني بعدين",
+        "الرساله دي بتطلع",
+        "الرسالة دي بتطلع"
+      ]
+    },
+    {
+      "canonical": "entity_given_rating",
+      "labels": {
+        "ar": "التقييم اللي اديته",
+        "en": "the rating I gave"
+      },
+      "patterns": [
+        "اديته",
+        "اديتها",
+        "اللي اديته",
+        "اللي اديتها",
+        "حطيته"
+      ]
+    },
+    {
+      "canonical": "entity_what_is",
+      "labels": {
+        "ar": "ده إيه",
+        "en": "what is it"
+      },
+      "patterns": [
+        "ده ايه",
+        "دي ايه",
+        "ده عباره عن ايه"
+      ]
+    },
+    {
+      "canonical": "atom_request",
+      "labels": {
+        "ar": "طلب",
+        "en": "request"
+      },
+      "patterns": [
+        "طلب",
+        "الطلب",
+        "طلبي"
+      ]
+    },
+    {
+      "canonical": "entity_upload_refused",
+      "labels": {
+        "ar": "مش راضي يترفع",
+        "en": "upload refused"
+      },
+      "patterns": [
+        "مش راضي يترفع",
+        "مش بيترفع",
+        "مش راضي يرفع",
+        "مش عايز يترفع",
+        "الرفع بيفشل"
+      ]
+    },
+    {
+      "canonical": "symptom_not_happening",
+      "labels": {
+        "ar": "مش بيحصل",
+        "en": "not happening"
+      },
+      "patterns": [
+        "مش بيحصل",
+        "ماحصلش",
+        "مش بتحصل",
+        "مابيحصلش"
+      ]
+    },
+    {
+      "canonical": "entity_arabic_word",
+      "labels": {
+        "ar": "بالعربي",
+        "en": "in Arabic"
+      },
+      "patterns": [
+        "بالعربي",
+        "عربي",
+        "العربي"
+      ]
+    },
+    {
+      "canonical": "entity_service_word",
+      "labels": {
+        "ar": "خدمة",
+        "en": "service"
+      },
+      "patterns": [
+        "خدمة",
+        "خدمه",
+        "الخدمة",
+        "الخدمه"
+      ]
+    },
+    {
+      "canonical": "atom_link",
+      "labels": {
+        "ar": "أربط",
+        "en": "link"
+      },
+      "patterns": [
+        "اربط",
+        "اربطه",
+        "ربط",
+        "الربط"
+      ]
+    },
+    {
+      "canonical": "entity_closed_state",
+      "labels": {
+        "ar": "مقفولة",
+        "en": "closed (state)"
+      },
+      "patterns": [
+        "مقفوله",
+        "مقفولة",
+        "المقفوله",
+        "المقفولة",
+        "مغلقه",
+        "مغلقة"
+      ]
+    },
+    {
+      "canonical": "entity_colleague",
+      "labels": {
+        "ar": "زميلي",
+        "en": "my colleague"
+      },
+      "patterns": [
+        "زميلي",
+        "زميلتي",
+        "زميل",
+        "زملائي",
+        "زمايلي"
+      ]
+    },
+    {
+      "canonical": "entity_request_cancelled",
+      "labels": {
+        "ar": "الطلب اتلغى لوحده",
+        "en": "request cancelled by itself"
+      },
+      "patterns": [
+        "اتلغي لوحده",
+        "اتلغت لوحدها",
+        "الطلب اتلغي",
+        "طلبي اتلغي",
+        "اتلغي من نفسه"
+      ]
+    },
+    {
+      "canonical": "entity_company_data",
+      "labels": {
+        "ar": "بيانات الشركة",
+        "en": "company data"
+      },
+      "patterns": [
+        "بيانات الشركه",
+        "بيانات الشركة",
+        "بيانات شركتي",
+        "بيانات شركتنا",
+        "ملف الشركه"
+      ]
+    },
+    {
+      "canonical": "entity_rating_place",
+      "labels": {
+        "ar": "مكان التقييم",
+        "en": "where to rate"
+      },
+      "patterns": [
+        "مكان التقييم",
+        "زرار التقييم",
+        "التقييم فين",
+        "فين التقييم",
+        "خانة التقييم"
+      ]
+    },
+    {
+      "canonical": "entity_use_code",
+      "labels": {
+        "ar": "أستخدم رمز",
+        "en": "use a code"
+      },
+      "patterns": [
+        "استخدم رمز",
+        "استخدام رمز",
+        "ادخل رمز",
+        "اكتب رمز",
+        "استخدم كود"
+      ]
+    },
+    {
+      "canonical": "entity_page_not_for_me",
+      "labels": {
+        "ar": "الصفحة مش لحسابي",
+        "en": "page not for my account"
+      },
+      "patterns": [
+        "مخصصه لحسابات العملاء",
+        "مخصصة لحسابات العملاء",
+        "مخصصه لفريق",
+        "مخصصة لفريق",
+        "الصفحه دي مش ليا",
+        "الصفحة دي مش ليا"
       ]
     }
   ]

@@ -680,6 +680,38 @@
     [
       "login_telegram_code_unavailable",
       "كود التليجرام مش بيوصل مكتوب غير متاح"
+    ],
+    [
+      "chatbot_modes_compare",
+      "ايه الفرق بين اوضاع البوت"
+    ],
+    [
+      "chatbot_advanced_modes_locked",
+      "اوضاع البوت مكتوب عليها للمشتركين فقط"
+    ],
+    [
+      "chatbot_switched_to_traditional",
+      "البوت رجع للوضع التقليدي لوحده"
+    ],
+    [
+      "chatbot_model_list_empty",
+      "مفيش موديلات ظاهرة اختار منها"
+    ],
+    [
+      "company_onboarding_details_required",
+      "بعد ما اشتركت بيطلب مني رقم السجل التجاري"
+    ],
+    [
+      "subscription_status_not_started",
+      "اشتراكي مكتوب عليه لم يبدأ بعد"
+    ],
+    [
+      "subscription_expiry_popup_repeats",
+      "رسالة اشتراكك سينتهي قريبا بتطلعلي كل مرة"
+    ],
+    [
+      "access_page_for_other_account_type",
+      "فتحت صفحة مكتوب هذه الصفحة مخصصة لحسابات العملاء"
     ]
   ],
   "known_limits": [
