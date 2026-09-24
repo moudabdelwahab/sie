@@ -96,6 +96,35 @@ const CORRECTIONS = {
     subscription_upgrade_request: answer(
         'الترقية بتتطلب من «الباقات والاشتراك»: اختار الباقة الأكبر واطلب الترقية، وبعدين ادفع بالوسيلة اللي تناسبك.\n\nلو الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي، لازم ترفع إثبات التحويل مع الطلب، والطلب بيتراجع يدويًا — وبيفتح تذكرة تتابع منها. ولو مش متأكد أنهي باقة تناسبك، قولّي بتستخدم إيه أكتر وأنا أرشحلك.',
         'Upgrades are requested from "Plans & subscription": pick the larger plan, request the upgrade, then pay with the method that suits you.\n\nFor bank transfer, cash wallet or InstaPay you must upload proof of transfer with the request, which is reviewed manually — it opens a ticket you can follow. If you are not sure which plan fits, tell me what you use most and I will suggest one.'),
+    // Mad3oom company-dashboard/index.html:261-299 + company-dashboard.js:onCreateMember:
+    // a member is ADDED by the company admin with name, e-mail, password and
+    // confirmation — there is no e-mail invitation — and company-model.js
+    // COMPANY_ROLE_LABELS has exactly two roles.
+    howto_add_agent: answer(
+        'إضافة عضو لفريقك بتتم من «لوحة الشركة» ← الأعضاء ← إضافة مستخدم:\n١. اكتب اسمه وإيميله.\n٢. حط كلمة مرور وأكّدها — مفيش دعوة بالإيميل، فابعتله بيانات الدخول بنفسك.\n٣. اختار دوره: «مدير الشركة» أو «عضو في الشركة».\n\nالإضافة متاحة لمدير الشركة بس. وبعد أول دخول، الأفضل العضو يغيّر كلمة المرور من الأمان.',
+        'Adding a team member is done from the "Company dashboard" → Members → Add user:\n1. Enter their name and e-mail.\n2. Set a password and confirm it — there is no e-mail invitation, so share the sign-in details yourself.\n3. Choose their role: "Company admin" or "Company member".\n\nOnly a company admin can add members. After the first sign-in, the member should change the password under Security.'),
+    team_role_permissions_unclear: answer(
+        'في لوحة الشركة فيه دورين بس:\n• «مدير الشركة»: بيدير الأعضاء (إضافة وإزالة) وبيعدّل بيانات الشركة، وبيدير مفاتيح الـ API لو باقتك فيها الميزة دي.\n• «عضو في الشركة»: بيستخدم اللوحة — التذاكر والتقارير ونشاطه — من غير إدارة الأعضاء.\n\nالقاعدة العملية: خلي عدد المديرين أقل ما يمكن.',
+        'The company dashboard has two roles only:\n• "Company admin": manages members (add/remove), edits the company details, and manages API keys if your plan includes that feature.\n• "Company member": uses the dashboard — tickets, reports, their own activity — without managing members.\n\nRule of thumb: keep the number of admins as small as possible.'),
+    team_invite_not_received: answer(
+        'إضافة الأعضاء على المنصة مش بتبعت إيميل دعوة أصلًا: مدير الشركة بيضيف العضو بإيميله وكلمة مرور بيحددها بنفسه.\n\nيعني العضو يدخل بالإيميل وكلمة المرور اللي المدير حطها — والمدير يبعتهاله بأي وسيلة آمنة. ولو محدش فاكر كلمة المرور، العضو يستخدم «نسيت كلمة المرور» من صفحة الدخول.',
+        'Adding members doesn\'t send an invitation e-mail at all: the company admin adds the member with their e-mail and a password they set themselves.\n\nSo the member signs in with that e-mail and the password the admin chose — shared by the admin through a secure channel. If nobody remembers the password, the member uses "Forgot password" on the sign-in page.'),
+    // KB audit evidence matrix: the customer's API path is Company dashboard → API,
+    // key creation needs the api_tokens entitlement, and the limit is 60 calls/min;
+    // api-management.html is an ADMIN page.
+    howto_use_api: answer(
+        'للبدء مع الـ API:\n١. من «لوحة الشركة» ← الـ API، اضغط «إنشاء مفتاح» — الزرار متاح لو باقتك فيها ميزة مفاتيح الـ API.\n٢. احفظ المفتاح في مكان آمن وابعته في هيدر Authorization مع كل طلب.\n٣. الحد ٦٠ نداء في الدقيقة للمفتاح.\n\nالتوثيق وأمثلة الطلبات في صفحة «المطورين». لو عندك سؤال عن endpoint معيّن، اسألني.',
+        'To start with the API:\n1. From the "Company dashboard" → API, press "Create key" — available if your plan includes the API keys feature.\n2. Store the key safely and send it in the Authorization header with every request.\n3. The limit is 60 calls per minute per key.\n\nDocumentation and request examples are on the "Developers" page. Ask me about any specific endpoint.'),
+    // Mad3oom request-subdomain.html: the customer requests <name>.mad3oom.com —
+    // English lowercase letters, digits and hyphens, availability check, then
+    // «قيد المراجعة» → «تمت الموافقة» / «مرفوض». The DNS record is created by the
+    // platform team (subdomains/create-subdomain.html); the customer sets none.
+    howto_setup_subdomain: answer(
+        'النطاق الفرعي بيبقى على شكل اسمك.mad3oom.com، وبتطلبه من صفحة «طلب نطاق فرعي»:\n١. اكتب الاسم بالإنجليزي: حروف صغيرة وأرقام وشرطة (-)، من غير شرطة في الأول أو الآخر.\n٢. اضغط «التحقق من توافر الاسم»، ولو متاح ابعت الطلب.\n٣. الطلب بيبقى «قيد المراجعة»، وبعد الموافقة الفريق بيجهّز النطاق وبياخد وقت بسيط لحد ما يشتغل.\n\nمش محتاج تضيف أي سجلات DNS بنفسك.',
+        'A subdomain takes the form yourname.mad3oom.com, requested from the "Request a subdomain" page:\n1. Enter the name in English: lowercase letters, digits and hyphens, with no hyphen at the start or end.\n2. Press "Check availability", and if it is free, submit the request.\n3. The request shows "Under review"; after approval the team sets it up, and it takes a short while to go live.\n\nYou do not need to add any DNS records yourself.'),
+    dns_subdomain_issue: answer(
+        'لو نطاقك الفرعي (اسمك.mad3oom.com) مش شغال:\n• اتأكد إن حالة الطلب «تمت الموافقة» — لو لسه «قيد المراجعة» فهو لسه ماتجهزش.\n• بعد الموافقة بياخد وقت لحد ما النطاق ينتشر ويشتغل عند الكل.\n• جرّب تفتحه من شبكة تانية (بيانات الموبايل) عشان تستبعد الكاش عندك.\n\nلو الموافقة عدّى عليها يوم كامل والنطاق لسه مش بيفتح، قولّي وأفتحلك تذكرة.',
+        'If your subdomain (yourname.mad3oom.com) isn\'t working:\n• Check that the request is "Approved" — if it is still "Under review", it hasn\'t been set up yet.\n• After approval it takes a while to propagate and work everywhere.\n• Try opening it from another network (mobile data) to rule out your local cache.\n\nIf a full day has passed since approval and it still doesn\'t open, tell me and I\'ll open a ticket.'),
     // KB audit: WhatsApp balance is read-only in the dashboard ("تواصل مع الدعم للشحن");
     // the low-balance alert is raised by the account-health panel against a
     // threshold set for the account, not a customer setting.

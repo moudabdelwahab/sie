@@ -1484,8 +1484,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "مشاكل النطاقات غالبًا بتكون في انتشار الـ DNS. راجع الآتي:\n• اتأكد إن سجل CNAME أو A متضبط بالظبط زي ما ظاهر في صفحة النطاقات عندنا.\n• انتشار الـ DNS بياخد من ١٥ دقيقة لـ ٤٨ ساعة — لو عملت التعديل من شوية، ده طبيعي.\n• جرّب تفتح النطاق من شبكة تانية (بيانات الموبايل مثلًا) عشان تستبعد الكاش المحلي.\n\nلو عدّى أكتر من ٤٨ ساعة والسجلات مظبوطة، قولي وهفتحلك تذكرة فورًا.",
-          "en": "Domain problems are usually DNS propagation. Check:\n• Confirm the CNAME or A record matches exactly what's shown on our Domains page.\n• DNS propagation takes anywhere from 15 minutes to 48 hours — if you changed it recently, this is normal.\n• Try opening the domain from a different network (mobile data) to rule out local caching.\n\nIf it's been more than 48 hours and the records are correct, tell me and I'll open a ticket right away."
+          "ar": "لو نطاقك الفرعي (اسمك.mad3oom.com) مش شغال:\n• اتأكد إن حالة الطلب «تمت الموافقة» — لو لسه «قيد المراجعة» فهو لسه ماتجهزش.\n• بعد الموافقة بياخد وقت لحد ما النطاق ينتشر ويشتغل عند الكل.\n• جرّب تفتحه من شبكة تانية (بيانات الموبايل) عشان تستبعد الكاش عندك.\n\nلو الموافقة عدّى عليها يوم كامل والنطاق لسه مش بيفتح، قولّي وأفتحلك تذكرة.",
+          "en": "If your subdomain (yourname.mad3oom.com) isn't working:\n• Check that the request is \"Approved\" — if it is still \"Under review\", it hasn't been set up yet.\n• After approval it takes a while to propagate and work everywhere.\n• Try opening it from another network (mobile data) to rule out your local cache.\n\nIf a full day has passed since approval and it still doesn't open, tell me and I'll open a ticket."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -2351,8 +2351,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "إضافة موظف جديد:\n١. من لوحة التحكم، افتح \"المستخدمين\" أو \"الفريق\".\n٢. اضغط \"إضافة مستخدم\" واكتب اسمه وإيميله.\n٣. اختار الصلاحيات المناسبة له (مشاهدة فقط / رد على التذاكر / إدارة كاملة).\n٤. هيوصله إيميل دعوة يفعّل بيه حسابه.\n\nخد بالك: عدد المستخدمين المسموح بيه بيعتمد على باقتك الحالية.",
-          "en": "To add a new agent:\n1. From the dashboard, open \"Users\" or \"Team\".\n2. Click \"Add user\" and enter their name and email.\n3. Pick their permissions (view only / reply to tickets / full admin).\n4. They'll get an invitation email to activate their account.\n\nNote: how many users you can add depends on your current plan."
+          "ar": "إضافة عضو لفريقك بتتم من «لوحة الشركة» ← الأعضاء ← إضافة مستخدم:\n١. اكتب اسمه وإيميله.\n٢. حط كلمة مرور وأكّدها — مفيش دعوة بالإيميل، فابعتله بيانات الدخول بنفسك.\n٣. اختار دوره: «مدير الشركة» أو «عضو في الشركة».\n\nالإضافة متاحة لمدير الشركة بس. وبعد أول دخول، الأفضل العضو يغيّر كلمة المرور من الأمان.",
+          "en": "Adding a team member is done from the \"Company dashboard\" → Members → Add user:\n1. Enter their name and e-mail.\n2. Set a password and confirm it — there is no e-mail invitation, so share the sign-in details yourself.\n3. Choose their role: \"Company admin\" or \"Company member\".\n\nOnly a company admin can add members. After the first sign-in, the member should change the password under Security."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -2381,8 +2381,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "ظبط النطاق الفرعي:\n١. من لوحة التحكم، افتح \"النطاقات\" واطلب نطاق فرعي جديد.\n٢. هنديك سجل CNAME — ضيفه عند مزوّد الدومين بتاعك بالظبط زي ما هو.\n٣. ارجع للمنصة واضغط \"تحقق\".\n٤. بعد ما التحقق ينجح، شهادة SSL بتتصدر تلقائيًا خلال ساعة.\n\nانتشار الـ DNS ممكن ياخد لحد ٤٨ ساعة، فمتقلقش لو التحقق مانجحش من أول مرة.",
-          "en": "Setting up a subdomain:\n1. From the dashboard, open \"Domains\" and request a new subdomain.\n2. We'll give you a CNAME record — add it at your domain provider exactly as shown.\n3. Come back to the platform and click \"Verify\".\n4. Once verification passes, an SSL certificate is issued automatically within an hour.\n\nDNS propagation can take up to 48 hours, so don't worry if verification doesn't pass on the first try."
+          "ar": "النطاق الفرعي بيبقى على شكل اسمك.mad3oom.com، وبتطلبه من صفحة «طلب نطاق فرعي»:\n١. اكتب الاسم بالإنجليزي: حروف صغيرة وأرقام وشرطة (-)، من غير شرطة في الأول أو الآخر.\n٢. اضغط «التحقق من توافر الاسم»، ولو متاح ابعت الطلب.\n٣. الطلب بيبقى «قيد المراجعة»، وبعد الموافقة الفريق بيجهّز النطاق وبياخد وقت بسيط لحد ما يشتغل.\n\nمش محتاج تضيف أي سجلات DNS بنفسك.",
+          "en": "A subdomain takes the form yourname.mad3oom.com, requested from the \"Request a subdomain\" page:\n1. Enter the name in English: lowercase letters, digits and hyphens, with no hyphen at the start or end.\n2. Press \"Check availability\", and if it is free, submit the request.\n3. The request shows \"Under review\"; after approval the team sets it up, and it takes a short while to go live.\n\nYou do not need to add any DNS records yourself."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -2411,8 +2411,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "للبدء مع الـ API:\n١. من \"إدارة الـ API\" في حسابك، أنشئ مفتاح جديد واختار الصلاحيات المطلوبة.\n٢. انسخ المفتاح فورًا — بيظهر مرة واحدة بس ومش هينفع تشوفه تاني.\n٣. ابعت المفتاح في كل طلب في هيدر: `Authorization: Bearer <token>`.\n\nالتوثيق الكامل بكل الـ endpoints وأمثلة عملية موجود في صفحة \"المطورين\". لو عندك سؤال عن endpoint معيّن، اسألني.",
-          "en": "To get started with the API:\n1. From \"API management\" in your account, create a new key and select the scopes you need.\n2. Copy the key immediately — it's shown once and can't be retrieved later.\n3. Send it with every request in the header: `Authorization: Bearer <token>`.\n\nFull documentation with every endpoint and working examples lives on the \"Developers\" page. If you have a question about a specific endpoint, just ask."
+          "ar": "للبدء مع الـ API:\n١. من «لوحة الشركة» ← الـ API، اضغط «إنشاء مفتاح» — الزرار متاح لو باقتك فيها ميزة مفاتيح الـ API.\n٢. احفظ المفتاح في مكان آمن وابعته في هيدر Authorization مع كل طلب.\n٣. الحد ٦٠ نداء في الدقيقة للمفتاح.\n\nالتوثيق وأمثلة الطلبات في صفحة «المطورين». لو عندك سؤال عن endpoint معيّن، اسألني.",
+          "en": "To start with the API:\n1. From the \"Company dashboard\" → API, press \"Create key\" — available if your plan includes the API keys feature.\n2. Store the key safely and send it in the Authorization header with every request.\n3. The limit is 60 calls per minute per key.\n\nDocumentation and request examples are on the \"Developers\" page. Ask me about any specific endpoint."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -6824,8 +6824,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "لو الدعوة مش واصلة للموظف:\n١. يبص في الـ Spam والـ Promotions — دي أكتر حالة.\n٢. اتأكد إن الإيميل متكتوب صح من غير مسافات.\n٣. لو إيميل شركة، ممكن السيرفر عندهم حاجز رسايلنا — اسأل الـ IT يضيف نطاقنا للقائمة البيضا.\n٤. من صفحة المستخدمين تقدر تضغط \"إعادة إرسال الدعوة\".\n\nوفيه طريقة تانية: انسخ رابط الدعوة من نفس الصفحة وابعتهوله بأي وسيلة. الرابط صالح ٧ أيام.",
-          "en": "If an invitation does not arrive:\n1. Have them check Spam and Promotions — by far the most common cause.\n2. Confirm the email address is correct with no stray spaces.\n3. For company email, their server may be blocking us — ask IT to whitelist our domain.\n4. From the Users page you can click \"Resend invitation\".\n\nThere is also a direct route: copy the invitation link from that page and send it however you like. The link is valid for 7 days."
+          "ar": "إضافة الأعضاء على المنصة مش بتبعت إيميل دعوة أصلًا: مدير الشركة بيضيف العضو بإيميله وكلمة مرور بيحددها بنفسه.\n\nيعني العضو يدخل بالإيميل وكلمة المرور اللي المدير حطها — والمدير يبعتهاله بأي وسيلة آمنة. ولو محدش فاكر كلمة المرور، العضو يستخدم «نسيت كلمة المرور» من صفحة الدخول.",
+          "en": "Adding members doesn't send an invitation e-mail at all: the company admin adds the member with their e-mail and a password they set themselves.\n\nSo the member signs in with that e-mail and the password the admin chose — shared by the admin through a secure channel. If nobody remembers the password, the member uses \"Forgot password\" on the sign-in page."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -6890,8 +6890,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "الأدوار الأساسية:\n\n• **مشاهدة فقط**: يشوف التذاكر والتقارير، مايقدرش يرد ولا يعدّل. مناسب للمتابعة الإدارية.\n• **موظف دعم**: يرد على التذاكر والمحادثات المسندة له، ومايشوفش الإعدادات ولا الفوترة.\n• **مشرف**: كل صلاحيات الموظف، زائد إعادة توزيع التذاكر ومتابعة أداء الفريق.\n• **أدمن**: كل حاجة، بما فيها الفوترة وإدارة المستخدمين والإعدادات.\n\nالقاعدة العملية: ادّي أقل صلاحية تكفي الشغل، وترقّي بعدين لو احتاج.",
-          "en": "The core roles:\n\n• **View only**: sees tickets and reports, cannot reply or edit. Suits management oversight.\n• **Support agent**: replies to tickets and conversations assigned to them; no access to settings or billing.\n• **Supervisor**: everything an agent can do, plus reassigning tickets and reviewing team performance.\n• **Admin**: everything, including billing, user management and settings.\n\nPractical rule: grant the least privilege that does the job, and raise it later if needed."
+          "ar": "في لوحة الشركة فيه دورين بس:\n• «مدير الشركة»: بيدير الأعضاء (إضافة وإزالة) وبيعدّل بيانات الشركة، وبيدير مفاتيح الـ API لو باقتك فيها الميزة دي.\n• «عضو في الشركة»: بيستخدم اللوحة — التذاكر والتقارير ونشاطه — من غير إدارة الأعضاء.\n\nالقاعدة العملية: خلي عدد المديرين أقل ما يمكن.",
+          "en": "The company dashboard has two roles only:\n• \"Company admin\": manages members (add/remove), edits the company details, and manages API keys if your plan includes that feature.\n• \"Company member\": uses the dashboard — tickets, reports, their own activity — without managing members.\n\nRule of thumb: keep the number of admins as small as possible."
         }
       },
       "requiresTicketIfUnresolved": false,

@@ -1971,8 +1971,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "إضافة رقم الهاتف بتخلّي فريق الدعم يوصلك أسرع لو احتاج — مش إجباري لاستخدام المنصة.\n\nتضيفه من «الملف الشخصي» في القائمة الجانبية، وبعد الحفظ التنبيه بيختفي من «حالة حسابك».",
-          "en": "Adding a phone number lets the support team reach you faster when needed — it isn't required to use the platform.\n\nAdd it from \"Profile\" in the sidebar; once saved, the alert disappears from the account health panel."
+          "ar": "رقم الهاتف مطلوب لتفعيل الحسابات الجديدة، ولو حسابك مفعّل من غيره، «حالة حسابك» بتفكّرك تضيفه لأنه بيخلّي فريق الدعم يوصلك أسرع.\n\nتضيفه من «الملف الشخصي» في القائمة الجانبية، وبعد الحفظ التنبيه بيختفي. وخد بالك إن نفس الرقم مايتسجلش على أكتر من حساب.",
+          "en": "A phone number is required to activate new accounts; if your account was activated without one, the account-health panel reminds you to add it because it lets the support team reach you faster.\n\nAdd it from \"Profile\" in the sidebar; once saved, the alert disappears. Note that the same number can't be registered on more than one account."
         }
       },
       "requiresTicketIfUnresolved": false
@@ -3566,6 +3566,1449 @@
         "text": {
           "ar": "تغيير الرقم المربوط برقم تاني بيتم كفصل للرقم الحالي وربط الجديد — والمحادثات القديمة بتفضل مرتبطة بالرقم القديم، والقوالب المعتمدة ممكن تحتاج تتقدم تاني للرقم الجديد.\n\nعشان التغيير مايوقفش شغلك في النص، قولّي «افتح تذكرة» وأنا أبعت الطلب للفريق يرتب معاك التوقيت.",
           "en": "Replacing the connected number means disconnecting the current one and linking the new one — past conversations stay tied to the old number, and approved templates may need resubmitting for the new one.\n\nSo the change doesn't interrupt your work, say \"open a ticket\" and I'll send the request so the team can arrange the timing with you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "company_member_cannot_manage_members",
+      "intent": "team/member_management/permission_denied",
+      "label": {
+        "ar": "مش قادر أضيف أو أشيل أعضاء — بيقولي مالكش صلاحية",
+        "en": "Can't add or remove members — no permission"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "atom_member",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_no_permission_msg",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_add",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إدارة الأعضاء (إضافة وإزالة) متاحة لدور «مدير الشركة» بس. لو دورك «عضو في الشركة»، الزرار مش هيشتغل معاك.\n\nاطلب من مدير الشركة يضيف العضو، أو يغيّر دورك لو المفروض تدير الأعضاء. ولو مفيش مدير متاح للشركة خالص، قولّي وأفتحلك تذكرة.",
+          "en": "Member management (adding and removing) is available to the \"Company admin\" role only. If your role is \"Company member\", it won't work for you.\n\nAsk a company admin to add the member, or to change your role if you should manage members. If no admin is available at all, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_member",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_permission_denied",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_add",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "company_profile_edit_admin_only",
+      "intent": "account/company_profile/edit_permission",
+      "label": {
+        "ar": "مش قادر أعدّل بيانات الشركة",
+        "en": "I can't edit the company details"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "atom_company",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_change",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_permission_denied",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تعديل بيانات الشركة في «لوحة الشركة» متاح لمدير الشركة بس، فلو دورك «عضو» الزرار مش هيظهرلك أو مش هيحفظ.\n\nاطلب من مدير الشركة يعدّلها. وخد بالك إن إيميل الدخول نفسه مابيتغيرش من هنا — تغييره بيتم عن طريق فريق الدعم.",
+          "en": "Editing company details in the \"Company dashboard\" is available to the company admin only, so as a \"member\" you won't see the button or it won't save.\n\nAsk a company admin to update them. Note that the sign-in e-mail itself isn't changed here — that's done through the support team."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_company",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "atom_change",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_no_permission_msg",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "api_create_key_unavailable",
+      "intent": "api/key/create_unavailable",
+      "label": {
+        "ar": "مش قادر أنشئ مفتاح API",
+        "en": "I can't create an API key"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "intent_create_key",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إنشاء مفاتيح الـ API من «لوحة الشركة» ← الـ API متاح بس للباقات اللي فيها ميزة مفاتيح الـ API. لو باقتك مافيهاش، هتلاقي رسالة بكده وزرار «استعراض الباقات».\n\nلو باقتك فيها الميزة ولسه مش قادر، ممكن تكون المشكلة في دورك — إدارة المفاتيح بتحتاج صلاحية. قولّي وأشوف معاك.",
+          "en": "Creating API keys from the \"Company dashboard\" → API is available only on plans that include the API keys feature. If yours doesn't, you'll see a message saying so and a \"Browse plans\" button.\n\nIf your plan includes it and you still can't, it may be your role — managing keys needs permission. Tell me and I'll check with you."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "intent_create_key",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_permission_denied",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_api",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "api_key_state_meaning",
+      "intent": "api/key/state_meaning",
+      "label": {
+        "ar": "حالة مفتاح الـ API (موقوف / منتهي / مسحوب)",
+        "en": "API key state (stopped / expired / revoked)"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_key_state",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_key_word",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "حالات المفتاح في قسم الـ API:\n• فعّال: شغال.\n• موقوف: اتوقف يدويًا، وتقدر تفعّله تاني.\n• منتهٍ: عدّى تاريخ انتهائه — اعمل مفتاح جديد.\n• مسحوب: اتلغى نهائيًا ومابيرجعش.\n\nأي طلب بمفتاح مش فعّال بيترفض، فلو أنظمتك وقفت فجأة بص على حالة المفتاح الأول.",
+          "en": "Key states in the API section:\n• Active: working.\n• Stopped: disabled manually; you can activate it again.\n• Expired: past its end date — create a new key.\n• Revoked: cancelled permanently; it can't come back.\n\nAny request with a non-active key is rejected, so if your systems stopped suddenly, check the key's state first."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "symptom_expired",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_key_word",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "api_key_stop_or_activate",
+      "intent": "api/key/toggle",
+      "label": {
+        "ar": "أوقف أو أفعّل مفتاح API",
+        "en": "Stop or activate an API key"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "intent_toggle_key",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من «لوحة الشركة» ← الـ API، جنب كل مفتاح زرار «إيقاف» أو «تفعيل»، وبيطلب منك تأكيد.\n\nالمفتاح الموقوف بيترفض فورًا مع أي طلب، ولما تفعّله بيتقبل تاني. لو شاكك إن مفتاح اتسرّب، الإيقاف أسرع خطوة لحد ما تعمل مفتاح جديد.",
+          "en": "From the \"Company dashboard\" → API, each key has a \"Stop\" or \"Activate\" button, with a confirmation.\n\nA stopped key is rejected immediately on any request, and accepted again once activated. If you suspect a key leaked, stopping it is the fastest step until you create a new one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_calls_log_empty",
+      "intent": "api/usage_log/empty",
+      "label": {
+        "ar": "سجل النداءات فاضي",
+        "en": "The API calls log is empty"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_call_log",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "سجل النداءات بيبدأ يتملّى أول ما أي مفتاح يتستخدم فعلًا — قبل كده بيظهر «لا توجد نداءات مسجّلة»، وجنب المفتاح «لم يُستخدم بعد».\n\nلو أنظمتك بتبعت طلبات والسجل لسه فاضي، يبقى الطلبات مش واصلة بالمفتاح ده: راجع إنك حاطط المفتاح الصح في هيدر Authorization وإنه «فعّال».",
+          "en": "The calls log fills as soon as any key is actually used — before that it shows \"No calls recorded\" and the key shows \"Not used yet\".\n\nIf your systems are sending requests and the log is still empty, the requests aren't arriving with that key: check you're sending the right key in the Authorization header and that it's \"Active\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_key_scopes_expiry_meaning",
+      "intent": "api/key/scopes_expiry_meaning",
+      "label": {
+        "ar": "مكتوب «بلا صلاحيات محددة» أو «بلا تاريخ انتهاء»",
+        "en": "\"No specific permissions\" or \"No expiry\" on a key"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_key_no_scopes",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_key_word",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الوصفين دول بيظهروا تحت المفتاح:\n• «بلا صلاحيات محددة»: المفتاح مااتحددلوش صلاحيات بعينها.\n• «بلا تاريخ انتهاء»: المفتاح شغال لحد ما يتوقف أو يتسحب.\n\nللأمان، الأفضل مفتاح لكل نظام بأقل صلاحيات يحتاجها وبتاريخ انتهاء — ومراجعة المفاتيح القديمة وإيقاف اللي مش مستخدم.",
+          "en": "These appear under a key:\n• \"No specific permissions\": no particular permissions were set for it.\n• \"No expiry\": the key works until it's stopped or revoked.\n\nFor security, prefer one key per system, with the least permissions it needs and an expiry date — and review old keys, stopping unused ones."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_calls_per_minute_limit",
+      "intent": "api/rate_limit/value",
+      "label": {
+        "ar": "حد نداءات الـ API كام في الدقيقة",
+        "en": "What is the API's per-minute limit"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_calls_per_minute",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحد لمفاتيح الـ API ٦٠ نداء في الدقيقة. لو عدّيته الطلبات بترجع 429 لحد ما الدقيقة تعدي.\n\nنصايح عشان ماتوصلش للحد: جمّع الطلبات بدل ما تبعتها واحد واحد، وخزّن النتايج اللي مش بتتغير كتير، ولما يرجع 429 استنى وزوّد مدة الانتظار تدريجيًا بدل ما تعيد فورًا.",
+          "en": "The limit for API keys is 60 calls per minute. Beyond it, requests return 429 until the minute passes.\n\nTo stay under it: batch requests instead of sending them one by one, cache results that rarely change, and on a 429 wait and back off gradually rather than retrying immediately."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_register_webhook_how",
+      "intent": "webhook/registration/customer_path",
+      "label": {
+        "ar": "أسجّل Webhook لأحداث التذاكر إزاي",
+        "en": "How to register a webhook for ticket events"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_webhook",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_add",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تسجيل الـ Webhooks مش متاح من حسابك — إعداده بيتم من فريق المنصة. قولّي «افتح تذكرة» مع رابط الـ endpoint بتاعك والأحداث اللي عايزها، وأنا أبعت الطلب.\n\nولحد ما يتظبط، تقدر تسحب البيانات بنفسك بمفتاح API من «لوحة الشركة» ← الـ API.",
+          "en": "Registering webhooks isn't available from your account — the platform team sets it up. Say \"open a ticket\" with your endpoint URL and the events you need, and I'll send the request.\n\nUntil it's set up, you can pull the data yourself with an API key from the \"Company dashboard\" → API."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_mcp_what_is",
+      "intent": "integration/mcp/what_is",
+      "label": {
+        "ar": "الـ MCP ده إيه وأستخدمه إزاي",
+        "en": "What MCP is and how to use it"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_mcp",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_developers_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الـ MCP طريقة بتخلّي أدوات الذكاء الاصطناعي (زي المساعدين في محررات الكود أو تطبيقات الشات) تتصل ببيانات حسابك في مدعوم وتنفّذ عليها عمليات بإذنك.\n\nالإعداد والشرح في صفحة MCP الخاصة بالمطورين. لو الاتصال نفسه بيفشل، قولّي رسالة الخطأ.",
+          "en": "MCP lets AI tools (such as assistants in code editors or chat apps) connect to your Mad3oom account data and perform actions with your permission.\n\nSetup and guidance are on the developers' MCP page. If the connection itself fails, tell me the error message."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_mcp",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "subdomain_name_format_rejected",
+      "intent": "domain/subdomain_request/name_format",
+      "label": {
+        "ar": "اسم النطاق الفرعي مش مقبول (صيغة غلط)",
+        "en": "Subdomain name rejected (invalid format)"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_subdomain_name_format",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_subdomain",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اسم النطاق الفرعي لازم:\n• يكون بالإنجليزي، حروف صغيرة وأرقام بس، وممكن شرطة (-) في النص.\n• مايبدأش ولا يخلص بشرطة.\n• لحد ٦٣ حرف.\n\nمثال مقبول: my-store أو shop2025. غير مقبول: My_Store أو -shop.",
+          "en": "A subdomain name must:\n• be in English, lowercase letters and digits only, with hyphens (-) allowed in the middle;\n• not start or end with a hyphen;\n• be at most 63 characters.\n\nAccepted: my-store or shop2025. Not accepted: My_Store or -shop."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subdomain_name_taken",
+      "intent": "domain/subdomain_request/name_taken",
+      "label": {
+        "ar": "اسم النطاق الفرعي اللي عايزه مش متاح",
+        "en": "The subdomain name I want is taken"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "symptom_name_taken",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_subdomain",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«التحقق من توافر الاسم» بيقول إن الاسم محجوز لو في نطاق تاني بيه أو طلب قبلك. جرّب:\n• تضيف كلمة تميّزك: اسمك-eg أو اسمك-shop.\n• تستخدم اختصار اسم شركتك.\n\nلو الاسم ده علامتك التجارية ومحجوز لحد تاني، قولّي وأفتحلك تذكرة للمراجعة.",
+          "en": "\"Check availability\" says a name is taken when another subdomain or an earlier request already uses it. Try:\n• adding a distinguishing word: yourname-eg or yourname-shop;\n• your company's abbreviation.\n\nIf the name is your trademark and someone else holds it, tell me and I'll open a ticket for review."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subdomain_request_rejected",
+      "intent": "domain/subdomain_request/rejected",
+      "label": {
+        "ar": "طلب النطاق الفرعي اترفض",
+        "en": "My subdomain request was rejected"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_subdomain",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الطلب المرفوض بيظهر في «طلباتي» بحالة «مرفوض»، وغالبًا معاه ملاحظة بالسبب (زي اسم مش مناسب أو مكرر).\n\nاقرا الملاحظة وابعت طلب جديد باسم مختلف. ولو مفيش ملاحظة أو مش مقتنع بالسبب، قولّي وأفتحلك تذكرة.",
+          "en": "A rejected request shows in \"My requests\" with status \"Rejected\", usually with a note giving the reason (an unsuitable or duplicate name, for example).\n\nRead the note and submit a new request with a different name. If there's no note or you disagree, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subdomain_rename_or_delete",
+      "intent": "domain/subdomain/rename_or_delete",
+      "label": {
+        "ar": "عايز أغيّر اسم النطاق الفرعي أو أمسحه",
+        "en": "Rename or delete my subdomain"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_subdomain",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "atom_change",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_remove",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تغيير اسم نطاق فرعي شغال أو حذفه بيتم من فريق المنصة، مش من حسابك. قولّي الاسم الحالي والجديد (أو إنك عايز تحذفه) وأنا أفتحلك تذكرة.\n\nخد بالك: بعد تغيير الاسم الرابط القديم بيوقف، فحدّث أي مكان كنت ناشره فيه.",
+          "en": "Renaming or deleting a live subdomain is done by the platform team, not from your account. Tell me the current and new names (or that you want it deleted) and I'll open a ticket.\n\nNote: after a rename the old link stops working, so update anywhere you had shared it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_subdomain",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "atom_remove",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "account_waitlist",
+      "intent": "account/activation/waitlist",
+      "label": {
+        "ar": "حسابي في قائمة الانتظار",
+        "en": "My account is on the waitlist"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_waitlist",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«حسابك في قائمة الانتظار» معناها إن التسجيل اتم، والحساب مستني تفعيل. عشان التفعيل يمشي:\n• كمّل رقم هاتفك في نفس الصفحة لو مطلوب — الرقم شرط للتفعيل.\n• لو معاك «كود مرور»، اختار «تفعيل بكود المرور» والحساب بيتفعّل على طول.\n\nلو كمّلت الرقم ومفيش كود وطوّل الانتظار، قولّي وأفتحلك تذكرة.",
+          "en": "\"Your account is on the waitlist\" means registration went through and the account is waiting for activation. To move it along:\n• add your phone number on the same page if asked — it's required for activation;\n• if you have a \"passcode\", choose \"Activate with passcode\" and the account activates immediately.\n\nIf you've added the number, have no passcode, and it's taking long, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "account_activate_with_passcode",
+      "intent": "account/activation/passcode",
+      "label": {
+        "ar": "تفعيل الحساب بكود المرور",
+        "en": "Activating the account with a passcode"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_passcode",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو معاك كود مرور من فريق مدعوم أو من شريك، اختار «لديك كود مرور؟ تفعيل بكود المرور» في صفحة تفعيل الحساب واكتبه، والحساب بيتفعّل ويحوّلك للوحة على طول.\n\nلو الكود اترفض، اتأكد إنك كتبته زي ما هو من غير مسافات، ولو لسه، قولّي وأفتحلك تذكرة.",
+          "en": "If you have a passcode from the Mad3oom team or a partner, choose \"Have a passcode? Activate with passcode\" on the account activation page and enter it; the account activates and takes you to your dashboard.\n\nIf it's rejected, make sure you typed it exactly with no spaces; if it still fails, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "account_phone_already_registered",
+      "intent": "account/phone_number/already_registered",
+      "label": {
+        "ar": "رقم الهاتف متسجل على حساب تاني",
+        "en": "The phone number is registered on another account"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_already_registered",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_phone_number",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رقم الهاتف مايتسجلش على أكتر من حساب. لو الرسالة ظهرتلك:\n• غالبًا عندك حساب قديم بنفس الرقم — جرّب تدخل بيه، أو استخدم «نسيت كلمة المرور».\n• لو الرقم ده جديد عليك وكان مع حد قبلك، قولّي وأفتحلك تذكرة عشان الفريق يراجع الحساب القديم.\n\nوخد بالك إن خانة رقم الواتساب منفصلة واختيارية — رقم الهاتف هو المطلوب.",
+          "en": "A phone number can't be registered on more than one account. If you see that message:\n• you probably have an older account with that number — try signing into it, or use \"Forgot password\";\n• if the number is new to you and belonged to someone else before, tell me and I'll open a ticket for the team to review the old account.\n\nNote the WhatsApp number field is separate and optional — the phone number is the required one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "invoice_verify_authenticity",
+      "intent": "billing/invoice/verify_authenticity",
+      "label": {
+        "ar": "أتأكد إن الفاتورة دي حقيقية إزاي",
+        "en": "How to verify an invoice is genuine"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_invoice_verify",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_invoice",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فواتير المنصة ليها صفحة «التحقق من صحة الفاتورة» على mad3oom.com، بتعرض بيانات الفاتورة الأصلية والإجمالي من النظام نفسه.\n\nقارن اللي في الصفحة باللي معاك. لو مختلفين، أو الرابط على دومين تاني، متدفعش حاجة وابعتلي صورة الفاتورة وأنا أفتح تذكرة للفريق المالي.",
+          "en": "Platform invoices have a \"Verify invoice\" page on mad3oom.com that shows the original invoice details and total from the system itself.\n\nCompare it with what you have. If they differ, or the link is on another domain, don't pay anything — send me the invoice and I'll open a ticket for the finance team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "livechat_ended_restart",
+      "intent": "chat/live_chat/restart_after_end",
+      "label": {
+        "ar": "قفلت المحادثة الفورية بالغلط",
+        "en": "I ended the live chat by mistake"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_chat_ended",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_chat_widget",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مفيش مشكلة — افتح «المحادثة الفورية» من القائمة الجانبية تاني وابدأ محادثة جديدة.\n\nلو كنت في نص موضوع، ابدأ رسالتك بملخص قصير للي اتقال عشان اللي هيرد يكمل من غير ما يسألك من الأول. ولو الموضوع محتاج متابعة أطول، التذكرة أنسب.",
+          "en": "No problem — open \"Live chat\" from the sidebar again and start a new conversation.\n\nIf you were mid-topic, start with a short summary of what was said so whoever answers can continue without starting over. If it needs longer follow-up, a ticket suits it better."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "livechat_rate_quality",
+      "intent": "chat/live_chat/rating",
+      "label": {
+        "ar": "تقييم المحادثة الفورية بعد إنهائها",
+        "en": "Rating the live chat after it ends"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_rate_service",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_chat_widget",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "بعد ما تنهي المحادثة بتظهر صفحة «تم إنهاء المحادثة» بسؤال «كيف كانت جودة الخدمة؟» من «سيء جداً» لـ«ممتاز».\n\nالتقييم اختياري بس بيوصل للفريق فعلًا. ولو فيه حاجة محددة ضايقتك في المحادثة، قولهالي هنا وأنا أوصلها.",
+          "en": "When you end a chat, the \"Conversation ended\" page asks \"How was the quality of service?\" from \"Very bad\" to \"Excellent\".\n\nRating is optional but does reach the team. If something specific bothered you in the chat, tell me here and I'll pass it on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "livechat_vs_ticket",
+      "intent": "support/channel_choice/chat_vs_ticket",
+      "label": {
+        "ar": "أستخدم المحادثة الفورية ولا أفتح تذكرة؟",
+        "en": "Live chat or a ticket?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_live_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_chat_widget",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• المحادثة الفورية: لسؤال سريع أو حاجة بتتحل في نفس القعدة.\n• التذكرة: لمشكلة محتاجة متابعة أو فريق تقني أو مرفقات — كل حاجة بتتسجل برقم، وبتتابع حالتها من «تذاكري».\n\nلو بدأت في المحادثة واتضح إن الموضوع أكبر، اطلب تحويله لتذكرة.",
+          "en": "• Live chat: for a quick question or something solved in one sitting.\n• Ticket: for a problem needing follow-up, the technical team or attachments — everything is recorded with a number and you follow its status in \"My tickets\".\n\nIf a chat turns out bigger than expected, ask for it to become a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "helpcenter_no_article_found",
+      "intent": "kb/article/not_found",
+      "label": {
+        "ar": "مالقيتش مقال بيجاوب سؤالي",
+        "en": "I couldn't find an article for my question"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_found_word",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_article",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "جرّب البحث بكلمة واحدة مميزة بدل جملة (مثلًا «الفاتورة» بدل «ازاي اجيب الفاتورة بتاعتي»)، وبص في «مقالات ذات صلة» تحت أقرب مقال.\n\nولو مفيش فعلًا مقال، اسألني هنا — ولو الإجابة محتاجة الفريق أفتحلك تذكرة. وتقييم المقالات بـ 👍 / 👎 بيساعد الفريق يعرف المواضيع الناقصة.",
+          "en": "Search with one distinctive word rather than a sentence (e.g. \"invoice\" instead of \"how do I get my invoice\"), and check \"Related articles\" under the closest one.\n\nIf there really is no article, ask me here — if the answer needs the team, I'll open a ticket. Rating articles 👍 / 👎 also helps the team see which topics are missing."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "helpcenter_rate_article",
+      "intent": "kb/article/rating",
+      "label": {
+        "ar": "تقييم المقال (مفيد / مش مفيد)",
+        "en": "Rating an article (helpful / not helpful)"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_useful_vote",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_article",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كل مقال في مركز المساعدة تحته 👍 / 👎. تقييمك بيوصل للفريق وبيحدد المقالات اللي محتاجة تتحسن أو تتكتب من جديد.\n\nولو المقال ماحلّش مشكلتك، اسألني هنا بعد التقييم وأنا أكمّل معاك.",
+          "en": "Every help-center article has 👍 / 👎 underneath. Your rating reaches the team and flags articles that need improving or rewriting.\n\nIf the article didn't solve your problem, ask me here after rating and I'll take it from there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "developers_oauth",
+      "intent": "api/oauth/what_is",
+      "label": {
+        "ar": "الـ OAuth في مدعوم لإيه",
+        "en": "What OAuth is for in Mad3oom"
+      },
+      "category": "api",
+      "evidenceSignature": [
+        {
+          "token": "entity_oauth",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "صفحة «توثيق المطورين» فيها تلات طرق للربط: مفاتيح الـ API، والـ MCP، وOAuth 2.1.\n\nالـ OAuth مناسب لما تطبيق تاني محتاج يتصرف بإذن المستخدم نفسه من غير ما ياخد كلمة المرور بتاعته — بيطلب موافقة وبياخد صلاحية محددة ممكن تتلغى. لو بتربط نظامك الداخلي بس، مفتاح API أبسط.",
+          "en": "The \"Developers\" documentation covers three ways to integrate: API keys, MCP and OAuth 2.1.\n\nOAuth fits when another application needs to act with a user's permission without taking their password — it asks for consent and receives a limited, revocable permission. For connecting only your own internal system, an API key is simpler."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "payment_gateway_page_error",
+      "intent": "billing/payment_gateway/not_opening",
+      "label": {
+        "ar": "بوابة الدفع مش بتفتح",
+        "en": "The payment gateway page won't open"
+      },
+      "category": "subscription",
+      "evidenceSignature": [
+        {
+          "token": "entity_gateway_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو صفحة بوابة الدفع مش بتفتح أو واقفة:\n• جرّب متصفح تاني أو وضع التصفح الخفي — إضافات منع الإعلانات أحيانًا بتوقفها.\n• اتأكد إن مفيش VPN شغال.\n• ماتدفعش مرتين: لو مش متأكد إن العملية الأولى اتمت، استنى وراجع حسابك البنكي.\n\nولو لسه مش بتفتح، الوسائل التانية متاحة: تحويل بنكي أو محفظة كاش أو إنستاباي بإثبات تحويل.",
+          "en": "If the payment gateway page won't open or hangs:\n• try another browser or a private window — ad blockers sometimes stop it;\n• make sure no VPN is on;\n• don't pay twice: if unsure whether the first attempt went through, wait and check your bank account.\n\nIf it still won't open, other methods are available: bank transfer, cash wallet or InstaPay with proof of transfer."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_gateway_word",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_payment",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "whatsapp_cloud_api_vs_app",
+      "intent": "whatsapp/cloud_api/compare_app",
+      "label": {
+        "ar": "الفرق بين WhatsApp Cloud API والواتساب العادي",
+        "en": "WhatsApp Cloud API vs the regular app"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_official_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_compare",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "خدمة الواتساب في مدعوم مبنية على WhatsApp Cloud API الرسمي من ميتا، والفرق عن الواتساب العادي:\n• أكتر من موظف يردوا من نفس الرقم في نفس الوقت.\n• الرسايل اللي بتبدأها إنت بره نافذة الـ ٢٤ ساعة لازم تكون بقالب معتمد.\n• الرقم المربوط بالـ API مابيشتغلش في نفس الوقت على تطبيق الواتساب العادي.\n\nلو محتاج تعرف تفاصيل الباقات، صفحة مقارنة حلول الواتساب بتوضحها.",
+          "en": "Mad3oom's WhatsApp service is built on Meta's official WhatsApp Cloud API. Compared with the regular app:\n• several agents can reply from the same number at once;\n• messages you initiate outside the 24-hour window must use an approved template;\n• a number connected to the API can't be used at the same time in the regular WhatsApp app.\n\nThe WhatsApp solutions comparison page explains the plans in detail."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "report_first_response_meaning",
+      "intent": "report/metric/avg_first_response",
+      "label": {
+        "ar": "معنى «متوسط أول استجابة» في التقارير",
+        "en": "What \"average first response\" means"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_avg_first_response",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«متوسط أول استجابة» = متوسط الوقت من فتح التذكرة لحد أول رد عليها، على التذاكر اللي في الفترة والفلاتر المختارة.\n\nهو مقياس لسرعة الرد مش لسرعة الحل — تذكرة ممكن يكون ليها أول رد سريع وتفضل مفتوحة أيام. للحل بص على «متوسط زمن الإغلاق».",
+          "en": "\"Average first response\" = the average time from a ticket being opened to its first reply, over the tickets in the selected period and filters.\n\nIt measures how fast you reply, not how fast you solve — a ticket can get a quick first reply and stay open for days. For solving, look at \"average close time\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "report_close_time_meaning",
+      "intent": "report/metric/avg_close_time",
+      "label": {
+        "ar": "معنى «متوسط زمن الإغلاق»",
+        "en": "What \"average close time\" means"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_avg_close_time",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«متوسط زمن الإغلاق» = متوسط الوقت من فتح التذكرة لحد ما اتقفلت، للتذاكر اللي اتقفلت في الفترة المختارة.\n\nالتذاكر المفتوحة لسه مابتدخلش في الحساب، فلو عندك تذاكر قديمة مفتوحة الرقم ممكن يبان أحسن من الواقع — راجعها من عرض التذاكر المفتوحة.",
+          "en": "\"Average close time\" = the average time from opening to closing, for tickets closed in the selected period.\n\nTickets still open aren't counted, so if you have old open tickets the number can look better than reality — check them in the open-tickets view."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "report_export_formats",
+      "intent": "report/export/formats",
+      "label": {
+        "ar": "أصدّر التقرير PDF أو Excel",
+        "en": "Export a report as PDF or Excel"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_pdf",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقارير «لوحة الشركة» بتتصدّر بتلات صيغ: CSV وXLSX وPDF. ظبّط الفترة والفلاتر الأول، وبعدين اختار الصيغة من زرار التصدير.\n\n• PDF: للعرض والإرسال للإدارة.\n• XLSX: لو هتحلل الأرقام في Excel.\n• CSV: لو هتدخلها في نظام تاني.",
+          "en": "Company-dashboard reports export in three formats: CSV, XLSX and PDF. Set the period and filters first, then choose the format from the export button.\n\n• PDF: for presenting and sending to management.\n• XLSX: if you'll analyse the numbers in Excel.\n• CSV: if you'll import them into another system."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_spreadsheet",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_report",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "report_date_filter_usage",
+      "intent": "report/filter/date_range",
+      "label": {
+        "ar": "أغيّر الفترة الزمنية للتقرير",
+        "en": "Change the report date range"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_report_filter",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_report",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فلاتر التقرير في أعلى الصفحة: اختار الفترة (من - إلى) وأي فلتر تاني، والأرقام والرسوم بتتحدث عليها، والتصدير بياخد نفس الفلاتر.\n\nلو قارنت فترتين، خلّي باقي الفلاتر زي ما هي — تغيير فلتر تاني مع الفترة بيخلي المقارنة مش عادلة.",
+          "en": "Report filters are at the top: choose the period (from – to) and any other filter; figures and charts update, and exports use the same filters.\n\nWhen comparing two periods, keep the other filters unchanged — changing another filter along with the period makes the comparison unfair."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "security_2fa_code_rejected_clock",
+      "intent": "security/2fa/code_rejected_time_sync",
+      "label": {
+        "ar": "كود التحقق من تطبيق المصادقة بيترفض",
+        "en": "Authenticator app code is rejected"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_2fa",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_device_clock",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أكواد تطبيقات المصادقة مبنية على الوقت، فلو ساعة الموبايل مش مظبوطة ولو بدقيقة، الكود الصح بيترفض.\n\nالحل: من إعدادات الموبايل خلّي الوقت والتاريخ «تلقائي»، وبعدين جرّب كود جديد (مش القديم). ولو لسه، قولّي وأفتحلك تذكرة استرجاع وصول.",
+          "en": "Authenticator-app codes are time-based, so if your phone's clock is off, even by a minute, a correct code is rejected.\n\nFix: set date & time to \"automatic\" in your phone settings, then try a fresh code (not the old one). If it still fails, tell me and I'll open an access-recovery ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_device_clock",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_2fa",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "login_reset_link_expired_or_used",
+      "intent": "login/password_reset/link_invalid",
+      "label": {
+        "ar": "لينك تغيير كلمة المرور منتهي أو مستخدم",
+        "en": "Password reset link expired or already used"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_reset_link",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_expired",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لينك تغيير كلمة المرور بيشتغل مرة واحدة ولمدة محدودة. لو فتحته وقالك منتهي أو مستخدم:\n١. ارجع لصفحة الدخول واطلب «نسيت كلمة المرور» من جديد.\n٢. افتح أحدث إيميل بس — أي لينك أقدم بيبطل أول ما تطلب واحد جديد.\n\nولو كل لينك بيطلع منتهي على طول، جرّب تفتحه من نفس الجهاز والمتصفح.",
+          "en": "A password reset link works once and for a limited time. If it says expired or used:\n1. Go back to the sign-in page and request \"Forgot password\" again.\n2. Open only the newest e-mail — older links stop working once you request a new one.\n\nIf every link shows as expired immediately, open it on the same device and browser."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_reset_link",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_password",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_already_registered",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "security_email_changed_without_me",
+      "intent": "security/account_email/changed_by_other",
+      "label": {
+        "ar": "حد غيّر الإيميل بتاع حسابي",
+        "en": "Someone changed my account e-mail"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_email_changed_by_other",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده موضوع أمان عاجل. بالترتيب:\n١. لو لسه قادر تدخل: غيّر كلمة المرور فورًا وفعّل التحقق بخطوتين.\n٢. راجع «نشاط الحساب» وشوف إمتى حصل التغيير.\n٣. قولّي دلوقتي «افتح تذكرة أمان» — تغيير الإيميل بيرجع عن طريق فريق الدعم بعد التحقق من إنك صاحب الحساب.\n\nمتبعتش كلمة المرور لحد، ولا في التذكرة.",
+          "en": "This is an urgent security matter. In order:\n1. If you can still sign in: change your password now and turn on two-step verification.\n2. Check \"Account activity\" to see when the change happened.\n3. Tell me now \"open a security ticket\" — the e-mail is restored through the support team after verifying you own the account.\n\nDon't send your password to anyone, not even in the ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "portal_logo_upload",
+      "intent": "widget/portal_branding/logo",
+      "label": {
+        "ar": "عايز أحط لوجو شركتي على بوابة الدعم",
+        "en": "Put my company logo on the support portal"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_my_portal",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_profile_picture",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لوجو بوابة الدعم الخاصة بنطاقك الفرعي بيتضاف من فريق المنصة. جهّز ملف:\n• PNG أو JPG أو SVG.\n• لحد ٢ ميجا.\n• والأفضل بخلفية شفافة عشان يبان كويس على أي لون.\n\nقولّي «افتح تذكرة» وارفع اللوجو فيها وأنا أبعت الطلب.",
+          "en": "The logo on your subdomain's support portal is added by the platform team. Prepare a file that is:\n• PNG, JPG or SVG;\n• up to 2MB;\n• ideally with a transparent background so it looks right on any colour.\n\nSay \"open a ticket\" and attach the logo there, and I'll send the request."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_profile_picture",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_subdomain",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "portal_customer_tickets_missing",
+      "intent": "ticket/company_streams/customer_tickets_missing",
+      "label": {
+        "ar": "تذاكر عملائي مش ظاهرة في لوحة الشركة",
+        "en": "My customers' tickets are not showing"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_my_customers",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تذاكر عملائك بتظهر في مسار «تذاكر العملاء» في لوحة الشركة (مش في «تذاكري»)، وده للعرض بس.\n\nلو المسار نفسه فاضي وعملاءك فاتحين تذاكر من بوابتك، ابعتلي رقم تذكرة واحدة من عندهم أو وقت فتحها وأنا أفتحلك تذكرة عشان الفريق يراجع الربط بين البوابة وشركتك.",
+          "en": "Your customers' tickets appear in the \"Customer tickets\" stream in the company dashboard (not in \"My tickets\"), and it's view-only.\n\nIf that stream is empty while your customers are opening tickets from your portal, send me one of their ticket numbers or when it was opened and I'll open a ticket for the team to check the link between the portal and your company."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_customer_tickets_stream",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_visible",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "support_staff_complaint",
+      "intent": "support/staff_conduct/complaint",
+      "label": {
+        "ar": "عايز أشتكي من أسلوب موظف دعم",
+        "en": "Complaint about a support agent's conduct"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_staff_complaint",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "atom_support",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "آسف إن ده حصل، وده بيتاخد بجدية. عشان الشكوى توصل صح:\n• رقم التذكرة أو وقت المحادثة.\n• اللي حصل بالظبط، بكلامه لو تقدر.\n\nقولّي التفاصيل وأنا أفتح تذكرة شكوى بتروح للإدارة مش لنفس الموظف.",
+          "en": "I'm sorry that happened, and it's taken seriously. For the complaint to land properly:\n• the ticket number or the time of the conversation;\n• exactly what happened, in their words if you can.\n\nGive me the details and I'll open a complaint ticket that goes to management, not to the same agent."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "support_thank_specific_agent",
+      "intent": "support/staff_conduct/praise_agent",
+      "label": {
+        "ar": "عايز أشكر موظف دعم معيّن",
+        "en": "I want to thank a specific support agent"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "intent_thank_agent",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_agent",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده لطف منك [[icon:smile]] أسهل طريقة إن شكرك يوصل: اكتبه كرد على التذكرة اللي ساعدك فيها، وقيّم التذكرة لما تتقفل — التقييم بيوصل للفريق وبيتحسب للموظف.\n\nولو عايز، قولّي اسمه واللي عمله وأنا أوصل الشكر للإدارة.",
+          "en": "That's kind of you. The easiest way for your thanks to land: write it as a reply on the ticket where they helped, and rate the ticket when it's closed — ratings reach the team and count for the agent.\n\nIf you like, tell me their name and what they did and I'll pass it to management."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "support_formal_written_response",
+      "intent": "support/formal_response/request",
+      "label": {
+        "ar": "محتاج رد رسمي مكتوب من الشركة",
+        "en": "I need a formal written response"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_formal_letter",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرد اللي في التذكرة نفسه رد مكتوب ومؤرّخ من فريق الدعم، وتقدر تستخدمه كمرجع.\n\nلو محتاج خطاب رسمي بصيغة معيّنة (لإدارتك أو لجهة حكومية مثلًا)، قولّي الغرض والصيغة المطلوبة وأنا أفتح تذكرة للفريق يجهّزه.",
+          "en": "The reply in a ticket is itself a dated, written response from the support team, and you can use it as a reference.\n\nIf you need a formal letter in a specific format (for your management or an authority, say), tell me the purpose and required format and I'll open a ticket for the team to prepare it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "campaign_sent_by_mistake",
+      "intent": "whatsapp/campaign/sent_by_mistake",
+      "label": {
+        "ar": "بعت حملة واتساب بالغلط",
+        "en": "I sent a WhatsApp campaign by mistake"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_campaign",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_mistake",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رسايل الواتساب اللي اتسلّمت مابتترجعش، فالتركيز على تقليل الأثر:\n١. لو الحملة لسه شغالة، أوقفها فورًا.\n٢. ابعت رسالة متابعة قصيرة للي وصلتهم: «الرسالة اللي فاتت اتبعتت بالغلط، نعتذر».\n٣. راجع لو فيه عملاء طلبوا إيقاف الرسايل، وسجّلهم.\n\nكتير من البلاغات بعد حملة غلط بيأثر على جودة الرقم، فالرسالة التوضيحية السريعة مهمة.",
+          "en": "Delivered WhatsApp messages can't be recalled, so focus on limiting the impact:\n1. If the campaign is still running, stop it now.\n2. Send a short follow-up to recipients: \"The previous message was sent in error, apologies.\"\n3. Check whether any customers asked to stop messages, and record them.\n\nMany reports after a mistaken campaign hurt the number's quality rating, so a quick clarifying message matters."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "wa_template_language_mismatch",
+      "intent": "whatsapp/template/language_mismatch",
+      "label": {
+        "ar": "القالب متعتمد بلغة وعايز أبعته بلغة تانية",
+        "en": "Template approved in one language, needed in another"
+      },
+      "category": "whatsapp",
+      "evidenceSignature": [
+        {
+          "token": "entity_template_language",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp_template",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "القالب المعتمد بيتعتمد لكل لغة لوحدها — القالب العربي مش بيتبعت بالإنجليزي تلقائيًا.\n\nقدّم نسخة من نفس القالب باللغة التانية (نفس الاسم، لغة مختلفة) وبتدخل مراجعة زي أي قالب جديد. ولحد ما تتعتمد، ابعت للعملاء دول بالنسخة المعتمدة.",
+          "en": "Approved templates are approved per language — an Arabic template isn't sent in English automatically.\n\nSubmit a version of the same template in the other language (same name, different language); it goes through review like any new template. Until it's approved, use the approved version for those customers."
         }
       },
       "requiresTicketIfUnresolved": false
