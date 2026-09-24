@@ -1,0 +1,694 @@
+{
+  "note": "Natural customer phrasings per pack scenario — at least one per scenario. The edition must pick exactly this scenario, unambiguously. Written by hand from how customers phrase the case; not generated from the signature. @no-legitimate-corpus",
+  "pro": [
+    [
+      "ticket_awaiting_customer_reply",
+      "التذكرة مكتوب عليها بانتظار ردك يعني ايه"
+    ],
+    [
+      "ticket_status_in_progress_meaning",
+      "يعني ايه التذكرة قيد المعالجة"
+    ],
+    [
+      "ticket_status_confirmed_vs_resolved",
+      "ايه الفرق بين تم الحل ومكتملة"
+    ],
+    [
+      "ticket_marked_rejected",
+      "تذكرتي حالتها مرفوضة اعمل ايه"
+    ],
+    [
+      "ticket_reply_did_not_change_status",
+      "رديت على التذكرة والحالة ماتغيرتش"
+    ],
+    [
+      "ticket_reply_on_closed_allowed",
+      "ينفع ارد على تذكرة مقفولة"
+    ],
+    [
+      "ticket_reopen_button_missing",
+      "زرار اعادة الفتح مش ظاهر عندي"
+    ],
+    [
+      "ticket_close_own",
+      "ازاي اقفل التذكرة بنفسي"
+    ],
+    [
+      "ticket_open_limit_blocks_new",
+      "مش عارف افتح تذكرة جديدة بيقول عندك تذاكر مفتوحة كتير"
+    ],
+    [
+      "ticket_duplicate_title_blocked",
+      "مش راضي يفتح تذكرة بنفس العنوان"
+    ],
+    [
+      "ticket_title_description_too_short",
+      "مش راضية تتبعت بيقول الوصف قصير"
+    ],
+    [
+      "ticket_similar_ticket_warning",
+      "ظهرلي تنبيه قبل ما ابعت التذكرة"
+    ],
+    [
+      "ticket_expected_reply_badge",
+      "يعني ايه الرد المتوقع اللي على التذكرة"
+    ],
+    [
+      "ticket_reply_late_badge",
+      "التذكرة مكتوب عليها تأخر الرد"
+    ],
+    [
+      "ticket_choose_importance",
+      "اختار الاهمية ايه وانا بفتح التذكرة"
+    ],
+    [
+      "ticket_raise_priority_after_open",
+      "عايز اخليها عاجلة بعد ما فتحتها"
+    ],
+    [
+      "ticket_edit_after_submit",
+      "غلطت في الوصف عايز اعدل الوصف"
+    ],
+    [
+      "ticket_wrong_category_selected",
+      "اخترت التصنيف الغلط للتذكرة"
+    ],
+    [
+      "ticket_hide_from_list",
+      "عايز اخفيها من قايمتي"
+    ],
+    [
+      "ticket_views_counts",
+      "العدادات اللي فوق التذاكر معناها ايه"
+    ],
+    [
+      "ticket_auto_archive_notice",
+      "مكتوب ان التذاكر بتتأرشف لوحدها"
+    ],
+    [
+      "ticket_opened_by_mistake",
+      "فتحت تذكرة بالغلط"
+    ],
+    [
+      "ticket_several_issues_one_ticket",
+      "عندي تلات مشاكل افتح تذكرة لكل واحدة"
+    ],
+    [
+      "ticket_number_forgotten",
+      "نسيت رقمها التذكرة"
+    ],
+    [
+      "ticket_closed_without_confirmation",
+      "قفلوا التذكرة من غير ما يسألوني"
+    ],
+    [
+      "ticket_resolution_time_expectation",
+      "التذكرة هتتحل امتى"
+    ],
+    [
+      "ticket_open_too_long",
+      "التذكرة مفتوحة من اسبوع ومحدش حلها"
+    ],
+    [
+      "ticket_reply_send_failing",
+      "الرد مش بيتبعت على التذكرة"
+    ],
+    [
+      "ticket_draft_lost",
+      "اللي كتبته في التذكرة راح قبل ما ابعت"
+    ],
+    [
+      "ticket_opened_by_payment_request",
+      "اتفتحتلي تذكرة لوحدها بعد ما طلبت الاشتراك"
+    ],
+    [
+      "ticket_support_reply_unclear",
+      "رد الدعم مش واضح مش فاهمه"
+    ],
+    [
+      "ticket_support_asked_for_info",
+      "الدعم طلبوا مني معلومات ابعتها ازاي"
+    ],
+    [
+      "ticket_attach_in_reply_not_possible",
+      "عايز ارفق ملف في الرد على التذكرة"
+    ],
+    [
+      "ticket_attachment_type_rejected",
+      "نوع الملف مش مقبول وانا برفعه"
+    ],
+    [
+      "ticket_attachment_field_missing",
+      "خانة المرفقات مش ظاهرة في التذكرة"
+    ],
+    [
+      "ticket_follow_on_whatsapp",
+      "زرار متابعة على الواتساب في التذكرة بيعمل ايه"
+    ],
+    [
+      "ticket_whatsapp_messages_not_in_ticket",
+      "بعت على الواتساب والكلام مش ظاهر في التذكرة"
+    ],
+    [
+      "ticket_whatsapp_follow_button_missing",
+      "زرار المتابعة على الواتساب مش ظاهر"
+    ],
+    [
+      "ticket_rate_support",
+      "ازاي اقيم الدعم على التذكرة"
+    ],
+    [
+      "ticket_rating_option_missing",
+      "مش لاقي مكان التقييم في التذكرة"
+    ],
+    [
+      "ticket_change_my_rating",
+      "عايز اغير التقييم اللي اديته"
+    ],
+    [
+      "ticket_reply_notification_where",
+      "هعرف منين ان الدعم رد عليا"
+    ],
+    [
+      "ticket_email_on_reply_expectation",
+      "مش بيوصلني ايميل لما الدعم يرد على التذكرة"
+    ],
+    [
+      "ticket_company_customer_tickets_stream",
+      "تذاكر العملاء في لوحة الشركة ايه"
+    ],
+    [
+      "ticket_company_form_no_importance",
+      "نموذج التذكرة في لوحة الشركة مفيهوش الاهمية ولا مرفقات"
+    ],
+    [
+      "ticket_share_with_colleague",
+      "عايز زميلي يتابع التذكرة بتاعتي"
+    ],
+    [
+      "ticket_opened_on_wrong_account",
+      "فتحت التذكرة من الحساب الغلط"
+    ],
+    [
+      "ticket_contact_channels",
+      "ايه طرق التواصل معاكم"
+    ],
+    [
+      "ticket_replied_on_wrong_ticket",
+      "رديت على تذكرة غلط"
+    ],
+    [
+      "ticket_sent_sensitive_data",
+      "بعت بيانات حساسة في التذكرة بالغلط"
+    ],
+    [
+      "ticket_reply_in_english_wanted_arabic",
+      "الدعم رد عليا بالانجليزي وانا عايز عربي"
+    ],
+    [
+      "ticket_how_to_take_screenshot",
+      "الدعم عايز سكرين شوت اعملها ازاي"
+    ],
+    [
+      "ticket_how_to_record_screen",
+      "طالبين مني تسجيل شاشة للمشكلة"
+    ],
+    [
+      "ticket_how_to_collect_console_logs",
+      "الدعم طالب الكونسول اجيبه منين"
+    ],
+    [
+      "ticket_what_to_write",
+      "المفروض اكتب ايه في التذكرة عشان تتحل بسرعة"
+    ],
+    [
+      "account_restricted_notice",
+      "مكتوب ان حسابي مقيد"
+    ],
+    [
+      "account_health_panel",
+      "حالة حسابك مكتوب محتاج انتباه"
+    ],
+    [
+      "account_add_phone_number",
+      "بيطلب مني اضيف رقم الهاتف"
+    ],
+    [
+      "account_change_display_name",
+      "عايز اغير اسمي اللي ظاهر"
+    ],
+    [
+      "account_activity_section",
+      "نشاط الحساب بيعرض ايه"
+    ],
+    [
+      "account_announced_outage_banner",
+      "مكتوب عندي يوجد عطل معلن"
+    ],
+    [
+      "account_degraded_service_notice",
+      "مكتوب ان في خدمة باداء منخفض"
+    ],
+    [
+      "account_portal_vs_company_dashboard",
+      "الفرق بين بوابة العميل ولوحة الشركة"
+    ],
+    [
+      "account_company_dashboard_link_missing",
+      "مش لاقي لوحة الشركة في القائمة الجانبية"
+    ],
+    [
+      "account_whatsapp_menu_missing",
+      "قسم الواتساب مش ظاهر في المنيو"
+    ],
+    [
+      "account_usage_limits_section",
+      "اشوف الاستهلاك والحدود بتوعي فين"
+    ],
+    [
+      "account_plan_expiring_soon",
+      "مكتوب ان باقتي تنتهي خلال ايام"
+    ],
+    [
+      "account_badges_meaning",
+      "الشارات اللي في حسابي دي ايه"
+    ],
+    [
+      "account_reward_points_meaning",
+      "النقاط بتاعتي دي ايه"
+    ],
+    [
+      "account_redeem_points",
+      "ينفع استبدل النقاط بخصم"
+    ],
+    [
+      "account_bug_report_status",
+      "البلاغ اللي بعته وصل لفين"
+    ],
+    [
+      "account_community_about",
+      "يعني ايه مجتمع مدعوم"
+    ],
+    [
+      "account_roadmap_meaning",
+      "خارطة الطريق والحالات اللي فيها معناها ايه"
+    ],
+    [
+      "billing_upload_transfer_proof",
+      "ارفع اثبات التحويل ازاي"
+    ],
+    [
+      "billing_transfer_proof_too_large",
+      "ايصال التحويل كبير ومش راضي يترفع"
+    ],
+    [
+      "billing_transfer_proof_rejected",
+      "اثبات التحويل بتاعي اترفض ليه"
+    ],
+    [
+      "billing_request_rolled_back_upload_failed",
+      "طلب الاشتراك اتلغى لوحده بعد ما رفعت الملف"
+    ],
+    [
+      "billing_subscribe_whatsapp_service",
+      "عايز اشترك في خدمة الواتساب"
+    ],
+    [
+      "billing_whatsapp_topup_how",
+      "اشحن رصيد الواتساب ازاي"
+    ],
+    [
+      "billing_whatsapp_low_balance_alert",
+      "جالي تنبيه رصيد الواتساب منخفض"
+    ],
+    [
+      "billing_whatsapp_transactions",
+      "عايز اشوف حركات رصيد الواتساب"
+    ],
+    [
+      "billing_subscription_dates_notes",
+      "مكتوب ملاحظات على التواريخ في اشتراكي"
+    ],
+    [
+      "billing_available_services_missing",
+      "الخدمة مش ظاهرة في الخدمات المتاحة"
+    ],
+    [
+      "billing_renew_before_expiry",
+      "عايز اجدد الاشتراك ازاي"
+    ],
+    [
+      "assistant_message_quota",
+      "حصة الرسايل بتاعة المساعد الذكي كام"
+    ],
+    [
+      "assistant_quota_what_counts",
+      "ايه اللي بيتحسب من حصة الرسايل"
+    ],
+    [
+      "assistant_access_expired",
+      "صلاحية الوصول للمساعد الذكي انتهت"
+    ],
+    [
+      "assistant_link_telegram",
+      "اربط المساعد على تيليجرام ازاي"
+    ],
+    [
+      "assistant_link_code_rejected",
+      "كود الربط مش شغال"
+    ],
+    [
+      "assistant_unlink_telegram",
+      "عايز افك الربط بتاع تيليجرام"
+    ],
+    [
+      "assistant_not_replying",
+      "المساعد الذكي مش بيرد"
+    ],
+    [
+      "assistant_opened_ticket_where",
+      "المساعد فتحلي تذكرة الاقيها فين"
+    ],
+    [
+      "assistant_declined_ticket_what_next",
+      "قلت لا لما المساعد عرض يفتح تذكرة"
+    ],
+    [
+      "assistant_open_ticket_exists_notice",
+      "المساعد قالي عندك تذكرة مفتوحة في نفس الموضوع"
+    ],
+    [
+      "assistant_ticket_creation_disabled",
+      "المساعد قال ان فتح التذاكر متوقف"
+    ],
+    [
+      "assistant_where_available",
+      "الاقي المساعد الذكي فين"
+    ],
+    [
+      "assistant_reply_in_english",
+      "ينفع اكلم المساعد بالانجليزي"
+    ],
+    [
+      "notif_bell_counter_stuck",
+      "العداد على الجرس مش بيروح"
+    ],
+    [
+      "notif_mark_all_read",
+      "اعلم الاشعارات كلها كمقروءة ازاي"
+    ],
+    [
+      "notif_click_destination",
+      "لما ادوس على الاشعار بيوديني فين"
+    ],
+    [
+      "notif_categories_meaning",
+      "تصنيفات الاشعارات دي ايه"
+    ],
+    [
+      "notif_security_alert",
+      "جالي اشعار امان على حسابي"
+    ],
+    [
+      "email_official_senders",
+      "الايميلات الرسمية بتاعتكم بتيجي من انهي عنوان"
+    ],
+    [
+      "email_phishing_suspected",
+      "جالي ايميل مشبوه بيقول انه منكم"
+    ],
+    [
+      "wa_number_country_code_format",
+      "اكتب الرقم بكود الدولة ازاي"
+    ],
+    [
+      "wa_delivery_ticks_meaning",
+      "العلامتين على رسالة الواتساب معناهم ايه"
+    ],
+    [
+      "wa_text_formatting",
+      "ازاي اكتب بخط عريض في الواتساب"
+    ],
+    [
+      "wa_link_preview_missing",
+      "الرابط في رسالة الواتساب من غير معاينة الرابط"
+    ],
+    [
+      "wa_change_connected_number",
+      "عايز اغير رقم الواتساب المربوط"
+    ],
+    [
+      "company_member_cannot_manage_members",
+      "مش قادر اضيف اعضاء بيقولي لا تملك صلاحية"
+    ],
+    [
+      "company_profile_edit_admin_only",
+      "مش عارف اعدل بيانات الشركة"
+    ],
+    [
+      "api_create_key_unavailable",
+      "مش قادر اعمل مفتاح api"
+    ],
+    [
+      "api_key_state_meaning",
+      "المفتاح مكتوب عليه موقوف يعني ايه"
+    ],
+    [
+      "api_key_stop_or_activate",
+      "عايز اوقف المفتاح"
+    ],
+    [
+      "api_calls_log_empty",
+      "سجل النداءات فاضي"
+    ],
+    [
+      "api_key_scopes_expiry_meaning",
+      "المفتاح مكتوب عليه بلا صلاحيات"
+    ],
+    [
+      "api_calls_per_minute_limit",
+      "كام نداء في الدقيقة مسموح"
+    ],
+    [
+      "api_register_webhook_how",
+      "عايز اسجل webhook لاحداث التذاكر"
+    ],
+    [
+      "api_mcp_what_is",
+      "الـ mcp ده ايه في صفحة المطورين"
+    ],
+    [
+      "subdomain_name_format_rejected",
+      "اسم النطاق الفرعي مرفوض بيقول صيغة الاسم غلط"
+    ],
+    [
+      "subdomain_name_taken",
+      "اسم النطاق الفرعي محجوز"
+    ],
+    [
+      "subdomain_request_rejected",
+      "طلب النطاق الفرعي بتاعي اترفض"
+    ],
+    [
+      "subdomain_rename_or_delete",
+      "عايز اغير اسم النطاق الفرعي"
+    ],
+    [
+      "account_waitlist",
+      "حسابي في قائمة الانتظار"
+    ],
+    [
+      "account_activate_with_passcode",
+      "عايز افعل حسابي بكود المرور"
+    ],
+    [
+      "account_phone_already_registered",
+      "رقم الهاتف بيقول متسجل على حساب تاني"
+    ],
+    [
+      "invoice_verify_authenticity",
+      "عايز اتاكد ان الفاتورة دي مش مزورة"
+    ],
+    [
+      "livechat_ended_restart",
+      "قفلت المحادثة الفورية بالغلط"
+    ],
+    [
+      "livechat_rate_quality",
+      "عايز اقيم المحادثة الفورية بعد ما خلصت"
+    ],
+    [
+      "livechat_vs_ticket",
+      "استخدم لايف شات ولا افتح تذكرة"
+    ],
+    [
+      "helpcenter_no_article_found",
+      "مالقيتش مقال يجاوب سؤالي"
+    ],
+    [
+      "helpcenter_rate_article",
+      "ازاي اقول ان المقال مش مفيد"
+    ],
+    [
+      "developers_oauth",
+      "الـ oauth بتاعكم بيستخدم في ايه"
+    ],
+    [
+      "payment_gateway_page_error",
+      "بوابة الدفع صفحة بيضا مش بتفتح"
+    ],
+    [
+      "whatsapp_cloud_api_vs_app",
+      "الفرق بين الواتساب الرسمي cloud والواتساب العادي"
+    ],
+    [
+      "report_first_response_meaning",
+      "يعني ايه متوسط اول استجابة"
+    ],
+    [
+      "report_close_time_meaning",
+      "متوسط زمن الاغلاق معناه ايه"
+    ],
+    [
+      "report_export_formats",
+      "عايز اطلع التقرير pdf"
+    ],
+    [
+      "report_date_filter_usage",
+      "ازاي اغير الفترة الزمنية في التقرير"
+    ],
+    [
+      "security_2fa_code_rejected_clock",
+      "كود تطبيق المصادقة بيترفض مع ان ساعة الموبايل"
+    ],
+    [
+      "login_reset_link_expired_or_used",
+      "لينك تغيير كلمة المرور بيقول منتهي"
+    ],
+    [
+      "security_email_changed_without_me",
+      "حد غير ايميلي من غيري"
+    ],
+    [
+      "portal_logo_upload",
+      "عايز احط لوجو شركتي على البوابة بتاعتي"
+    ],
+    [
+      "portal_customer_tickets_missing",
+      "تذاكر عملائي مش ظاهرة"
+    ],
+    [
+      "support_staff_complaint",
+      "عايز اشتكي من اسلوب الموظف"
+    ],
+    [
+      "support_thank_specific_agent",
+      "عايز اشكر الموظف اللي ساعدني"
+    ],
+    [
+      "support_formal_written_response",
+      "محتاج رد رسمي مكتوب منكم"
+    ],
+    [
+      "campaign_sent_by_mistake",
+      "بعت الحملة بالغلط"
+    ],
+    [
+      "wa_template_language_mismatch",
+      "القالب بالانجليزي وعايزه بالعربي"
+    ],
+    [
+      "api_secret_lost_after_creation",
+      "السر بتاع المفتاح ضاع مني ومش لاقيه"
+    ],
+    [
+      "api_key_created_values_not_shown",
+      "عملت مفتاح وطلعتلي رسالة تعذر عرض قيمه"
+    ],
+    [
+      "api_scope_operator_only",
+      "الصلاحية مكتوب عليها مخصصة لمشغل المنصة"
+    ],
+    [
+      "api_credential_type_choice",
+      "الفرق ايه بين المفتاح والسر و bearer"
+    ],
+    [
+      "api_key_expiry_limit",
+      "مش عارف احط تاريخ انتهاء للمفتاح بعد سنتين بيترفض"
+    ],
+    [
+      "mcp_tool_missing_in_ai_app",
+      "ربطت claude بس الادوات مش ظاهرة"
+    ],
+    [
+      "mcp_ai_app_asks_reauthorize",
+      "chatgpt كل شوية عايزني اوافق تاني"
+    ],
+    [
+      "mcp_close_ticket_refused",
+      "لما اطلب من claude يقفل التذكرة بيرفض"
+    ],
+    [
+      "mcp_cancel_active_subscription_refused",
+      "الغاء الاشتراك من claude مش بيحصل"
+    ],
+    [
+      "leads_added_lead_not_saved",
+      "ضفت عميل في العملاء المحتملين واختفى"
+    ],
+    [
+      "leads_sample_entries_unknown",
+      "في العملاء المحتملين في اسماء غريبة مش بتوعي"
+    ],
+    [
+      "subscription_request_already_pending",
+      "بيقولي عندك طلب اشتراك قيد المراجعة"
+    ],
+    [
+      "subscription_early_renewal_days_kept",
+      "لو جددت بدري هخسر الايام الفاضلة"
+    ],
+    [
+      "subscription_upgrade_end_date_unchanged",
+      "رقيت الباقة وتاريخ الانتهاء ما اتغيرش"
+    ],
+    [
+      "subscription_autoreply_bonus_missing",
+      "فين الايام المجانية بتاعة الرد الآلي"
+    ],
+    [
+      "subscription_launch_price_period",
+      "عرض الاطلاق لحد امتى"
+    ],
+    [
+      "payment_card_page_wallet_coming_soon",
+      "في بوابة الدفع فودافون كاش مكتوب قريبا"
+    ],
+    [
+      "security_2fa_asked_every_login",
+      "التحقق بخطوتين بيطلب الكود كل مرة"
+    ],
+    [
+      "security_2fa_use_recovery_code",
+      "عايز استخدم رمز الاستعادة"
+    ],
+    [
+      "security_2fa_too_many_attempts",
+      "مكتوب تم تجاوز عدد المحاولات"
+    ],
+    [
+      "login_telegram_code_unavailable",
+      "كود التليجرام مش بيوصل مكتوب غير متاح"
+    ]
+  ],
+  "known_limits": [
+    {
+      "pack": "pro",
+      "expect": "account_community_about",
+      "text": "مجتمع مدعوم ده ايه",
+      "actualKind": "small_talk",
+      "why": "Base small-talk reads the suffix «مدعوم ده ايه» as a platform question and answers with the platform introduction before diagnosis runs. Left as is: changing small-talk would change Free, which has no community scenario to fall back to. Other phrasings of the same question reach the scenario."
+    }
+  ]
+}

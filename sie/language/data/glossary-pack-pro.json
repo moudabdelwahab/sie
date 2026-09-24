@@ -18,6 +18,9 @@
         "اتقفل",
         "مقفولة",
         "مقفوله",
+        "يقفل",
+        "يقفلها",
+        "تقفل",
         "close",
         "closed"
       ]
@@ -36,7 +39,12 @@
         "بعت رد",
         "ابعت رد",
         "reply",
-        "replied"
+        "replied",
+        "يرد",
+        "يردوا",
+        "بيرد",
+        "بيردوا",
+        "ردوا"
       ]
     },
     {
@@ -51,7 +59,10 @@
         "افتح",
         "افتحها",
         "open",
-        "opened"
+        "opened",
+        "فتحلي",
+        "فتحولي",
+        "اتفتحتلي"
       ]
     },
     {
@@ -80,6 +91,8 @@
         "مااتغيرتش",
         "متغيرتش",
         "ماتغيرش",
+        "ما اتغيرش",
+        "ما اتغيرتش",
         "زي ما هي",
         "زي ما هو",
         "ثابتة",
@@ -112,7 +125,9 @@
         "بالغلط",
         "بالخطأ",
         "بالخطا",
-        "غلط مني"
+        "غلط مني",
+        "غلط",
+        "الغلط"
       ]
     },
     {
@@ -127,7 +142,8 @@
         "مشابه",
         "زيها",
         "شبهها",
-        "similar"
+        "similar",
+        "نفس الموضوع"
       ]
     },
     {
@@ -142,19 +158,6 @@
         "الاقيها فين",
         "مكانه فين",
         "where"
-      ]
-    },
-    {
-      "canonical": "atom_when",
-      "labels": {
-        "ar": "إمتى",
-        "en": "when"
-      },
-      "patterns": [
-        "امتى",
-        "امتي",
-        "إمتى",
-        "when"
       ]
     },
     {
@@ -202,20 +205,6 @@
         "زملائي",
         "member",
         "teammate"
-      ]
-    },
-    {
-      "canonical": "atom_owner",
-      "labels": {
-        "ar": "مالك الحساب",
-        "en": "account owner"
-      },
-      "patterns": [
-        "مالك",
-        "مالكه",
-        "صاحب الحساب",
-        "صاحب الشركة",
-        "owner"
       ]
     },
     {
@@ -315,20 +304,6 @@
       ]
     },
     {
-      "canonical": "atom_transfer",
-      "labels": {
-        "ar": "تحويل",
-        "en": "transfer"
-      },
-      "patterns": [
-        "تحويل",
-        "حولت",
-        "حواله",
-        "حوالة",
-        "transfer"
-      ]
-    },
-    {
       "canonical": "atom_button",
       "labels": {
         "ar": "زرار",
@@ -370,22 +345,6 @@
         "نتابع",
         "follow up",
         "follow"
-      ]
-    },
-    {
-      "canonical": "atom_shows",
-      "labels": {
-        "ar": "مكتوب/ظاهر",
-        "en": "shows"
-      },
-      "patterns": [
-        "مكتوب",
-        "بيقول",
-        "ظهرلي",
-        "بيظهر",
-        "ظاهر",
-        "says",
-        "shows"
       ]
     },
     {
@@ -687,7 +646,10 @@
       "patterns": [
         "اللي كتبته راح",
         "الصفحة عملت ريفرش",
-        "lost what i wrote"
+        "lost what i wrote",
+        "كتبته",
+        "كتبتها",
+        "اللي كتبته"
       ]
     },
     {
@@ -1295,7 +1257,9 @@
         "فك الربط",
         "الغي الربط",
         "افصل الربط",
-        "unlink"
+        "unlink",
+        "افك الربط",
+        "افك ربط"
       ]
     },
     {
@@ -1377,7 +1341,11 @@
         "مقروءه",
         "علم الكل",
         "mark as read",
-        "mark all read"
+        "mark all read",
+        "كمقروءه",
+        "كمقروءة",
+        "مقروء",
+        "مقروءين"
       ]
     },
     {
@@ -1432,7 +1400,8 @@
         "من عنوان",
         "noreply",
         "no reply",
-        "sender address"
+        "sender address",
+        "انهي عنوان"
       ]
     },
     {
@@ -1817,7 +1786,10 @@
         "رسمي",
         "cloud",
         "كلاود",
-        "official"
+        "official",
+        "الرسميه",
+        "رسميه",
+        "الرسمية"
       ]
     },
     {
@@ -1987,6 +1959,340 @@
         "لغه القالب",
         "القالب بالانجليزي",
         "القالب بالعربي"
+      ]
+    },
+    {
+      "canonical": "entity_one_time_secret",
+      "labels": {
+        "ar": "سرّ المفتاح",
+        "en": "key secret"
+      },
+      "patterns": [
+        "السر",
+        "السرّ",
+        "السيكرت",
+        "secret"
+      ]
+    },
+    {
+      "canonical": "symptom_values_not_shown",
+      "labels": {
+        "ar": "القيم ماظهرتش",
+        "en": "values not shown"
+      },
+      "patterns": [
+        "تعذر عرض",
+        "ماظهرليش السر",
+        "مظهرش السر",
+        "القيم مظهرتش"
+      ]
+    },
+    {
+      "canonical": "entity_operator_scope",
+      "labels": {
+        "ar": "صلاحية مخصصة للمشغل",
+        "en": "operator-only scope"
+      },
+      "patterns": [
+        "مخصصة لمشغل",
+        "مخصصه لمشغل",
+        "لمشغل",
+        "مشغل"
+      ]
+    },
+    {
+      "canonical": "entity_bearer_token",
+      "labels": {
+        "ar": "رمز Bearer",
+        "en": "Bearer token"
+      },
+      "patterns": [
+        "bearer",
+        "بيرر",
+        "بيرير"
+      ]
+    },
+    {
+      "canonical": "entity_ai_client",
+      "labels": {
+        "ar": "تطبيق ذكاء اصطناعي",
+        "en": "AI assistant app"
+      },
+      "patterns": [
+        "claude",
+        "chatgpt",
+        "cursor",
+        "كلود",
+        "شات جي بي تي"
+      ]
+    },
+    {
+      "canonical": "entity_mcp_tool",
+      "labels": {
+        "ar": "أداة MCP",
+        "en": "MCP tool"
+      },
+      "patterns": [
+        "الاداة",
+        "الاداه",
+        "الادوات",
+        "اداه",
+        "tools",
+        "tool"
+      ]
+    },
+    {
+      "canonical": "intent_reauthorize",
+      "labels": {
+        "ar": "أوافق تاني",
+        "en": "authorize again"
+      },
+      "patterns": [
+        "اوافق تاني",
+        "موافقه تاني",
+        "اربطه تاني",
+        "اعيد الربط",
+        "reconnect",
+        "reauthorize"
+      ]
+    },
+    {
+      "canonical": "entity_leads",
+      "labels": {
+        "ar": "العملاء المحتملون",
+        "en": "leads"
+      },
+      "patterns": [
+        "العملاء المحتملين",
+        "العملاء المحتملون",
+        "عملاء محتملين",
+        "leads",
+        "lead"
+      ]
+    },
+    {
+      "canonical": "entity_sample_data",
+      "labels": {
+        "ar": "بيانات تجريبية",
+        "en": "sample data"
+      },
+      "patterns": [
+        "اسماء غريبه",
+        "اسماء غريبة",
+        "مش بتوعي",
+        "ماضفتهمش",
+        "بيانات وهمية",
+        "بيانات وهميه"
+      ]
+    },
+    {
+      "canonical": "entity_merge_plan",
+      "labels": {
+        "ar": "دمج الباقة",
+        "en": "plan merge"
+      },
+      "patterns": [
+        "دمج",
+        "اندمج",
+        "ادمج",
+        "دمجت"
+      ]
+    },
+    {
+      "canonical": "entity_bonus_days",
+      "labels": {
+        "ar": "أيام إضافية مجانية",
+        "en": "free bonus days"
+      },
+      "patterns": [
+        "الايام المجانيه",
+        "الايام المجانية",
+        "ايام اضافيه",
+        "ايام اضافية",
+        "الشهور الزياده",
+        "الشهور الزيادة"
+      ]
+    },
+    {
+      "canonical": "entity_launch_price",
+      "labels": {
+        "ar": "سعر الإطلاق",
+        "en": "launch price"
+      },
+      "patterns": [
+        "الاطلاق",
+        "عرض الاطلاق",
+        "سعر الاطلاق"
+      ]
+    },
+    {
+      "canonical": "entity_coming_soon",
+      "labels": {
+        "ar": "متاحة قريبًا",
+        "en": "coming soon"
+      },
+      "patterns": [
+        "قريبا",
+        "قريباً",
+        "متاحه قريبا",
+        "متاحة قريبا",
+        "coming soon"
+      ]
+    },
+    {
+      "canonical": "entity_trust_device",
+      "labels": {
+        "ar": "الثقة في الجهاز",
+        "en": "trust this device"
+      },
+      "patterns": [
+        "ثق بهذا الجهاز",
+        "الثقه في الجهاز",
+        "افتكر الجهاز",
+        "الجهاز ده",
+        "trust this device"
+      ]
+    },
+    {
+      "canonical": "atom_code",
+      "labels": {
+        "ar": "كود/رمز",
+        "en": "code"
+      },
+      "patterns": [
+        "رمز",
+        "الرمز",
+        "كود",
+        "الكود"
+      ]
+    },
+    {
+      "canonical": "entity_early_timing",
+      "labels": {
+        "ar": "بدري",
+        "en": "early"
+      },
+      "patterns": [
+        "بدري",
+        "بدرى",
+        "قبل ما يخلص",
+        "قبل ما تخلص",
+        "قبل الانتهاء",
+        "الايام الفاضله",
+        "الايام الفاضلة"
+      ]
+    },
+    {
+      "canonical": "symptom_too_many_attempts",
+      "labels": {
+        "ar": "محاولات كتير",
+        "en": "too many attempts"
+      },
+      "patterns": [
+        "عدد المحاولات",
+        "محاولات كتير",
+        "تجاوز عدد",
+        "too many attempts"
+      ]
+    },
+    {
+      "canonical": "entity_expiry_setting",
+      "labels": {
+        "ar": "تاريخ انتهاء المفتاح",
+        "en": "key expiry"
+      },
+      "patterns": [
+        "تاريخ انتهاء",
+        "تاريخ انتهاءه",
+        "مده صلاحيه",
+        "مدة صلاحية",
+        "بلا انتهاء",
+        "من غير انتهاء"
+      ]
+    },
+    {
+      "canonical": "entity_every_time",
+      "labels": {
+        "ar": "كل مرة",
+        "en": "every time"
+      },
+      "patterns": [
+        "كل مره",
+        "كل مرة",
+        "كل ما ادخل",
+        "كل ما افتح",
+        "every time"
+      ]
+    },
+    {
+      "canonical": "entity_how_will_i_know",
+      "labels": {
+        "ar": "هعرف منين",
+        "en": "how will I know"
+      },
+      "patterns": [
+        "هعرف منين",
+        "اعرف منين",
+        "هيوصلني خبر",
+        "هتبلغوني"
+      ]
+    },
+    {
+      "canonical": "entity_too_big",
+      "labels": {
+        "ar": "حجمه كبير",
+        "en": "too big"
+      },
+      "patterns": [
+        "كبير",
+        "كبيره",
+        "الحجم كبير",
+        "تقيل"
+      ]
+    },
+    {
+      "canonical": "atom_register",
+      "labels": {
+        "ar": "أسجّل",
+        "en": "register"
+      },
+      "patterns": [
+        "اسجل",
+        "تسجيل"
+      ]
+    },
+    {
+      "canonical": "entity_logo",
+      "labels": {
+        "ar": "لوجو",
+        "en": "logo"
+      },
+      "patterns": [
+        "لوجو",
+        "لوغو",
+        "شعار"
+      ]
+    },
+    {
+      "canonical": "entity_cannot_make",
+      "labels": {
+        "ar": "مش قادر أعمل",
+        "en": "cannot create"
+      },
+      "patterns": [
+        "مش قادر اعمل",
+        "مش قادر انشئ"
+      ]
+    },
+    {
+      "canonical": "entity_review_state",
+      "labels": {
+        "ar": "قيد المراجعة",
+        "en": "under review"
+      },
+      "patterns": [
+        "قيد المراجعه",
+        "قيد المراجعة"
       ]
     }
   ]

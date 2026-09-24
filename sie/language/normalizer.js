@@ -623,7 +623,11 @@ function buildGlossaryDerivation(entries) {
  * source 'glossary' (presence 1.0); matched only after normalization ->
  * source 'arabic' (0.8) — the same two strengths the base uses.
  */
-const LAYER_CLITICS = ['وال', 'بال', 'فال', 'لل', 'و', 'ف', 'ب'];
+// Longest first. 'ال' is here because a layer pattern is written once
+// ("تقييم") and customers write it with the article as often as without
+// ("التقييم"); the lookup below also tries ADDING the article, for patterns
+// written with it ("الاعضاء") met without it ("اعضاء").
+const LAYER_CLITICS = ['وال', 'بال', 'فال', 'لل', 'ال', 'و', 'ف', 'ب'];
 const layerDerivationCache = new WeakMap();
 
 function deriveLayers(layers, baseEntries) {
@@ -677,12 +681,18 @@ function applyGlossaryLayers(tokens, layers, baseEntries) {
                 if (words.length !== span) continue;
                 let canonical = index.get(words.join(' '));
                 if (!canonical) {
+                    const head = words[0];
                     for (const prefix of LAYER_CLITICS) {
-                        const head = words[0];
                         if (head.startsWith(prefix) && head.length - prefix.length >= 2) {
-                            canonical = index.get([head.slice(prefix.length), ...words.slice(1)].join(' '));
+                            const bare = head.slice(prefix.length);
+                            canonical = index.get([bare, ...words.slice(1)].join(' '))
+                                // "وال…"/"بال…" can meet a pattern written WITH the article.
+                                || (prefix.endsWith('ال') && prefix !== 'ال' ? index.get([`ال${bare}`, ...words.slice(1)].join(' ')) : undefined);
                             if (canonical) break;
                         }
+                    }
+                    if (!canonical && !head.startsWith('ال') && head.length >= 2) {
+                        canonical = index.get([`ال${head}`, ...words.slice(1)].join(' '));
                     }
                 }
                 if (canonical) {

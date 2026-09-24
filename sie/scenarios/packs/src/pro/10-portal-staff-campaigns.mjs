@@ -26,7 +26,7 @@ export default {
             'entity_my_portal:3 entity_profile_picture:3',
             `لوجو بوابة الدعم الخاصة بنطاقك الفرعي بيتضاف من فريق المنصة. جهّز ملف:\n• PNG أو JPG أو SVG.\n• لحد ٢ ميجا.\n• والأفضل بخلفية شفافة عشان يبان كويس على أي لون.\n\nقولّي «افتح تذكرة» وارفع اللوجو فيها وأنا أبعت الطلب.`,
             `The logo on your subdomain's support portal is added by the platform team. Prepare a file that is:\n• PNG, JPG or SVG;\n• up to 2MB;\n• ideally with a transparent background so it looks right on any colour.\n\nSay "open a ticket" and attach the logo there, and I'll send the request.`,
-            { alt: ['entity_profile_picture:3 entity_subdomain:3'] }),
+            { alt: ['entity_logo:3 entity_my_portal:3', 'entity_profile_picture:3 entity_subdomain:3'] }),
         S('portal_customer_tickets_missing', 'ticket/company_streams/customer_tickets_missing', 'other',
             'تذاكر عملائي مش ظاهرة في لوحة الشركة', "My customers' tickets are not showing",
             'entity_my_customers:2 entity_ticket:2 symptom_not_visible:2',

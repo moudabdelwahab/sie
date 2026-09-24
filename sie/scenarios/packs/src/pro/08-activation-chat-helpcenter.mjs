@@ -33,7 +33,7 @@ export default {
         T('entity_useful_vote', 'مفيد أو مش مفيد', 'helpful vote', ['مفيد', 'مش مفيد', 'مفيده', 'helpful', 'not helpful']),
         T('entity_oauth', 'OAuth', 'OAuth', ['oauth', 'اوث', 'o auth']),
         T('entity_gateway_word', 'بوابة', 'gateway', ['بوابة', 'بوابه', 'gateway']),
-        T('entity_official_word', 'رسمي', 'official', ['الرسمي', 'رسمي', 'cloud', 'كلاود', 'official'])
+        T('entity_official_word', 'رسمي', 'official', ['الرسمي', 'رسمي', 'cloud', 'كلاود', 'official', 'الرسميه', 'رسميه', 'الرسمية'])
     ],
     scenarios: [
         S('account_waitlist', 'account/activation/waitlist', 'login',
@@ -70,7 +70,8 @@ export default {
             'أستخدم المحادثة الفورية ولا أفتح تذكرة؟', 'Live chat or a ticket?',
             'entity_live_word:2 entity_chat_widget:2 entity_ticket:2',
             `• المحادثة الفورية: لسؤال سريع أو حاجة بتتحل في نفس القعدة.\n• التذكرة: لمشكلة محتاجة متابعة أو فريق تقني أو مرفقات — كل حاجة بتتسجل برقم، وبتتابع حالتها من «تذاكري».\n\nلو بدأت في المحادثة واتضح إن الموضوع أكبر، اطلب تحويله لتذكرة.`,
-            `• Live chat: for a quick question or something solved in one sitting.\n• Ticket: for a problem needing follow-up, the technical team or attachments — everything is recorded with a number and you follow its status in "My tickets".\n\nIf a chat turns out bigger than expected, ask for it to become a ticket.`),
+            `• Live chat: for a quick question or something solved in one sitting.\n• Ticket: for a problem needing follow-up, the technical team or attachments — everything is recorded with a number and you follow its status in "My tickets".\n\nIf a chat turns out bigger than expected, ask for it to become a ticket.`,
+            { alt: ['entity_live_word:3 entity_ticket:2 atom_open_action:1'] }),
         S('helpcenter_no_article_found', 'kb/article/not_found', 'inquiry',
             'مالقيتش مقال بيجاوب سؤالي', "I couldn't find an article for my question",
             'entity_not_found_word:3 entity_article:3',

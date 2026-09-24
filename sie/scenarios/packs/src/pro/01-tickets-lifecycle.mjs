@@ -40,7 +40,7 @@ export default {
         T('entity_resolution_time', 'مدة حل التذكرة', 'resolution time', ['هتتحل امتى', 'هتخلص امتى', 'مدة الحل', 'وقت الحل']),
         T('entity_long_open_ticket', 'تذكرة مفتوحة من زمان', 'long-open ticket', ['مفتوحة من اسبوع', 'بقالها ايام', 'بقالها اسبوع', 'open for a week']),
         T('entity_reply_button_failing', 'إرسال الرد على التذكرة بيفشل', 'ticket reply fails to send', ['الرد مش بيتبعت', 'زرار الرد', 'الرد مش راضي يتبعت']),
-        T('entity_ticket_draft_lost', 'اللي كتبته في التذكرة ضاع', 'ticket draft lost', ['اللي كتبته راح', 'الصفحة عملت ريفرش', 'lost what i wrote'])
+        T('entity_ticket_draft_lost', 'اللي كتبته في التذكرة ضاع', 'ticket draft lost', ['اللي كتبته راح', 'الصفحة عملت ريفرش', 'lost what i wrote', 'كتبته', 'كتبتها', 'اللي كتبته'])
     ],
     scenarios: [
         S('ticket_awaiting_customer_reply', 'ticket/status_awaiting_reply/meaning', 'inquiry',
@@ -62,7 +62,8 @@ export default {
             'تذكرتي حالتها «مرفوضة»', 'My ticket was marked "Rejected"',
             'symptom_rejected:3 entity_ticket:2 atom_close:1',
             `«مرفوضة» معناها إن الفريق قفل التذكرة من غير تنفيذ الطلب — غالبًا لأنه خارج الخدمة، أو مكرر لتذكرة تانية، أو ناقص معلومات أساسية. آخر رد في التذكرة عادة بيوضح السبب.\n\nالتذكرة المرفوضة مابتتعادش فتحها. لو شايف إن الرفض مش في محله، افتح تذكرة جديدة واذكر رقم القديمة واشرح اللي فات.`,
-            `"Rejected" means the team closed the ticket without carrying out the request — usually because it's out of scope, a duplicate of another ticket, or missing essential details. The last reply normally explains why.\n\nA rejected ticket can't be reopened. If you think the rejection was wrong, open a new ticket, mention the old number and explain what was missed.`),
+            `"Rejected" means the team closed the ticket without carrying out the request — usually because it's out of scope, a duplicate of another ticket, or missing essential details. The last reply normally explains why.\n\nA rejected ticket can't be reopened. If you think the rejection was wrong, open a new ticket, mention the old number and explain what was missed.`,
+            { alt: ['symptom_rejected:3 entity_ticket:2 intent_status_check:1'] }),
         S('ticket_reply_did_not_change_status', 'ticket/reply_status/unchanged', 'inquiry',
             'رديت على التذكرة والحالة ماتغيرتش', 'I replied but the status did not change',
             'atom_unchanged:3 intent_status_check:2 atom_reply:2',

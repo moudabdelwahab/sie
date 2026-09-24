@@ -124,7 +124,26 @@
           "en": "\"Rejected\" means the team closed the ticket without carrying out the request — usually because it's out of scope, a duplicate of another ticket, or missing essential details. The last reply normally explains why.\n\nA rejected ticket can't be reopened. If you think the rejection was wrong, open a new ticket, mention the old number and explain what was missed."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "symptom_rejected",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_status_check",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_reply_did_not_change_status",
@@ -1032,7 +1051,26 @@
           "en": "It happens, and asking is fine. Quickest route:\n• Reply on the same ticket quoting the unclear sentence and write \"I don't follow this step\" — clearer for the team than \"I don't understand\".\n• Or paste the reply here and I'll walk you through it.\n\nIf you followed steps that didn't work, say at which step you got stuck."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_reply",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "atom_support",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "emotion_confused",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_support_asked_for_info",
@@ -1067,7 +1105,26 @@
           "en": "Send it as a reply on the same ticket — it reaches whoever is working on it instead of getting lost in a new ticket.\n\nNote that replies in the customer portal can't carry attachments; if they asked for an image or a file:\n• write the information as text if possible (error message, time, steps), or\n• upload the file to any storage service and put the link in your reply."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_support_asked_info",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "atom_support",
+            "weight": 1,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_attach_in_reply_not_possible",
@@ -1102,7 +1159,21 @@
           "en": "This is intended: attachments are added when a ticket is opened; replies in the customer portal are text only.\n\nAlternatives:\n• Upload the file to Drive or any storage and put the link in your reply.\n• If the attachment is essential, open a new ticket with it and mention the original ticket number."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_attach_in_reply",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_attachment_type_rejected",
@@ -1352,7 +1423,26 @@
           "en": "Rating appears under two conditions: the ticket is \"Resolved\", and the support team has rating enabled.\n\nIf it's still \"Open\" or \"In progress\" you won't see it. If it's closed and there's no rating, rating is switched off in settings — you can leave your feedback as a reply instead."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_rate_service",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_disappeared",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_change_my_rating",
@@ -1387,7 +1477,21 @@
           "en": "If the rating option is still visible on the ticket, you can rate again there. If it isn't, it can't be edited from your side.\n\nIn that case reply on the ticket with your updated opinion and why — it reaches the team and gets read."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_rate_service",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_change",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_reply_notification_where",
@@ -1422,7 +1526,26 @@
           "en": "For every reply from the team you get an in-platform notification \"New reply on your ticket #…\", and for status changes \"Ticket status updated\". Tapping it opens the ticket directly.\n\nIn \"My tickets\", the \"Awaiting your reply\" view collects every ticket where the team replied and is waiting on you."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_reply",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "atom_support",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_how_will_i_know",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "ticket_email_on_reply_expectation",
@@ -1524,6 +1647,23 @@
       },
       "requiresTicketIfUnresolved": false,
       "alternativeSignatures": [
+        [
+          {
+            "token": "entity_company_dashboard",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_importance_choice",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
         [
           {
             "token": "atom_company",
@@ -1945,7 +2085,21 @@
           "en": "This panel gathers what needs action from you, each item with a button to the right place. The common ones:\n• tickets awaiting your reply;\n• a plan or WhatsApp subscription about to expire;\n• low or empty WhatsApp balance;\n• smart-assistant messages nearly used up;\n• an announced outage or a degraded service;\n• adding a phone number or turning on two-step verification.\n\nWhen everything is fine, the panel says your account is healthy."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_health_attention",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "intent_status_check",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "account_add_phone_number",
@@ -2005,7 +2159,21 @@
           "en": "Your name is edited from \"Profile\" in the sidebar. In the company dashboard, your account details are under its Profile section.\n\nChanging your name doesn't change your sign-in e-mail — that's changed through the support team."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_my_name",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "intent_change",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "account_activity_section",
@@ -2145,7 +2313,26 @@
           "en": "The \"Company dashboard\" link appears only when your account is linked to a company. If it's missing, your account isn't a company member on the platform yet.\n\nIf you should be one, ask your company's account owner to add you from the Members section, or tell me and I'll open a ticket."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_company_dashboard",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_disappeared",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_sidebar_menu",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "account_whatsapp_menu_missing",
@@ -2479,7 +2666,21 @@
           "en": "The proof file can be at most 8MB. If it's larger:\n• take a screenshot of the receipt instead of a camera photo — much smaller;\n• or save it as PDF from your banking app;\n• or resize the image on your phone (Share → medium size).\n\nThe amount, date and transaction number must stay readable."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_transfer_proof",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_too_big",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "billing_transfer_proof_rejected",
@@ -2639,7 +2840,26 @@
           "en": "This alert appears in your account-health panel when the balance drops below the minimum set for your account; at zero it becomes \"WhatsApp balance used up\".\n\nRequest a top-up early through support (top-ups aren't self-serve) so sending doesn't stop mid-campaign."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "atom_balance",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_whatsapp",
+            "weight": 1,
+            "source": "text"
+          },
+          {
+            "token": "entity_notification",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "billing_whatsapp_transactions",
@@ -2899,7 +3119,26 @@
           "en": "1. In Mad3oom, open the settings page and request a Telegram link code.\n2. Open the Mad3oom bot on Telegram and send it the code on its own.\n3. It replies \"your account is linked\" — then you can ask me from Telegram directly.\n\nThe code is single-use, and the code message doesn't count against your message quota."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_assistant",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_telegram",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "assistant_link_code_rejected",
@@ -3038,6 +3277,11 @@
           "token": "entity_ticket",
           "weight": 2,
           "source": "text"
+        },
+        {
+          "token": "atom_where",
+          "weight": 1,
+          "source": "text"
         }
       ],
       "discriminatingQuestions": [],
@@ -3048,7 +3292,26 @@
           "en": "A ticket the assistant opens is recorded on your account like any other; you'll find it in \"My tickets\" — its number was in the confirmation message.\n\nIt includes a summary of the diagnosis we went through, so the team won't start from scratch. Add any new details as a reply there."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_assistant",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "atom_open_action",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "assistant_declined_ticket_what_next",
@@ -3393,7 +3656,21 @@
           "en": "Official platform e-mails come from Mad3oom's known support addresses: support@, no-reply@ and info@ on the Mad3oom domain.\n\nIf an e-mail from any other address claims to be us, don't open its links — forward it to us in a ticket. We never ask for your password by e-mail."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_sender_address",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_official_word",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "email_phishing_suspected",
@@ -3438,6 +3715,11 @@
           "token": "entity_whatsapp_number",
           "weight": 1,
           "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
         }
       ],
       "discriminatingQuestions": [],
@@ -3448,7 +3730,21 @@
           "en": "WhatsApp numbers must be in international format: the country code followed by the number without its leading zero, and without + or spaces.\nExample for an Egyptian number 01012345678 → 201012345678.\n\nA number written in local format (with the zero) is the most common reason a message doesn't arrive or the number shows as \"not found\"."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_country_code",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_whatsapp_number",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "wa_delivery_ticks_meaning",
@@ -3568,7 +3864,21 @@
           "en": "Replacing the connected number means disconnecting the current one and linking the new one — past conversations stay tied to the old number, and approved templates may need resubmitting for the new one.\n\nSo the change doesn't interrupt your work, say \"open a ticket\" and I'll send the request so the team can arrange the timing with you."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "intent_change",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_whatsapp_number",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "company_member_cannot_manage_members",
@@ -3662,6 +3972,18 @@
         [
           {
             "token": "atom_company",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_cannot_edit",
+            "weight": 3,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "atom_company",
             "weight": 2,
             "source": "text"
           },
@@ -3713,6 +4035,18 @@
       },
       "requiresTicketIfUnresolved": false,
       "alternativeSignatures": [
+        [
+          {
+            "token": "entity_api_key",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_cannot_make",
+            "weight": 3,
+            "source": "text"
+          }
+        ],
         [
           {
             "token": "intent_create_key",
@@ -3929,7 +4263,26 @@
           "en": "Registering webhooks isn't available from your account — the platform team sets it up. Say \"open a ticket\" with your endpoint URL and the events you need, and I'll send the request.\n\nUntil it's set up, you can pull the data yourself with an API key from the \"Company dashboard\" → API."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_webhook",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "atom_register",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "api_mcp_what_is",
@@ -3973,6 +4326,18 @@
             "source": "text"
           },
           {
+            "token": "entity_api_docs",
+            "weight": 2,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_mcp",
+            "weight": 3,
+            "source": "text"
+          },
+          {
             "token": "intent_how_to",
             "weight": 3,
             "source": "text"
@@ -3998,6 +4363,11 @@
           "token": "entity_subdomain",
           "weight": 3,
           "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 1,
+          "source": "text"
         }
       ],
       "discriminatingQuestions": [],
@@ -4008,7 +4378,21 @@
           "en": "A subdomain name must:\n• be in English, lowercase letters and digits only, with hyphens (-) allowed in the middle;\n• not start or end with a hyphen;\n• be at most 63 characters.\n\nAccepted: my-store or shop2025. Not accepted: My_Store or -shop."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_subdomain_name_format",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_subdomain",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "subdomain_name_taken",
@@ -4105,6 +4489,18 @@
       },
       "requiresTicketIfUnresolved": false,
       "alternativeSignatures": [
+        [
+          {
+            "token": "entity_subdomain",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_change",
+            "weight": 3,
+            "source": "text"
+          }
+        ],
         [
           {
             "token": "entity_subdomain",
@@ -4327,7 +4723,26 @@
           "en": "• Live chat: for a quick question or something solved in one sitting.\n• Ticket: for a problem needing follow-up, the technical team or attachments — everything is recorded with a number and you follow its status in \"My tickets\".\n\nIf a chat turns out bigger than expected, ask for it to become a ticket."
         }
       },
-      "requiresTicketIfUnresolved": false
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_live_word",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "atom_open_action",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     },
     {
       "id": "helpcenter_no_article_found",
@@ -4807,6 +5222,18 @@
       "alternativeSignatures": [
         [
           {
+            "token": "entity_logo",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_my_portal",
+            "weight": 3,
+            "source": "text"
+          }
+        ],
+        [
+          {
             "token": "entity_profile_picture",
             "weight": 3,
             "source": "text"
@@ -5012,6 +5439,926 @@
         }
       },
       "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_secret_lost_after_creation",
+      "intent": "api/key/secret_lost",
+      "label": {
+        "ar": "سرّ مفتاح الـ API ضاع بعد ما اتعرض",
+        "en": "Lost the API key secret after it was shown"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_one_time_secret",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "trigger_lost_something",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_where",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "السرّ بيظهر مرة واحدة بس وقت إنشاء المفتاح، والقائمة بتحتفظ بآخر ٤ حروف منه للتعرّف عليه — فمحدش يقدر يرجّعه، ولا فريق الدعم.\n\nالحل من «لوحة الشركة» ← مفاتيح API:\n١. أنشئ مفتاح جديد بنفس الصلاحيات، وانسخ السرّ فورًا.\n٢. حطّه في النظام اللي بيستخدمه.\n٣. أوقف المفتاح القديم (زرار «إيقاف») — الإيقاف بيسري على الخادم على طول.",
+          "en": "The secret is shown only once, when the key is created; the list keeps only its last 4 characters to identify it — so nobody can recover it, support included.\n\nFix, in the company dashboard → API keys:\n1. Create a new key with the same scopes and copy the secret immediately.\n2. Put it in the system that uses it.\n3. Stop the old key (\"Stop\") — stopping takes effect on the server at once."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_one_time_secret",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_key_word",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_recover",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "api_key_created_values_not_shown",
+      "intent": "api/key/created_values_not_shown",
+      "label": {
+        "ar": "المفتاح اتعمل بس القيم ماظهرتش",
+        "en": "Key was created but its values were not shown"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "symptom_values_not_shown",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_key_word",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "رسالة «أُنشئ المفتاح لكن تعذّر عرض قيمه» معناها إن المفتاح اتسجّل فعلًا بس السرّ ماوصلش للشاشة — ومش هيظهر تاني.\n\nماتحاولش تستخدمه: أوقفه من قائمة المفاتيح، وأنشئ واحد بديل وانسخ قيمه أول ما تظهر. لو تكرر مع كل محاولة، قولّي وأفتح تذكرة.",
+          "en": "\"The key was created but its values couldn't be displayed\" means the key exists but the secret never reached the screen — and it won't be shown again.\n\nDon't try to use it: stop it from the key list and create a replacement, copying its values as soon as they appear. If it happens every time, tell me and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_scope_operator_only",
+      "intent": "api/key/scope_operator_only",
+      "label": {
+        "ar": "صلاحية بتقول «مخصّصة لمشغّل المنصة»",
+        "en": "A scope says it is reserved for the platform operator"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_operator_scope",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_role",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "فيه صلاحيات بتخص تشغيل المنصة نفسها (زي الصلاحية الكاملة وتغيير إعدادات المنصة) ومابتتمنحش من لوحة الشركة لأي حساب.\n\nاختار الصلاحيات اللي شغلك محتاجها فعلًا (التذاكر، الواتساب، الاشتراكات، الإشعارات…) — ولو في عملية محددة مش لاقي ليها صلاحية، قولّي هي إيه وأنا أوجهك.",
+          "en": "Some scopes belong to running the platform itself (such as full access and changing platform settings) and are not granted from the company dashboard to any account.\n\nPick the scopes your work actually needs (tickets, WhatsApp, subscriptions, notifications…) — and if a specific operation has no scope you can find, tell me what it is and I'll point you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "api_credential_type_choice",
+      "intent": "api/key/credential_type_choice",
+      "label": {
+        "ar": "أختار «مفتاح + سرّ» ولا «رمز Bearer»",
+        "en": "Key + secret or a single Bearer token?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_bearer_token",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_compare",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_key_word",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الاتنين بيوصلوا لنفس الصلاحيات، الفرق في الشكل:\n• مفتاح + سرّ: بيتبعت كده: Authorization: Bearer <api_key>.<secret> (بنقطة بينهم). الشكل الكلاسيكي.\n• رمز Bearer: رمز واحد بيتبعت زي ما هو — أسهل في الأدوات الجاهزة اللي بتطلب «توكن» واحد.\n• الاتنين معًا: بيعمل اعتمادين مرتبطين، كل واحد في سطر.\n\nلو مش متأكد: الأداة بتطلب خانة واحدة؟ خد Bearer.",
+          "en": "Both reach the same scopes; the difference is the shape:\n• Key + secret: sent as Authorization: Bearer <api_key>.<secret> (dot between them). The classic form.\n• Bearer token: one token sent as is — simpler for ready-made tools that ask for a single \"token\".\n• Both: creates two linked credentials, one row each.\n\nNot sure? If the tool has a single field, choose Bearer."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_bearer_token",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_one_time_secret",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_key_word",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "api_key_expiry_limit",
+      "intent": "api/key/expiry_limit",
+      "label": {
+        "ar": "مش قادر أحط تاريخ انتهاء بعيد للمفتاح",
+        "en": "Cannot set a far-away key expiry date"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_key_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_expiry_setting",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تاريخ انتهاء المفتاح لازم يكون في المستقبل، وأقصى مدة ٧٣٠ يوم (سنتين). الاختيارات الجاهزة: ٣٠ أو ٩٠ أو ١٨٠ يوم أو سنة، أو تاريخ محدد، أو «بلا انتهاء» — والأخير بيفضل صالح لحد ما توقفه بإيدك.\n\nنصيحة أمان: مدة محددة + تدوير قبل ما تخلص أحسن من «بلا انتهاء».",
+          "en": "A key's expiry must be in the future, and at most 730 days (two years). The presets: 30, 90 or 180 days, a year, a specific date, or \"no expiry\" — the last stays valid until you stop it yourself.\n\nSecurity tip: a fixed period plus rotating before it ends beats \"no expiry\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_key_word",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_date_notes",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "symptom_rejected",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "mcp_tool_missing_in_ai_app",
+      "intent": "integration/mcp/tool_missing",
+      "label": {
+        "ar": "أداة مش ظاهرة في تطبيق الذكاء الاصطناعي المربوط",
+        "en": "A tool is missing in the connected AI app"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mcp_tool",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_visible",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_mcp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "التطبيق المربوط بيشوف بس الأدوات اللي صلاحيتها موجودة في المفتاح أو الاتصال بتاعه — والأداة اللي صلاحيتها ناقصة مابتظهرش خالص، ولو اتنادت بيترد عليها برفض (403).\n\nمثال: أدوات التذاكر محتاجة «قراءة التذاكر» أو «إنشاء التذاكر»، والاشتراكات محتاجة صلاحيات الاشتراكات.\n\nالحل: أنشئ مفتاح بالصلاحية الناقصة واربط بيه، أو لو الربط بـ OAuth، افصله واربطه تاني ووافق على الصلاحيات المطلوبة.",
+          "en": "The connected app only sees tools whose scope its key or connection has — a tool whose scope is missing doesn't appear at all, and calling it is refused (403).\n\nExample: ticket tools need \"read tickets\" or \"create tickets\"; subscription tools need the subscription scopes.\n\nFix: create a key with the missing scope and connect with it, or if you connected with OAuth, disconnect, reconnect and approve the scopes you need."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_mcp_tool",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_ai_client",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_visible",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "mcp_ai_app_asks_reauthorize",
+      "intent": "integration/mcp/reauthorize_prompt",
+      "label": {
+        "ar": "تطبيق الذكاء الاصطناعي بيطلب أوافق تاني",
+        "en": "The AI app keeps asking me to authorize again"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_ai_client",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "intent_reauthorize",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "في الربط بـ OAuth: رمز الدخول بيعيش ساعة ويتجدد تلقائيًا، ورمز التجديد بيعيش ٣٠ يوم وبيتبدّل مع كل استخدام. فالطلب يرجع لو:\n• التطبيق مااستخدمش الربط أكتر من ٣٠ يوم.\n• التطبيق فشل يحفظ رمز التجديد الجديد (بيحصل لو اتفتح من أكتر من جهاز بنفس الربط).\n• المفتاح المرتبط بالربط اتوقف.\n\nوافق مرة تانية وهيكمل. لو بيطلبها كل ساعة بالظبط، قولّي اسم التطبيق وأفتح تذكرة.",
+          "en": "With an OAuth connection: the access token lives one hour and refreshes itself; the refresh token lives 30 days and is replaced on every use. So the prompt comes back if:\n• the app hasn't used the connection for over 30 days;\n• the app failed to store the new refresh token (happens when the same connection is used from several devices);\n• the key behind the connection was stopped.\n\nApprove once more and it continues. If it asks every hour exactly, tell me the app's name and I'll open a ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "mcp_close_ticket_refused",
+      "intent": "integration/mcp_tool/close_ticket_refused",
+      "label": {
+        "ar": "أمر قفل التذكرة من التطبيق المربوط بيترفض",
+        "en": "Closing a ticket from the connected app is refused"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mcp_tool",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_close",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_ticket",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده متوقع حاليًا: أداة قفل التذكرة متاحة لفريق الدعم بس. من حساب عميل، أداة تعديل التذكرة بتسمح بالأرشفة (الإخفاء من قائمتك) مش بالقفل.\n\nلو المشكلة اتحلت فعلًا، اكتب ده كرد على التذكرة والفريق يقفلها.",
+          "en": "That's expected for now: the close-ticket tool is available to the support team only. From a customer account, the update-ticket tool can archive (hide from your list), not close.\n\nIf the issue is really solved, say so as a reply on the ticket and the team will close it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_ai_client",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "atom_close",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_ticket",
+            "weight": 1,
+            "source": "text"
+          },
+          {
+            "token": "symptom_rejected",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "mcp_cancel_active_subscription_refused",
+      "intent": "integration/mcp_tool/cancel_active_refused",
+      "label": {
+        "ar": "إلغاء الاشتراك من التطبيق المربوط مش شغال",
+        "en": "Cancelling a subscription from the connected app does nothing"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mcp_tool",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_cancel",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أداة الإلغاء بتلغي «طلب» اشتراك لسه قيد المراجعة بس — مش اشتراك متفعّل.\n\nإلغاء اشتراك شغّال بيتم من «الباقات والاشتراك» أو بطلب للدعم، والاشتراك بيفضل شغال لحد نهاية المدة المدفوعة.",
+          "en": "The cancel tool cancels a subscription REQUEST that is still under review — not an active subscription.\n\nAn active subscription is cancelled from \"Plans & subscription\" or by asking support, and it stays active until the end of the paid period."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_ai_client",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_cancel",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "leads_added_lead_not_saved",
+      "intent": "leads/lead/not_saved",
+      "label": {
+        "ar": "العميل المحتمل اللي ضفته اختفى",
+        "en": "The lead I added disappeared"
+      },
+      "category": "other",
+      "evidenceSignature": [
+        {
+          "token": "entity_leads",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "صفحة «العملاء المحتملون» لسه نسخة معاينة: العميل اللي بتضيفه بيتحفظ في الصفحة المفتوحة بس، وبيختفي مع التحديث — لسه مش مربوطة بقاعدة البيانات، والتصدير كمان مش متاح.\n\nلحد ما تتفعّل، سجّل عملاءك المحتملين في ملف عندك. ولو عايز تتابع موعد تفعيلها، قولّي.",
+          "en": "The \"Leads\" page is still a preview: a lead you add is kept only in the open page and disappears on refresh — it isn't connected to the database yet, and export isn't available either.\n\nUntil it's live, keep your leads in a file of your own. If you'd like to follow when it launches, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_leads",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_export",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "leads_sample_entries_unknown",
+      "intent": "leads/sample_data/unknown_entries",
+      "label": {
+        "ar": "أسماء في العملاء المحتملين أنا ماضفتهاش",
+        "en": "Names in Leads I never added"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_leads",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_sample_data",
+          "weight": 4,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الأسماء دي بيانات تجريبية بتوضح شكل الصفحة (المراحل، الاهتمام، قيمة الفرصة) — مش عملاء حقيقيين ومش بيانات حد تاني.\n\nالصفحة لسه معاينة ومش متوصلة بقاعدة البيانات، فمفيش بيانات حقيقية فيها لحد دلوقتي.",
+          "en": "Those names are sample data showing how the page works (stages, interest, deal value) — not real customers and not anyone else's data.\n\nThe page is still a preview and isn't connected to the database, so it holds no real data yet."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_request_already_pending",
+      "intent": "subscription/request/already_pending",
+      "label": {
+        "ar": "بيقولي عندك طلب اشتراك قيد المراجعة",
+        "en": "It says I already have a subscription request under review"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_review_state",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_subscription",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مسموح بطلب واحد مفتوح لكل باقة، عشان مايتدفعش مرتين لنفس الحاجة. الطلب اللي قبله لسه مستني المراجعة.\n\nاستنى رد الفريق عليه (الطلبات بالتحويل بتتراجع خلال ساعة في المعتاد)، أو قولّي لو عايز تلغيه أو تعدّل فيه وأنا أوصلك بتذكرته.",
+          "en": "One open request per plan is allowed, so the same thing isn't paid twice. Your previous request is still awaiting review.\n\nWait for the team's reply on it (transfer requests are usually reviewed within an hour), or tell me if you want to cancel or change it and I'll take you to its ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "symptom_pending",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "intent_subscribe",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_subscription",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "subscription_early_renewal_days_kept",
+      "intent": "subscription/renewal/early_extends_from_end",
+      "label": {
+        "ar": "لو جددت بدري الأيام الفاضلة هتضيع؟",
+        "en": "If I renew early, do I lose the remaining days?"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "atom_renewal",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_early_timing",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لأ، مابتضيعش. التجديد بيضيف المدة الجديدة بعد تاريخ انتهاء اشتراكك الحالي، فالأيام الفاضلة محفوظة.\n\nالاستثناء الوحيد: لو مفيش اشتراك شغّال في نفس الباقة وقت التأكيد، المدة بتتحسب من يوم تأكيد الطلب.",
+          "en": "No, they aren't lost. Renewal adds the new period after your current end date, so the remaining days are kept.\n\nThe only exception: if there's no active subscription on that plan when the request is confirmed, the period starts from the confirmation date."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_upgrade_end_date_unchanged",
+      "intent": "subscription/upgrade/merge_keeps_end_date",
+      "label": {
+        "ar": "رقّيت الباقة وتاريخ الانتهاء ماتغيرش",
+        "en": "I upgraded and the end date did not change"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "atom_upgrade",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_date_notes",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_unchanged",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده الطبيعي: الترقية بتدمج اشتراكك في الباقة الأكبر بنفس تاريخ الانتهاء الحالي، وبيتحصّل الفرق بس عن المدة الفاضلة.\n\nلو عايز مدة أطول، ده «تجديد» مش ترقية — تقدر تعمله بعدها من «الباقات والاشتراك».",
+          "en": "That's normal: an upgrade merges your subscription into the bigger plan with the SAME end date, and only the difference for the remaining period is charged.\n\nIf you want a longer period, that's a \"renewal\", not an upgrade — you can do it afterwards from \"Plans & subscription\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_merge_plan",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_date_notes",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "subscription_autoreply_bonus_missing",
+      "intent": "subscription/autoreply_bonus/missing",
+      "label": {
+        "ar": "الأيام المجانية الإضافية مع الرد الآلي مانزلتش",
+        "en": "Bonus free days with auto-reply are missing"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_bonus_days",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_auto_reply",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "عرض الواتساب: لو اشتركت في خدمة الرد الآلي مع الباقة، بتاخد ١٤ يوم إضافي مع الشهري أو ٣ شهور إضافية مع السنوي.\n\nالإضافة بتتحسب لما الفريق يأكد الطلب. لو اتأكد وتاريخ الانتهاء مش فيه الزيادة، قولّي رقم الطلب أو التذكرة وأنا أفتح مراجعة.",
+          "en": "WhatsApp offer: if you subscribe to the auto-reply service with the plan, you get 14 extra days on monthly or 3 extra months on yearly.\n\nThe bonus is applied when the team confirms the request. If it's confirmed and the end date doesn't include it, tell me the request or ticket number and I'll open a review."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "subscription_launch_price_period",
+      "intent": "subscription/launch_price/duration",
+      "label": {
+        "ar": "سعر الإطلاق هيفضل لحد إمتى؟",
+        "en": "How long does the launch price last?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_launch_price",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_pricing",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أسعار الإطلاق سارية ٦ شهور أو لحد ما يوصل عدد العملاء للمستهدف — أيهما أقرب. المكتوب في صفحة الاشتراكات هو السعر الحالي.\n\nاللي بيشترك دلوقتي بيدفع سعر الإطلاق عن المدة اللي دفعها. لو عندك سؤال عن سعر التجديد بعد انتهاء العرض، قولّي وأوصلك بالفريق.",
+          "en": "Launch prices apply for 6 months or until the target number of customers is reached — whichever comes first. What the subscriptions page shows is the current price.\n\nSubscribing now means paying the launch price for the period you pay for. If you have a question about the renewal price after the offer ends, tell me and I'll connect you with the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "payment_card_page_wallet_coming_soon",
+      "intent": "billing/payment_gateway/method_coming_soon",
+      "label": {
+        "ar": "اختيار المحفظة في صفحة الدفع مكتوب «متاحة قريبًا»",
+        "en": "Wallet option on the payment page says \"coming soon\""
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_coming_soon",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_gateway_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "صفحة الدفع الإلكتروني حاليًا بتقبل الكارت البنكي (فيزا/ماستركارد) بس، واختيار المحفظة فيها لسه جاي.\n\nتقدر تدفع بمحفظة كاش أو إنستاباي أو تحويل بنكي من طلب الاشتراك نفسه: اختار «تحويل خارجي» وارفع إثبات التحويل (صورة أو PDF لحد ٨ ميجا)، والطلب بيتراجع يدويًا.",
+          "en": "The online payment page currently accepts bank cards (Visa/Mastercard) only; its wallet option is coming later.\n\nYou can pay by mobile wallet, InstaPay or bank transfer from the subscription request itself: choose \"external transfer\" and upload the proof (an image or PDF up to 8 MB); the request is reviewed manually."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "security_2fa_asked_every_login",
+      "intent": "security/2fa/asked_every_time",
+      "label": {
+        "ar": "كود التحقق بخطوتين بيتطلب مني كل مرة",
+        "en": "Two-step code is requested every time"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_2fa",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_trust_device",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "atom_unchanged",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "في صفحة التحقق فيه اختيار «ثق بهذا الجهاز لمدة ٣٠ يومًا» — علّم عليه قبل «تحقق ودخول».\n\nلو معلّم عليه وبرضه بيطلب الكود:\n• مسح بيانات المتصفح أو الكوكيز بيلغي الثقة.\n• التصفح الخفي أو متصفح تاني = جهاز جديد.\n• بعد ٣٠ يوم بيطلبه تاني، وده مقصود.",
+          "en": "The verification page has \"Trust this device for 30 days\" — tick it before \"Verify and sign in\".\n\nIf it's ticked and still asks:\n• Clearing browser data or cookies removes the trust.\n• Private browsing or another browser counts as a new device.\n• After 30 days it asks again, by design."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_2fa",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_every_time",
+            "weight": 3,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_2fa",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 1,
+            "source": "text"
+          },
+          {
+            "token": "atom_device",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "security_2fa_use_recovery_code",
+      "intent": "security/2fa/recovery_code_use",
+      "label": {
+        "ar": "أستخدم رمز الاستعادة فين؟",
+        "en": "Where do I use a recovery code?"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "intent_recover",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "atom_code",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "في صفحة «التحقق بخطوتين» اضغط «استخدام رمز الاستعادة؟» تحت خانة الكود، واكتب واحد من رموز الاستعادة اللي حفظتها وقت التفعيل.\n\nبعد ما تدخل، الأفضل تعيد إعداد التحقق بخطوتين على جهازك الجديد. ولو مش لاقي رموز الاستعادة خالص، قولّي وأفتح تذكرة استرجاع وصول.",
+          "en": "On the \"Two-step verification\" page, click \"Use a recovery code?\" under the code field and enter one of the recovery codes you saved when you enabled it.\n\nOnce in, it's best to set up two-step verification again on your new device. If you can't find any recovery codes, tell me and I'll open an access-recovery ticket."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "security_2fa_too_many_attempts",
+      "intent": "security/2fa/too_many_attempts",
+      "label": {
+        "ar": "مكتوب «تم تجاوز عدد المحاولات»",
+        "en": "It says too many attempts"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_too_many_attempts",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده حماية مؤقتة بعد كذا كود غلط ورا بعض. استنى كام دقيقة وجرّب تاني بكود جديد من التطبيق (مش القديم).\n\nلو الأكواد بتترفض رغم إنها صح، الغالب إن ساعة الموبايل مش مظبوطة: خلّي التاريخ والوقت «تلقائي» قبل المحاولة الجاية.",
+          "en": "It's a temporary protection after several wrong codes in a row. Wait a few minutes and try again with a fresh code from the app (not the old one).\n\nIf correct codes keep getting rejected, your phone's clock is most likely off: set date & time to \"automatic\" before the next attempt."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "symptom_too_many_attempts",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "login_telegram_code_unavailable",
+      "intent": "login/telegram_otp/unavailable",
+      "label": {
+        "ar": "مكتوب إرسال الرمز عبر تليجرام غير متاح",
+        "en": "It says sending the code via Telegram is unavailable"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_telegram",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي معناها إن خدمة إرسال الأكواد على تليجرام مش متاحة في اللحظة دي، مش مشكلة في حسابك.\n\nارجع لصفحة الدخول وسجّل دخول من جديد — ده بيبدأ جلسة تحقق جديدة. لو نفس الرسالة ظهرت تاني، قولّي وأفتح تذكرة عشان الفريق يساعدك تدخل.",
+          "en": "That message means the Telegram code delivery isn't available at the moment — not a problem with your account.\n\nGo back to the sign-in page and sign in again — that starts a new verification session. If the same message appears again, tell me and I'll open a ticket so the team can help you in."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_telegram",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "atom_code",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
     }
   ]
 }
