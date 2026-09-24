@@ -1153,11 +1153,51 @@
     ],
     [
       "gen_password_shared_by_mistake",
-      "بعت الباسورد بتاعي لحد بالغلط"
+      "شيرت الباسورد بتاعي مع حد بالغلط"
     ],
     [
       "gen_strong_password_how",
       "ازاي اعمل كلمة سر قوية"
+    ],
+    [
+      "gen_bank_otp_not_received",
+      "رسالة البنك مش بتوصل وانا بدفع"
+    ],
+    [
+      "gen_bank_otp_not_received",
+      "كود البنك مجاش وانا بدفع الاشتراك"
+    ],
+    [
+      "gen_payment_failed_money_held",
+      "الدفع ماتمش بس الفلوس اتخصمت"
+    ],
+    [
+      "gen_connection_cut_mid_action",
+      "النت فصل وانا بدفع اتدفع ولا لا"
+    ],
+    [
+      "gen_connection_cut_mid_action",
+      "الكهربا قطعت وانا بحفظ اتحفظ ولا لا"
+    ],
+    [
+      "gen_statement_other_merchant_name",
+      "الخصم ظاهر في كشف الحساب باسم تاني"
+    ],
+    [
+      "gen_card_name_field",
+      "اسم صاحب الكارت اكتبه ازاي"
+    ],
+    [
+      "gen_charged_amount_differs",
+      "المبلغ اللي اتخصم زيادة عن سعر الباقة"
+    ],
+    [
+      "gen_bank_otp_not_received",
+      "بدفع بالفيزا ومستني الكود من البنك ومش جاي"
+    ],
+    [
+      "gen_statement_other_merchant_name",
+      "لقيت خصم في البنك باسم شركة معرفهاش"
     ]
   ],
   "max_heldout": [
@@ -1296,6 +1336,30 @@
     [
       "gen_strong_password_how",
       "عايز باسورد صعب محدش يعرف يخمنه"
+    ],
+    [
+      "gen_payment_failed_money_held",
+      "العملية طلعت مرفوضة والرصيد نقص من الحساب"
+    ],
+    [
+      "gen_connection_cut_mid_action",
+      "النور قطع في نص ما كنت ببعت الطلب"
+    ],
+    [
+      "gen_card_name_field",
+      "خانة الاسم في الدفع اكتبها بالعربي ولا بالانجليزي"
+    ],
+    [
+      "gen_charged_amount_differs",
+      "دفعت الباقة واتسحب مني اكتر من سعرها"
+    ],
+    [
+      "gen_bank_otp_not_received",
+      "صفحة الدفع طالبة رمز من البنك وانا مستلمتش اي رسالة"
+    ],
+    [
+      "gen_statement_other_merchant_name",
+      "اسم التاجر في رسالة الخصم مش هو اسم موقعكم"
     ]
   ]
 }

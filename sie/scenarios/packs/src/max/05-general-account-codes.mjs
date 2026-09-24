@@ -52,8 +52,9 @@ export default {
         T('entity_not_me', 'مش أنا اللي عملت كده', 'it was not me', ['ماعملتش حساب', 'معملتش حساب', 'ماسجلتش', 'مسجلتش', 'مش انا اللي سجلت', 'انا ماعملتش', 'didnt sign up', 'did not sign up', 'i didnt register']),
         T('entity_not_requested', 'ماطلبتش', 'did not request it', ['ماطلبتش', 'مطلبتش', 'من غير ما اطلب', 'انا مطلبتش', 'انا ماطلبتش', 'didnt request', 'did not request', 'i didnt ask for']),
         T('entity_capital_letter', 'حرف كبير (كابيتال)', 'capital letter', ['حرف كابيتال', 'اول حرف كابيتال', 'حرف كبير', 'بيكبر اول حرف', 'بيكتب اول حرف كبير', 'capital letter', 'uppercase', 'auto capitalize', 'autocapitalize']),
-        // «بعت / شيرت … لحد» — the words around a base-resolved «الباسورد».
-        T('entity_shared_with_someone', 'بعتها لحد', 'shared with someone', ['بعت', 'بعته', 'بعتها', 'بعتله', 'شيرت', 'شيرته', 'شاركت', 'حد عرف', 'حد عارف', 'shared it', 'sent it']),
+        // «شيرت / بعتله … » — the words around a base-resolved «الباسورد». Not a
+        // bare «بعت»: it matched «ببعت» ("I'm sending") in any message.
+        T('entity_shared_with_someone', 'بعتها لحد', 'shared with someone', ['بعتله', 'بعتهاله', 'شيرت', 'شيرته', 'شاركت', 'حد عرف', 'حد عارف', 'shared it']),
         T('entity_strong_password', 'كلمة مرور قوية', 'strong password', ['كلمة سر قوية', 'كلمة سر قويه', 'كلمة مرور قوية', 'كلمة سر صعبة']),
         // «قوي/صعب» next to a base-resolved «الباسورد». Generic alone.
         T('entity_strength_word', 'قوية', 'strong', ['قوي', 'قوية', 'قويه', 'صعب', 'صعبة', 'strong', 'secure'])

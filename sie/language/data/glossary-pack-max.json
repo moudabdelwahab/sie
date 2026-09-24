@@ -649,17 +649,14 @@
         "en": "shared with someone"
       },
       "patterns": [
-        "بعت",
-        "بعته",
-        "بعتها",
         "بعتله",
+        "بعتهاله",
         "شيرت",
         "شيرته",
         "شاركت",
         "حد عرف",
         "حد عارف",
-        "shared it",
-        "sent it"
+        "shared it"
       ]
     },
     {
@@ -689,6 +686,230 @@
         "صعبة",
         "strong",
         "secure"
+      ]
+    },
+    {
+      "canonical": "entity_bank",
+      "labels": {
+        "ar": "البنك",
+        "en": "the bank"
+      },
+      "patterns": [
+        "البنك",
+        "بنك",
+        "بنكي",
+        "البنك بتاعي",
+        "the bank",
+        "my bank"
+      ]
+    },
+    {
+      "canonical": "entity_bank_message",
+      "labels": {
+        "ar": "رسالة البنك",
+        "en": "the bank's message"
+      },
+      "patterns": [
+        "رسالة البنك",
+        "رساله البنك",
+        "رسايل البنك",
+        "كود البنك",
+        "رمز البنك",
+        "bank sms"
+      ]
+    },
+    {
+      "canonical": "entity_money_deducted",
+      "labels": {
+        "ar": "اتخصم",
+        "en": "charged"
+      },
+      "patterns": [
+        "اتخصمت",
+        "اتخصم",
+        "اتسحبت",
+        "اتسحب",
+        "charged",
+        "deducted"
+      ]
+    },
+    {
+      "canonical": "entity_money_held",
+      "labels": {
+        "ar": "اتحجز",
+        "en": "held"
+      },
+      "patterns": [
+        "اتحجزت",
+        "اتحجز",
+        "محجوزة",
+        "محجوزه",
+        "on hold",
+        "held"
+      ]
+    },
+    {
+      "canonical": "entity_failed_word",
+      "labels": {
+        "ar": "فشلت",
+        "en": "did not go through"
+      },
+      "patterns": [
+        "فشلت",
+        "ماتمش",
+        "متمش",
+        "ماكملتش",
+        "مكملتش",
+        "did not go through"
+      ]
+    },
+    {
+      "canonical": "entity_connection_cut",
+      "labels": {
+        "ar": "النت أو الكهربا قطعت",
+        "en": "the connection or power cut"
+      },
+      "patterns": [
+        "النت فصل",
+        "النت قطع",
+        "النت وقع",
+        "النت فصل مني",
+        "الشبكة فصلت",
+        "الشبكه فصلت",
+        "الانترنت فصل",
+        "الانترنت قطع",
+        "الكهربا قطعت",
+        "الكهربا فصلت",
+        "النور قطع",
+        "النور قاطع",
+        "connection dropped",
+        "internet cut",
+        "lost connection",
+        "power cut"
+      ]
+    },
+    {
+      "canonical": "entity_paying_now",
+      "labels": {
+        "ar": "وأنا بدفع",
+        "en": "while paying"
+      },
+      "patterns": [
+        "بدفع",
+        "وانا بدفع",
+        "while paying"
+      ]
+    },
+    {
+      "canonical": "entity_did_it_go_through",
+      "labels": {
+        "ar": "اتحفظ ولا لأ",
+        "en": "did it go through"
+      },
+      "patterns": [
+        "اتحفظ ولا لا",
+        "اتبعت ولا لا",
+        "اتدفع ولا لا",
+        "اتسجل ولا لا",
+        "اتحفظت ولا لا",
+        "did it go through",
+        "was it saved",
+        "was it sent"
+      ]
+    },
+    {
+      "canonical": "entity_mid_action",
+      "labels": {
+        "ar": "وأنا بعمل حاجة",
+        "en": "in the middle of an action"
+      },
+      "patterns": [
+        "وانا بحفظ",
+        "وانا ببعت",
+        "وانا بكتب",
+        "وانا بعدل",
+        "وانا برفع",
+        "in the middle",
+        "while saving",
+        "while sending"
+      ]
+    },
+    {
+      "canonical": "entity_bank_statement",
+      "labels": {
+        "ar": "كشف الحساب",
+        "en": "bank statement"
+      },
+      "patterns": [
+        "كشف الحساب",
+        "كشف حساب",
+        "كشف البنك",
+        "كشف حساب البنك",
+        "statement",
+        "bank statement"
+      ]
+    },
+    {
+      "canonical": "entity_other_name",
+      "labels": {
+        "ar": "باسم تاني",
+        "en": "under another name"
+      },
+      "patterns": [
+        "باسم",
+        "باسم تاني",
+        "اسم تاني",
+        "اسم غريب",
+        "different name",
+        "another name",
+        "unknown name"
+      ]
+    },
+    {
+      "canonical": "entity_cardholder_name",
+      "labels": {
+        "ar": "اسم صاحب الكارت",
+        "en": "cardholder name"
+      },
+      "patterns": [
+        "اسم صاحب",
+        "الاسم اللي علي",
+        "الاسم المكتوب علي",
+        "cardholder",
+        "name on card",
+        "name on the card"
+      ]
+    },
+    {
+      "canonical": "entity_amount_differs",
+      "labels": {
+        "ar": "المبلغ مختلف",
+        "en": "the amount differs"
+      },
+      "patterns": [
+        "فرق في المبلغ",
+        "المبلغ مختلف",
+        "زياده عن",
+        "زيادة عن",
+        "مني زياده",
+        "different amount",
+        "charged more"
+      ]
+    },
+    {
+      "canonical": "entity_bank_fees",
+      "labels": {
+        "ar": "رسوم البنك",
+        "en": "bank fees"
+      },
+      "patterns": [
+        "رسوم البنك",
+        "عمولة البنك",
+        "عموله البنك",
+        "رسوم تحويل",
+        "سعر الصرف",
+        "bank fees",
+        "exchange rate"
       ]
     },
     {

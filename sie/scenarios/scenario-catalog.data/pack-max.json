@@ -9,7 +9,8 @@
     "entity_works_normally",
     "entity_remember_word",
     "entity_shared_with_someone",
-    "entity_strength_word"
+    "entity_strength_word",
+    "entity_failed_word"
   ],
   "scenarios": [
     {
@@ -1369,6 +1370,316 @@
           {
             "token": "intent_how_to",
             "weight": 186,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_bank_otp_not_received",
+      "intent": "billing/card/bank_otp_missing",
+      "label": {
+        "ar": "رسالة البنك (الكود) مابتوصلش وأنا بدفع",
+        "en": "The bank's verification message does not arrive when I pay"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_bank",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "entity_paying_now",
+          "weight": 161,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        },
+        {
+          "token": "symptom_otp_not_received",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "entity_card",
+          "weight": 130,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي بيبعتها البنك بتاعك نفسه (مش احنا) عشان يأكّد عملية الدفع:\n• اتأكد إن رقم موبايلك مسجّل صح في البنك، وإن الخط شغال ومعاك.\n• استنى دقيقة قبل ما تطلبها تاني، ومتقفلش صفحة الدفع.\n• بعض البنوك بتبعتها في تطبيق البنك بدل رسالة، وبعضها محتاج تفعيل الشراء أونلاين الأول.\n\nلو مابتوصلش خالص، كلّم خدمة عملاء البنك — دي من عندهم — وبعدها جرّب الدفع تاني.",
+          "en": "That message is sent by your own bank (not us) to confirm the payment:\n• Make sure your phone number is registered correctly at the bank, and that the line works and is with you.\n• Wait a minute before requesting it again, and don't close the payment page.\n• Some banks send it in their app instead of a text message, and some need online purchases enabled first.\n\nIf it never arrives, call your bank's customer service — it comes from them — then try the payment again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_bank_message",
+            "weight": 710,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_received",
+            "weight": 290,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_bank",
+            "weight": 519,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 190,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_received",
+            "weight": 290,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_payment_failed_money_held",
+      "intent": "billing/card/failed_but_held",
+      "label": {
+        "ar": "الدفع فشل بس المبلغ اتخصم أو اتحجز",
+        "en": "The payment failed but the amount was charged or held"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_money_deducted",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_failed_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الدفع قال إنه فشل والمبلغ ظاهر مخصوم، غالبًا ده «حجز» مؤقت من البنك مش خصم نهائي — البنك بيرجّعه لوحده لما العملية ماتكملش، والمدة من عنده.\n• متدفعش تاني قبل ما تشوف اشتراكك: لو اتفعّل، يبقى الدفع نجح فعلًا.\n• لو ماتفعّلش والمبلغ مارجعش خلال كام يوم عمل، ابعتلي تاريخ العملية والمبلغ وآخر ٤ أرقام من الكارت (مش الرقم كامل) وأنا أفتح طلب للفريق المالي.",
+          "en": "If the payment said it failed but the amount shows as charged, it's usually a temporary bank \"hold\", not a final charge — the bank releases it on its own when the payment doesn't complete, on its own timeline.\n• Don't pay again before checking your subscription: if it's active, the payment did succeed.\n• If it isn't active and the amount hasn't come back within a few business days, send me the date, the amount and the last 4 digits of the card (not the full number) and I'll open a request for the finance team."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_money_held",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_payment",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_connection_cut_mid_action",
+      "intent": "device/network/cut_mid_action",
+      "label": {
+        "ar": "النت أو الكهربا قطعت في النص — اتحفظ أو اتدفع؟",
+        "en": "The connection cut midway — did it save or go through?"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_connection_cut",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_mid_action",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_did_it_go_through",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو النت أو الكهربا قطعت في النص:\n• لو كنت بتدفع: متدفعش تاني قبل ما تتأكد. ادخل حسابك وشوف الاشتراك — لو اتفعّل، الدفع تم. ولو مفيش خصم في رسايل البنك أو تطبيقه، ادفع من جديد. ولو فيه خصم والاشتراك ماتفعّلش، ابعتلي وقت العملية والمبلغ وأنا أتابعها مع الفريق المالي.\n• لو كنت بتحفظ أو بتبعت: افتح الصفحة تاني — لو التعديل أو الرسالة ظاهرين، يبقوا اتحفظوا؛ لو لأ، اعملها تاني.\n\nولو بتكتب كلام طويل، اكتبه في ملاحظة الأول وانسخه، عشان مايضيعش لو القطع اتكرر.",
+          "en": "If the internet or power cut midway:\n• If you were paying: don't pay again before checking. Sign in and look at your subscription — if it's active, the payment went through. If your bank's messages or app show no charge, pay again. If you were charged but the subscription isn't active, send me the time and the amount and I'll follow it up with the finance team.\n• If you were saving or sending: open the page again — if the change or message is there, it was saved; if not, do it again.\n\nIf you're writing something long, draft it in a note first and paste it, so it isn't lost if the cut happens again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_connection_cut",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_paying_now",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_payment",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_connection_cut",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_did_it_go_through",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_statement_other_merchant_name",
+      "intent": "billing/card/statement_name",
+      "label": {
+        "ar": "الخصم ظاهر في كشف الحساب باسم تاني",
+        "en": "The charge shows under a different name on my statement"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_bank_statement",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_other_name",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_bank",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_money_deducted",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الاسم اللي بيظهر في كشف الحساب ساعات بيكون اسم شركة الدفع الوسيطة أو اسم قانوني مختصر، مش اسم الموقع اللي دفعت فيه.\n• قارن التاريخ والمبلغ بعملية دفعتها عندنا.\n• لو مش متأكد إن الخصم ده بتاعنا، ابعتلي التاريخ والمبلغ (من غير رقم الكارت كامل) وأنا أراجعه.",
+          "en": "The name on a bank statement is sometimes the payment processor's, or a shortened legal name — not the name of the site you paid on.\n• Compare the date and amount with a payment you made with us.\n• If you're not sure the charge is ours, send me the date and the amount (without the full card number) and I'll check it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_card_name_field",
+      "intent": "billing/card/name_on_card",
+      "label": {
+        "ar": "اسم صاحب الكارت أكتبه عربي ولا إنجليزي؟",
+        "en": "Should I write the cardholder name in Arabic or English?"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_cardholder_name",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_card",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اكتب الاسم زي ما هو مطبوع على الكارت بالظبط — وده غالبًا بالإنجليزي.\n• لو الكارت مفيهوش اسم مطبوع، اكتب اسمك بالإنجليزي زي ما هو مسجّل في البنك.\n• اختلاف بسيط في الاسم غالبًا مابيرفضش العملية، لكن رقم الكارت وتاريخ الانتهاء والرمز اللي ورا (CVV) لازم يبقوا مظبوطين بالظبط.",
+          "en": "Write the name exactly as it's printed on the card — usually in English.\n• If there's no name printed on the card, write your name in English as registered at the bank.\n• A small difference in the name usually doesn't fail the payment, but the card number, expiry date and the code on the back (CVV) must be exactly right."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_charged_amount_differs",
+      "intent": "billing/card/amount_differs_fx",
+      "label": {
+        "ar": "المبلغ اللي اتخصم مختلف عن السعر",
+        "en": "The amount charged differs from the price"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_money_deducted",
+          "weight": 256,
+          "source": "text"
+        },
+        {
+          "token": "entity_amount_differs",
+          "weight": 557,
+          "source": "text"
+        },
+        {
+          "token": "intent_pricing",
+          "weight": 186,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو المبلغ اللي اتخصم أكبر شوية من سعر الباقة، الغالب إن الفرق من البنك مش مننا:\n• لو الكارت بعملة غير عملة الدفع، البنك بيحوّل بسعر الصرف بتاعه.\n• بعض البنوك بتضيف رسوم على المشتريات من مواقع بعملة أجنبية أو من برّه البلد.\n\nتطبيق البنك أو كشف الحساب بيوضّح سعر الصرف والرسوم. ولو الفرق كبير أو مش مفهوم، ابعتلي التاريخ والمبلغين وأنا أراجع مع الفريق المالي.",
+          "en": "If the amount charged is slightly more than the plan's price, the difference usually comes from the bank, not us:\n• If your card is in a different currency from the payment's, the bank converts at its own exchange rate.\n• Some banks add fees on purchases in a foreign currency or from sites abroad.\n\nYour bank's app or statement shows the exchange rate and fees. If the difference is large or unclear, send me the date and both amounts and I'll check with the finance team."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_bank_fees",
+            "weight": 743,
+            "source": "text"
+          },
+          {
+            "token": "entity_money_deducted",
+            "weight": 256,
             "source": "text"
           }
         ]
