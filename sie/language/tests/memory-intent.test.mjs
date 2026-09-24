@@ -105,3 +105,38 @@ test('الأشكال الصريحة لسه بتتحفظ', () => {
     assert.deepEqual(extractFacts('شركتي النور للتجارة'), [{ key: 'company', value: 'النور للتجارة' }]);
     assert.deepEqual(extractFacts('انا احمد وشركتي اسمها تك'), [{ key: 'name', value: 'احمد' }, { key: 'company', value: 'تك' }]);
 });
+
+// «انا» is a self-introduction only at the start of a message or after a
+// greeting. Found by the general-support probe (bench/corpora/general-probe):
+// each sentence below was saved as the customer's NAME, and the turn —
+// usually a correction — was never diagnosed. 19 of 6,323 corpus messages
+// changed with this rule; every one was a false save.
+test('«انا» inside a sentence, or before a state or a verb, is not a name', () => {
+    for (const t of [
+        'لا انا قصدي الفاتورة مش الاشتراك', 'انا ماقلتش كده', 'استنى انا كتبت غلط', 'انا تايه خالص',
+        'انا مسألتش على كده', 'مش ده اللي انا عايزه', 'انا زعلانة', 'ممكن تساعدني انا جديد',
+        'لو سمحت انا بسوق واستنى شوية', 'انا بسالك انت مين', 'انا معاكم من زمان'
+    ]) assert.deepEqual(extractFacts(t), [], t);
+});
+
+test('real introductions still save — including names that end like verbs', () => {
+    const name = (t) => extractFacts(t).find((f) => f.key === 'name')?.value;
+    assert.equal(name('انا رفعت'), 'رفعت');
+    assert.equal(name('انا مدحت عبدالله'), 'مدحت عبدالله');
+    assert.equal(name('اهلا انا سارة'), 'سارة');
+    assert.equal(name('صباح الخير، انا مروان'), 'مروان');
+    assert.equal(name('السلام عليكم انا منى من شركة النور'), 'منى');
+    assert.equal(name('انا محمود عبدالوهاب صاحب منصة مدعوم'), 'محمود عبدالوهاب');
+});
+
+// The first version of the rule above was ONE regex with a repeated optional
+// greeting prefix, which backtracks exponentially: «و و و …» × 28 took 1.6 s
+// and the bridge's 50,000-character test hung for twenty minutes. The memory
+// detector runs on every message in every edition, so this is a DoS guard.
+test('memory extraction is linear on hostile input', () => {
+    for (const hostile of ['و '.repeat(25_000), 'السلام عليكم '.repeat(4_000) + 'انا', ('انا ' + 'و'.repeat(90) + ' ').repeat(500)]) {
+        const t0 = performance.now();
+        extractFacts(hostile);
+        assert.ok(performance.now() - t0 < 250, `took ${(performance.now() - t0).toFixed(0)} ms on ${hostile.length} chars`);
+    }
+});

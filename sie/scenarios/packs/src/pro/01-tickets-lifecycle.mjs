@@ -37,7 +37,7 @@ export default {
         T('entity_multi_issue', 'أكتر من مشكلة', 'several issues', ['مشكلتين', 'تلات مشاكل', 'كذا حاجة', 'اكتر من حاجة', 'several issues']),
         T('entity_ticket_number_lost', 'نسيت رقم التذكرة', 'forgot ticket number', ['نسيت رقمها', 'مش فاكر رقمها']),
         T('entity_without_asking', 'من غير ما حد يسألني', 'without asking me', ['من غير ما يسألوني', 'محدش سألني', 'من غير ما حد يسألني', 'without asking me']),
-        T('entity_resolution_time', 'مدة حل التذكرة', 'resolution time', ['هتتحل امتى', 'هتخلص امتى', 'مدة الحل', 'وقت الحل']),
+        T('entity_resolution_time', 'مدة حل التذكرة', 'resolution time', ['هتتحل امتى', 'مدة الحل', 'وقت الحل']),
         T('entity_long_open_ticket', 'تذكرة مفتوحة من زمان', 'long-open ticket', ['مفتوحة من اسبوع', 'بقالها ايام', 'بقالها اسبوع', 'open for a week']),
         T('entity_reply_button_failing', 'إرسال الرد على التذكرة بيفشل', 'ticket reply fails to send', ['الرد مش بيتبعت', 'زرار الرد', 'الرد مش راضي يتبعت']),
         T('entity_ticket_draft_lost', 'اللي كتبته في التذكرة ضاع', 'ticket draft lost', ['اللي كتبته راح', 'الصفحة عملت ريفرش', 'lost what i wrote', 'كتبته', 'كتبتها', 'اللي كتبته'])

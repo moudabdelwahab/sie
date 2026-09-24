@@ -3992,17 +3992,17 @@
       "evidenceSignature": [
         {
           "token": "atom_member",
-          "weight": 330,
+          "weight": 250,
           "source": "text"
         },
         {
           "token": "entity_no_permission_msg",
-          "weight": 335,
+          "weight": 500,
           "source": "text"
         },
         {
           "token": "intent_add",
-          "weight": 335,
+          "weight": 250,
           "source": "text"
         }
       ],
@@ -4014,26 +4014,7 @@
           "en": "Member management (adding and removing) is available to the \"Company admin\" role only. If your role is \"Company member\", it won't work for you.\n\nAsk a company admin to add the member, or to change your role if you should manage members. If no admin is available at all, tell me and I'll open a ticket."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "atom_member",
-            "weight": 330,
-            "source": "text"
-          },
-          {
-            "token": "symptom_permission_denied",
-            "weight": 223,
-            "source": "text"
-          },
-          {
-            "token": "intent_add",
-            "weight": 447,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "company_profile_edit_admin_only",

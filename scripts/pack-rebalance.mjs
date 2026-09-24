@@ -141,7 +141,9 @@ for (const s of packScenarios) {
 const GLUE = new Set([
     'entity_too_big', 'entity_service_word', 'atom_link', 'entity_arabic_word',
     'entity_what_is', 'symptom_not_happening', 'atom_code', 'entity_key_word', 'entity_merge_plan', 'entity_not_accepted',
-    'entity_official_word'
+    'entity_official_word',
+    // Max: «جوه» (inside) and «باظ» (broke) — everyday words that only help a combination.
+    'entity_inside', 'entity_broke'
 ]);
 
 function cap(t, scenarioId, authoredShare = 1) {

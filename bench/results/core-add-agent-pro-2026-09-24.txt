@@ -1,0 +1,35 @@
+{
+ "before": {
+  "messages": 6194,
+  "answeredCorrect": 31.1,
+  "targetedCorrect": 62.7,
+  "ambiguous": 1859,
+  "answers": 2334,
+  "tickets": 1403,
+  "fallbacks": 0,
+  "latencyMs": {
+   "p50": 0.2167219999998906,
+   "p95": 0.45702700000015284,
+   "p99": 0.884635000000003
+  }
+ },
+ "after": {
+  "messages": 6194,
+  "answeredCorrect": 31.1,
+  "targetedCorrect": 62.7,
+  "ambiguous": 1860,
+  "answers": 2333,
+  "tickets": 1404,
+  "fallbacks": 0,
+  "latencyMs": {
+   "p50": 0.2297720000001391,
+   "p95": 0.44796499999995376,
+   "p99": 0.8042210000000409
+  }
+ },
+ "changes": {
+  "same": 6193,
+  "ambiguity_introduced": 1
+ }
+}
+ambiguity_introduced | repo | ازاي اضيف موظف | ANSWER company_member_cannot_manage_members  => CREATE_TICKET report_scheduled_delivery AMB

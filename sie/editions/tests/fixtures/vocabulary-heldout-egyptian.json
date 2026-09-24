@@ -1,0 +1,217 @@
+{
+  "note": "HELD-OUT #2 — Egyptian customer phrasing for EXISTING intents (gender, plural, spelling variants, abbreviations, Arabizi, incomplete sentences). Written and committed BEFORE the Egyptian vocabulary batches of the 1,000 phase, from how customers phrase problems — not from the glossary or any synonym list. Each row is [expected scenario, message]; a row lands when the decision names that scenario unambiguously. Measured before and after; never tuned against. @no-legitimate-corpus",
+  "rows": [
+    [
+      "login_cannot_access",
+      "مش عارفه اخش على الحساب بتاعي"
+    ],
+    [
+      "login_cannot_access",
+      "مش قادرين ندخل الاكونت من امبارح"
+    ],
+    [
+      "login_cannot_access",
+      "الحساب مش راضي يفتح معايا خالص"
+    ],
+    [
+      "login_cannot_access",
+      "msh 3aref a5osh 3ala el account"
+    ],
+    [
+      "login_credentials_forgotten",
+      "نسيت الباسوورد ومش فاكراه"
+    ],
+    [
+      "login_credentials_forgotten",
+      "نسيت البسورد بتاعي اعمل ايه"
+    ],
+    [
+      "login_credentials_forgotten",
+      "ناسي كلمة السر"
+    ],
+    [
+      "login_otp_not_received",
+      "كود التفعيل مجاش لحد دلوقتي"
+    ],
+    [
+      "login_otp_not_received",
+      "مستني الكود بقالي ربع ساعه ومجاش"
+    ],
+    [
+      "login_otp_not_received",
+      "الكود مش راضي يوصل"
+    ],
+    [
+      "login_account_locked",
+      "الاكونت اتقفل عليا"
+    ],
+    [
+      "subscription_cancel_request",
+      "عايزين نلغي الاشتراك"
+    ],
+    [
+      "subscription_cancel_request",
+      "عاوز الغى الباقه"
+    ],
+    [
+      "subscription_cancel_request",
+      "ازاى الغي الاشتراك بتاعي"
+    ],
+    [
+      "subscription_cancel_request",
+      "3ayez alghy el eshterak"
+    ],
+    [
+      "billing_refund_status",
+      "طلب الاسترداد بتاعي وصل لفين"
+    ],
+    [
+      "subscription_upgrade_request",
+      "عايز اعلّي الباقة"
+    ],
+    [
+      "subscription_upgrade_request",
+      "عاوزين نرقي الاشتراك لباقة اكبر"
+    ],
+    [
+      "pricing_inquiry",
+      "الاسعار كام"
+    ],
+    [
+      "pricing_inquiry",
+      "الباقه بكام في الشهر"
+    ],
+    [
+      "pricing_inquiry",
+      "بكام الاشتراك"
+    ],
+    [
+      "subscription_expired",
+      "الاشتراك خلص"
+    ],
+    [
+      "whatsapp_messages_not_sending",
+      "الواتساب مش بيبعت الرسايل"
+    ],
+    [
+      "whatsapp_messages_not_sending",
+      "الرسايل مش بتطلع على الواتس"
+    ],
+    [
+      "whatsapp_messages_not_sending",
+      "el whatsapp msh bybaat"
+    ],
+    [
+      "ticket_no_response",
+      "التذكره بقالها اسبوع محدش رد"
+    ],
+    [
+      "ticket_no_response",
+      "فتحت تذكرة ومحدش رد عليا لحد دلوقتي"
+    ],
+    [
+      "howto_create_ticket",
+      "افتح تذكره ازاي"
+    ],
+    [
+      "platform_slow",
+      "الموقع بطيء جدا النهارده"
+    ],
+    [
+      "platform_slow",
+      "السيستم تقيل قوي"
+    ],
+    [
+      "platform_blank_page",
+      "الصفحه بيضا مش بتفتح"
+    ],
+    [
+      "ui_changes_not_saving",
+      "بعدل البيانات ومش بتتحفظ"
+    ],
+    [
+      "ui_changes_not_saving",
+      "التعديلات بتضيع لما اعمل ريفريش"
+    ],
+    [
+      "app_crashes_on_open",
+      "التطبيق بيقفل لوحده اول ما افتحه"
+    ],
+    [
+      "notifications_not_arriving",
+      "الاشعارات مش بتوصلني خالص"
+    ],
+    [
+      "convo_asks_for_human_politely",
+      "ممكن اكلم حد من خدمة العملاء"
+    ],
+    [
+      "convo_asks_for_human_politely",
+      "عايز اتكلم مع موظف لو سمحت"
+    ],
+    [
+      "convo_customer_fed_up",
+      "زهقت بجد من الموضوع ده"
+    ],
+    [
+      "convo_thanks_and_goodbye",
+      "شكرا يا باشا مع السلامه"
+    ],
+    [
+      "convo_goodbye_nothing_else",
+      "لا خلاص كده تمام مش محتاج حاجة"
+    ],
+    [
+      "convo_will_come_back_later",
+      "هجرب واقولك"
+    ],
+    [
+      "convo_bot_answered_wrong",
+      "ده مش اللي انا سألت عليه"
+    ],
+    [
+      "convo_customer_confused",
+      "انا مش فاهمه حاجه"
+    ],
+    [
+      "convo_asks_to_wait",
+      "ثانيه واحده"
+    ],
+    [
+      "convo_wrong_message",
+      "معلش بعت غلط"
+    ],
+    [
+      "billing_invoice_download_failing",
+      "مش عارفه انزل الفاتوره"
+    ],
+    [
+      "subscription_payment_not_reflected",
+      "دفعت والباقه لسه متفعلتش"
+    ],
+    [
+      "subscription_payment_not_reflected",
+      "حولت الفلوس والاشتراك لسه مش شغال"
+    ],
+    [
+      "subscription_double_charged",
+      "اتخصم مني مرتين"
+    ],
+    [
+      "billing_local_payment_method",
+      "ينفع ادفع فودافون كاش"
+    ],
+    [
+      "howto_change_password",
+      "عايز اغير الباسورد بتاعي"
+    ],
+    [
+      "ui_language_wrong",
+      "الموقع طالع انجليزي عايزه عربي"
+    ],
+    [
+      "security_suspicious_login",
+      "جالي تنبيه ان حد دخل على حسابي"
+    ]
+  ]
+}

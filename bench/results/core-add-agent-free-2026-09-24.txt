@@ -1,0 +1,33 @@
+{
+ "before": {
+  "messages": 6194,
+  "answeredCorrect": 31.1,
+  "targetedCorrect": 62.7,
+  "ambiguous": 1863,
+  "answers": 2329,
+  "tickets": 1407,
+  "fallbacks": 0,
+  "latencyMs": {
+   "p50": 0.22408099999984188,
+   "p95": 0.42338900000004287,
+   "p99": 0.7918469999999616
+  }
+ },
+ "after": {
+  "messages": 6194,
+  "answeredCorrect": 31.1,
+  "targetedCorrect": 62.7,
+  "ambiguous": 1863,
+  "answers": 2329,
+  "tickets": 1407,
+  "fallbacks": 0,
+  "latencyMs": {
+   "p50": 0.20667099999991478,
+   "p95": 0.42862800000000334,
+   "p99": 0.8720029999999497
+  }
+ },
+ "changes": {
+  "same": 6194
+ }
+}

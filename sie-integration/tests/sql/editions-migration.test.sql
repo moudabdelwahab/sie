@@ -34,6 +34,23 @@ select pg_temp.eq((select row(allowed, enabled, limit_per_min, remaining)::text 
     (select answer from test_baseline where what = 'rate'), 'rate limit answers as before 0009');
 reset test.uid;
 delete from sie_rate_limit_buckets;
+select pg_temp.eq((select row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit('00000000-0000-0000-0000-0000000000ff', null)),
+    (select answer from test_baseline where what = 'api'), 'API limiter answers as the deployed one before 0009');
+delete from sie_rate_limit_buckets;
+insert into sie_rate_limit_overrides (user_id, requests_per_minute, burst) values ('00000000-0000-0000-0000-0000000000ff', 42, 3);
+select pg_temp.eq((select row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit('00000000-0000-0000-0000-0000000000ff', null)),
+    (select answer from test_baseline where what = 'api_override'), 'API limiter with an override answers as before 0009');
+update sie_rate_limit_overrides set is_enabled = false where user_id = '00000000-0000-0000-0000-0000000000ff';
+select pg_temp.eq((select row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit('00000000-0000-0000-0000-0000000000ff', null)),
+    (select answer from test_baseline where what = 'api_off'), 'API limiter switched off by override answers as before 0009');
+select pg_temp.eq((select row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit(null, '203.0.113.9')),
+    (select answer from test_baseline where what = 'api_ip'), 'API limiter by IP answers as before 0009');
+delete from sie_rate_limit_overrides where user_id = '00000000-0000-0000-0000-0000000000ff';
+delete from sie_rate_limit_buckets;
 
 -- 1. Nothing configured: identical to before, plus edition = free.
 select pg_temp.eq((select row(allowed, reason, remaining, edition)::text from sie_consume_message('00000000-0000-0000-0000-00000000000a')),

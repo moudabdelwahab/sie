@@ -83,3 +83,12 @@ test('a layer cannot redefine a base token', async () => {
     const f = await audit([sc('zz_layer', [['entity_zz_a', 1]], 'x')], [own('a'), { canonical: 'entity_ticket', labels: { ar: 'x', en: 'x' }, patterns: ['ززززتذكره'] }]);
     assert.ok(kinds(f).has('layer_redefines_base'));
 });
+
+test('a synonym must target a base token, and is then not a redefinition', async () => {
+    const syn = (canonical) => ({ canonical, synonym: true, labels: { ar: 'x', en: 'x' }, patterns: ['ززززمرادف'] });
+    const rogue = await audit([sc('zz_syn', [['entity_zz_a', 1]], 'x')], [own('a'), syn('entity_zz_missing')]);
+    assert.ok(kinds(rogue).has('synonym_unknown_target'), [...kinds(rogue)].join(','));
+    const ok = await audit([sc('zz_syn', [['entity_zz_a', 1]], 'x')], [own('a'), syn('entity_ticket')]);
+    assert.ok(!kinds(ok).has('layer_redefines_base'), 'a synonym is not a redefinition');
+    assert.ok(!kinds(ok).has('synonym_unknown_target'));
+});

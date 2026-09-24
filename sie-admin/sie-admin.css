@@ -1439,3 +1439,36 @@
     .edition-warnings { margin: 0 var(--sp-3); }
 }
 .edition-warnings svg, .edition-count svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+/* ── قسم «إصدارات SIE»: الحالة والعملاء والتعيين ─────────────────── */
+[data-view-panel="editions"] { display: grid; gap: var(--sp-4); align-content: start; }
+[data-view-panel="editions"] > .settings-section { margin: 0; }
+.edition-card.is-off { background: var(--surface-2); }
+.edition-card-badges { display: inline-flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+.edition-status { font-size: var(--fs-xs); color: var(--text-3); }
+.edition-facts { margin: 0; display: grid; gap: var(--sp-2); }
+.edition-facts > div { display: grid; grid-template-columns: 6.5rem 1fr; gap: var(--sp-2); align-items: baseline; }
+.edition-facts dt { font-size: var(--fs-xs); color: var(--text-3); }
+.edition-facts dd { margin: 0; font-size: var(--fs-sm); min-width: 0; }
+.edition-facts dd b { font-size: 1.15rem; color: var(--text); }
+.edition-facts .sub { color: var(--text-3); font-size: var(--fs-xs); }
+.edition-off-note { display: flex; gap: var(--sp-2); margin: 0; font-size: var(--fs-sm); color: var(--warning-text); }
+.edition-off-note svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+.edition-assign {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+    gap: var(--sp-3);
+    align-items: end;
+    padding: var(--sp-4) var(--sp-5) 0;
+}
+.edition-customers > .toolbar, .edition-customers > .result-bar, .edition-customers > .table-wrap { margin-inline: var(--sp-5); }
+.edition-customers > .table-wrap { margin-bottom: var(--sp-4); }
+.edition-customers > .toolbar { margin-top: var(--sp-4); }
+.edition-customers > .hint { padding: var(--sp-3) var(--sp-5) 0; margin: 0; }
+.edition-customers td .sub { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+.settings-nav-link { text-decoration: none; color: inherit; }
+@media (max-width: 720px) {
+    .edition-assign { grid-template-columns: 1fr; padding: var(--sp-3) var(--sp-3) 0; }
+    .edition-customers > .toolbar, .edition-customers > .result-bar, .edition-customers > .table-wrap { margin-inline: var(--sp-3); }
+    .edition-facts > div { grid-template-columns: 1fr; gap: 0; }
+}

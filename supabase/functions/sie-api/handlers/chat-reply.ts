@@ -64,7 +64,11 @@ import { json } from '../_shared/http.ts';
 // cba70f3 (glossary word lookup + inverted-index retrieval) answers the
 // same turn in ~190 ms cold / ~10 ms warm. Measure before moving this pin:
 // a cold turn must stay well under the 2 s budget.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@cba70f39dfebdfb2b1c03c011c2d6e162273e975/sie-integration/sie-runtime.js';
+//
+// 63937a1 (editions: Free/Pro/Max) measured 2026-09-24 the same way, fresh
+// process per run, CPU = import + first turn: Free 115-189 ms, Pro 138-183 ms,
+// Max 143-210 ms (cba70f3: 104-191 ms); a long mixed first message 134-149 ms.
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@63937a1219df3b21e50ba937b1a77a22c0a38409/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;

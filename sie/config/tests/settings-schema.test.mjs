@@ -255,7 +255,7 @@ test('كل حد من حدود الإصدارات بيغيّر حاجة فعلا�
     const sql = await read('../../../sie-integration/migrations/0009_sie_editions.sql');
     const DB_KNOBS = { rateLimitPerMinute: '_rate_limit_per_minute', rateLimitBurst: '_rate_limit_burst', monthlyMessages: '_monthly_messages' };
 
-    const editionDefs = SETTINGS.filter((s) => s.edition);
+    const editionDefs = SETTINGS.filter((s) => s.edition && s.knob !== 'enabled');
     assert.equal(editionDefs.length, 21, 'سبع حدود × تلات إصدارات');
     for (const def of editionDefs) {
         const base = resolveEditionProfile(def.edition, {});
@@ -276,6 +276,19 @@ test('كل حد من حدود الإصدارات بيغيّر حاجة فعلا�
             assert.ok(js.includes(`editionProfile.${def.knob}`), `«${def.key}» مش مستخدم في الجسر`);
         }
     }
+});
+
+test('مفتاح «الإصدار متاح» بيغيّر حاجة فعلاً — في المحرك وفي قاعدة البيانات', async () => {
+    const { resolveCustomerEdition } = await import('../../editions/editions.js');
+    const sql = await readFile(fileURLToPath(new URL('../../../sie-integration/migrations/0010_sie_editions_owner_only.sql', import.meta.url)), 'utf8');
+    const switches = SETTINGS.filter((s) => s.knob === 'enabled');
+    assert.deepEqual(switches.map((s) => s.key), ['edition_pro_enabled', 'edition_max_enabled'], 'المجاني مالوش مفتاح قفل');
+    for (const def of switches) {
+        const row = { edition: def.edition };
+        assert.equal(resolveCustomerEdition({ accessRow: row, settings: { [def.key]: true } }), def.edition);
+        assert.equal(resolveCustomerEdition({ accessRow: row, settings: { [def.key]: false } }), 'free', `«${def.key}» مقفول لازم يرجّع المجاني`);
+    }
+    assert.match(sql, /'_enabled'/, 'قاعدة البيانات مش بتقرا مفتاح الإتاحة');
 });
 
 // ── اللغة: كل كلام بيتعرض للمسؤول عربي ─────────────────────────

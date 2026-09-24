@@ -1,7 +1,21 @@
 {
   "pack": "max",
   "genericTokens": [
-    "entity_browser_version"
+    "entity_browser_version",
+    "entity_policy_word",
+    "entity_forgot",
+    "entity_broke",
+    "entity_works_normally",
+    "entity_remember_word",
+    "entity_shared_with_someone",
+    "entity_strength_word",
+    "entity_failed_word",
+    "entity_stuck_word",
+    "entity_convert_word",
+    "entity_caller",
+    "entity_someone_asked",
+    "entity_tap_link",
+    "entity_my_data"
   ],
   "scenarios": [
     {
@@ -75,7 +89,7 @@
       "evidenceSignature": [
         {
           "token": "entity_browser_version",
-          "weight": 583,
+          "weight": 518,
           "source": "text"
         },
         {
@@ -85,7 +99,7 @@
         },
         {
           "token": "intent_how_to",
-          "weight": 194,
+          "weight": 259,
           "source": "text"
         }
       ],
@@ -202,8 +216,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة (mad3oom.com وmad3oom.online).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.",
-          "en": "Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domains (mad3oom.com and mad3oom.online).\n\nIf it doesn't open on mobile data either, tell me exactly what you see."
+          "ar": "شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة: mad3oom.com ونطاقاته الفرعية (*.mad3oom.com).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.",
+          "en": "Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domain: mad3oom.com and its subdomains (*.mad3oom.com).\n\nIf it doesn't open on mobile data either, tell me exactly what you see."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -295,6 +309,3049 @@
           }
         ]
       ]
+    },
+    {
+      "id": "legal_pages_where",
+      "intent": "legal/pages/where",
+      "label": {
+        "ar": "فين شروط الاستخدام وسياسة الخصوصية؟",
+        "en": "Where are the terms of use and the privacy policy?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_legal_pages",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_where",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "روابطهم في أسفل صفحات الموقع العامة: «سياسة الخصوصية»، «شروط الاستخدام»، و«سياسة الكوكيز».\n\nولو سؤالك عن حاجة معيّنة — زي البيانات اللي بتتحفظ عنك — قولّي عليها.",
+          "en": "Their links are at the bottom of the site's public pages: \"Privacy policy\", \"Terms of use\" and \"Cookie policy\".\n\nIf your question is about something specific — such as what data is kept about you — tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_legal_pages",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_policy_word",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_cache",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_home_internet_blocking",
+      "intent": "device/network/home_isp",
+      "label": {
+        "ar": "الموقع مش بيفتح على نت البيت بس",
+        "en": "The site does not open on my home internet only"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_home_internet",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الموقع بيفتح على نت الموبايل ومش بيفتح على نت البيت، المشكلة غالبًا في الراوتر أو شركة الإنترنت:\n• اقفل الراوتر دقيقة وشغّله تاني.\n• جرّب جهاز تاني على نفس الشبكة — لو مش بيفتح برضه، يبقى من الشبكة مش من جهازك.\n• لو فضلت، بلّغ شركة الإنترنت إن موقع معيّن مش بيفتح عندهم، أو غيّر إعدادات الـ DNS في الراوتر لو عارف تعمل كده.\n\nولو مش بيفتح على نت الموبايل كمان، قولّي.",
+          "en": "If the site opens on mobile data but not on your home internet, the problem is most likely the router or your internet provider:\n• Turn the router off for a minute and back on.\n• Try another device on the same network — if it fails there too, it's the network, not your device.\n• If it continues, tell your provider a specific site won't open for you, or change the router's DNS settings if you know how.\n\nIf it doesn't open on mobile data either, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_home_internet",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_antivirus_blocking",
+      "intent": "device/security_software/blocking",
+      "label": {
+        "ar": "برنامج الحماية (Antivirus) مانع الموقع",
+        "en": "Antivirus software is blocking the site"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_antivirus",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "برامج الحماية ساعات بتمنع مواقع، أو بتفحص الاتصال الآمن بطريقة بتعطّل الصفحة:\n• وقّف «حماية الويب» في البرنامج دقيقة وافتح الموقع — لو اشتغل، يبقى البرنامج هو السبب.\n• ضيف mad3oom.com ونطاقاته الفرعية (*.mad3oom.com) لقائمة المواقع الموثوقة أو الاستثناءات جوه البرنامج.\n• ورجّع الحماية تشتغل بعدها.",
+          "en": "Security software sometimes blocks sites, or inspects secure connections in a way that breaks the page:\n• Pause the program's \"web protection\" for a minute and open the site — if it works, the program is the cause.\n• Add mad3oom.com and its subdomains (*.mad3oom.com) to the program's trusted sites or exceptions.\n• Then turn protection back on."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_antivirus",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_device_clock_wrong",
+      "intent": "device/clock/security_errors",
+      "label": {
+        "ar": "المتصفح بيقول إن ساعة الجهاز غلط أو الاتصال مش آمن",
+        "en": "The browser says the clock is wrong or the connection is not secure"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_clock_warning",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_not_secure",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو المتصفح بيقول إن ساعتك متأخرة أو متقدمة، أو إن الاتصال مش آمن على مواقع كتير مرة واحدة، غالبًا تاريخ الجهاز أو ساعته غلط — والشهادات الأمنية بتتحقق بالتاريخ.\n• ويندوز: الإعدادات ← الوقت واللغة ← فعّل «تعيين الوقت تلقائيًا».\n• ماك: إعدادات النظام ← عام ← التاريخ والوقت ← تلقائي.\n• الموبايل: الإعدادات ← التاريخ والوقت ← تلقائي.\n\nوبعدين افتح الصفحة تاني.",
+          "en": "If the browser says your clock is behind or ahead, or that the connection isn't secure on many sites at once, the device's date or time is most likely wrong — security certificates are checked against the date.\n• Windows: Settings ▸ Time & language ▸ turn on \"Set time automatically\".\n• Mac: System Settings ▸ General ▸ Date & Time ▸ automatic.\n• Phone: Settings ▸ Date & time ▸ automatic.\n\nThen open the page again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_clock_warning",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_slow",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_clock_warning",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_logged_out_on_browser_close",
+      "intent": "device/browser/session_not_kept",
+      "label": {
+        "ar": "بيطلب مني أدخل تاني كل ما أقفل المتصفح",
+        "en": "I have to sign in again every time I close the browser"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_on_browser_close",
+          "weight": 518,
+          "source": "text"
+        },
+        {
+          "token": "symptom_token_expired",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تسجيل دخولك بيتحفظ في بيانات الموقع جوه المتصفح. لو بيطلب منك تدخل تاني كل ما تقفله:\n• غالبًا المتصفح مضبوط إنه يمسح بيانات المواقع عند الإغلاق — شيل الخيار ده، أو ضيف موقعنا للاستثناءات.\n• أو انت في وضع التصفح الخفي، واللي بيمسح كل حاجة لما تقفله.\n• برامج تنظيف الجهاز كمان ممكن تمسحها.",
+          "en": "Your sign-in is kept in the site's data inside the browser. If you have to sign in again every time you close it:\n• The browser is most likely set to clear site data on exit — turn that off, or add our site as an exception.\n• Or you're in private browsing, which clears everything when closed.\n• Device-cleaning programs can also wipe it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_on_browser_close",
+            "weight": 637,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "atom_open_action",
+            "weight": 139,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_forgot_signup_email",
+      "intent": "account/access/which_email",
+      "label": {
+        "ar": "مش فاكر سجّلت بأنهي إيميل",
+        "en": "I do not remember which e-mail I signed up with"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_signed_up_with",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_forgot",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "جرّب بالترتيب:\n• خانة الدخول بتقبل كمان رقم الهاتف أو اسم المستخدم — لو فاكر واحد منهم، ادخل بيه وهتلاقي الإيميل في بيانات حسابك.\n• دوّر في كل إيميلاتك (والـ Spam) على رسائل وصلتك منّا — اللي فيه الرسائل هو غالبًا المسجّل.\n• استخدم «نسيت كلمة المرور» بكل إيميل عندك: اللينك بيوصل للإيميل المسجّل بس.\n\nلو مانفعش ولا حاجة، قولّي وأنا أفتح طلب للفريق يساعدك تتحقق من حسابك.",
+          "en": "Try in this order:\n• The sign-in field also accepts your phone number or username — if you remember either, sign in with it and you'll find the e-mail in your account details.\n• Search all your mailboxes (and Spam) for messages from us — the one that has them is most likely the registered address.\n• Use \"Forgot password\" with each address you have: the link only arrives at the registered one.\n\nIf none of that works, tell me and I'll open a request for the team to help you verify your account."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_forgot",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "entity_email",
+            "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_lost_access_to_email",
+      "intent": "account/access/lost_mailbox",
+      "label": {
+        "ar": "الإيميل المسجّل على الحساب مبقاش معايا",
+        "en": "I no longer have access to the e-mail on my account"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_lost_mailbox",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو لسه قادر تدخل حسابك: غيّر الإيميل من بيانات الحساب لإيميل معاك دلوقتي — وأي لينك تأكيد هيوصل للإيميل الجديد.\n\nلو مش قادر تدخل، ولينكات الاستعادة بتروح للإيميل اللي مبقاش معاك، ده محتاج الفريق يتحقق إنك صاحب الحساب قبل أي تغيير. قولّي وأنا أفتح الطلب، ومتبعتش كلمة المرور في المحادثة.",
+          "en": "If you can still sign in: change the e-mail in your account details to one you have now — any confirmation link will go to the new address.\n\nIf you can't sign in, and recovery links go to the address you no longer have, the team needs to verify that you own the account before changing anything. Tell me and I'll open the request — and don't send your password in the chat."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_lost_mailbox",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "entity_email",
+            "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_too_many_redirects",
+      "intent": "device/browser/redirect_loop",
+      "label": {
+        "ar": "الصفحة بتقول «تم إعادة توجيهك مرات كتير»",
+        "en": "The page says \"too many redirects\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_redirect_loop",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«تم إعادة توجيهك مرات كتير» غالبًا سببها بيانات موقع قديمة محفوظة في المتصفح:\n• امسح بيانات موقعنا بس (الكوكيز وبيانات الموقع) من إعدادات المتصفح ← الخصوصية.\n• جرّب نافذة تصفح خفي — لو اشتغلت، يبقى السبب البيانات المحفوظة.\n• اقفل أي إضافة بتغيّر الروابط أو بتحجب محتوى.\n\nوبعدين سجّل دخولك من جديد.",
+          "en": "\"Too many redirects\" is usually caused by old site data saved in the browser:\n• Clear our site's data only (cookies and site data) from the browser's settings ▸ Privacy.\n• Try a private window — if it works there, the saved data is the cause.\n• Turn off any extension that rewrites links or blocks content.\n\nThen sign in again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_page_not_found",
+      "intent": "device/browser/page_404",
+      "label": {
+        "ar": "الصفحة بتقول «مش موجودة» (404)",
+        "en": "The page says \"not found\" (404)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_page_not_found",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "http_status_404",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«الصفحة مش موجودة» (404) معناها إن الرابط نفسه مش بيشاور على صفحة موجودة — غالبًا رابط قديم، أو حرف ناقص وانت بتكتبه أو بتنسخه.\n• افتح الموقع من الصفحة الرئيسية وادخل للمكان اللي عايزه من القائمة.\n• لو الرابط جالك في رسالة منّا أو من حد، ابعتهولي وأنا أشوف المفروض يوديك فين.",
+          "en": "\"Page not found\" (404) means the link itself doesn't point to an existing page — usually an old link, or a character lost while typing or copying it.\n• Open the site from the home page and go where you need from the menu.\n• If the link came in a message from us or from someone, send it to me and I'll check where it should take you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_auto_translate",
+      "intent": "device/browser/auto_translate",
+      "label": {
+        "ar": "الترجمة التلقائية في المتصفح بوّظت الصفحة",
+        "en": "The browser's automatic translation broke the page"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_auto_translate",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "entity_broke",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ميزة الترجمة التلقائية في المتصفح (زي ترجمة جوجل) بتغيّر نصوص الصفحة وهي شغالة، وده ممكن يلخبط الشكل ويخلّي أزرار ماتشتغلش.\n• اقفل الترجمة للموقع ده: من أيقونة الترجمة في شريط العنوان ← «عدم ترجمة هذا الموقع».\n• وحدّث الصفحة.\n\nولو محتاج الواجهة بلغة تانية، غيّرها من زرار «تغيير اللغة» في القائمة الجانبية بدل الترجمة.",
+          "en": "The browser's automatic translation (such as Google Translate) rewrites the page's text while it runs, which can scramble the layout and stop buttons from working.\n• Turn translation off for this site: from the translate icon in the address bar ▸ \"Never translate this site\".\n• Then refresh the page.\n\nIf you need the interface in another language, switch it from the \"Change language\" button in the sidebar instead of translating."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_auto_translate",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_link_opens_in_mail_app",
+      "intent": "device/mobile/in_app_browser",
+      "label": {
+        "ar": "اللينك بيفتح جوّه تطبيق الإيميل ومش لاقي حسابي",
+        "en": "The link opens inside the mail app and I am not signed in"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_opens_inside",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_mail_app",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما تفتح لينك من تطبيق إيميل (زي Gmail) على الموبايل، ساعات بيفتح في متصفح صغير جوّه التطبيق نفسه — ومش بيكون مسجّل دخولك فيه.\n• من القائمة (⋮ أو …) في المتصفح الصغير ده اختار «فتح في المتصفح» أو «Open in Chrome/Safari».\n• أو انسخ اللينك وافتحه في المتصفح اللي انت مسجّل دخولك عليه.",
+          "en": "When you open a link from a mail app (such as Gmail) on your phone, it sometimes opens in a small browser inside the app itself — where you're not signed in.\n• From that small browser's menu (⋮ or …) choose \"Open in browser\" or \"Open in Chrome/Safari\".\n• Or copy the link and open it in the browser you're signed in on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_csv_garbled_in_excel",
+      "intent": "files/csv/arabic_garbled_excel",
+      "label": {
+        "ar": "ملف CSV بالعربي بيطلع رموز غريبة في Excel",
+        "en": "An Arabic CSV shows garbled characters in Excel"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_garbled",
+          "weight": 573,
+          "source": "text"
+        },
+        {
+          "token": "entity_spreadsheet",
+          "weight": 287,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ملف CSV بالعربي لما يتفتح في Excel بالضغط عليه مرتين، Excel ساعات بيقراه بترميز غلط فالعربي يطلع رموز غريبة — الملف نفسه سليم.\n• بدل ما تفتحه مباشرة: من Excel ← «بيانات» ← «من نص/CSV»، واختار الترميز UTF-8.\n• ولو هتشتغل عليه في Excel والتصدير عندك فيه XLSX، اختار XLSX بدل CSV.",
+          "en": "An Arabic CSV opened in Excel by double-clicking is sometimes read with the wrong encoding, so the Arabic shows as strange symbols — the file itself is fine.\n• Instead of opening it directly: in Excel ▸ Data ▸ From Text/CSV, and choose UTF-8 encoding.\n• If you'll work on it in Excel and the export offers XLSX, choose XLSX instead of CSV."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_garbled",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_spreadsheet",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_signup_email_already_used",
+      "intent": "account/signup/email_already_registered",
+      "label": {
+        "ar": "بيقولي الإيميل متسجّل قبل كده وأنا بعمل حساب",
+        "en": "Signing up says the e-mail is already registered"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_already_exists",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_signup",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "معناها إن فيه حساب معمول بالإيميل ده قبل كده — غالبًا انت أو حد من شركتك سجّل بيه:\n• ادخل بيه من صفحة الدخول بدل ما تعمل حساب جديد.\n• لو مش فاكر كلمة المرور: «نسيت كلمة المرور» — اللينك بيوصل للإيميل ده نفسه.\n\nولو متأكد إنك عمرك ما سجّلت بيه، قولّي وأنا أفتح طلب للفريق يراجع الحساب — ومتعملش حساب تاني بإيميل مختلف قبل ما نتأكد.",
+          "en": "It means an account already exists with this e-mail — most likely you or someone at your company signed up with it:\n• Sign in with it from the sign-in page instead of creating a new account.\n• If you don't remember the password: \"Forgot password\" — the link goes to this same e-mail.\n\nIf you're sure you never signed up with it, tell me and I'll open a request for the team to review the account — and don't create a second account with another e-mail until we've checked."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_username_forgotten",
+      "intent": "account/access/username_forgotten",
+      "label": {
+        "ar": "نسيت اسم المستخدم",
+        "en": "I forgot my username"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_username",
+          "weight": 700,
+          "source": "text"
+        },
+        {
+          "token": "entity_forgot",
+          "weight": 299,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "مش محتاجه عشان تدخل: خانة الدخول بتقبل كمان الإيميل أو رقم الموبايل المسجّلين. ادخل بأي واحد منهم، وهتلاقي اسم المستخدم في بيانات حسابك.\n\nولو ناسي كلمة المرور كمان، استخدم «نسيت كلمة المرور» بالإيميل.",
+          "en": "You don't need it to sign in: the sign-in field also accepts your registered e-mail or phone number. Sign in with either, and you'll find your username in your account details.\n\nIf you've also forgotten the password, use \"Forgot password\" with your e-mail."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_switch_between_accounts",
+      "intent": "account/access/switch_accounts",
+      "label": {
+        "ar": "عندي أكتر من حساب وعايز أبدّل بينهم",
+        "en": "I have more than one account and want to switch"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_two_accounts",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيفتكر حساب واحد في المرة:\n• عشان تبدّل: سجّل خروج من القائمة، وادخل بالحساب التاني.\n• ولو محتاج الاتنين مفتوحين مع بعض: افتح التاني في نافذة تصفح خفي أو في متصفح تاني.\n\nولو عملت حاجة من الحساب الغلط (زي تذكرة أو طلب)، قولّي وأنا أظبطها معاك.",
+          "en": "A browser keeps one account signed in at a time:\n• To switch: sign out from the menu and sign in with the other account.\n• If you need both open together: open the second one in a private window or another browser.\n\nIf you did something from the wrong account (such as a ticket or a request), tell me and I'll sort it out with you."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_two_accounts",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_wrong_account",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_works_on_one_device_only",
+      "intent": "device/compare/one_device_only",
+      "label": {
+        "ar": "شغال على جهاز ومش شغال على التاني",
+        "en": "It works on one device but not the other"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_computer",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_mobile",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_works_normally",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو نفس الحساب شغال على جهاز ومش شغال على التاني، المشكلة في الجهاز اللي مش شغال — مش في حسابك:\n١. على الجهاز ده: امسح بيانات موقعنا (الكوكيز وبيانات الموقع) وادخل تاني.\n٢. جرّب عليه نافذة تصفح خفي — لو اشتغل، السبب إضافة أو بيانات قديمة.\n٣. اتأكد إن تاريخ ووقت الجهاز «تلقائي».\n٤. جرّب متصفح تاني على نفس الجهاز.\n\nولو الجهازين على نفس الشبكة، يبقى السبب مش النت.",
+          "en": "If the same account works on one device and not the other, the problem is the device that fails — not your account:\n1. On that device: clear our site's data (cookies and site data) and sign in again.\n2. Try a private window on it — if that works, an extension or old data is the cause.\n3. Make sure the device's date and time are set to automatic.\n4. Try another browser on the same device.\n\nIf both devices are on the same network, the internet isn't the cause."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_not_saving_password",
+      "intent": "device/browser/password_not_saved",
+      "label": {
+        "ar": "المتصفح مش بيعرض يحفظ كلمة المرور",
+        "en": "The browser does not offer to save my password"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "symptom_not_saving",
+          "weight": 520,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 256,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيعرض حفظ كلمة المرور بعد ما تدخل بنجاح. لو مابيعرضش:\n• كروم: الإعدادات ← الملء التلقائي وكلمات المرور ← مدير كلمات المرور: اتأكد إن «عرض حفظ كلمات المرور» مفعّل، وإن موقعنا مش في قائمة المواقع اللي رفضت حفظها.\n• سفاري: الإعدادات ← كلمات المرور.\n• في التصفح الخفي المتصفح مابيحفظش أصلًا.\n\nولو الجهاز مش بتاعك، الأحسن ماتحفظهاش.",
+          "en": "The browser offers to save a password after you sign in successfully. If it doesn't:\n• Chrome: Settings ▸ Autofill and passwords ▸ Password Manager: make sure \"Offer to save passwords\" is on, and that our site isn't on the list of sites you declined.\n• Safari: Settings ▸ Passwords.\n• A private window never saves passwords.\n\nIf the device isn't yours, it's better not to save it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_remember_word",
+            "weight": 557,
+            "source": "text"
+          },
+          {
+            "token": "entity_password",
+            "weight": 256,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 186,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_verification_code_rejected",
+      "intent": "account/codes/rejected",
+      "label": {
+        "ar": "كود التحقق وصل بس بيقول إنه غلط",
+        "en": "The verification code arrived but is rejected"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_code_rejected",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الكود بيوصلك في رسالة وبيترفض:\n• استخدم آخر كود وصلك بس — أي طلب جديد بيلغي اللي قبله.\n• اكتبه بنفسك بدل النسخ: النسخ ساعات بيجيب مسافة أو حرف زيادة.\n• اتأكد إنه كود الخطوة دي بالظبط، مش كود قديم أو من موقع تاني.\n• الأكواد عمرها قصير — لو عدّى وقت، اطلب واحد جديد.\n\nولو الكود من تطبيق مصادقة (زي Google Authenticator) وبيترفض، السبب غالبًا ساعة الموبايل — خليها «تلقائي».",
+          "en": "If the code reaches you in a message and is rejected:\n• Use only the latest code you received — every new request cancels the previous one.\n• Type it yourself instead of pasting: pasting sometimes brings an extra space or character.\n• Make sure it's the code for this exact step, not an old one or one from another site.\n• Codes are short-lived — if time has passed, request a new one.\n\nIf the code comes from an authenticator app (such as Google Authenticator) and is rejected, the phone's clock is the usual cause — set it to automatic."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_verification_code_late",
+      "intent": "account/codes/arrives_late",
+      "label": {
+        "ar": "كود التحقق بيوصل متأخر بعد ما وقته يخلص",
+        "en": "The verification code arrives after it has expired"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_arrived_after",
+          "weight": 675,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        },
+        {
+          "token": "symptom_expired",
+          "weight": 135,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الكود بيوصلك بعد ما وقته يخلص:\n• اطلب كود جديد وافضل على نفس الصفحة لحد ما يوصل — ماتطلبش تاني قبل ما دقيقة أو اتنين يعدّوا، لأن كل طلب جديد بيلغي اللي قبله.\n• لو بيوصل على الإيميل: الإيميلات أحيانًا بتتأخر — بصّ في الـ Spam وفي «الترويج» (Promotions).\n• لو بيوصل على الموبايل: الشبكة الضعيفة بتأخّر الرسايل — جرّب مكان إشارته أحسن أو واي فاي.",
+          "en": "If the code reaches you after it has expired:\n• Request a new one and stay on the same page until it arrives — don't request again before a minute or two has passed, because every new request cancels the previous one.\n• If it comes by e-mail: e-mails are sometimes delayed — check Spam and Promotions.\n• If it comes to your phone: a weak signal delays messages — try somewhere with better signal or Wi-Fi."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_code_resend_blocked",
+      "intent": "account/codes/resend_blocked",
+      "label": {
+        "ar": "مش راضي يبعت كود تاني — بيقولي استنى",
+        "en": "It will not send another code — it says to wait"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_resend_blocked",
+          "weight": 810,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده غالبًا حماية من الإرسال المتكرر: بعد كذا طلب ورا بعض، طلب كود جديد بيتقفل شوية.\n• استنى الوقت اللي ظاهر (أو دقايق قليلة)، وبعدين اطلب مرة واحدة بس.\n• استخدم آخر كود يوصلك.\n\nولو كل طلب بيفشل حتى بعد الانتظار، قولّي انت فين بالظبط (الدخول ولا التسجيل ولا غيره) عشان أشوفها.",
+          "en": "This is usually protection against repeated sending: after several requests in a row, requesting a new code is paused for a while.\n• Wait the time shown (or a few minutes), then request once only.\n• Use the latest code you receive.\n\nIf every request still fails after waiting, tell me exactly where you are (signing in, signing up or elsewhere) so I can look into it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_authenticator_new_phone",
+      "intent": "account/2fa/move_to_new_phone",
+      "label": {
+        "ar": "غيّرت موبايلي وعايز أنقل تطبيق المصادقة",
+        "en": "I changed phones and want to move my authenticator"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_new_phone",
+          "weight": 610,
+          "source": "text"
+        },
+        {
+          "token": "entity_2fa",
+          "weight": 390,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "طول ما الموبايل القديم لسه معاك، النقل سهل:\n• Google Authenticator: من الموبايل القديم ← القائمة ← «نقل الحسابات» ← «تصدير»، وامسح الكود اللي هيظهر من الجديد.\n• أو من حسابك وانت داخل: وقّف التحقق بخطوتين، وفعّله تاني من الموبايل الجديد.\n\nمتمسحش التطبيق من القديم قبل ما تتأكد إن الجديد بيطلّع أكواد شغالة. ولو القديم مش معاك خلاص، ادخل بواحد من رموز الاستعادة.",
+          "en": "As long as you still have the old phone, moving is easy:\n• Google Authenticator: on the old phone ▸ menu ▸ \"Transfer accounts\" ▸ \"Export\", and scan the code shown with the new phone.\n• Or, while signed in: turn two-step verification off, then turn it on again from the new phone.\n\nDon't delete the app from the old phone until the new one produces working codes. If you no longer have the old phone, sign in with one of your recovery codes."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_new_phone",
+            "weight": 810,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 190,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_signup_email_not_me",
+      "intent": "account/security/signup_not_me",
+      "label": {
+        "ar": "جالي إيميل تسجيل حساب وأنا ماعملتش حساب",
+        "en": "I got a sign-up e-mail but did not create an account"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_me",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_signup",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "غالبًا حد كتب إيميلك بالغلط وهو بيسجّل.\n• متدوسش على أي لينك في الإيميل ده.\n• لو مش ناوي تستخدم الحساب، سيبه — ولو عايز نقفله، قولّي وأنا أفتح طلب للفريق.",
+          "en": "Most likely someone typed your e-mail by mistake while signing up.\n• Don't click any link in that e-mail.\n• If you don't intend to use the account, leave it — and if you'd like it closed, tell me and I'll open a request for the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_reset_email_not_requested",
+      "intent": "account/security/reset_not_requested",
+      "label": {
+        "ar": "جالي إيميل تغيير كلمة المرور وأنا ماطلبتش",
+        "en": "I got a password reset e-mail I did not request"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_not_requested",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كلمة المرور بتاعتك ماتغيرتش. الإيميل ده بيتبعت لما حد يطلب «نسيت كلمة المرور» بإيميلك، واللينك مابيعملش حاجة لو ماحدش ضغط عليه.\n• متدوسش على اللينك، وامسح الإيميل.\n• لو اتكرر كتير أو حاسس إن حد بيحاول يدخل: غيّر كلمة المرور من جوه حسابك، وفعّل التحقق بخطوتين.",
+          "en": "Your password hasn't changed. This e-mail is sent when someone requests \"Forgot password\" with your address, and the link does nothing unless it's clicked.\n• Don't click the link; delete the e-mail.\n• If it keeps happening or you think someone is trying to get in: change your password from inside your account and turn on two-step verification."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_mobile_capitalizes_first_letter",
+      "intent": "device/keyboard/auto_capitalize",
+      "label": {
+        "ar": "الموبايل بيكتب أول حرف كابيتال في الإيميل أو الباسورد",
+        "en": "My phone capitalizes the first letter of my e-mail or password"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_capital_letter",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الإيميل مش بيفرق بين الحروف الكبيرة والصغيرة، فأول حرف كابيتال فيه مش مشكلة. لكن كلمة المرور بتفرق — لو الموبايل بيكبّر أول حرف فيها، الدخول هيترفض:\n• اكتب كلمة المرور، ودوس على «عرض كلمة المرور» (رمز العين) وبصّ على أول حرف قبل ما تدخل.\n• ولو الكيبورد بيصحّح الكلام لوحده، قفّل التصحيح التلقائي مؤقتًا من إعدادات الكيبورد.",
+          "en": "E-mail addresses ignore capital letters, so a capital first letter there is no problem. Passwords don't — if the phone capitalizes the first letter, sign-in is refused:\n• Type the password, tap \"show password\" (the eye icon) and check the first letter before signing in.\n• If the keyboard corrects words on its own, turn autocorrect off for a moment in the keyboard settings."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_password_shared_by_mistake",
+      "intent": "account/security/password_shared",
+      "label": {
+        "ar": "بعت كلمة المرور لحد بالغلط",
+        "en": "I sent my password to someone by mistake"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_shared_with_someone",
+          "weight": 743,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 256,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "غيّرها دلوقتي — دي أهم خطوة:\n• من إعدادات حسابك غيّر كلمة المرور لواحدة جديدة مااستخدمتهاش قبل كده.\n• بعدها سجّل خروج من كل الأجهزة، عشان أي حد دخل بيها يطلع.\n• فعّل التحقق بخطوتين: حتى لو حد عرف كلمة المرور بعد كده، مش هيقدر يدخل من غير الكود.\n\nولو نفس كلمة المرور مستخدمة في مواقع تانية، غيّرها هناك كمان.",
+          "en": "Change it now — that's the most important step:\n• From your account settings, change the password to a new one you haven't used before.\n• Then sign out of all devices, so anyone who got in with it is signed out.\n• Turn on two-step verification: even if someone learns the password later, they can't get in without the code.\n\nIf you use the same password on other sites, change it there too."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_strong_password_how",
+      "intent": "account/security/strong_password_how",
+      "label": {
+        "ar": "أعمل كلمة مرور قوية إزاي",
+        "en": "How do I make a strong password"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_strong_password",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "أسهل طريقة لكلمة مرور قوية وسهلة تفتكرها:\n• ٣–٤ كلمات مالهمش علاقة ببعض، ومعاهم رقم ورمز.\n• كل ما كانت أطول كانت أقوى — ١٢ حرف أو أكتر.\n• متستخدمهاش في أي موقع تاني، ومتحطش فيها اسمك أو رقم موبايلك أو تاريخ ميلادك.\n• لو ده جهازك، سيب مدير كلمات المرور في المتصفح يحفظها.",
+          "en": "The easiest way to a strong password you can remember:\n• 3–4 unrelated words, plus a number and a symbol.\n• Longer is stronger — 12 characters or more.\n• Don't reuse it on any other site, and don't put your name, phone number or birthday in it.\n• If this is your own device, let the browser's password manager save it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_strength_word",
+            "weight": 557,
+            "source": "text"
+          },
+          {
+            "token": "entity_password",
+            "weight": 256,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 186,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_bank_otp_not_received",
+      "intent": "billing/card/bank_otp_missing",
+      "label": {
+        "ar": "رسالة البنك (الكود) مابتوصلش وأنا بدفع",
+        "en": "The bank's verification message does not arrive when I pay"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_bank",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "entity_paying_now",
+          "weight": 161,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        },
+        {
+          "token": "symptom_otp_not_received",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "entity_card",
+          "weight": 130,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي بيبعتها البنك بتاعك نفسه (مش احنا) عشان يأكّد عملية الدفع:\n• اتأكد إن رقم موبايلك مسجّل صح في البنك، وإن الخط شغال ومعاك.\n• استنى دقيقة قبل ما تطلبها تاني، ومتقفلش صفحة الدفع.\n• بعض البنوك بتبعتها في تطبيق البنك بدل رسالة، وبعضها محتاج تفعيل الشراء أونلاين الأول.\n\nلو مابتوصلش خالص، كلّم خدمة عملاء البنك — دي من عندهم — وبعدها جرّب الدفع تاني.",
+          "en": "That message is sent by your own bank (not us) to confirm the payment:\n• Make sure your phone number is registered correctly at the bank, and that the line works and is with you.\n• Wait a minute before requesting it again, and don't close the payment page.\n• Some banks send it in their app instead of a text message, and some need online purchases enabled first.\n\nIf it never arrives, call your bank's customer service — it comes from them — then try the payment again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_bank_message",
+            "weight": 710,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_received",
+            "weight": 290,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_bank",
+            "weight": 519,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 190,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_received",
+            "weight": 290,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_payment_failed_money_held",
+      "intent": "billing/card/failed_but_held",
+      "label": {
+        "ar": "الدفع فشل بس المبلغ اتخصم أو اتحجز",
+        "en": "The payment failed but the amount was charged or held"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_money_deducted",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_failed_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_payment",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الدفع قال إنه فشل والمبلغ ظاهر مخصوم، غالبًا ده «حجز» مؤقت من البنك مش خصم نهائي — البنك بيرجّعه لوحده لما العملية ماتكملش، والمدة من عنده.\n• متدفعش تاني قبل ما تشوف اشتراكك: لو اتفعّل، يبقى الدفع نجح فعلًا.\n• لو ماتفعّلش والمبلغ مارجعش خلال كام يوم عمل، ابعتلي تاريخ العملية والمبلغ وآخر ٤ أرقام من الكارت (مش الرقم كامل) وأنا أفتح طلب للفريق المالي.",
+          "en": "If the payment said it failed but the amount shows as charged, it's usually a temporary bank \"hold\", not a final charge — the bank releases it on its own when the payment doesn't complete, on its own timeline.\n• Don't pay again before checking your subscription: if it's active, the payment did succeed.\n• If it isn't active and the amount hasn't come back within a few business days, send me the date, the amount and the last 4 digits of the card (not the full number) and I'll open a request for the finance team."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_money_held",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_payment",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_connection_cut_mid_action",
+      "intent": "device/network/cut_mid_action",
+      "label": {
+        "ar": "النت أو الكهربا قطعت في النص — اتحفظ أو اتدفع؟",
+        "en": "The connection cut midway — did it save or go through?"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_connection_cut",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_mid_action",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_did_it_go_through",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو النت أو الكهربا قطعت في النص:\n• لو كنت بتدفع: متدفعش تاني قبل ما تتأكد. ادخل حسابك وشوف الاشتراك — لو اتفعّل، الدفع تم. ولو مفيش خصم في رسايل البنك أو تطبيقه، ادفع من جديد. ولو فيه خصم والاشتراك ماتفعّلش، ابعتلي وقت العملية والمبلغ وأنا أتابعها مع الفريق المالي.\n• لو كنت بتحفظ أو بتبعت: افتح الصفحة تاني — لو التعديل أو الرسالة ظاهرين، يبقوا اتحفظوا؛ لو لأ، اعملها تاني.\n\nولو بتكتب كلام طويل، اكتبه في ملاحظة الأول وانسخه، عشان مايضيعش لو القطع اتكرر.",
+          "en": "If the internet or power cut midway:\n• If you were paying: don't pay again before checking. Sign in and look at your subscription — if it's active, the payment went through. If your bank's messages or app show no charge, pay again. If you were charged but the subscription isn't active, send me the time and the amount and I'll follow it up with the finance team.\n• If you were saving or sending: open the page again — if the change or message is there, it was saved; if not, do it again.\n\nIf you're writing something long, draft it in a note first and paste it, so it isn't lost if the cut happens again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_connection_cut",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_paying_now",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_payment",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_connection_cut",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_did_it_go_through",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_statement_other_merchant_name",
+      "intent": "billing/card/statement_name",
+      "label": {
+        "ar": "الخصم ظاهر في كشف الحساب باسم تاني",
+        "en": "The charge shows under a different name on my statement"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_bank_statement",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_other_name",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_bank",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_money_deducted",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الاسم اللي بيظهر في كشف الحساب ساعات بيكون اسم شركة الدفع الوسيطة أو اسم قانوني مختصر، مش اسم الموقع اللي دفعت فيه.\n• قارن التاريخ والمبلغ بعملية دفعتها عندنا.\n• لو مش متأكد إن الخصم ده بتاعنا، ابعتلي التاريخ والمبلغ (من غير رقم الكارت كامل) وأنا أراجعه.",
+          "en": "The name on a bank statement is sometimes the payment processor's, or a shortened legal name — not the name of the site you paid on.\n• Compare the date and amount with a payment you made with us.\n• If you're not sure the charge is ours, send me the date and the amount (without the full card number) and I'll check it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_card_name_field",
+      "intent": "billing/card/name_on_card",
+      "label": {
+        "ar": "اسم صاحب الكارت أكتبه عربي ولا إنجليزي؟",
+        "en": "Should I write the cardholder name in Arabic or English?"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_cardholder_name",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_card",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "اكتب الاسم زي ما هو مطبوع على الكارت بالظبط — وده غالبًا بالإنجليزي.\n• لو الكارت مفيهوش اسم مطبوع، اكتب اسمك بالإنجليزي زي ما هو مسجّل في البنك.\n• اختلاف بسيط في الاسم غالبًا مابيرفضش العملية، لكن رقم الكارت وتاريخ الانتهاء والرمز اللي ورا (CVV) لازم يبقوا مظبوطين بالظبط.",
+          "en": "Write the name exactly as it's printed on the card — usually in English.\n• If there's no name printed on the card, write your name in English as registered at the bank.\n• A small difference in the name usually doesn't fail the payment, but the card number, expiry date and the code on the back (CVV) must be exactly right."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_charged_amount_differs",
+      "intent": "billing/card/amount_differs_fx",
+      "label": {
+        "ar": "المبلغ اللي اتخصم مختلف عن السعر",
+        "en": "The amount charged differs from the price"
+      },
+      "category": "billing",
+      "evidenceSignature": [
+        {
+          "token": "entity_money_deducted",
+          "weight": 256,
+          "source": "text"
+        },
+        {
+          "token": "entity_amount_differs",
+          "weight": 557,
+          "source": "text"
+        },
+        {
+          "token": "intent_pricing",
+          "weight": 186,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو المبلغ اللي اتخصم أكبر شوية من سعر الباقة، الغالب إن الفرق من البنك مش مننا:\n• لو الكارت بعملة غير عملة الدفع، البنك بيحوّل بسعر الصرف بتاعه.\n• بعض البنوك بتضيف رسوم على المشتريات من مواقع بعملة أجنبية أو من برّه البلد.\n\nتطبيق البنك أو كشف الحساب بيوضّح سعر الصرف والرسوم. ولو الفرق كبير أو مش مفهوم، ابعتلي التاريخ والمبلغين وأنا أراجع مع الفريق المالي.",
+          "en": "If the amount charged is slightly more than the plan's price, the difference usually comes from the bank, not us:\n• If your card is in a different currency from the payment's, the bank converts at its own exchange rate.\n• Some banks add fees on purchases in a foreign currency or from sites abroad.\n\nYour bank's app or statement shows the exchange rate and fees. If the difference is large or unclear, send me the date and both amounts and I'll check with the finance team."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_bank_fees",
+            "weight": 743,
+            "source": "text"
+          },
+          {
+            "token": "entity_money_deducted",
+            "weight": 256,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_site_cant_be_reached",
+      "intent": "device/browser/site_unreachable",
+      "label": {
+        "ar": "المتصفح بيقول «تعذّر الوصول إلى هذا الموقع»",
+        "en": "The browser says \"This site can't be reached\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_site_unreachable",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي معناها إن جهازك مش قادر يوصل لعنوان الموقع أصلًا — المشكلة في الاتصال، مش في حسابك:\n• افتح أي موقع تاني: لو مفيش حاجة بتفتح، النت نفسه واقف.\n• لو المواقع التانية شغالة: جرّب نت الموبايل بدل الواي فاي (أو العكس)، واقفل أي VPN.\n• على أندرويد: لو مفعّل «DNS خاص» (Private DNS)، خليه «تلقائي».\n• اقفل الراوتر دقيقة وشغّله تاني.\n\nولو مش بيفتح على أي شبكة ولا أي جهاز، قولّي.",
+          "en": "This message means your device can't reach the site's address at all — the problem is the connection, not your account:\n• Open any other site: if nothing opens, the internet itself is down.\n• If other sites work: try mobile data instead of Wi-Fi (or the reverse), and turn off any VPN.\n• On Android: if \"Private DNS\" is on, set it to \"Automatic\".\n• Turn the router off for a minute and back on.\n\nIf it won't open on any network or device, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_http_400_cookie_too_large",
+      "intent": "device/browser/cookie_too_large",
+      "label": {
+        "ar": "الصفحة بتقول 400 أو «Cookie Too Large»",
+        "en": "The page says 400 Bad Request or \"Cookie Too Large\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_cookie_too_large",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "http_status_400",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "دي غالبًا سببها بيانات موقع قديمة متراكمة في المتصفح:\n• امسح بيانات موقعنا بس (الكوكيز وبيانات الموقع) من إعدادات المتصفح ← الخصوصية.\n• أو جرّب نافذة تصفح خفي — لو اشتغلت، يبقى ده السبب.\n\nوبعدين سجّل دخولك من جديد.",
+          "en": "This is usually caused by old site data piling up in the browser:\n• Clear our site's data only (cookies and site data) from the browser's settings ▸ Privacy.\n• Or try a private window — if it works there, that's the cause.\n\nThen sign in again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "http_status_400",
+            "weight": 583,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "entity_cache",
+            "weight": 194,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_form_resubmission_prompt",
+      "intent": "device/browser/form_resubmission",
+      "label": {
+        "ar": "المتصفح بيسألني «تأكيد إعادة إرسال النموذج»",
+        "en": "The browser asks to \"Confirm Form Resubmission\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_form_resubmission",
+          "weight": 5,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرسالة دي بتظهر لما تعمل تحديث أو ترجع لصفحة كانت بعتت بيانات (زي نموذج أو دفع):\n• متدوسش «متابعة» — ده ممكن يبعت نفس الطلب تاني، ويتكرر الدفع أو الرسالة.\n• افتح الصفحة من القائمة أو اكتب العنوان بدل التحديث.\n• ولو مش متأكد الطلب الأول اتبعت ولا لأ، افتح المكان اللي بيظهر فيه (الطلبات أو التذاكر أو الاشتراك) وشوف.",
+          "en": "This appears when you refresh or go back to a page that had sent data (such as a form or a payment):\n• Don't press \"Continue\" — it can send the same request again and repeat the payment or message.\n• Open the page from the menu, or type the address, instead of refreshing.\n• If you're not sure the first request went through, open where it would show (requests, tickets or subscription) and check."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_tab_crashed",
+      "intent": "device/browser/tab_crashed",
+      "label": {
+        "ar": "الصفحة وقعت («Aw, Snap!» أو «الصفحة مش مستجيبة»)",
+        "en": "The tab crashed (\"Aw, Snap!\" or \"Page unresponsive\")"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_tab_crashed",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "دي معناها إن تبويب المتصفح نفسه وقع — مش الموقع:\n• اعمل تحديث للصفحة.\n• اقفل التابات والبرامج اللي مش محتاجها — الغالب إن ذاكرة الجهاز خلصت.\n• حدّث المتصفح لآخر نسخة.\n• جرّب نافذة تصفح خفي؛ لو اشتغلت، إضافة من الإضافات هي السبب.\n\nولو بتقع في صفحة واحدة بالذات كل مرة، قولّي هي أنهي.",
+          "en": "This means the browser tab itself crashed — not the site:\n• Reload the page.\n• Close tabs and programs you don't need — the device most likely ran out of memory.\n• Update the browser to the latest version.\n• Try a private window; if it works there, one of your extensions is the cause.\n\nIf it crashes on one particular page every time, tell me which."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_javascript_disabled",
+      "intent": "device/browser/javascript_disabled",
+      "label": {
+        "ar": "المتصفح بيقول فعّل JavaScript",
+        "en": "The browser says to enable JavaScript"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_javascript",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المنصة محتاجة JavaScript يكون شغّال في المتصفح:\n• كروم: الإعدادات ← الخصوصية والأمان ← إعدادات المواقع ← JavaScript ← «يمكن للمواقع استخدام JavaScript».\n• سفاري (آيفون): الإعدادات ← سفاري ← متقدم ← JavaScript.\n• إضافات زي NoScript بتقفله — ضيف موقعنا للمسموح.\n\nوبعدين حدّث الصفحة.",
+          "en": "The platform needs JavaScript enabled in the browser:\n• Chrome: Settings ▸ Privacy and security ▸ Site settings ▸ JavaScript ▸ \"Sites can use JavaScript\".\n• Safari (iPhone): Settings ▸ Safari ▸ Advanced ▸ JavaScript.\n• Extensions such as NoScript block it — add our site to the allowed list.\n\nThen refresh the page."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_page_unstyled",
+      "intent": "device/browser/page_unstyled",
+      "label": {
+        "ar": "الصفحة ظاهرة كلام بس من غير تصميم",
+        "en": "The page shows as plain text without its design"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_unstyled",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الصفحة ظاهرة كلام وروابط بس من غير ألوان ولا ترتيب، يبقى ملفات التصميم ماتحمّلتش:\n• اعمل تحديث قسري (Ctrl+Shift+R).\n• اقفل مانع الإعلانات أو أي إضافة بتحجب محتوى.\n• لو على شبكة شغل أو فيها فلتر، ممكن تكون حاجبة ملفات من الموقع — جرّب نت تاني.\n• جرّب نافذة تصفح خفي.",
+          "en": "If the page shows only text and links, with no colours or layout, its design files didn't load:\n• Do a hard refresh (Ctrl+Shift+R).\n• Turn off your ad blocker or any extension that blocks content.\n• A work or filtered network may be blocking files from the site — try another connection.\n• Try a private window."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_arabic_letters_disconnected",
+      "intent": "device/display/arabic_letters_disconnected",
+      "label": {
+        "ar": "الحروف العربي ظاهرة مقطّعة (مش متوصلة ببعض)",
+        "en": "Arabic letters show disconnected"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_letters_disconnected",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الحروف العربي بتظهر مقطّعة لما الخط أو المتصفح مش بيوصّل الحروف ببعض صح:\n• حدّث المتصفح.\n• لو مفعّل خط مخصّص، أو إضافة بتغيّر الخطوط، أو وضع القراءة — اقفلها.\n• لو الترجمة التلقائية شغالة، اقفلها للموقع.\n• على جهاز قديم جدًا، جرّب متصفح تاني زي كروم أو فايرفوكس.",
+          "en": "Arabic letters show disconnected when the font or the browser doesn't join them properly:\n• Update the browser.\n• If a custom font, a font-changing extension or reading mode is on — turn it off.\n• If automatic translation is on, turn it off for the site.\n• On a very old device, try another browser such as Chrome or Firefox."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_characters_show_as_boxes",
+      "intent": "device/display/characters_as_boxes",
+      "label": {
+        "ar": "الإيموجي أو الحروف ظاهرة مربعات",
+        "en": "Emoji or letters show as empty boxes"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_boxes",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "social_emoji_only",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المربعات الفاضية مكان الحروف أو الإيموجي معناها إن الجهاز مفيهوش خط بيعرض الرموز دي:\n• حدّث نظام التشغيل والمتصفح — التحديثات بتضيف خطوط الإيموجي الجديدة.\n• لو الحروف العربي نفسها مربعات، الجهاز محتاج إعدادات اللغة العربية أو خط عربي.\n\nالرسالة نفسها سليمة — اللي يفتحها على جهاز أحدث هيشوفها عادي.",
+          "en": "Empty boxes in place of letters or emoji mean the device has no font that can show those characters:\n• Update the operating system and the browser — updates add fonts for newer emoji.\n• If the Arabic letters themselves are boxes, the device needs Arabic language settings or an Arabic font.\n\nThe message itself is fine — anyone opening it on a newer device will see it normally."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_downloaded_file_where",
+      "intent": "files/download/where_is_it",
+      "label": {
+        "ar": "نزّلت الملف ومش لاقيه",
+        "en": "I downloaded the file and can't find it"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_downloaded",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_downloads_folder",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الملفات اللي بتنزل من المتصفح بتروح لمجلد «التنزيلات» (Downloads) غالبًا:\n• على الكمبيوتر: اضغط Ctrl+J (أو Cmd+Shift+J على ماك) — بتفتح قائمة التنزيلات، ودوس «عرض في المجلد».\n• على أندرويد: تطبيق «الملفات» ← التنزيلات.\n• على آيفون: تطبيق «الملفات» ← التنزيلات.\n\nولو القائمة فاضية، يبقى التنزيل ماكملش — نزّله تاني.",
+          "en": "Files downloaded from the browser usually go to the \"Downloads\" folder:\n• On a computer: press Ctrl+J (or Cmd+Shift+J on a Mac) to open the downloads list, then \"Show in folder\".\n• On Android: the \"Files\" app ▸ Downloads.\n• On iPhone: the \"Files\" app ▸ Downloads.\n\nIf the list is empty, the download didn't finish — download it again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_downloaded_file_wont_open",
+      "intent": "files/download/wont_open",
+      "label": {
+        "ar": "الملف اللي نزّلته مش بيفتح",
+        "en": "The file I downloaded will not open"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_file_open_fail",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_downloaded",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الملف نزل بس مش بيفتح:\n• اتأكد إن عندك برنامج بيفتح النوع ده: PDF محتاج قارئ PDF، وXLSX محتاج Excel أو Google Sheets.\n• على الموبايل: افتحه من تطبيق «الملفات» واختار «فتح باستخدام».\n• لو حجمه صفر أو صغير بشكل غريب، التنزيل ماكملش — نزّله تاني.\n\nولو بيفتح عند زميلك ومش عندك، قولّي نوعه وأنا أقولك تفتحه بإيه.",
+          "en": "If the file downloaded but won't open:\n• Make sure you have an app for that type: a PDF needs a PDF reader, an XLSX needs Excel or Google Sheets.\n• On a phone: open it from the \"Files\" app and choose \"Open with\".\n• If its size is zero or oddly small, the download didn't finish — download it again.\n\nIf it opens for a colleague but not for you, tell me its type and I'll tell you what to open it with."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_download_blocked_warning",
+      "intent": "files/download/blocked_warning",
+      "label": {
+        "ar": "المتصفح بيقول الملف ممكن يكون ضار ومنع التنزيل",
+        "en": "The browser says the file may be harmful and blocked the download"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_download_blocked",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيعمل كده مع أنواع ملفات معيّنة أو مع ملف نزل من رابط ماتعرفوش:\n• لو الملف جالك منّا (زي تقرير أو فاتورة من حسابك)، من قائمة التنزيلات (Ctrl+J) دوس «الاحتفاظ» أو «Keep».\n• لو جالك من حد مش معروف أو في رسالة غريبة، متفتحوش — ابعتلي من فين جالك.",
+          "en": "Browsers do this for some file types, or for a file from a link they don't know:\n• If the file came from us (such as a report or an invoice from your account), open the downloads list (Ctrl+J) and choose \"Keep\".\n• If it came from someone unknown or in a strange message, don't open it — tell me where it came from."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_save_page_as_pdf",
+      "intent": "files/pdf/save_page",
+      "label": {
+        "ar": "أحفظ الصفحة PDF إزاي",
+        "en": "How do I save a page as a PDF"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_save_as_pdf",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_pdf",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من أي متصفح:\n• اضغط Ctrl+P (أو Cmd+P على ماك)، وفي «الوجهة» اختار «حفظ بتنسيق PDF»، وبعدين «حفظ».\n• على آيفون: زرار المشاركة ← «طباعة»، وافتح المعاينة بإصبعين ← مشاركة ← «حفظ في الملفات».\n• على أندرويد: القائمة (⋮) ← مشاركة ← «طباعة» ← «حفظ بتنسيق PDF».",
+          "en": "From any browser:\n• Press Ctrl+P (or Cmd+P on a Mac), set \"Destination\" to \"Save as PDF\", then \"Save\".\n• On iPhone: the Share button ▸ \"Print\", pinch out on the preview ▸ Share ▸ \"Save to Files\".\n• On Android: the menu (⋮) ▸ Share ▸ \"Print\" ▸ \"Save as PDF\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_zip_file_open",
+      "intent": "files/zip/open",
+      "label": {
+        "ar": "ملف مضغوط (zip) ومش عارف أفتحه",
+        "en": "A compressed (zip) file I can't open"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_zip",
+          "weight": 5,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الملف المضغوط لازم «يتفك» الأول:\n• ويندوز: كليك يمين عليه ← «استخراج الكل».\n• ماك: دبل كليك عليه.\n• أندرويد: افتحه من تطبيق «الملفات» ← «استخراج».\n• آيفون: دوس عليه في تطبيق «الملفات» — بيتفك لوحده في نفس المكان.\n\nالملفات اللي جوه بتظهر في فولدر بنفس الاسم.",
+          "en": "A compressed file has to be extracted first:\n• Windows: right-click it ▸ \"Extract All\".\n• Mac: double-click it.\n• Android: open it in the \"Files\" app ▸ \"Extract\".\n• iPhone: tap it in the \"Files\" app — it extracts in the same place.\n\nThe files inside appear in a folder with the same name."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_arabic_filename_garbled",
+      "intent": "files/name/arabic_garbled",
+      "label": {
+        "ar": "اسم الملف العربي بقى رموز غريبة",
+        "en": "The Arabic file name turned into strange symbols"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_filename",
+          "weight": 688,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_codes_word",
+          "weight": 172,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "بعض البرامج (وخصوصًا الملفات المضغوطة وبعض الإيميلات) مابتحفظش الأسماء العربي صح، فبتطلع رموز. الملف نفسه غالبًا سليم:\n• غيّر اسمه وافتحه عادي.\n• لو هتبعت ملف لحد أو ترفعه، سمّيه بالإنجليزي قبلها — ده بيمنع المشكلة من الأول.",
+          "en": "Some programs (especially compressed files and some e-mail) don't keep Arabic names correctly, so they turn into symbols. The file itself is usually fine:\n• Rename it and open it normally.\n• When sending or uploading a file, give it an English name first — that avoids the problem entirely."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_filename",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_garbled",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_scan_document_phone",
+      "intent": "files/scan/phone_document",
+      "label": {
+        "ar": "أصوّر مستند بالموبايل وأبعته واضح إزاي",
+        "en": "How do I scan a document clearly with my phone"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_scan_document",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_mobile",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "بدل صورة الكاميرا العادية، استخدم «مسح المستندات» — بيقصّ الورقة ويخليها واضحة وحجمها صغير:\n• آيفون: تطبيق «الملاحظات» ← الكاميرا ← «مسح المستندات».\n• أندرويد: تطبيق Google Drive ← (+) ← «مسح ضوئي».\n• حط الورقة على سطح غامق في نور كويس، وخلّي أطرافها الأربعة باينة.\n\nبيطلع ملف PDF تقدر ترفعه أو تبعته.",
+          "en": "Instead of a normal camera photo, use document scanning — it crops the page, makes it clear and keeps it small:\n• iPhone: the \"Notes\" app ▸ camera ▸ \"Scan Documents\".\n• Android: the Google Drive app ▸ (+) ▸ \"Scan\".\n• Put the page on a dark surface in good light, with all four corners visible.\n\nYou get a PDF you can upload or send."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_convert_word_to_pdf",
+      "intent": "files/pdf/convert_word",
+      "label": {
+        "ar": "أحوّل ملف وورد لـ PDF إزاي",
+        "en": "How do I convert a Word file to PDF"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_convert_word",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_word_doc",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_pdf",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• من Word: ملف ← «حفظ باسم»، واختار النوع PDF.\n• من غير Word: ارفعه على Google Drive، افتحه بـ Google Docs ← ملف ← تنزيل ← PDF.\n• على الموبايل: افتحه ← مشاركة ← «طباعة» ← «حفظ بتنسيق PDF».",
+          "en": "• In Word: File ▸ \"Save As\", and choose PDF as the type.\n• Without Word: upload it to Google Drive, open it with Google Docs ▸ File ▸ Download ▸ PDF.\n• On a phone: open it ▸ Share ▸ \"Print\" ▸ \"Save as PDF\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_excel_drops_leading_zero",
+      "intent": "files/excel/leading_zero",
+      "label": {
+        "ar": "Excel شال الصفر من أول رقم الموبايل",
+        "en": "Excel removed the leading zero from phone numbers"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_leading_zero",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_spreadsheet",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_whatsapp_number",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "Excel بيعتبر الرقم «عدد» فبيشيل الصفر اللي على الشمال — البيانات في الملف نفسه سليمة:\n• عشان تشوفها صح: بدل ما تفتح الملف بدبل كليك، من Excel ← «بيانات» ← «من نص/CSV»، واختار عمود الأرقام ← «نص».\n• أو حدّد العمود ← تنسيق الخلايا ← «نص» قبل ما تلصق الأرقام.\n\nولو هتستورد الأرقام في مكان تاني، اتأكد إنها رجعت بالصفر (01…) أو بالصيغة الدولية (2010…).",
+          "en": "Excel treats the value as a number, so it drops the zero on the left — the data in the file itself is fine:\n• To see it correctly: instead of double-clicking the file, in Excel ▸ Data ▸ From Text/CSV, set the phone column to \"Text\".\n• Or select the column ▸ Format Cells ▸ \"Text\" before pasting the numbers.\n\nIf you'll import the numbers elsewhere, make sure they're back with the zero (01…) or in international form (2010…)."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_excel_long_numbers_scientific",
+      "intent": "files/excel/scientific_notation",
+      "label": {
+        "ar": "الأرقام الطويلة في Excel بقت شكلها غريب (E+)",
+        "en": "Long numbers in Excel turned into E+ notation"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_long_numbers",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_spreadsheet",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "Excel بيعرض أي رقم طويل (زي الموبايل أو رقم العملية) بالصيغة العلمية (2.01E+11)، ولو اتحفظ كده ممكن آخر أرقامه تضيع:\n• حدّد العمود ← تنسيق الخلايا ← «نص» (قبل الإدخال أو الاستيراد).\n• ولو بتفتح CSV: من «بيانات» ← «من نص/CSV» واختار العمود «نص».\n\nمتحفظش الملف من Excel بعد ما الأرقام اتحولت، وإلا هتفضل متغيرة.",
+          "en": "Excel shows any long number (such as a phone or transaction number) in scientific form (2.01E+11), and if saved that way the last digits can be lost:\n• Select the column ▸ Format Cells ▸ \"Text\" (before entering or importing).\n• If you're opening a CSV: Data ▸ From Text/CSV, and set the column to \"Text\".\n\nDon't save the file from Excel after the numbers were converted, or they'll stay changed."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_csv_opens_in_one_column",
+      "intent": "files/csv/one_column",
+      "label": {
+        "ar": "ملف CSV بيفتح في Excel كله في عمود واحد",
+        "en": "A CSV opens in Excel all in one column"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_one_column",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_spreadsheet",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده سببه إن Excel على جهازك متوقّع فاصل غير الفاصلة (بيحصل مع إعدادات المنطقة العربي أو الأوروبي):\n• بدل الدبل كليك: من Excel ← «بيانات» ← «من نص/CSV»، واختار الفاصل «فاصلة» (Comma).\n• أو حدّد العمود ← «بيانات» ← «نص إلى أعمدة» ← «محدد» ← «فاصلة».\n\nولو عندك اختيار XLSX في التصدير، اختاره وهيفتح مترتب على طول.",
+          "en": "This happens because Excel on your device expects a separator other than the comma (common with Arabic or European regional settings):\n• Instead of double-clicking: in Excel ▸ Data ▸ From Text/CSV, and choose \"Comma\" as the delimiter.\n• Or select the column ▸ Data ▸ \"Text to Columns\" ▸ \"Delimited\" ▸ \"Comma\".\n\nIf the export offers XLSX, choose it and it opens already arranged."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_upload_stuck",
+      "intent": "files/upload/stuck",
+      "label": {
+        "ar": "الرفع واقف ومش بيخلص",
+        "en": "The upload is stuck and never finishes"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_uploading",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_stuck_word",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الرفع اللي بيقف في النص سببه غالبًا الشبكة أو حجم الملف:\n• جرّب ملف أصغر (صورة screenshot بدل صورة الكاميرا، أو PDF بدل صورة كبيرة).\n• اتأكد إن النت ثابت — على الموبايل جرّب واي فاي بدل الداتا أو العكس.\n• متقفلش الصفحة ولا تبدّل التطبيق وهو بيرفع.\n• جرّب متصفح تاني.\n\nولو ملف صغير بيقف برضه، قولّي بترفعه فين بالظبط.",
+          "en": "An upload that stops midway is usually the network or the file's size:\n• Try a smaller file (a screenshot instead of a camera photo, or a PDF instead of a large image).\n• Make sure the connection is stable — on a phone, try Wi-Fi instead of mobile data or the reverse.\n• Don't close the page or switch apps while it uploads.\n• Try another browser.\n\nIf even a small file gets stuck, tell me exactly where you're uploading it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_file_upload",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_stuck_word",
+            "weight": 3,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_arabic_keyboard_computer",
+      "intent": "device/keyboard/add_arabic",
+      "label": {
+        "ar": "مش عارف أكتب عربي على الكمبيوتر",
+        "en": "I can't type Arabic on my computer"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_keyboard",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لازم تضيف العربي للكيبورد مرة واحدة:\n• ويندوز: الإعدادات ← الوقت واللغة ← اللغة والمنطقة ← إضافة لغة ← العربية. وبعدها تبدّل بـ Alt+Shift أو Windows+Space.\n• ماك: إعدادات النظام ← لوحة المفاتيح ← مصادر الإدخال ← (+) ← العربية. والتبديل بـ Control+Space.\n\nولو الحروف مش مطبوعة على الكيبورد، ترتيبها زي أي كيبورد عربي — وفيه ملصقات حروف رخيصة.",
+          "en": "You need to add Arabic to the keyboard once:\n• Windows: Settings ▸ Time & language ▸ Language & region ▸ Add a language ▸ Arabic. Then switch with Alt+Shift or Windows+Space.\n• Mac: System Settings ▸ Keyboard ▸ Input Sources ▸ (+) ▸ Arabic. Switch with Control+Space.\n\nIf the letters aren't printed on the keys, the layout is the standard Arabic one — cheap letter stickers are available."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_computer",
+            "weight": 161,
+            "source": "text"
+          },
+          {
+            "token": "social_asks_arabic",
+            "weight": 419,
+            "source": "text"
+          },
+          {
+            "token": "entity_keyboard",
+            "weight": 419,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_copy_paste_how",
+      "intent": "device/input/copy_paste_how",
+      "label": {
+        "ar": "أنسخ وألصق إزاي",
+        "en": "How do I copy and paste"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_copy",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_paste",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• على الكمبيوتر: حدّد الكلام بالماوس، واضغط Ctrl+C للنسخ، وروح للمكان اللي عايزه واضغط Ctrl+V للصق (على ماك: Cmd بدل Ctrl).\n• على الموبايل: اضغط ضغطة طويلة على الكلمة، وحرّك العلامات لحد ما تحدد الكلام كله ← «نسخ». وفي الخانة اللي عايز تلصق فيها: ضغطة طويلة ← «لصق».",
+          "en": "• On a computer: select the text with the mouse, press Ctrl+C to copy, go where you want it and press Ctrl+V to paste (on a Mac: Cmd instead of Ctrl).\n• On a phone: long-press a word, drag the handles until all the text is selected ▸ \"Copy\". In the field where you want it: long-press ▸ \"Paste\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_link_not_opening_on_tap",
+      "intent": "device/links/not_clickable",
+      "label": {
+        "ar": "الرابط مش بيفتح لما أدوس عليه",
+        "en": "The link does not open when I tap it"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_tap_link",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_reset_link",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "جرّب تفتحه بنفسك بدل الضغط:\n• اضغط ضغطة طويلة على الرابط ← «نسخ الرابط»، والصقه في شريط العنوان في المتصفح.\n• لو الرابط متقسّم على سطرين في الرسالة، انسخ الجزءين والزقهم من غير مسافة.\n• لو في تطبيق (زي واتساب أو الإيميل) مابيحصلش حاجة، افتح الرسالة من المتصفح أو من تطبيق تاني.\n\nولو الرابط نفسه فتح وقالك منتهي أو غلط، ابعتهولي.",
+          "en": "Try opening it yourself instead of tapping:\n• Long-press the link ▸ \"Copy link\", and paste it into the browser's address bar.\n• If the link is split over two lines in the message, copy both parts and join them without a space.\n• If nothing happens inside an app (such as WhatsApp or e-mail), open the message from a browser or another app.\n\nIf the link opens but says it has expired or is invalid, send it to me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_scan_qr_code_how",
+      "intent": "device/camera/scan_qr_how",
+      "label": {
+        "ar": "أعمل مسح لكود QR إزاي",
+        "en": "How do I scan a QR code"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_qr_code",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_scan_document",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• آيفون: افتح الكاميرا ووجّهها على الكود — هيظهر رابط فوق، دوس عليه.\n• أندرويد: افتح الكاميرا أو «عدسة جوجل» ووجّهها على الكود.\n• لو الكود على شاشة الكمبيوتر، قرّب الموبايل لحد ما الكود يملى إطار الكاميرا، وكبّر سطوع الشاشة.\n\nلو الكود ده لربط حاجة أو لتفعيل حماية، افتحه من التطبيق المطلوب نفسه (زي تطبيق المصادقة) مش من الكاميرا.",
+          "en": "• iPhone: open the camera and point it at the code — a link appears at the top; tap it.\n• Android: open the camera or \"Google Lens\" and point it at the code.\n• If the code is on a computer screen, bring the phone closer until the code fills the camera frame, and raise the screen's brightness.\n\nIf the code is for linking something or enabling protection, scan it from inside the app that asks for it (such as the authenticator app), not the camera."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_desktop_site_on_phone",
+      "intent": "device/mobile/desktop_site",
+      "label": {
+        "ar": "عايز أفتح نسخة الكمبيوتر من الموبايل",
+        "en": "I want the desktop version on my phone"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_desktop_site",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_mobile",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من قائمة المتصفح على الموبايل:\n• كروم: القائمة (⋮) ← فعّل «موقع سطح المكتب».\n• سفاري: زرار «aA» في شريط العنوان ← «طلب موقع سطح المكتب».\n\nالشكل هيبقى أصغر — كبّر بإصبعين. ولو في حاجة ناقصة أو مكسورة في شكل الموبايل، قولّي هي أنهي.",
+          "en": "From the browser's menu on your phone:\n• Chrome: the menu (⋮) ▸ turn on \"Desktop site\".\n• Safari: the \"aA\" button in the address bar ▸ \"Request Desktop Website\".\n\nEverything will be smaller — pinch to zoom. If something is missing or broken in the mobile layout, tell me what."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_add_site_to_home_screen",
+      "intent": "device/mobile/home_screen_shortcut",
+      "label": {
+        "ar": "أحط الموقع على الشاشة الرئيسية للموبايل",
+        "en": "Add the site to my phone's home screen"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_home_screen",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تعمل له أيقونة زي التطبيق:\n• آيفون (سفاري): زرار المشاركة ← «إضافة إلى الشاشة الرئيسية».\n• أندرويد (كروم): القائمة (⋮) ← «إضافة إلى الشاشة الرئيسية».\n\nالأيقونة بتفتح الموقع على طول، وبتفضل مسجّل دخولك طول ما ماسجلتش خروج.",
+          "en": "You can give it an icon like an app:\n• iPhone (Safari): the Share button ▸ \"Add to Home Screen\".\n• Android (Chrome): the menu (⋮) ▸ \"Add to Home screen\".\n\nThe icon opens the site directly, and you stay signed in until you sign out."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_home_screen",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "qualifier_mobile",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_browser_mic_camera_blocked",
+      "intent": "device/browser/mic_camera_permission",
+      "label": {
+        "ar": "المتصفح مانع الميكروفون أو الكاميرا",
+        "en": "The browser is blocking the microphone or camera"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_device_permission",
+          "weight": 356,
+          "source": "text"
+        },
+        {
+          "token": "entity_microphone",
+          "weight": 420,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الإذن ده بيتدّي للموقع من المتصفح نفسه:\n• كروم على الكمبيوتر: دوس على القفل جنب العنوان ← الميكروفون/الكاميرا ← «السماح»، وحدّث الصفحة.\n• كروم على أندرويد: القفل ← الأذونات.\n• سفاري على آيفون: «aA» ← إعدادات موقع الويب ← الميكروفون/الكاميرا ← «سماح».\n\nولو الإذن مسموح ومفيش صوت أو صورة، اتأكد إن مفيش برنامج تاني (زي زوم) ماسك الميكروفون أو الكاميرا.",
+          "en": "The permission is given to the site by the browser itself:\n• Chrome on a computer: click the lock next to the address ▸ Microphone/Camera ▸ \"Allow\", then refresh.\n• Chrome on Android: the lock ▸ Permissions.\n• Safari on iPhone: \"aA\" ▸ Website Settings ▸ Microphone/Camera ▸ \"Allow\".\n\nIf it's allowed but there's no sound or picture, make sure no other program (such as Zoom) is holding the microphone or camera."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_microphone",
+            "weight": 583,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "entity_device_permission",
+            "weight": 194,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_digits_shown_as_arabic_indic",
+      "intent": "device/locale/digits_display",
+      "label": {
+        "ar": "الأرقام ظاهرة ١٢٣ بدل 123",
+        "en": "Numbers show as Arabic-Indic digits (١٢٣)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_numbers_shown",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_digits",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكل الأرقام بيتحدد من إعدادات اللغة في جهازك، مش من الموقع:\n• أندرويد: الإعدادات ← النظام ← اللغة ← (حسب الجهاز) «الأرقام» ← الأرقام الغربية 123.\n• آيفون: الإعدادات ← عام ← اللغة والمنطقة ← «الأرقام».\n• ويندوز: الإعدادات ← الوقت واللغة ← المنطقة ← التنسيقات.\n\nالرقم نفسه واحد في الحالتين — ده شكل عرضه بس.",
+          "en": "How digits look is set by your device's language settings, not the site:\n• Android: Settings ▸ System ▸ Language ▸ (depending on the device) \"Numbers\" ▸ Western digits 123.\n• iPhone: Settings ▸ General ▸ Language & Region ▸ \"Numbers\".\n• Windows: Settings ▸ Time & language ▸ Region ▸ Formats.\n\nThe number is the same either way — only its display differs."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_site_works_on_wifi_only",
+      "intent": "device/network/wifi_only",
+      "label": {
+        "ar": "الموقع بيفتح على الواي فاي بس، ومش بيفتح على الداتا",
+        "en": "The site opens on Wi-Fi but not on mobile data"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mobile_data",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_wifi",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو بيفتح على الواي فاي ومش بيفتح على الداتا، المشكلة في الداتا نفسها:\n• اتأكد إن باقة النت لسه فيها رصيد (افتح أي موقع تاني على الداتا).\n• آيفون: الإعدادات ← البيانات الخلوية ← انزل للمتصفح (سفاري أو كروم) واتأكد إنه مسموح له.\n• لو مفعّل «توفير البيانات» في المتصفح أو الموبايل، اقفله مؤقتًا.\n• اقفل الداتا وافتحها، أو اعمل وضع الطيران وشيله.\n\nولو فضلت، ده غالبًا من شبكة الموبايل — جرّب خط تاني لو معاك.",
+          "en": "If it opens on Wi-Fi but not on mobile data, the problem is the data connection itself:\n• Make sure your data bundle still has balance (open any other site on data).\n• iPhone: Settings ▸ Mobile Data ▸ scroll to the browser (Safari or Chrome) and make sure it's allowed.\n• If \"Data Saver\" is on in the browser or phone, turn it off for now.\n• Turn data off and on, or toggle Airplane mode.\n\nIf it continues, it's most likely the mobile network — try another SIM if you have one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_private_window_how",
+      "intent": "device/browser/private_window_how",
+      "label": {
+        "ar": "أفتح نافذة تصفح خفي إزاي",
+        "en": "How do I open a private window"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_private_window",
+          "weight": 688,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 172,
+          "source": "text"
+        },
+        {
+          "token": "atom_open_action",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• كروم أو إيدج على الكمبيوتر: Ctrl+Shift+N (على ماك: Cmd+Shift+N).\n• فايرفوكس: Ctrl+Shift+P.\n• سفاري على ماك: Cmd+Shift+N.\n• على الموبايل: من قائمة المتصفح ← «علامة تبويب جديدة للتصفح المتخفي» (كروم)، أو زرار التابات ← «خاص» (سفاري).\n\nفيها لازم تسجّل دخولك من جديد، وكل حاجة بتتمسح أول ما تقفلها.",
+          "en": "• Chrome or Edge on a computer: Ctrl+Shift+N (Mac: Cmd+Shift+N).\n• Firefox: Ctrl+Shift+P.\n• Safari on a Mac: Cmd+Shift+N.\n• On a phone: the browser menu ▸ \"New Incognito tab\" (Chrome), or the tabs button ▸ \"Private\" (Safari).\n\nYou'll need to sign in again there, and everything is cleared when you close it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_email_in_promotions_tab",
+      "intent": "email/client/promotions_tab",
+      "label": {
+        "ar": "الإيميلات بتروح لتبويب الترويج (Promotions)",
+        "en": "E-mails land in the Promotions tab"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_promotions_tab",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "Gmail بيوزّع الإيميلات على تبويبات (الأساسي، الترويج، التحديثات)، وOutlook بيقسمها «المركّز» و«أخرى»:\n• افتح الإيميل من التبويب اللي وصل فيه، واسحبه لـ «الأساسي» (أو في Outlook: «نقل إلى المركّز» ← «دايمًا»).\n• Gmail هيسألك تعمل كده لكل الإيميلات الجاية من نفس المرسل — وافق.\n• ضيف عنوان المرسل لجهات الاتصال.",
+          "en": "Gmail sorts mail into tabs (Primary, Promotions, Updates), and Outlook into \"Focused\" and \"Other\":\n• Open the e-mail from the tab it landed in and drag it to \"Primary\" (in Outlook: \"Move to Focused\" ▸ \"Always\").\n• Gmail will offer to do this for future mail from the same sender — accept.\n• Add the sender's address to your contacts."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_mailbox_full",
+      "intent": "email/client/mailbox_full",
+      "label": {
+        "ar": "صندوق البريد بتاعي مليان",
+        "en": "My mailbox is full"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mailbox_full",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما صندوق البريد يتملي، الإيميلات الجديدة (ومنها رسايلنا وأكواد التحقق) بترجع ومابتوصلش:\n• Gmail: المساحة مشتركة مع Drive وصور جوجل — امسح الإيميلات الكبيرة (دوّر بـ larger:10M)، وفضّي «المهملات».\n• Outlook/Hotmail: امسح القديم وفضّي «العناصر المحذوفة».\n\nبعدها اطلب الإيميل اللي كنت مستنيه تاني.",
+          "en": "When a mailbox is full, new e-mails (including ours and verification codes) bounce and never arrive:\n• Gmail: storage is shared with Drive and Google Photos — delete large e-mails (search larger:10M) and empty the Bin.\n• Outlook/Hotmail: delete old mail and empty \"Deleted Items\".\n\nThen request the e-mail you were waiting for again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_email_sender_blocked",
+      "intent": "email/client/sender_blocked",
+      "label": {
+        "ar": "عملت بلوك لإيميلكم بالغلط",
+        "en": "I blocked your e-mails by mistake"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_blocked_sender",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تشيل الحظر من إعدادات الإيميل:\n• Gmail (كمبيوتر): الإعدادات ← «عرض كل الإعدادات» ← «الفلاتر والعناوين المحظورة» ← امسح العنوان من القائمة.\n• Gmail (موبايل): افتح أي إيميل قديم من المرسل ← القائمة (⋮) ← «إلغاء حظر».\n• Outlook: الإعدادات ← البريد ← البريد العشوائي ← «المرسلون المحظورون».\n\nوبعدها بصّ في الـ Spam — الإيميلات اللي اتحظرت غالبًا راحت هناك.",
+          "en": "You can remove the block in your mail settings:\n• Gmail (computer): Settings ▸ \"See all settings\" ▸ \"Filters and Blocked Addresses\" ▸ remove the address.\n• Gmail (phone): open any old e-mail from the sender ▸ menu (⋮) ▸ \"Unblock\".\n• Outlook: Settings ▸ Mail ▸ Junk email ▸ \"Blocked senders\".\n\nThen check Spam — blocked e-mails usually went there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_company_mail_filter",
+      "intent": "email/client/company_filter",
+      "label": {
+        "ar": "إيميل الشركة مش بيستقبل رسايلكم",
+        "en": "Our company e-mail does not receive your messages"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mail_receiving",
+          "weight": 516,
+          "source": "text"
+        },
+        {
+          "token": "atom_company",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 344,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إيميلات الشركات غالبًا وراها فلتر أو «حجر» بيحجز الرسايل الأوتوماتيك قبل ما توصل:\n• اطلب من قسم IT يدوّر في الحجر (Quarantine) على رسايلنا ويسمح بدومين المرسل.\n• اطلب منهم يضيفوه لقائمة المرسلين الموثوقين.\n• لحد ما يتحل، تقدر تستخدم إيميل شخصي للحاجات المستعجلة زي أكواد التحقق.",
+          "en": "Company mailboxes often sit behind a filter or \"quarantine\" that holds automated messages before they arrive:\n• Ask your IT team to look in the quarantine for our messages and allow the sender's domain.\n• Ask them to add it to the trusted senders list.\n• Until it's fixed, you can use a personal e-mail for urgent things such as verification codes."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_remote_access_scam",
+      "intent": "security/scam/remote_access_app",
+      "label": {
+        "ar": "حد طلب مني أنزّل برنامج تحكّم عن بعد (AnyDesk)",
+        "en": "Someone asked me to install a remote-access app (AnyDesk)"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_remote_app",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_someone_asked",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "متنزّلوش — وده مهم: برنامج التحكم عن بعد بيدّي اللي على الطرف التاني تحكّم كامل في جهازك، وبيقدر يشوف حساباتك وأكوادك وتطبيق البنك.\n• احنا مش بنطلب منك تنزّل برنامج تحكّم ولا نطلب كلمة المرور أو كود تحقق.\n• لو نزّلته فعلًا: اقفله وامسحه، غيّر كلمات المرور المهمة من جهاز تاني، وسجّل خروج من كل الأجهزة.\n• لو في حد اتصل بيك باسمنا، ابعتلي رقمه وميعاد المكالمة.",
+          "en": "Don't install it — this matters: a remote-access app gives the person on the other end full control of your device, including your accounts, codes and banking app.\n• We never ask you to install a remote-control app, nor for your password or a verification code.\n• If you already installed it: close and uninstall it, change your important passwords from another device, and sign out of all devices.\n• If someone called you in our name, send me their number and when they called."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_caller_asks_for_code",
+      "intent": "security/scam/caller_asks_code",
+      "label": {
+        "ar": "حد كلّمني وطلب الكود اللي جالي",
+        "en": "Someone called me and asked for the code I received"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_caller",
+          "weight": 810,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "متديهوش الكود — أي حد بيطلب كود التحقق اللي وصلك بيحاول يدخل حسابك، حتى لو قال إنه من الدعم:\n• احنا مش بنطلب كود التحقق ولا كلمة المرور أبدًا، لا بمكالمة ولا برسالة.\n• لو قلته فعلًا: غيّر كلمة المرور دلوقتي، سجّل خروج من كل الأجهزة، وفعّل التحقق بخطوتين.\n• ابعتلي رقمه وميعاد المكالمة عشان الفريق يتابع.",
+          "en": "Don't give them the code — anyone asking for a verification code you received is trying to get into your account, even if they say they're from support:\n• We never ask for a verification code or your password, not by call and not by message.\n• If you already told them: change your password now, sign out of all devices, and turn on two-step verification.\n• Send me their number and when they called so the team can follow up."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_caller",
+            "weight": 860,
+            "source": "text"
+          },
+          {
+            "token": "atom_code",
+            "weight": 139,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_caller",
+            "weight": 670,
+            "source": "text"
+          },
+          {
+            "token": "atom_support",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 190,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_adware_popups",
+      "intent": "security/device/adware_popups",
+      "label": {
+        "ar": "إعلانات وصفحات غريبة بتفتح لوحدها",
+        "en": "Ads and strange pages open by themselves"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_adware",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_itself",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده غالبًا إضافة متصفح أو برنامج إعلانات اتسطّب من غير ما تاخد بالك — مش من الموقع:\n• المتصفح: افتح الإضافات وامسح أي إضافة ماتعرفهاش أو مش فاكر سطّبتها.\n• كروم: الإعدادات ← إعادة الضبط والتنظيف ← «استعادة الإعدادات لقيمها الأصلية».\n• أندرويد: الإعدادات ← الإشعارات، ودوّر على موقع أو تطبيق بيبعت إعلانات واقفل إشعاراته.\n• شغّل فحص من برنامج حماية معروف.",
+          "en": "This is usually a browser extension or adware installed without you noticing — not the site:\n• Browser: open Extensions and remove anything you don't recognise or don't remember installing.\n• Chrome: Settings ▸ Reset settings ▸ \"Restore settings to their original defaults\".\n• Android: Settings ▸ Notifications — find any site or app sending ads and turn its notifications off.\n• Run a scan with a well-known security program."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_screenshot_privacy",
+      "intent": "security/privacy/screenshot_redact",
+      "label": {
+        "ar": "أبعت صورة فيها بياناتي؟",
+        "en": "Should I send a screenshot that shows my personal data?"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_my_data",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_redact",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_media",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ابعتها، بس خبّي الحساس الأول:\n• غطّي أو اشطب: رقم الكارت كامل، الرقم السري أو الـ CVV، كلمات المرور، وأي كود تحقق.\n• على الموبايل: بعد ما تاخد الصورة، دوس «تعديل» وارسم فوق البيانات.\n• آخر ٤ أرقام من الكارت، والتاريخ والمبلغ، مفيش مشكلة تبان — بيساعدوني ألاقي العملية.",
+          "en": "Send it, but hide the sensitive parts first:\n• Cover or cross out: the full card number, PIN or CVV, passwords, and any verification code.\n• On a phone: after taking the screenshot, tap \"Edit\" and draw over the data.\n• The last 4 digits of the card, the date and the amount are fine to show — they help me find the transaction."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_save_button_disabled",
+      "intent": "forms/save/button_greyed",
+      "label": {
+        "ar": "زرار الحفظ رمادي ومش بيتداس",
+        "en": "The save button is greyed out"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_greyed_out",
+          "weight": 430,
+          "source": "text"
+        },
+        {
+          "token": "entity_save_word",
+          "weight": 430,
+          "source": "text"
+        },
+        {
+          "token": "atom_button",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "زرار الحفظ بيفضل رمادي لحد ما النموذج يبقى جاهز يتحفظ:\n• فيه خانة إجبارية فاضية — دوّر على علامة (*) أو خانة عليها تنبيه، وانزل لآخر الصفحة.\n• فيه خانة قيمتها مش مقبولة (بتبقى بلون أحمر أو تحتها رسالة صغيرة).\n• لو ماغيّرتش حاجة، الزرار بيفضل مقفول لأنه مفيش حاجة تتحفظ.\n\nولو كل ده مظبوط وبرضه رمادي، قولّي انت في أنهي صفحة.",
+          "en": "A save button stays grey until the form is ready to save:\n• A required field is empty — look for an asterisk (*) or a field with a warning, and scroll to the bottom of the page.\n• A field has a value that isn't accepted (usually shown in red or with a small message under it).\n• If you haven't changed anything, the button stays disabled because there's nothing to save.\n\nIf all of that is fine and it's still grey, tell me which page you're on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_form_field_turns_red",
+      "intent": "forms/validation/field_red",
+      "label": {
+        "ar": "الخانة بتحمر ومش راضية تقبل اللي بكتبه",
+        "en": "A form field turns red and won't accept what I type"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_red_field",
+          "weight": 810,
+          "source": "text"
+        },
+        {
+          "token": "entity_form_field",
+          "weight": 190,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الخانة الحمرا معناها إن القيمة مش بالشكل المطلوب — اقرا الرسالة الصغيرة اللي تحتها أو جنبها. الأسباب الأشهر:\n• الإيميل: لازم يبقى فيه @ ونقطة، ومن غير مسافات.\n• رقم الموبايل: أرقام بس، بالأرقام الإنجليزي (123)، ومن غير مسافات أو شرط.\n• الخانة إجبارية واتسابت فاضية.\n• النص أقصر أو أطول من المسموح.\n\nلو مش واضح المطلوب، ابعتلي اسم الخانة واللي بتكتبه (من غير كلمات مرور).",
+          "en": "A red field means the value isn't in the required form — read the small message under or next to it. The most common causes:\n• E-mail: it needs an @ and a dot, with no spaces.\n• Phone number: digits only, as Western digits (123), with no spaces or dashes.\n• The field is required and was left empty.\n• The text is shorter or longer than allowed.\n\nIf it's not clear what's needed, send me the field's name and what you're typing (no passwords)."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_undo_accidental_change",
+      "intent": "forms/edit/undo_change",
+      "label": {
+        "ar": "عملت تعديل بالغلط وعايز أرجّعه",
+        "en": "I changed something by mistake and want to undo it"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_undo",
+          "weight": 720,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_mistake",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "atom_change",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• لو لسه ماحفظتش: اخرج من الصفحة من غير حفظ، أو اضغط Ctrl+Z (على ماك Cmd+Z) جوه الخانة.\n• لو حفظت: رجّع القيمة القديمة بإيدك لو فاكرها، واحفظ تاني.\n• لو التعديل مسح حاجة (رسالة، ملف، عنصر)، قولّي إيه اللي اتمسح وإمتى تقريبًا، وأنا أشوف إمكانية الاسترجاع مع الفريق.",
+          "en": "• If you haven't saved yet: leave the page without saving, or press Ctrl+Z (Cmd+Z on a Mac) inside the field.\n• If you saved: put the old value back by hand if you remember it, and save again.\n• If the change deleted something (a message, a file, an item), tell me what was deleted and roughly when, and I'll check with the team whether it can be restored."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_cannot_find_setting",
+      "intent": "forms/navigation/cannot_find_setting",
+      "label": {
+        "ar": "مش لاقي الإعداد أو الاختيار اللي بيقولوا عليه",
+        "en": "I can't find the setting or option I was told about"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_setting_word",
+          "weight": 570,
+          "source": "text"
+        },
+        {
+          "token": "symptom_disappeared",
+          "weight": 290,
+          "source": "text"
+        },
+        {
+          "token": "atom_where",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "قولّي اسم اللي بتدوّر عليه، أو إنت عايز تعمل إيه بيه، وأنا أقولك مكانه بالظبط.\n\nولحد ما تقولّي: أغلب الإعدادات بتبقى في القائمة الجانبية أو من صورة حسابك فوق — وعلى الموبايل القائمة بتتفتح من زرار (☰). ولو الاختيار مش ظاهر خالص، ممكن يكون مرتبط بصلاحية حسابك أو بباقتك.",
+          "en": "Tell me the name of what you're looking for, or what you want to do with it, and I'll tell you exactly where it is.\n\nMeanwhile: most settings live in the side menu or under your profile picture at the top — on a phone the menu opens from the (☰) button. If the option doesn't appear at all, it may depend on your account's permissions or your plan."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_arabic_search_spelling",
+      "intent": "search/arabic/spelling_variants",
+      "label": {
+        "ar": "البحث مش بيلاقي عشان الهمزة أو التاء المربوطة",
+        "en": "Search misses results because of Arabic spelling (hamza, taa marbuta)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_spelling",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_not_finding",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_search",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "البحث في كتير من الأنظمة بيدوّر على الكتابة زي ما هي، فـ «أحمد» غير «احمد»، و«مدرسة» غير «مدرسه». جرّب:\n• من غير همزة: «احمد» بدل «أحمد».\n• التاء المربوطة والهاء: «مدرسه» و«مدرسة».\n• الياء والألف المقصورة: «مصطفي» و«مصطفى».\n• جزء من الكلمة بس، أو ابحث برقم الموبايل أو الإيميل بدل الاسم.",
+          "en": "Search in many systems matches the spelling exactly, so «أحمد» differs from «احمد» and «مدرسة» from «مدرسه». Try:\n• Without the hamza: «احمد» instead of «أحمد».\n• Taa marbuta and haa: both «مدرسه» and «مدرسة».\n• Yaa and alif maqsura: both «مصطفي» and «مصطفى».\n• Only part of the word, or search by phone number or e-mail instead of the name."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_install_code_site_builder",
+      "intent": "website/install/site_builder_code",
+      "label": {
+        "ar": "أحط الكود في موقعي على ووردبريس أو شوبيفاي أو ويكس",
+        "en": "Add the code to my WordPress, Shopify or Wix site"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_site_builder",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_code",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "كل منصة ليها مكان للكود الإضافي — الكود بيتحط في آخر الصفحة (قبل نهاية الـ body) في كل الصفحات:\n• ووردبريس: إضافة زي «WPCode» ← Footer، أو من القالب: المظهر ← محرر القالب ← footer.php.\n• شوبيفاي: المتجر الإلكتروني ← القوالب ← (…) ← تعديل الكود ← theme.liquid ← قبل نهاية الـ body.\n• ويكس: الإعدادات ← الكود المخصص ← إضافة كود ← «Body — end» ← كل الصفحات.\n• Google Tag Manager: وسم «HTML مخصص» على «كل الصفحات».\n\nبعد الحفظ افتح الموقع في نافذة تصفح خفي — إضافات الكاش ساعات بتأخر ظهوره.",
+          "en": "Each platform has a place for extra code — it goes at the very end of the page (just before the body closes) on every page:\n• WordPress: a plugin such as \"WPCode\" ▸ Footer, or in the theme: Appearance ▸ Theme File Editor ▸ footer.php.\n• Shopify: Online Store ▸ Themes ▸ (…) ▸ Edit code ▸ theme.liquid ▸ just before the body closes.\n• Wix: Settings ▸ Custom Code ▸ Add Custom Code ▸ \"Body — end\" ▸ All pages.\n• Google Tag Manager: a \"Custom HTML\" tag on \"All Pages\".\n\nAfter saving, open your site in a private window — caching plugins sometimes delay it appearing."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_csp_blocks_script",
+      "intent": "website/security/csp_refused",
+      "label": {
+        "ar": "Console بيقول «Refused to load … Content Security Policy»",
+        "en": "The console says \"Refused to load … Content Security Policy\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_csp",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_security",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده معناه إن موقعك نفسه عامل «سياسة أمان محتوى» (CSP) بتسمح بمصادر معيّنة بس، والسكربت جه من مصدر مش في القائمة:\n• في رسالة الخطأ هتلاقي الرابط اللي اترفض والتوجيه (زي script-src أو connect-src أو frame-src).\n• ضيف دومين الرابط ده للتوجيه نفسه في الـ CSP بتاع موقعك (من إعدادات السيرفر أو الـ headers أو إضافة الأمان).\n\nلو مش انت اللي بتدير الموقع، ابعت الرسالة دي للمطوّر.",
+          "en": "This means your own site has a Content Security Policy (CSP) that only allows certain sources, and the script came from one not on the list:\n• The error names the refused URL and the directive (such as script-src, connect-src or frame-src).\n• Add that URL's domain to the same directive in your site's CSP (in the server config, the headers, or a security plugin).\n\nIf you don't manage the site yourself, send this message to your developer."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_csp",
+            "weight": 688,
+            "source": "text"
+          },
+          {
+            "token": "atom_security",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_policy_word",
+            "weight": 172,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_transfer_account_ownership",
+      "intent": "account/requests/transfer_ownership",
+      "label": {
+        "ar": "عايز أنقل ملكية الحساب لشخص تاني",
+        "en": "I want to transfer the account's ownership to someone else"
+      },
+      "category": "account",
+      "evidenceSignature": [
+        {
+          "token": "entity_ownership",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_ownership",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_colleague",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_merge_two_accounts",
+      "intent": "account/requests/merge_accounts",
+      "label": {
+        "ar": "عندي حسابين وعايز أدمجهم",
+        "en": "I have two accounts and want to merge them"
+      },
+      "category": "account",
+      "evidenceSignature": [
+        {
+          "token": "entity_merge_word",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_two_accounts",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "gen_report_security_vulnerability",
+      "intent": "security/requests/vulnerability_report",
+      "label": {
+        "ar": "لقيت ثغرة أمنية وعايز أبلّغ عنها",
+        "en": "I found a security vulnerability and want to report it"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_vulnerability",
+          "weight": 5,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
+    },
+    {
+      "id": "gen_account_owner_deceased",
+      "intent": "account/requests/owner_deceased",
+      "label": {
+        "ar": "صاحب الحساب اتوفّى",
+        "en": "The account holder has passed away"
+      },
+      "category": "account",
+      "evidenceSignature": [
+        {
+          "token": "entity_deceased",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": false
+      },
+      "requiresTicketIfUnresolved": true
     }
   ]
 }

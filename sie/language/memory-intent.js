@@ -80,7 +80,13 @@ export function extractFacts(text) {
 
     // «انا …» — split at a role marker so the name and the role are stored
     // as two facts rather than one unusable string.
-    const selfIntro = input.match(/(?:^|\s)(?:انا|أنا)\s+([\u0600-\u06FF\s]{2,80}?)(?:\s*[,،.]|$)/);
+    //
+    // «انا» introduces the customer ONLY at the start of the message, or right
+    // after a greeting or «و» («السلام عليكم انا احمد»). Anywhere else it is
+    // the subject of an ordinary sentence: «مش ده اللي انا عايزه», «لا انا
+    // قصدي الفاتورة», «استنى انا كتبت غلط» were each saved as the customer's
+    // NAME and the turn was never diagnosed — the correction was lost.
+    const selfIntro = matchSelfIntro(input);
     if (selfIntro) {
         // «انا احمد وشركتي اسمها تك» — the name ends where the company starts.
         const rest = tidy(selfIntro[1].split(/\s+و\s*شركتي/)[0]);
@@ -171,10 +177,34 @@ export function detectMemoryIntent(rawText, previousText = '') {
     };
 }
 
+/**
+ * «انا» + name, where «انا» opens the message or follows only greeting words.
+ *
+ * Deliberately NOT one regex with a repeated optional greeting prefix: that
+ * shape backtracks exponentially («و و و …» × 28 took 1.6 s, and a
+ * 50,000-character message hung the process). This is linear: find the first
+ * «انا», check the few words before it, then match the name after it.
+ */
+const GREETING_WORDS = new Set(['السلام', 'سلام', 'عليكم', 'اهلا', 'أهلا', 'مرحبا', 'هاي', 'هلا', 'صباح', 'مساء',
+    'الخير', 'النور', 'ازيك', 'إزيك', 'ازيكم', 'و', 'يا']);
+const NAME_AFTER_ANA = /^([\u0600-\u06FF\s]{2,80}?)(?:\s*[,،.]|$)/;
+
+function matchSelfIntro(input) {
+    const m = /(?:^|\s)(?:انا|أنا)\s+/.exec(input);
+    if (!m) return null;
+    const before = input.slice(0, m.index).replace(/[,،.!؟?]/g, ' ').split(/\s+/).filter(Boolean);
+    if (before.length > 6 || !before.every((w) => GREETING_WORDS.has(w))) return null;
+    return NAME_AFTER_ANA.exec(input.slice(m.index + m[0].length));
+}
+
 /** كلمات لو ظهرت بعد «انا» تبقى دي جملة عادية مش اسم. */
 const NOT_A_NAME = [
     'عندي', 'محتاج', 'عايز', 'مش', 'بحاول', 'زهقت', 'تعبت', 'اسف', 'متضايق',
     'بسال', 'حابب', 'كنت', 'هحاول', 'شايف', 'قلت', 'جاي', 'لسه', 'بقالي',
+    // States and verbs customers put after «انا» that are never names.
+    'قصدي', 'قصدت', 'تايه', 'تعبان', 'زعلان', 'مستني', 'محتار', 'فاهم', 'ناسي', 'فاكر',
+    'مستعجل', 'كتبت', 'غلطت', 'جربت', 'دفعت', 'سالت', 'عملت', 'حاولت', 'لقيت', 'شفت',
+    'بتكلم', 'بكلم', 'بقول', 'بسأل', 'هنا', 'موجود', 'معاك', 'خلصت', 'مقصدتش', 'مش',
     // After «اسمي»: a description of the name, not a name.
     'اللي', 'الظاهر', 'ظاهر', 'مكتوب', 'غلط', 'اتغير', 'متسجل', 'في', 'على', 'علي'
 ];
@@ -195,7 +225,11 @@ function foldWord(word) {
 function isPlausibleName(value) {
     const words = value.split(/\s+/).filter(Boolean);
     if (words.length === 0 || words.length > 4) return false;
-    return !NOT_A_NAME.includes(words[0]) && !NOT_A_NAME.includes(foldWord(words[0]));
+    const first = foldWord(words[0]);
+    // A negated verb («ماقلتش», «مسألتش», «مفهمتش») is never a name.
+    if (/^م.{2,}ش$/.test(first)) return false;
+    // Stems, not only exact words: «عايزه», «محتاجه», «قصدي» are the same word.
+    return !NOT_A_NAME.some((w) => first === foldWord(w) || (w.length >= 4 && first.startsWith(foldWord(w))));
 }
 
 /**

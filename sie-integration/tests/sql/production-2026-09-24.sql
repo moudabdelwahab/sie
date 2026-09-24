@@ -100,3 +100,84 @@ begin
         case when v_allowed then 0 else greatest(ceil((1 - v_tokens) / v_refill)::integer, 1) end, v_key;
 end;
 $function$;
+
+-- sie_api_rate_limit_hit as deployed (pg_get_functiondef, read-only,
+-- 2026-09-24): the service-role limiter the SIE API uses. 0009 replaces it,
+-- so it must be here for the before/after check to compare against the
+-- function production actually runs.
+CREATE OR REPLACE FUNCTION public.sie_api_rate_limit_hit(p_user_id uuid, p_client_ip text DEFAULT NULL::text)
+ RETURNS TABLE(allowed boolean, enabled boolean, limit_per_min integer, remaining integer, reset_seconds integer, retry_after integer, key_used text)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+    v_key       text;
+    v_enabled   boolean;
+    v_limit     integer;
+    v_burst     integer;
+    v_o_enabled boolean;
+    v_o_limit   integer;
+    v_o_burst   integer;
+    v_capacity  double precision;
+    v_refill    double precision;
+    v_tokens    double precision;
+    v_allowed   boolean;
+begin
+    if coalesce(auth.role(), '') <> 'service_role' then
+        raise exception 'access denied' using errcode = '42501';
+    end if;
+
+    if p_user_id is not null then
+        v_key := 'user:' || p_user_id::text;
+    elsif p_client_ip is not null and length(trim(p_client_ip)) > 0 then
+        v_key := 'ip:' || left(trim(p_client_ip), 100);
+    else
+        v_key := 'anon:unknown';
+    end if;
+
+    select coalesce((value #>> '{}')::boolean, true) into v_enabled
+      from public.sie_settings where key = 'rate_limit_enabled';
+    v_enabled := coalesce(v_enabled, true);
+
+    select coalesce((value #>> '{}')::integer, 100) into v_limit
+      from public.sie_settings where key = 'rate_limit_requests_per_minute';
+    v_limit := coalesce(v_limit, 100);
+
+    select coalesce((value #>> '{}')::integer, 20) into v_burst
+      from public.sie_settings where key = 'rate_limit_burst';
+    v_burst := coalesce(v_burst, 20);
+
+    if p_user_id is not null then
+        select o.is_enabled, o.requests_per_minute, o.burst
+          into v_o_enabled, v_o_limit, v_o_burst
+          from public.sie_rate_limit_overrides o
+         where o.user_id = p_user_id;
+
+        v_enabled := coalesce(v_o_enabled, v_enabled);
+        v_limit   := coalesce(v_o_limit, v_limit);
+        v_burst   := coalesce(v_o_burst, v_burst);
+    end if;
+
+    if v_enabled is not true then
+        return query select true, false, v_limit, v_limit, 0, 0, v_key;
+        return;
+    end if;
+
+    select s.tokens, s.allowed into v_tokens, v_allowed
+      from public.sie_rl_spend(v_key, v_limit, v_burst) s;
+
+    v_capacity := v_limit::double precision + greatest(v_burst, 0)::double precision;
+    v_refill   := v_limit::double precision / 60.0;
+
+    return query select
+        v_allowed,
+        true,
+        v_limit,
+        greatest(floor(v_tokens)::integer, 0),
+        greatest(ceil((v_capacity - v_tokens) / v_refill)::integer, 0),
+        case when v_allowed then 0
+             else greatest(ceil((1 - v_tokens) / v_refill)::integer, 1) end,
+        v_key;
+end;
+$function$;

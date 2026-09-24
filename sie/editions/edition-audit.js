@@ -8,6 +8,8 @@
  *
  *   VOCABULARY
  *     layer_redefines_base   a layer token with a base token's name
+ *     synonym_unknown_target a synonym entry (synonym: true) whose target is
+ *                            not a base token — synonyms only extend the base
  *     pattern_collision      a pattern another token already owns (after
  *                            normalization) — one of them is dead on arrival
  *     dead_pattern           a pattern that, run through the real layered
@@ -114,9 +116,14 @@ export async function auditEditions({ core, baseGlossary, packs, providers, revi
     for (const name of packNames) {
         const glossary = packs[name].glossary || [];
         for (const e of glossary) {
-            if (baseCanonicals.has(e.canonical)) add('layer_redefines_base', { pack: name, token: e.canonical });
-            if (layerCanonicals.has(e.canonical)) add('layer_redefines_base', { pack: name, token: e.canonical, note: 'defined by an earlier layer' });
-            layerCanonicals.add(e.canonical);
+            if (e.synonym === true) {
+                // A synonym MUST extend a base token (and may not pose as one).
+                if (!baseCanonicals.has(e.canonical)) add('synonym_unknown_target', { pack: name, token: e.canonical });
+            } else {
+                if (baseCanonicals.has(e.canonical)) add('layer_redefines_base', { pack: name, token: e.canonical });
+                if (layerCanonicals.has(e.canonical)) add('layer_redefines_base', { pack: name, token: e.canonical, note: 'defined by an earlier layer' });
+                layerCanonicals.add(e.canonical);
+            }
             for (const p of e.patterns || []) {
                 const k = normPattern(p);
                 const prior = owner.get(k);

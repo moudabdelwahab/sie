@@ -15,13 +15,14 @@
  * Pure and dependency-free apart from the editions profile, so the same
  * rules are unit-tested here and run unchanged in the browser.
  */
-import { EDITION_IDS, resolveEditionProfile, editionSettingKey } from './editions.js';
+import { EDITION_IDS, resolveEditionProfile, editionSettingKey, editionEnabledKey, isEditionAvailable } from './editions.js';
 
 export const EDITION_NAMES = Object.freeze({ free: 'المجاني', pro: 'برو', max: 'ماكس' });
 
 /** Which edition/knob a settings key belongs to, or null. */
 export function parseEditionKey(key) {
     for (const id of EDITION_IDS) {
+        if (id !== 'free' && key === editionEnabledKey(id)) return { edition: id, knob: 'enabled' };
         for (const knob of ['maxScenarios', 'maxMessageChars', 'retrievalMaxCandidates', 'maxEvidenceTokensPerTurn',
             'rateLimitPerMinute', 'rateLimitBurst', 'monthlyMessages']) {
             if (editionSettingKey(id, knob) === key) return { edition: id, knob };
@@ -41,6 +42,9 @@ export function editionSettingGuard(key, value, settings = {}) {
         const from = EDITION_NAMES[settings.default_edition] || EDITION_NAMES.free;
         const to = EDITION_NAMES[value];
         if (!to || value === settings.default_edition) return {};
+        if (!isEditionAvailable(value, settings)) {
+            return { error: `«${to}» مقفول دلوقتي — افتحه الأول قبل ما تخليه الافتراضي.` };
+        }
         return {
             confirm: {
                 title: `تخلي الإصدار الافتراضي «${to}»؟`,
@@ -58,6 +62,25 @@ export function editionSettingGuard(key, value, settings = {}) {
     if (!parsed) return {};
     const { edition, knob } = parsed;
     const name = EDITION_NAMES[edition];
+
+    // Availability. Switching an edition off drops its customers to Free —
+    // never to the edition below — and the default edition cannot be the
+    // one switched off (the database refuses it too: edition_is_default).
+    if (knob === 'enabled') {
+        if (value === true || value === settings[key]) return {};
+        if (settings.default_edition === edition) {
+            return { error: `«${name}» هو الإصدار الافتراضي — غيّر الافتراضي الأول، وبعدين اقفله.` };
+        }
+        return {
+            confirm: {
+                title: `تقفل «${name}»؟`,
+                body: `كل عميل على «${name}» هيتردّ عليه بالمجاني من أول رسالة جاية، لحد ما تفتحه تاني. `
+                    + 'الإصدار بتاع كل عميل بيفضل متسجّل زي ما هو، فلما تفتحه يرجعوا له.',
+                confirmLabel: 'أيوه، اقفله', tone: 'danger'
+            }
+        };
+    }
+
     const current = resolveEditionProfile(edition, settings);
     const n = Number(value);
 
