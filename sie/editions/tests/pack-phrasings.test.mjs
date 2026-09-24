@@ -52,25 +52,28 @@ test('known limits still behave as documented (fixing one means updating the fix
 // wording. pro_heldout rephrases each of those 51 AVOIDING the label. The
 // pack is never tuned against them. Measured 2026-09-24: 15/51 land. This is
 // a floor (a change that loses one fails here) and a report, not a target.
-const HELDOUT_FLOOR = 15;
+// Measured 2026-09-24. Floors, not targets.
+const HELDOUT_FLOOR = { pro: 15, max: 1 };
 
-test('held-out paraphrases: landing rate never drops below what was measured', async () => {
-    const { results, misses } = await checkPhrasings('pro_heldout', { edition: 'pro' });
-    assert.equal(results.length, readPhrasings('pro_heldout').length);
-    const landed = results.length - misses;
-    assert.ok(landed >= HELDOUT_FLOOR, `held-out landing ${landed}/${results.length} < measured ${HELDOUT_FLOOR}`);
-    if (landed > HELDOUT_FLOOR) console.log(`# held-out landing ${landed}/${results.length} (floor ${HELDOUT_FLOOR})`);
-});
+for (const pack of ['pro', 'max']) {
+    test(`${pack} held-out paraphrases: landing rate never drops below what was measured`, async () => {
+        const { results, misses } = await checkPhrasings(`${pack}_heldout`, { edition: pack });
+        assert.equal(results.length, readPhrasings(`${pack}_heldout`).length);
+        const landed = results.length - misses;
+        assert.ok(landed >= HELDOUT_FLOOR[pack], `held-out landing ${landed}/${results.length} < measured ${HELDOUT_FLOOR[pack]}`);
+        if (landed > HELDOUT_FLOOR[pack]) console.log(`# ${pack} held-out landing ${landed}/${results.length} (floor ${HELDOUT_FLOOR[pack]})`);
+    });
 
-test('held-out paraphrases: Pro is never more effectful than Free on them', async () => {
-    const eds = { free: await nodeEdition('free', SIE_DEFAULT_SETTINGS), pro: await nodeEdition('pro', SIE_DEFAULT_SETTINGS) };
-    const run = (n, text) => runTurn({ text, catalog: eds[n].scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only',
-        providers: { glossaryProvider: eds[n].providers.glossaryProvider, arabiziProvider: eds[n].providers.arabiziProvider }, edition: eds[n] });
-    const E = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
-    const worse = [];
-    for (const [id, text] of readPhrasings('pro_heldout')) {
-        const f = await run('free', text), p = await run('pro', text);
-        if (E.has(p.decision.action) && !E.has(f.decision.action)) worse.push(`${id} «${text}»`);
-    }
-    assert.deepEqual(worse, []);
-});
+    test(`${pack} held-out paraphrases: never more effectful than Free on them`, async () => {
+        const eds = { free: await nodeEdition('free', SIE_DEFAULT_SETTINGS), [pack]: await nodeEdition(pack, SIE_DEFAULT_SETTINGS) };
+        const run = (n, text) => runTurn({ text, catalog: eds[n].scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only',
+            providers: { glossaryProvider: eds[n].providers.glossaryProvider, arabiziProvider: eds[n].providers.arabiziProvider }, edition: eds[n] });
+        const E = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
+        const worse = [];
+        for (const [id, text] of readPhrasings(`${pack}_heldout`)) {
+            const f = await run('free', text), p = await run(pack, text);
+            if (E.has(p.decision.action) && !E.has(f.decision.action)) worse.push(`${id} «${text}»`);
+        }
+        assert.deepEqual(worse, []);
+    });
+}

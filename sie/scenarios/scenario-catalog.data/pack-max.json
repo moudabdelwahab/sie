@@ -1,5 +1,300 @@
 {
   "pack": "max",
-  "genericTokens": [],
-  "scenarios": []
+  "genericTokens": [
+    "entity_browser_version"
+  ],
+  "scenarios": [
+    {
+      "id": "gen_password_autofill_wrong",
+      "intent": "device/browser/autofill_wrong_password",
+      "label": {
+        "ar": "المتصفح بيملى كلمة مرور قديمة",
+        "en": "The browser fills in an old password"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_autofill",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_password",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المتصفح بيملى كلمة المرور اللي كان حافظها — ولو غيّرتها، القديمة لسه متسجلة عنده.\n• امسح الخانة واكتب الجديدة بإيدك، ولما المتصفح يسألك «تحديث كلمة المرور؟» اختار تحديث.\n• أو من إعدادات المتصفح ← كلمات المرور: دوّر على موقعنا وعدّل المحفوظة أو امسحها.\n\nولو كلمة المرور نفسها مش فاكرها، استخدم «نسيت كلمة المرور» من صفحة الدخول.",
+          "en": "The browser fills in the password it saved — and if you changed it, the old one is still stored there.\n• Clear the field and type the new one yourself; when the browser asks \"Update password?\", choose update.\n• Or in your browser's settings ▸ Passwords, find our site and edit or delete the saved one.\n\nIf you don't remember the password itself, use \"Forgot password\" on the sign-in page."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_zoom_layout",
+      "intent": "device/browser/zoom_level",
+      "label": {
+        "ar": "الصفحة ظاهرة صغيرة أو كبيرة أوي",
+        "en": "The page looks too small or too large"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_zoom",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "غالبًا مستوى التكبير في المتصفح اتغيّر:\n• رجّعه للطبيعي: Ctrl+0 على ويندوز، أو Cmd+0 على ماك.\n• للتكبير أو التصغير: Ctrl (أو Cmd) مع + أو −.\n• على الموبايل: قرّب أو بعّد بصباعين، أو من قائمة المتصفح ← حجم النص.\n\nلو رجع للطبيعي والشكل لسه متلخبط، ابعتلي صورة للشاشة.",
+          "en": "Your browser's zoom level has most likely changed:\n• Reset it: Ctrl+0 on Windows, or Cmd+0 on a Mac.\n• To zoom in or out: Ctrl (or Cmd) with + or −.\n• On a phone: pinch with two fingers, or browser menu ▸ Text size.\n\nIf it's back to normal and the layout still looks wrong, send me a screenshot."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_version_how",
+      "intent": "device/browser/version_how",
+      "label": {
+        "ar": "أعرف إصدار المتصفح منين",
+        "en": "How to find my browser version"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_browser_version",
+          "weight": 583,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 194,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من قائمة المتصفح:\n• كروم أو إيدج: القائمة (⋮ أو …) ← مساعدة ← «حول» — والصفحة دي بتحدّث المتصفح لو فيه تحديث.\n• فايرفوكس: القائمة ← مساعدة ← «حول فايرفوكس».\n• سفاري: من قائمة Safari فوق ← «حول سفاري».\n\nابعتلي الرقم اللي ظاهر مع اسم المتصفح.",
+          "en": "From the browser's menu:\n• Chrome or Edge: menu (⋮ or …) ▸ Help ▸ \"About\" — that page also installs any pending update.\n• Firefox: menu ▸ Help ▸ \"About Firefox\".\n• Safari: the Safari menu at the top ▸ \"About Safari\".\n\nSend me the number shown with the browser's name."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_mixed_direction_paste",
+      "intent": "device/typing/mixed_direction",
+      "label": {
+        "ar": "الكلام العربي مع الإنجليزي بيتقلب لما ألصقه",
+        "en": "Mixed Arabic and English text flips when pasted"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_text_direction",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_paste",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما سطر فيه عربي وإنجليزي (أو أرقام) مع بعض، ترتيب العرض ممكن يبان مقلوب رغم إن الكلام نفسه مكتوب صح.\n• ابدأ السطر بكلمة عربي.\n• حط الجزء الإنجليزي في سطر لوحده.\n• ألصق كنص عادي من غير تنسيق: Ctrl+Shift+V (على ماك Cmd+Shift+Option+V).",
+          "en": "When a line mixes Arabic with English (or numbers), the display order can look flipped even though the text itself is right.\n• Start the line with an Arabic word.\n• Put the English part on its own line.\n• Paste as plain text without formatting: Ctrl+Shift+V (on a Mac, Cmd+Shift+Option+V)."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_paste",
+            "weight": 516,
+            "source": "text"
+          },
+          {
+            "token": "entity_text_direction",
+            "weight": 344,
+            "source": "text"
+          },
+          {
+            "token": "entity_arabic_word",
+            "weight": 139,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_arabic_digits_input",
+      "intent": "device/typing/arabic_digits",
+      "label": {
+        "ar": "الخانة مش بتقبل الأرقام العربي",
+        "en": "A field rejects Arabic-Indic digits"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_arabic_digits",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو خانة رافضة رقم مكتوب بالأرقام العربية (٠١٢٣)، اكتبه بالأرقام الإنجليزية (0123) — مواقع كتير بتفهم دي بس في خانات الأرقام والتليفون.\n\nعلى الموبايل: غيّر لوحة المفاتيح للإنجليزي وقت كتابة الرقم، أو من إعدادات لوحة المفاتيح اختار الأرقام الغربية.",
+          "en": "If a field rejects a number typed in Arabic-Indic digits (٠١٢٣), type it with Western digits (0123) — many sites only understand those in number and phone fields.\n\nOn a phone: switch the keyboard to English while typing the number, or pick Western digits in the keyboard's settings."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_work_network_blocking",
+      "intent": "device/network/work_firewall",
+      "label": {
+        "ar": "الموقع مش بيفتح من شبكة الشغل",
+        "en": "The site does not open on my work network"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_work_network",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة (mad3oom.com وmad3oom.online).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.",
+          "en": "Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domains (mad3oom.com and mad3oom.online).\n\nIf it doesn't open on mobile data either, tell me exactly what you see."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_work_network",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_public_wifi_login_page",
+      "intent": "device/network/captive_portal",
+      "label": {
+        "ar": "واي فاي عام (فندق أو كافيه) والموقع مش بيفتح",
+        "en": "Public Wi-Fi (hotel or café) and the site does not open"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_public_wifi",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شبكات الفنادق والكافيهات غالبًا بتطلب تسجيل دخول للشبكة الأول، وبتمنع أي موقع لحد ما تقبل شروطها.\n• افتح أي موقع تاني الأول — المفروض تظهرلك صفحة دخول الشبكة.\n• اقبل الشروط أو اكتب بيانات الغرفة، وبعدين ارجع للمنصة.\n\nلو صفحة الشبكة ماظهرتش، جرّب تفصل الواي فاي وتوصله تاني.",
+          "en": "Hotel and café networks usually require you to sign in to the network first, and block every site until you accept their terms.\n• Open any other site first — the network's sign-in page should appear.\n• Accept the terms or enter your room details, then come back to the platform.\n\nIf the network page doesn't appear, disconnect from the Wi-Fi and connect again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_popup_blocked",
+      "intent": "device/browser/popup_blocked",
+      "label": {
+        "ar": "الزرار مش بيفتح الصفحة الجديدة (نافذة منبثقة)",
+        "en": "A button does not open the new page (pop-up)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_popup",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو دوست على زرار المفروض يفتح صفحة أو تاب جديدة ومحصلش حاجة، غالبًا المتصفح مانع النوافذ المنبثقة:\n• بصّ في آخر شريط العنوان — هتلاقي أيقونة إن نافذة اتمنعت؛ دوس عليها واختار السماح دايمًا للموقع ده.\n• وبعدين دوس على الزرار تاني.",
+          "en": "If you pressed a button that should open a new page or tab and nothing happened, your browser is probably blocking pop-ups:\n• Look at the end of the address bar — there's an icon saying a window was blocked; click it and choose to always allow this site.\n• Then press the button again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_popup",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    }
+  ]
 }

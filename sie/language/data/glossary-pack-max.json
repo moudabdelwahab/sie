@@ -1,4 +1,152 @@
 {
   "pack": "max",
-  "entries": []
+  "entries": [
+    {
+      "canonical": "entity_autofill",
+      "labels": {
+        "ar": "الملء التلقائي",
+        "en": "autofill"
+      },
+      "patterns": [
+        "بيملى",
+        "بيملي",
+        "بيملا",
+        "الملء التلقائي",
+        "autofill"
+      ]
+    },
+    {
+      "canonical": "entity_zoom",
+      "labels": {
+        "ar": "تكبير الصفحة",
+        "en": "page zoom"
+      },
+      "patterns": [
+        "الزوم",
+        "زوم",
+        "zoom",
+        "التكبير",
+        "صغيرة اوي",
+        "صغيره اوي",
+        "صغير اوي",
+        "كبيرة اوي",
+        "كبيره اوي",
+        "كبير اوي"
+      ]
+    },
+    {
+      "canonical": "entity_browser_version",
+      "labels": {
+        "ar": "إصدار",
+        "en": "version"
+      },
+      "patterns": [
+        "نسخه",
+        "نسخة",
+        "اصدار",
+        "الاصدار",
+        "version"
+      ]
+    },
+    {
+      "canonical": "entity_paste",
+      "labels": {
+        "ar": "لصق",
+        "en": "paste"
+      },
+      "patterns": [
+        "الصق",
+        "لزق",
+        "بلزق",
+        "الزق",
+        "paste",
+        "نسخ ولصق"
+      ]
+    },
+    {
+      "canonical": "entity_text_direction",
+      "labels": {
+        "ar": "اتجاه النص",
+        "en": "text direction"
+      },
+      "patterns": [
+        "اتجاه الكلام",
+        "اتجاه النص",
+        "بيتقلب",
+        "من الشمال لليمين",
+        "من اليمين للشمال",
+        "rtl",
+        "ltr"
+      ]
+    },
+    {
+      "canonical": "entity_arabic_digits",
+      "labels": {
+        "ar": "الأرقام العربية",
+        "en": "Arabic-Indic digits"
+      },
+      "patterns": [
+        "بالارقام العربي",
+        "الارقام العربي",
+        "ارقام عربي",
+        "بالارقام العربيه",
+        "الارقام الهندي",
+        "arabic numerals"
+      ]
+    },
+    {
+      "canonical": "entity_work_network",
+      "labels": {
+        "ar": "شبكة الشغل",
+        "en": "work network"
+      },
+      "patterns": [
+        "نت الشغل",
+        "شبكة الشغل",
+        "شبكه الشغل",
+        "شبكة الشركة",
+        "شبكه الشركه",
+        "الفايروول",
+        "فايروول",
+        "firewall"
+      ]
+    },
+    {
+      "canonical": "entity_public_wifi",
+      "labels": {
+        "ar": "واي فاي عام",
+        "en": "public Wi-Fi"
+      },
+      "patterns": [
+        "واي فاي الفندق",
+        "واي فاي عام",
+        "واي فاي الكافيه",
+        "شبكة عامة",
+        "شبكه عامه",
+        "public wifi",
+        "hotel wifi"
+      ]
+    },
+    {
+      "canonical": "entity_popup",
+      "labels": {
+        "ar": "نافذة منبثقة",
+        "en": "pop-up"
+      },
+      "patterns": [
+        "النوافذ المنبثقة",
+        "النوافذ المنبثقه",
+        "نافذة منبثقة",
+        "نافذه منبثقه",
+        "popup",
+        "بوب اب",
+        "تاب جديدة",
+        "تاب جديده",
+        "التاب الجديدة",
+        "التاب الجديده",
+        "الصفحة الجديدة",
+        "الصفحه الجديده"
+      ]
+    }
+  ]
 }

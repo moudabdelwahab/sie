@@ -31,7 +31,10 @@ import { maxSafePackConfidence } from '../sie/editions/stand-off.js';
 
 const pack = process.argv[2] || 'pro';
 const dry = process.argv.includes('--dry');
-const core = readCore();
+// "Core" = the edition directly below this pack (the audit's baseline):
+// Free's scenarios for Pro, Free + Pro for Max.
+const BELOW = { pro: [], max: ['pro'] };
+const core = [...readCore(), ...(BELOW[pack] || []).flatMap((p) => readPack(p).scenarios)];
 const packScenarios = readPack(pack).scenarios;
 
 const INACTIVE = ACTIVATION_THRESHOLD - 0.01;

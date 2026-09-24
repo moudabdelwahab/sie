@@ -1021,5 +1021,73 @@
       "blog_articles_load_failed",
       "المقالات مش بتحمل خالص في المدونه وبيطلعلي خطأ"
     ]
+  ],
+  "max": [
+    [
+      "gen_password_autofill_wrong",
+      "كل ما ادخل المتصفح بيملى الباسورد القديم"
+    ],
+    [
+      "gen_browser_zoom_layout",
+      "الموقع كله بقى صغير اوي على الشاشة"
+    ],
+    [
+      "gen_browser_version_how",
+      "الدعم بيسألني عن نسخة المتصفح اعرفها منين"
+    ],
+    [
+      "gen_mixed_direction_paste",
+      "لما بلزق جملة فيها انجليزي الكلام بيتقلب"
+    ],
+    [
+      "gen_arabic_digits_input",
+      "مش راضي ياخد الرقم بالارقام العربي"
+    ],
+    [
+      "gen_work_network_blocking",
+      "من نت الشغل الموقع مش بيفتح خالص"
+    ],
+    [
+      "gen_public_wifi_login_page",
+      "انا على واي فاي الفندق والموقع مش راضي يفتح"
+    ],
+    [
+      "gen_popup_blocked",
+      "بدوس على الزرار والتاب الجديدة مش بتفتح"
+    ]
+  ],
+  "max_heldout": [
+    [
+      "gen_password_autofill_wrong",
+      "غيرت كلمة السر بس الكروم لسه بيحط القديمة"
+    ],
+    [
+      "gen_browser_zoom_layout",
+      "كل حاجة في الصفحة بقت ضخمة ومش مظبوطة"
+    ],
+    [
+      "gen_browser_version_how",
+      "ازاي اشوف انا على انهي اصدار من كروم"
+    ],
+    [
+      "gen_mixed_direction_paste",
+      "الجملة اللي فيها كلام عربي وانجليزي بتظهر معكوسة"
+    ],
+    [
+      "gen_arabic_digits_input",
+      "بكتب رقم التليفون ٠١٠ ومش بيقبله"
+    ],
+    [
+      "gen_work_network_blocking",
+      "في المكتب الموقع مقفول بس في البيت شغال"
+    ],
+    [
+      "gen_public_wifi_login_page",
+      "النت في الكافيه شغال بس المنصة مش بتفتح"
+    ],
+    [
+      "gen_popup_blocked",
+      "المتصفح بيقول انه منع نافذة لما ادوس"
+    ]
   ]
 }

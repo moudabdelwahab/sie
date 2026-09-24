@@ -111,20 +111,22 @@ test('the behaviour corpus (comparator, no-regression gate) contains no attack',
 const norm = (t) => new Set(String(t).replace(/[«»"'؟?.,،:!—-]/g, ' ').replace(/[إأآ]/g, 'ا').replace(/ة/g, 'ه')
     .replace(/ى/g, 'ي').replace(/[ً-ْ]/g, '').split(/\s+/).filter(Boolean));
 
-test('phrasings that copy their label have an independent held-out paraphrase', () => {
-    const labels = new Map(readPack('pro').scenarios.map((s) => [s.id, s.label.ar]));
-    const heldOut = new Map(readPhrasings('pro_heldout'));
-    const missing = [];
-    for (const [id, text] of readPhrasings('pro')) {
-        const a = norm(text), b = norm(labels.get(id));
-        const jaccard = [...a].filter((x) => b.has(x)).length / new Set([...a, ...b]).size;
-        if (jaccard < 0.75) continue;
-        const h = heldOut.get(id);
-        if (!h) { missing.push(`${id}: «${text}»`); continue; }
-        // The held-out paraphrase must itself avoid the label.
-        const c = norm(h);
-        const j2 = [...c].filter((x) => b.has(x)).length / new Set([...c, ...b]).size;
-        if (j2 >= 0.5) missing.push(`${id}: held-out «${h}» still copies the label (${j2.toFixed(2)})`);
-    }
-    assert.deepEqual(missing, []);
-});
+for (const pack of ['pro', 'max']) {
+    test(`${pack}: phrasings that copy their label have an independent held-out paraphrase`, () => {
+        const labels = new Map(readPack(pack).scenarios.map((s) => [s.id, s.label.ar]));
+        const heldOut = new Map(readPhrasings(`${pack}_heldout`));
+        const missing = [];
+        for (const [id, text] of readPhrasings(pack)) {
+            const a = norm(text), b = norm(labels.get(id));
+            const jaccard = [...a].filter((x) => b.has(x)).length / new Set([...a, ...b]).size;
+            if (jaccard < 0.75) continue;
+            const h = heldOut.get(id);
+            if (!h) { missing.push(`${id}: «${text}»`); continue; }
+            // The held-out paraphrase must itself avoid the label.
+            const c = norm(h);
+            const j2 = [...c].filter((x) => b.has(x)).length / new Set([...c, ...b]).size;
+            if (j2 >= 0.5) missing.push(`${id}: held-out «${h}» still copies the label (${j2.toFixed(2)})`);
+        }
+        assert.deepEqual(missing, []);
+    });
+}

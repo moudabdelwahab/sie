@@ -205,9 +205,12 @@ export async function auditEditions({ core, baseGlossary, packs, providers, revi
     }
 
     // One word alone must not create a stand-off Free did not have.
-    for (const ed of editions) {
+    // Against the edition directly BELOW (Pro against Free, Max against Pro):
+    // a bigger edition may not create a stand-off the one under it did not
+    // have — including against the smaller edition's own pack scenarios.
+    for (const [ei, ed] of editions.entries()) {
         if (ed.name === 'free') continue;
-        const coreSet = new Set(editions[0].catalog.map((sc) => sc.id));
+        const coreSet = new Set(editions[ei - 1].catalog.map((sc) => sc.id));
         const tokens = new Set(ed.catalog.flatMap((sc) => [...scenarioTokens(sc)]));
         for (const t of tokens) {
             const presence = new Map([[t, 1]]);
@@ -260,9 +263,9 @@ export async function auditEditions({ core, baseGlossary, packs, providers, revi
     // is ambiguous where the core alone is not". A clear, more specific pack
     // win is allowed — that is what a pack adds; the no-regression gate
     // guards core answers.
-    for (const ed of editions) {
+    for (const [ei, ed] of editions.entries()) {
         if (ed.name === 'free') continue;
-        const coreCatalog = editions[0].catalog;
+        const coreCatalog = editions[ei - 1].catalog; // the edition below (see above)
         const coreTok = new Set(coreCatalog.flatMap((sc) => [...scenarioTokens(sc)]));
         const coreIdSet = new Set(coreCatalog.map((sc) => sc.id));
         const byToken = new Map();
