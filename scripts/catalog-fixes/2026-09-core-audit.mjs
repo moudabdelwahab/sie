@@ -199,6 +199,15 @@ const CORRECTIONS = {
     ticket_disappeared: answer(
         'التذاكر مابتتمسحش، لكنها ممكن تختفي من القائمة اللي قدامك:\n• لو اتقفلت: غيّر العرض لـ «مغلقة» أو «كل التذاكر».\n• لو اخترت «إخفاء من قائمتي»: دي مابيتلغيش من حسابك — قولّي رقم التذكرة وأنا أفتح طلب للفريق يرجّعها.\n\nلو مش فاكر الرقم، قولّي عنوانها التقريبي وتاريخها.',
         'Tickets are not deleted, but they can drop out of the list you are looking at:\n• If it was closed: switch the view to "Closed" or "All tickets".\n• If you chose "Hide from my list": that cannot be undone from your account — send me the ticket number and I will ask the team to restore it.\n\nIf you do not remember the number, give me its approximate title and date.'),
+    // Mad3oom data-deletion.html (the page linked for data deletion): «send an
+    // email to support@mad3oom.com. Include your account email and request
+    // type. We will process within 30 days.» The previous answer promised an
+    // export from the Reports page, a forfeited wallet and disconnected
+    // numbers — none of which the product documents — and routed the request
+    // through a chat ticket instead of the documented channel.
+    ui_delete_account_request: answer(
+        'حذف الحساب وبياناته بيتم بطلب مكتوب على الإيميل:\n١. ابعت على support@mad3oom.com من نفس الإيميل المسجّل بيه حسابك.\n٢. اكتب إنه طلب حذف بيانات، ونوع الطلب (الحساب كله أو بيانات معيّنة).\n\nالطلب بيتنفّذ خلال ٣٠ يوم. لو محتاج أي حاجة من بياناتك، احفظها عندك قبل ما تبعت الطلب.',
+        'Account and data deletion is done by written request by e-mail:\n1. Write to support@mad3oom.com from the e-mail address your account is registered with.\n2. Say it is a data-deletion request, and which kind (the whole account or specific data).\n\nRequests are processed within 30 days. If you need anything from your data, keep a copy before sending the request.'),
     // KB audit: external payment requests open a ticket with a 1-hour first-response target; proof ≤ 8MB mandatory.
     billing_bank_transfer_pending: answer(
         'الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي بيتراجع يدويًا: طلبك بيفتح تذكرة تلقائيًا، وهدف أول رد عليها ساعة واحدة.\n\nعشان المراجعة تمشي بسرعة، اتأكد إن إثبات التحويل (صورة أو PDF لحد ٨ ميجا) اترفع وإنه واضح فيه المبلغ والتاريخ. تقدر تتابع التذكرة من «تذاكري».',

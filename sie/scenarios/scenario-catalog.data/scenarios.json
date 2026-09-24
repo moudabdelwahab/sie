@@ -8224,8 +8224,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "حذف الحساب نهائيًا إجراء **لا رجعة فيه**، فمحتاج تأكيد مباشر منك.\n\nقبل ما نبدأ، مهم تعرف:\n• كل التذاكر والمحادثات وجهات الاتصال هتتمسح ومش هينفع ترجّعها.\n• أرقام الواتساب المربوطة هتتفصل، وهتحتاج تربطها من جديد في أي مكان تاني.\n• أي رصيد متبقي في المحفظة هيضيع.\n\nصدّر بياناتك الأول من صفحة التقارير، وبعدين قولي وأنا أفتحلك تذكرة رسمية للحذف — الفريق هيتواصل معاك للتأكيد قبل التنفيذ.",
-          "en": "Permanent account deletion is **irreversible**, so it needs your explicit confirmation.\n\nBefore we start, be aware:\n• All tickets, conversations and contacts are erased and cannot be restored.\n• Linked WhatsApp numbers are disconnected and must be re-linked elsewhere.\n• Any remaining wallet balance is forfeited.\n\nExport your data first from the Reports page, then tell me and I will open a formal deletion ticket — the team will confirm with you before executing it."
+          "ar": "حذف الحساب وبياناته بيتم بطلب مكتوب على الإيميل:\n١. ابعت على support@mad3oom.com من نفس الإيميل المسجّل بيه حسابك.\n٢. اكتب إنه طلب حذف بيانات، ونوع الطلب (الحساب كله أو بيانات معيّنة).\n\nالطلب بيتنفّذ خلال ٣٠ يوم. لو محتاج أي حاجة من بياناتك، احفظها عندك قبل ما تبعت الطلب.",
+          "en": "Account and data deletion is done by written request by e-mail:\n1. Write to support@mad3oom.com from the e-mail address your account is registered with.\n2. Say it is a data-deletion request, and which kind (the whole account or specific data).\n\nRequests are processed within 30 days. If you need anything from your data, keep a copy before sending the request."
         }
       },
       "requiresTicketIfUnresolved": false,
