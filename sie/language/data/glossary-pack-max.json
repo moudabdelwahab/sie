@@ -147,6 +147,176 @@
         "الصفحة الجديدة",
         "الصفحه الجديده"
       ]
+    },
+    {
+      "canonical": "entity_legal_pages",
+      "labels": {
+        "ar": "صفحات الشروط والخصوصية",
+        "en": "terms and privacy pages"
+      },
+      "patterns": [
+        "شروط الاستخدام",
+        "شروط الاستخدام والخصوصية",
+        "الشروط والاحكام",
+        "سياسة الخصوصية",
+        "سياسه الخصوصيه",
+        "terms of use",
+        "terms and conditions",
+        "privacy policy"
+      ]
+    },
+    {
+      "canonical": "entity_policy_word",
+      "labels": {
+        "ar": "سياسة",
+        "en": "policy"
+      },
+      "patterns": [
+        "سياسة",
+        "سياسه",
+        "السياسة",
+        "السياسه",
+        "policy"
+      ]
+    },
+    {
+      "canonical": "entity_home_internet",
+      "labels": {
+        "ar": "نت البيت",
+        "en": "home internet"
+      },
+      "patterns": [
+        "نت البيت",
+        "انترنت البيت",
+        "الراوتر",
+        "راوتر",
+        "شركة الانترنت",
+        "شركه الانترنت",
+        "شركة النت",
+        "شركه النت",
+        "router"
+      ]
+    },
+    {
+      "canonical": "entity_antivirus",
+      "labels": {
+        "ar": "برنامج الحماية",
+        "en": "antivirus"
+      },
+      "patterns": [
+        "الانتي فيرس",
+        "انتي فيرس",
+        "الانتي فايرس",
+        "انتي فايرس",
+        "مضاد الفيروسات",
+        "برنامج الحماية",
+        "برنامج الحمايه",
+        "الكاسبر",
+        "كاسبر",
+        "كاسبرسكي",
+        "افاست",
+        "نورتون",
+        "avast",
+        "kaspersky",
+        "antivirus",
+        "norton",
+        "eset"
+      ]
+    },
+    {
+      "canonical": "entity_clock_warning",
+      "labels": {
+        "ar": "تحذير ساعة الجهاز",
+        "en": "clock warning"
+      },
+      "patterns": [
+        "ساعتك",
+        "ساعة الجهاز",
+        "ساعه الجهاز",
+        "تاريخ الجهاز",
+        "ساعة الكمبيوتر",
+        "ساعه الكمبيوتر",
+        "your clock",
+        "clock is behind",
+        "clock is ahead"
+      ]
+    },
+    {
+      "canonical": "entity_not_secure",
+      "labels": {
+        "ar": "غير آمن",
+        "en": "not secure"
+      },
+      "patterns": [
+        "مش امن",
+        "مش آمن",
+        "غير امن",
+        "غير آمن",
+        "not secure",
+        "not private"
+      ]
+    },
+    {
+      "canonical": "entity_on_browser_close",
+      "labels": {
+        "ar": "عند قفل المتصفح",
+        "en": "on closing the browser"
+      },
+      "patterns": [
+        "كل ما اقفل",
+        "لما اقفل",
+        "بعد ما اقفل",
+        "اقفله وافتحه",
+        "ادخل تاني"
+      ]
+    },
+    {
+      "canonical": "entity_signed_up_with",
+      "labels": {
+        "ar": "الإيميل اللي سجّلت بيه",
+        "en": "the address I signed up with"
+      },
+      "patterns": [
+        "سجلت بانهي",
+        "سجلت باي",
+        "سجلت بيه",
+        "سجلت بيها",
+        "عملت بيه الحساب",
+        "عملت بيها الحساب",
+        "عملت بيه",
+        "signed up with",
+        "registered with"
+      ]
+    },
+    {
+      "canonical": "entity_forgot",
+      "labels": {
+        "ar": "نسيت",
+        "en": "forgot"
+      },
+      "patterns": [
+        "نسيت",
+        "ناسي",
+        "مش فاكر",
+        "مش فاكره",
+        "forgot"
+      ]
+    },
+    {
+      "canonical": "entity_lost_mailbox",
+      "labels": {
+        "ar": "مبقاش معايا",
+        "en": "no longer have access"
+      },
+      "patterns": [
+        "مبقاش معايا",
+        "مبقاش معاي",
+        "مبقتش بقدر",
+        "مبقتش اقدر",
+        "مش معايا خلاص",
+        "مش بقدر افتحه",
+        "lost access"
+      ]
     }
   ]
 }

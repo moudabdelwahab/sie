@@ -1,7 +1,9 @@
 {
   "pack": "max",
   "genericTokens": [
-    "entity_browser_version"
+    "entity_browser_version",
+    "entity_policy_word",
+    "entity_forgot"
   ],
   "scenarios": [
     {
@@ -291,6 +293,353 @@
           {
             "token": "symptom_not_working",
             "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "legal_pages_where",
+      "intent": "legal/pages/where",
+      "label": {
+        "ar": "فين شروط الاستخدام وسياسة الخصوصية؟",
+        "en": "Where are the terms of use and the privacy policy?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_legal_pages",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_where",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "روابطهم في أسفل صفحات الموقع العامة: «سياسة الخصوصية»، «شروط الاستخدام»، و«سياسة الكوكيز».\n\nولو سؤالك عن حاجة معيّنة — زي البيانات اللي بتتحفظ عنك — قولّي عليها.",
+          "en": "Their links are at the bottom of the site's public pages: \"Privacy policy\", \"Terms of use\" and \"Cookie policy\".\n\nIf your question is about something specific — such as what data is kept about you — tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_legal_pages",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_policy_word",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_cache",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_home_internet_blocking",
+      "intent": "device/network/home_isp",
+      "label": {
+        "ar": "الموقع مش بيفتح على نت البيت بس",
+        "en": "The site does not open on my home internet only"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_home_internet",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو الموقع بيفتح على نت الموبايل ومش بيفتح على نت البيت، المشكلة غالبًا في الراوتر أو شركة الإنترنت:\n• اقفل الراوتر دقيقة وشغّله تاني.\n• جرّب جهاز تاني على نفس الشبكة — لو مش بيفتح برضه، يبقى من الشبكة مش من جهازك.\n• لو فضلت، بلّغ شركة الإنترنت إن موقع معيّن مش بيفتح عندهم، أو غيّر إعدادات الـ DNS في الراوتر لو عارف تعمل كده.\n\nولو مش بيفتح على نت الموبايل كمان، قولّي.",
+          "en": "If the site opens on mobile data but not on your home internet, the problem is most likely the router or your internet provider:\n• Turn the router off for a minute and back on.\n• Try another device on the same network — if it fails there too, it's the network, not your device.\n• If it continues, tell your provider a specific site won't open for you, or change the router's DNS settings if you know how.\n\nIf it doesn't open on mobile data either, tell me."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_home_internet",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_antivirus_blocking",
+      "intent": "device/security_software/blocking",
+      "label": {
+        "ar": "برنامج الحماية (Antivirus) مانع الموقع",
+        "en": "Antivirus software is blocking the site"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_antivirus",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "برامج الحماية ساعات بتمنع مواقع، أو بتفحص الاتصال الآمن بطريقة بتعطّل الصفحة:\n• وقّف «حماية الويب» في البرنامج دقيقة وافتح الموقع — لو اشتغل، يبقى البرنامج هو السبب.\n• ضيف نطاقات المنصة (mad3oom.com وmad3oom.online) لقائمة المواقع الموثوقة أو الاستثناءات جوه البرنامج.\n• ورجّع الحماية تشتغل بعدها.",
+          "en": "Security software sometimes blocks sites, or inspects secure connections in a way that breaks the page:\n• Pause the program's \"web protection\" for a minute and open the site — if it works, the program is the cause.\n• Add the platform's domains (mad3oom.com and mad3oom.online) to the program's trusted sites or exceptions.\n• Then turn protection back on."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_antivirus",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_device_clock_wrong",
+      "intent": "device/clock/security_errors",
+      "label": {
+        "ar": "المتصفح بيقول إن ساعة الجهاز غلط أو الاتصال مش آمن",
+        "en": "The browser says the clock is wrong or the connection is not secure"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_clock_warning",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_not_secure",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو المتصفح بيقول إن ساعتك متأخرة أو متقدمة، أو إن الاتصال مش آمن على مواقع كتير مرة واحدة، غالبًا تاريخ الجهاز أو ساعته غلط — والشهادات الأمنية بتتحقق بالتاريخ.\n• ويندوز: الإعدادات ← الوقت واللغة ← فعّل «تعيين الوقت تلقائيًا».\n• ماك: إعدادات النظام ← عام ← التاريخ والوقت ← تلقائي.\n• الموبايل: الإعدادات ← التاريخ والوقت ← تلقائي.\n\nوبعدين افتح الصفحة تاني.",
+          "en": "If the browser says your clock is behind or ahead, or that the connection isn't secure on many sites at once, the device's date or time is most likely wrong — security certificates are checked against the date.\n• Windows: Settings ▸ Time & language ▸ turn on \"Set time automatically\".\n• Mac: System Settings ▸ General ▸ Date & Time ▸ automatic.\n• Phone: Settings ▸ Date & time ▸ automatic.\n\nThen open the page again."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_clock_warning",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "symptom_slow",
+            "weight": 1,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_clock_warning",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_logged_out_on_browser_close",
+      "intent": "device/browser/session_not_kept",
+      "label": {
+        "ar": "بيطلب مني أدخل تاني كل ما أقفل المتصفح",
+        "en": "I have to sign in again every time I close the browser"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_on_browser_close",
+          "weight": 518,
+          "source": "text"
+        },
+        {
+          "token": "symptom_token_expired",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تسجيل دخولك بيتحفظ في بيانات الموقع جوه المتصفح. لو بيطلب منك تدخل تاني كل ما تقفله:\n• غالبًا المتصفح مضبوط إنه يمسح بيانات المواقع عند الإغلاق — شيل الخيار ده، أو ضيف موقعنا للاستثناءات.\n• أو انت في وضع التصفح الخفي، واللي بيمسح كل حاجة لما تقفله.\n• برامج تنظيف الجهاز كمان ممكن تمسحها.",
+          "en": "Your sign-in is kept in the site's data inside the browser. If you have to sign in again every time you close it:\n• The browser is most likely set to clear site data on exit — turn that off, or add our site as an exception.\n• Or you're in private browsing, which clears everything when closed.\n• Device-cleaning programs can also wipe it."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_on_browser_close",
+            "weight": 637,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "atom_open_action",
+            "weight": 139,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_forgot_signup_email",
+      "intent": "account/access/which_email",
+      "label": {
+        "ar": "مش فاكر سجّلت بأنهي إيميل",
+        "en": "I do not remember which e-mail I signed up with"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_signed_up_with",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_forgot",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "جرّب بالترتيب:\n• خانة الدخول بتقبل كمان رقم الهاتف أو اسم المستخدم — لو فاكر واحد منهم، ادخل بيه وهتلاقي الإيميل في بيانات حسابك.\n• دوّر في كل إيميلاتك (والـ Spam) على رسائل وصلتك منّا — اللي فيه الرسائل هو غالبًا المسجّل.\n• استخدم «نسيت كلمة المرور» بكل إيميل عندك: اللينك بيوصل للإيميل المسجّل بس.\n\nلو مانفعش ولا حاجة، قولّي وأنا أفتح طلب للفريق يساعدك تتحقق من حسابك.",
+          "en": "Try in this order:\n• The sign-in field also accepts your phone number or username — if you remember either, sign in with it and you'll find the e-mail in your account details.\n• Search all your mailboxes (and Spam) for messages from us — the one that has them is most likely the registered address.\n• Use \"Forgot password\" with each address you have: the link only arrives at the registered one.\n\nIf none of that works, tell me and I'll open a request for the team to help you verify your account."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_forgot",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "entity_email",
+            "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_lost_access_to_email",
+      "intent": "account/access/lost_mailbox",
+      "label": {
+        "ar": "الإيميل المسجّل على الحساب مبقاش معايا",
+        "en": "I no longer have access to the e-mail on my account"
+      },
+      "category": "login",
+      "evidenceSignature": [
+        {
+          "token": "entity_lost_mailbox",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_account",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو لسه قادر تدخل حسابك: غيّر الإيميل من بيانات الحساب لإيميل معاك دلوقتي — وأي لينك تأكيد هيوصل للإيميل الجديد.\n\nلو مش قادر تدخل، ولينكات الاستعادة بتروح للإيميل اللي مبقاش معاك، ده محتاج الفريق يتحقق إنك صاحب الحساب قبل أي تغيير. قولّي وأنا أفتح الطلب، ومتبعتش كلمة المرور في المحادثة.",
+          "en": "If you can still sign in: change the e-mail in your account details to one you have now — any confirmation link will go to the new address.\n\nIf you can't sign in, and recovery links go to the address you no longer have, the team needs to verify that you own the account before changing anything. Tell me and I'll open the request — and don't send your password in the chat."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_lost_mailbox",
+            "weight": 610,
+            "source": "text"
+          },
+          {
+            "token": "entity_email",
+            "weight": 390,
             "source": "text"
           }
         ]
