@@ -170,12 +170,41 @@ export function resolveEditionProfile(edition, settings = {}) {
 }
 
 /**
+ * The sie_settings keys that belong to editions — `default_edition` and
+ * `edition_<id>_<knob>`. Only the platform owner may write them (migration
+ * 0010's guard uses the same pattern: sie_is_edition_setting_key).
+ */
+export function isEditionSettingKey(key) {
+    return key === 'default_edition' || /^edition_(free|pro|max)_[a-z_]+$/.test(String(key ?? ''));
+}
+
+/** Setting key of an edition's on/off switch. Free has none: it cannot be switched off. */
+export function editionEnabledKey(edition) {
+    return `edition_${edition}_enabled`;
+}
+
+/**
+ * Is an edition available to customers? Free always is. Pro/Max are unless
+ * switched off — and anything other than `true` or "not set" counts as off,
+ * so a malformed row fails closed. Mirrors sie_edition_available() (0010).
+ */
+export function isEditionAvailable(edition, settings = {}) {
+    if (edition === 'free') return true;
+    if (!EDITION_IDS.includes(edition)) return false;
+    const v = settings?.[editionEnabledKey(edition)];
+    return v === undefined || v === null || v === true;
+}
+
+/**
  * Which edition a customer is on. Their own row wins; then the configured
  * default; then Free. A value that is not a real edition id falls to Free —
  * never to a larger edition — so a corrupted row can only ever LOSE scope.
+ * An edition that is switched off is Free at either step (never "the next
+ * one down"). Mirrors sie_effective_edition() (0010).
  */
 export function resolveCustomerEdition({ accessRow = null, settings = {} } = {}) {
     const own = accessRow?.edition ?? accessRow?.metadata?.edition;
-    if (EDITION_IDS.includes(own)) return own;
-    return normalizeEdition(settings?.default_edition);
+    if (EDITION_IDS.includes(own)) return isEditionAvailable(own, settings) ? own : 'free';
+    const fallback = normalizeEdition(settings?.default_edition);
+    return isEditionAvailable(fallback, settings) ? fallback : 'free';
 }

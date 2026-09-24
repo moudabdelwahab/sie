@@ -20,3 +20,19 @@ psql -q -v ON_ERROR_STOP=1 "$DB" -f "$ROOT/sie-integration/tests/sql/baseline-be
 psql -q -v ON_ERROR_STOP=1 "$DB" -f "$ROOT/sie-integration/migrations/0009_sie_editions.sql"
 psql -q -v ON_ERROR_STOP=1 "$DB" -f "$ROOT/sie-integration/tests/sql/editions-migration.test.sql" 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
 test "${PIPESTATUS[0]}" -eq 0
+
+# 0010 (owner-only editions), on a second scratch database: the same
+# production shape plus the REAL authority functions (Mad3oom 038–053, as
+# deployed), which replace the flag-based stubs the 0009 checks use.
+psql -q "$ADMIN_URL" -c 'drop database if exists sie_migration_test_0010' -c 'create database sie_migration_test_0010'
+DB10="${PGURL%/*}/sie_migration_test_0010"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/tests/sql/supabase-stubs.sql"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/migrations/0008_add_api_rate_limiting.sql"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/tests/sql/production-2026-09-24.sql"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/migrations/0009_sie_editions.sql"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/tests/sql/production-authority-2026-09-24.sql"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/migrations/0010_sie_editions_owner_only.sql"
+# Idempotent: applying it twice changes nothing and still passes.
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/migrations/0010_sie_editions_owner_only.sql"
+psql -q -v ON_ERROR_STOP=1 "$DB10" -f "$ROOT/sie-integration/tests/sql/owner-editions.test.sql" 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
+test "${PIPESTATUS[0]}" -eq 0

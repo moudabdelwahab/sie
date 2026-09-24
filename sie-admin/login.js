@@ -35,8 +35,13 @@ function safeNextDestination() {
     if (!requested) return null;
     try {
         const destination = new URL(requested, window.location.origin);
+        // Same origin only, and only the console itself or the observability
+        // UI: a deep link such as the Owner Dashboard's «إصدارات SIE»
+        // (settings.html#/editions) survives the sign-in, and nothing else can
+        // use this page as a redirect.
+        const console_ = new URL(SETTINGS_PAGE, window.location.href).pathname;
         const allowed = destination.origin === window.location.origin
-            && destination.pathname.startsWith('/sie/observability/admin-ui/');
+            && (destination.pathname.startsWith('/sie/observability/admin-ui/') || destination.pathname === console_);
         return allowed ? destination.href : null;
     } catch {
         return null;

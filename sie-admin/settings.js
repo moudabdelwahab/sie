@@ -26,6 +26,9 @@
  *
  *   is_chat_engine_staff()  -> may read and edit the scenario catalog
  *   is_sie_admin()          -> may grant or revoke customer access
+ *   sie_owner_authority()   -> may manage EDITIONS: a customer's edition,
+ *                              edition limits, availability and the default
+ *                              (the platform owner alone; migration 0010)
  *
  * These are deliberately different: catalog editing is a team role,
  * while entitlement is a single accountable address.
@@ -67,6 +70,12 @@ import {
     isSettingActive,
     groupedSettings,
     describeEditions,
+    isCurrentUserSieOwner,
+    ownerSetCustomerEdition,
+    getEditionOverview,
+    isEditionSettingKey,
+    isEditionAvailable,
+    resolveCustomerEdition,
     EDITION_IDS,
     EDITION_NAMES,
     editionSettingGuard,
@@ -132,6 +141,10 @@ const state = {
     openAdvanced: new Set(),
     /** اللي كل إصدار شغّال بيه فعلاً — من describeEditions(). */
     editions: null,
+    /** sie_owner_authority() — the platform owner. Editions are theirs alone. */
+    isOwner: false,
+    /** sie_owner_edition_overview() rows, owner only. */
+    editionOverview: null,
     /** قاعدة البيانات فيها عمود الإصدار لكل عميل (تحديث 0009). */
     editionColumn: false,
     accessEditionOriginal: 'default'
@@ -219,6 +232,10 @@ const VIEWS = [
         searchId: 'usageSearch'
     },
     {
+        id: 'editions', label: 'إصدارات SIE', iconName: 'shield', group: 'العملاء',
+        title: 'إصدارات SIE', desc: 'المجاني وبرو وماكس: الحالة، العملاء، والحدود. إدارتها لمالك المنصة وحده.'
+    },
+    {
         id: 'settings', label: 'الإعدادات', iconName: 'settings', group: 'المحرك',
         title: 'إعدادات المحرك', desc: 'أي تغيير هنا بيتحفظ فورًا وبيسري على المحادثات الجديدة على طول.',
         searchId: 'settingSearch'
@@ -234,13 +251,17 @@ let shell;
 (async function boot() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-        window.location.replace(LOGIN_PAGE);
+        // Keep a deep link (e.g. #/editions from the Owner Dashboard) across
+        // the sign-in; login.js accepts only this same-origin page.
+        const next = location.hash ? `?next=${encodeURIComponent(location.pathname + location.hash)}` : '';
+        window.location.replace(LOGIN_PAGE + next);
         return;
     }
 
-    [state.isStaff, state.isSieAdmin] = await Promise.all([
+    [state.isStaff, state.isSieAdmin, state.isOwner] = await Promise.all([
         isCurrentUserEngineStaff(supabase),
-        isCurrentUserSieAdmin(supabase)
+        isCurrentUserSieAdmin(supabase),
+        isCurrentUserSieOwner(supabase)
     ]);
 
     const root = $('appRoot');
@@ -258,7 +279,7 @@ let shell;
     $('whoAmI').textContent = email;
     $('accountMenuEmail').textContent = email;
     $('accountAvatar').textContent = email.slice(0, 2).toUpperCase();
-    $('accountRole').textContent = state.isSieAdmin ? 'مسؤول المحرك' : 'فريق العمل';
+    $('accountRole').textContent = state.isOwner ? 'مالك المنصة' : state.isSieAdmin ? 'مسؤول المحرك' : 'فريق العمل';
 
     shell = createAppShell({ views: VIEWS, onNavigate: onNavigate });
 
@@ -268,13 +289,15 @@ let shell;
     wireAccessEditor();
     wireDiagnostics();
     wireKnowledge();
+    wireEditionAssign();
     paintLoadingStates();
 
     shell.start();
 
     // الأقسام التلاتة بتتحمّل مع بعض: كل واحد بيرسم نفسه أول ما يوصل،
     // فالصفحة مابتستناش أبطأ طلب عشان تبان.
-    await Promise.all([loadSettings(), loadScenarios(), loadUsers()]);
+    await Promise.all([loadSettings(), loadScenarios(), loadUsers(), loadEditionOverview()]);
+    renderEditionsView();
     renderDashboard();
     renderEngine();
     // الإشارات بتتأخر عن الإعدادات، والبطاقات بتتحدّث أول ما توصل — عشان
@@ -307,6 +330,7 @@ function onNavigate(view) {
     if (view.id === 'usage' && state.users.length) renderUsage();
     if (view.id === 'dashboard') renderDashboard();
     if (view.id === 'engine') renderEngine();
+    if (view.id === 'editions') renderEditionsView();
 }
 
 function wireChrome() {
@@ -1486,7 +1510,7 @@ async function loadSettings() {
     // `fresh` so an admin never sees a cached value on a page whose whole
     // purpose is showing the current one.
     state.settings = await getSieSettings(supabase, { fresh: true });
-    state.settingsGroup = state.settingsGroup || groupedSettings()[0].id;
+    state.settingsGroup = state.settingsGroup || settingsGroups()[0].id;
 
     await refreshEditions();
     renderSettingsNav();
@@ -1529,8 +1553,11 @@ function matchingSettings(group) {
  * all forty-five switches at once makes them scroll past forty-four of
  * them to reach it.
  */
+/** Settings groups shown under «الإعدادات». «الإصدارات» has its own view. */
+const settingsGroups = () => groupedSettings().filter((group) => group.id !== 'editions');
+
 function renderSettingsNav() {
-    const groups = groupedSettings();
+    const groups = settingsGroups();
     const searching = Boolean(settingsQuery());
 
     $('settingsNav').innerHTML = groups.map((group) => {
@@ -1558,6 +1585,15 @@ function renderSettingsNav() {
             renderSettingGroups();
         }));
 
+    $('settingsNav').insertAdjacentHTML('beforeend', `
+      <a class="settings-nav-item settings-nav-link" href="#/editions">
+        <span class="settings-nav-text">
+          <b>إصدارات SIE</b>
+          <span class="sub">المجاني وبرو وماكس، وحدود كل واحد — في قسمها.</span>
+        </span>
+        ${icon('chevronLeft')}
+      </a>`);
+
     const changed = changedSettingsCount();
     $('settingsSummary').innerHTML = changed
         ? `${icon('info')} <span><b class="num">${changed}</b> إعداد متغيّر عن المعتاد.</span>`
@@ -1574,15 +1610,8 @@ function renderSettingGroups() {
     const container = $('settingGroups');
     const searching = Boolean(settingsQuery());
     const groups = searching
-        ? groupedSettings().filter((group) => matchingSettings(group).length)
-        : groupedSettings().filter((group) => group.id === state.settingsGroup);
-
-    // «الإصدارات» ليها شكلها: تلات كروت جنب بعض بدل ٢٢ سطر ورا بعض.
-    // أثناء البحث بتظهر زي أي إعداد تاني، عشان البحث مايكدبش.
-    if (!searching && state.settingsGroup === 'editions') {
-        renderEditionsPanel(container, groups[0]);
-        return;
-    }
+        ? settingsGroups().filter((group) => matchingSettings(group).length)
+        : settingsGroups().filter((group) => group.id === state.settingsGroup);
 
     if (groups.length === 0) {
         container.innerHTML = emptyState({
@@ -1677,16 +1706,68 @@ const EDITION_BLURB = {
     max: 'كل الحالات: الأساسية + الدعم المتخصص + الحالات العامة.'
 };
 
-function renderEditionsPanel(container, group) {
+/** نظرة المالك: عدد العملاء ورسايل الشهر لكل إصدار. للمالك بس — غيره مالوش. */
+async function loadEditionOverview() {
+    if (!state.isOwner) { state.editionOverview = null; return; }
+    const { rows, error } = await getEditionOverview(supabase);
+    if (error) console.warn('[sie-admin] sie_owner_edition_overview failed:', error.message);
+    state.editionOverview = error ? null : rows;
+}
+
+/**
+ * عملاء كل إصدار. للمالك من قاعدة البيانات (sie_owner_edition_overview)؛
+ * ولغيره من الصفوف اللي يقدر يشوفها — نفس دالة التحويل اللي المحرك بيستخدمها.
+ */
+function editionCustomerCounts() {
+    const counts = Object.fromEntries(EDITION_IDS.map((id) => [id, { assigned: 0, effective: 0, active: 0, messages: null }]));
+    if (state.editionOverview) {
+        for (const r of state.editionOverview) {
+            if (!counts[r.edition]) continue;
+            counts[r.edition] = { assigned: r.assigned_customers, effective: r.effective_customers,
+                active: r.active_customers, messages: Number(r.messages_this_month) };
+        }
+        return counts;
+    }
+    for (const u of state.users) {
+        if (!u.access) continue;
+        const own = u.access.edition;
+        const eff = resolveCustomerEdition({ accessRow: u.access, settings: state.settings });
+        if (counts[own]) counts[own].assigned += 1;
+        counts[eff].effective += 1;
+        if (u.access.is_enabled) counts[eff].active += 1;
+    }
+    return counts;
+}
+
+/**
+ * قسم «إصدارات SIE».
+ *
+ * كل حاجة هنا بتتقرا لأي حد من فريق المحرك، وبتتغيّر لمالك المنصة بس. القفل
+ * في الواجهة مجاملة: قاعدة البيانات (0010) بترفض أي تغيير من غير المالك،
+ * سواء جه من هنا أو من نداء مباشر.
+ */
+function renderEditionsView() {
+    const panel = $('editionsPanel');
+    if (!panel || !state.settings) return;
     const defaultDef = SETTINGS_BY_KEY.default_edition;
     const byId = new Map((state.editions || []).map((e) => [e.id, e]));
     const warnings = editionWarnings(state.settings);
     const open = state.openAdvanced.has('editions');
+    const counts = editionCustomerCounts();
+    const owner = state.isOwner;
+
+    $('editionsNotice').className = owner ? 'alert alert--info' : 'alert alert--warning';
+    $('editionsNotice').innerHTML = owner
+        ? `${icon('shield')}<div class="alert-body"><span class="alert-title">إدارة الإصدارات لمالك المنصة وحده — وده حسابك.</span>
+             أي تغيير هنا بيسري على الرسايل الجاية على طول، وبيتسجّل في سجل الامتيازات: مين، لمين، من إيه لإيه، وإمتى — وكمان أي محاولة اترفضت.</div>`
+        : `${icon('lock')}<div class="alert-body"><span class="alert-title">للقراءة بس.</span>
+             تغيير إصدار عميل، أو حدود إصدار، أو قفله، أو الإصدار الافتراضي — لمالك المنصة وحده. قاعدة البيانات بترفضه لأي حساب تاني حتى لو اتبعت من برّه اللوحة.</div>`;
 
     const card = (id) => {
         const info = byId.get(id);
         const isDefault = state.settings.default_edition === id;
-        const available = info?.scenarios;
+        const available = isEditionAvailable(id, state.settings);
+        const c = counts[id];
         const rows = (advanced) => EDITION_ROWS.filter((r) => Boolean(r.advanced) === advanced).map((r) => {
             const key = `edition_${id}_${r.knob}`;
             const def = SETTINGS_BY_KEY[key];
@@ -1699,7 +1780,7 @@ function renderEditionsPanel(container, group) {
                 <span class="edition-field-input">
                   <input type="number" class="input num-box" dir="ltr" inputmode="numeric"
                          min="${def.min}" max="${def.max}" step="${def.step || 1}"
-                         value="${esc(String(value))}" ${state.isStaff ? '' : 'disabled'}
+                         value="${esc(String(value))}" ${owner ? '' : 'disabled'}
                          aria-label="${esc(`${r.label} — ${EDITION_NAMES[id]}`)}">
                   <span class="edition-unit">${esc(r.unit)}</span>
                 </span>
@@ -1707,65 +1788,86 @@ function renderEditionsPanel(container, group) {
               </label>`;
         }).join('');
 
+        const toggle = id === 'free'
+            ? '<span class="edition-status">متاح دايمًا</span>'
+            : `<label class="switch" title="${available ? 'متاح' : 'مقفول'}">
+                 <input type="checkbox" data-enabled="${esc(id)}" ${available ? 'checked' : ''} ${owner ? '' : 'disabled'}
+                        aria-label="${esc(`إصدار ${EDITION_NAMES[id]} متاح`)}">
+                 <span class="slider"></span>
+               </label>`;
+
         return `
-        <article class="edition-card${isDefault ? ' is-default' : ''}" data-edition="${esc(id)}">
+        <article class="edition-card${isDefault ? ' is-default' : ''}${available ? '' : ' is-off'}" data-edition="${esc(id)}">
           <header class="edition-card-head">
             <h3>${esc(EDITION_NAMES[id])}</h3>
-            ${isDefault ? '<span class="badge badge--primary">الافتراضي</span>' : ''}
+            <span class="edition-card-badges">
+              ${isDefault ? '<span class="badge badge--primary">الافتراضي</span>' : ''}
+              <span class="badge ${available ? 'badge--success' : 'badge--neutral'}">${available ? 'متاح' : 'مقفول'}</span>
+              ${toggle}
+            </span>
           </header>
           <p class="hint">${esc(EDITION_BLURB[id])}</p>
-          <p class="edition-count">
-            ${info?.error
-                ? `${icon('alert')} <span>ملفات الإصدار ماتحمّلتش — عملاؤه بيتردّ عليهم بالمجاني لحد ما تتحل.</span>`
-                : available == null ? '<span>—</span>'
-                : `<b class="num">${fmtNumber(available)}</b> <span>حالة شغّالة من حد ${fmtNumber(info.profile.maxScenarios)}</span>`}
-          </p>
+          <dl class="edition-facts">
+            <div><dt>الحالات</dt><dd>${info?.error
+                ? `${icon('alert')} ملفات الإصدار ماتحمّلتش — عملاؤه بيتردّ عليهم بالمجاني`
+                : info?.scenarios == null ? '—'
+                : `<b class="num">${fmtNumber(info.scenarios)}</b> <span class="sub">من حد ${fmtNumber(info.profile.maxScenarios)}</span>`}</dd></div>
+            <div><dt>العملاء</dt><dd><b class="num">${fmtNumber(c.effective)}</b> <span class="sub">شغّالين عليه · ${fmtNumber(c.active)} مفعّلين · ${fmtNumber(c.assigned)} متحدد لهم بالاسم</span></dd></div>
+            ${c.messages === null ? '' : `<div><dt>رسايل الشهر ده</dt><dd><b class="num">${fmtNumber(c.messages)}</b></dd></div>`}
+          </dl>
+          ${available ? '' : `<p class="edition-off-note">${icon('info')} <span>مقفول: عملاؤه بيتردّ عليهم بالمجاني لحد ما يتفتح.</span></p>`}
           <div class="edition-fields">${rows(false)}</div>
           <div class="edition-fields edition-fields--advanced"${open ? '' : ' hidden'}>${rows(true)}</div>
         </article>`;
     };
 
-    container.innerHTML = `
-    <section class="settings-section" id="settings-editions">
-      <header class="settings-section-head">
-        <div>
-          <h2>${esc(group.title)}</h2>
-          <p class="hint">${esc(group.desc)} كل الإصدارات بتعدي على نفس الحماية ونفس قواعد القرار — الفرق بس في عدد الحالات والحدود.</p>
-        </div>
-        ${changedInGroup(group) ? `<span class="badge badge--primary">${changedInGroup(group)} متغيّر</span>` : ''}
-      </header>
+    panel.innerHTML = `
+      <section class="settings-section" id="settings-editions">
+        <header class="settings-section-head">
+          <div>
+            <h2>الإصدارات</h2>
+            <p class="hint">كل الإصدارات بتعدي على نفس الحماية ونفس قواعد القرار — الفرق في عدد الحالات والحدود.</p>
+          </div>
+        </header>
 
-      <div class="setting-list">${renderSetting(defaultDef)}</div>
+        <div class="setting-list">${renderSetting(defaultDef)}</div>
 
-      ${warnings.length ? `
-        <ul class="edition-warnings" role="status">
-          ${warnings.map((w) => `<li>${icon('info')} <span>${esc(w)}</span></li>`).join('')}
-        </ul>` : ''}
+        ${warnings.length ? `
+          <ul class="edition-warnings" role="status">
+            ${warnings.map((w) => `<li>${icon('info')} <span>${esc(w)}</span></li>`).join('')}
+          </ul>` : ''}
 
-      <div class="edition-grid">${EDITION_IDS.map(card).join('')}</div>
+        <div class="edition-grid">${EDITION_IDS.map(card).join('')}</div>
 
-      <button type="button" class="advanced-toggle${open ? ' is-open' : ''}" data-advanced="editions" aria-expanded="${open}">
-        ${icon('chevronDown')}
-        <span>تفاصيل تقنية <span class="advanced-count">${EDITION_ROWS.filter((r) => r.advanced).length * EDITION_IDS.length}</span></span>
-      </button>
+        <button type="button" class="advanced-toggle${open ? ' is-open' : ''}" data-advanced="editions" aria-expanded="${open}">
+          ${icon('chevronDown')}
+          <span>تفاصيل تقنية <span class="advanced-count">${EDITION_ROWS.filter((r) => r.advanced).length * EDITION_IDS.length}</span></span>
+        </button>
 
-      <p class="hint edition-footnote">
-        أي رقم بيتحفظ لما تخرج من الخانة، وبيشتغل على الرسايل الجديدة على طول.
-        الأرقام اللي ممكن تضر العملاء بتسألك الأول، واللي مالهاش معنى (زي برو أصغر من المجاني) بتترفض.
-        حد الشهر وحد الطلبات بيتطبّقوا من قاعدة البيانات${state.editionColumn ? '' : ' — ولسه محتاجين تحديث قاعدة البيانات (0009) عشان يشتغلوا'}.
-      </p>
-    </section>`;
+        <p class="hint edition-footnote">
+          أي رقم بيتحفظ لما تخرج من الخانة، وبيشتغل على الرسايل الجديدة على طول.
+          الأرقام اللي ممكن تضر العملاء بتسألك الأول، واللي مالهاش معنى (زي برو أصغر من المجاني) بتترفض.
+          أي إصدار مجهول أو مقفول بيتحوّل للمجاني — عمره ما بيتحوّل لإصدار أكبر.
+        </p>
+      </section>`;
 
-    container.querySelector('[data-advanced="editions"]').addEventListener('click', () => {
+    panel.querySelector('[data-advanced="editions"]').addEventListener('click', () => {
         if (state.openAdvanced.has('editions')) state.openAdvanced.delete('editions');
         else state.openAdvanced.add('editions');
-        renderSettingGroups();
+        renderEditionsView();
     });
 
     // الاختيار الافتراضي بيستخدم نفس توصيل أي إعداد تاني.
-    wireSettingInputs();
+    wireSettingInputs(panel.querySelector('.setting-list'));
 
-    container.querySelectorAll('.edition-field').forEach((field) => {
+    panel.querySelectorAll('[data-enabled]').forEach((box) => {
+        const key = `edition_${box.dataset.enabled}_enabled`;
+        box.addEventListener('change', () => {
+            commitSetting(key, box.checked, box, () => { box.checked = !box.checked; });
+        });
+    });
+
+    panel.querySelectorAll('.edition-field').forEach((field) => {
         const key = field.dataset.key;
         const def = SETTINGS_BY_KEY[key];
         const box = field.querySelector('input');
@@ -1786,6 +1888,81 @@ function renderEditionsPanel(container, group) {
         box.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); box.blur(); }
         });
+    });
+
+    renderEditionCustomers();
+}
+
+/** اسم الإصدار الفعلي لعميل، وهل متحدد له بالاسم ولا ماشي على الافتراضي. */
+function customerEditionLabel(access) {
+    const eff = resolveCustomerEdition({ accessRow: access, settings: state.settings });
+    const own = access?.edition;
+    if (!own) return { eff, text: `${EDITION_NAMES[eff]} (الافتراضي)` };
+    if (own !== eff) return { eff, text: `${EDITION_NAMES[eff]} — ${EDITION_NAMES[own]} مقفول` };
+    return { eff, text: EDITION_NAMES[eff] };
+}
+
+/** «عملاء SIE وإصداراتهم» + نموذج التعيين. */
+function renderEditionCustomers() {
+    const customers = state.users.filter((u) => u.access);
+    const owner = state.isOwner;
+    const q = ($('editionCustomerSearch')?.value || '').trim().toLowerCase();
+    const shown = customers.filter((u) => !q || `${u.name} ${u.email}`.toLowerCase().includes(q));
+
+    $('editionAssignForm').hidden = !owner;
+    $('editionAssignLocked').hidden = owner;
+    const select = $('editionAssignUser');
+    const picked = select.value;
+    select.innerHTML = `<option value="">اختار عميل…</option>` + customers.map((u) =>
+        `<option value="${esc(u.id)}">${esc(u.name)} — ${esc(u.email)} (${esc(customerEditionLabel(u.access).text)})</option>`).join('');
+    if (customers.some((u) => u.id === picked)) select.value = picked;
+
+    $('editionCustomerCount').textContent = `${fmtNumber(shown.length)} عميل عنده صلاحية على SIE`;
+    $('editionCustomerRows').innerHTML = shown.map((u) => {
+        const { eff, text } = customerEditionLabel(u.access);
+        return `
+          <tr>
+            <td><b>${esc(u.name)}</b><span class="sub" dir="ltr">${esc(u.email)}</span></td>
+            <td><span class="badge badge--${eff === 'free' ? 'neutral' : 'primary'}">${esc(text)}</span></td>
+            <td>${u.access.is_enabled ? '<span class="badge badge--success">مفعّل</span>' : '<span class="badge badge--neutral">موقوف</span>'}</td>
+            <td>${owner ? `<button type="button" class="btn btn--ghost btn--sm" data-assign="${esc(u.id)}">${icon('edit')} تغيير</button>` : ''}</td>
+          </tr>`;
+    }).join('');
+    $('editionCustomerEmpty').hidden = shown.length > 0;
+    $('editionCustomerEmpty').innerHTML = shown.length ? '' : emptyState({
+        iconName: 'users', title: customers.length ? 'مفيش عميل مطابق' : 'مفيش عملاء عندهم صلاحية على SIE',
+        text: customers.length ? 'جرّب اسم أو بريد تاني.' : 'الإصدار بيتحدد للعملاء اللي عندهم صلاحية بس — فعّلها من «المستخدمون».'
+    });
+    $('editionCustomerRows').querySelectorAll('[data-assign]').forEach((b) => b.addEventListener('click', () => {
+        select.value = b.dataset.assign;
+        const u = state.users.find((x) => x.id === b.dataset.assign);
+        $('editionAssignEdition').value = u?.access?.edition || 'default';
+        select.focus();
+    }));
+}
+
+function wireEditionAssign() {
+    $('editionCustomerSearch').addEventListener('input', debounce(renderEditionCustomers, 140));
+    $('editionAssignForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userId = $('editionAssignUser').value;
+        const edition = $('editionAssignEdition').value;
+        const u = state.users.find((x) => x.id === userId);
+        if (!u) { toast('اختار عميل الأول.', 'err'); return; }
+        const current = u.access?.edition || 'default';
+        if (edition === current) { toast('ده إصداره فعلًا.'); return; }
+        const to = edition === 'default' ? `الافتراضي (${EDITION_NAMES[state.settings.default_edition] || EDITION_NAMES.free})` : EDITION_NAMES[edition];
+        const agreed = await confirmAction({
+            title: `تغيّر إصدار «${u.name}» لـ«${to}»؟`,
+            body: 'التغيير بيسري من أول رسالة جاية للعميل ده، وبيتسجّل في سجل الامتيازات.',
+            confirmLabel: 'أيوه، غيّره', tone: 'primary'
+        });
+        if (!agreed) return;
+        const { error } = await withBusy($('editionAssignBtn'), () => ownerSetCustomerEdition(supabase, userId, edition));
+        if (error) { toast(`مااتغيّرش: ${error.message}`, 'err'); return; }
+        toast('اتغيّر الإصدار، وشغّال من أول رسالة جاية.');
+        await Promise.all([loadUsers(), loadEditionOverview()]);
+        renderEditionsView();
     });
 }
 
@@ -1818,7 +1995,7 @@ function splitByDepth(group, settings) {
 function renderSetting(def) {
     const value = state.settings[def.key];
     const active = isSettingActive(def, state.settings);
-    const disabled = !state.isStaff || !active;
+    const disabled = !canEditSetting(def.key) || !active;
     const cls = `setting-row${active ? '' : ' is-inert'}`;
     const inert = !active
         ? `<span class="setting-inert">${icon('lock')} متعطّل لأن «${esc(SETTINGS_BY_KEY[def.dependsOn].title)}» مقفول.</span>`
@@ -1906,8 +2083,16 @@ function numberHint(def, value) {
     return formatted === String(value) ? '' : formatted;
 }
 
-function wireSettingInputs() {
-    const rows = $('settingGroups').querySelectorAll('.setting-row');
+/**
+ * Who may change a setting — a courtesy mirror of the database, which
+ * decides: edition settings are the owner's (0010), the rest engine staff's.
+ */
+function canEditSetting(key) {
+    return isEditionSettingKey(key) ? state.isOwner : state.isStaff;
+}
+
+function wireSettingInputs(root = $('settingGroups')) {
+    const rows = root.querySelectorAll('.setting-row');
 
     rows.forEach((row) => {
         const key = row.dataset.key;
@@ -2054,7 +2239,11 @@ async function commitSetting(key, value, control, revert) {
         }
     }
 
-    if (key === 'default_edition' || key.startsWith('edition_')) await refreshEditions();
+    if (isEditionSettingKey(key)) {
+        await refreshEditions();
+        await loadEditionOverview();
+        renderEditionsView();
+    }
 
     renderSettingsNav();
     renderSettingGroups();
@@ -2515,8 +2704,12 @@ async function openAccessDialog(userId) {
     $('aEditionWrap').hidden = !hasEdition;
     state.accessEditionOriginal = row?.edition || 'default';
     $('aEdition').value = state.accessEditionOriginal;
+    // The edition is the owner's alone (0010): anyone else sees it, can't change it.
+    $('aEdition').disabled = !state.isOwner;
     const fallback = EDITION_NAMES[state.settings?.default_edition] || EDITION_NAMES.free;
-    $('aEditionHint').textContent = `الإصدار الافتراضي دلوقتي: ${fallback}. تقدر تغيّره من الإعدادات ← الإصدارات.`;
+    $('aEditionHint').textContent = state.isOwner
+        ? `الإصدار الافتراضي دلوقتي: ${fallback}. تقدر تغيّره من «إصدارات SIE».`
+        : `تغيير الإصدار لمالك المنصة وحده. الإصدار الافتراضي دلوقتي: ${fallback}.`;
 
     const evaluated = evaluateSieAccessRow(row);
     $('accessStatusBadge').innerHTML = badge(evaluated.statusLabel, evaluated.available ? 'success' : 'neutral');
@@ -2625,14 +2818,27 @@ async function submitAccess() {
         accessMode: mode,
         messageQuota: mode === 'quota' ? Number($('aQuota').value) : null,
         expiresAt: mode === 'expiration' ? new Date($('aExpiry').value).toISOString() : null,
-        notes: $('aNotes').value.trim() || null,
-        edition: !$('aEditionWrap').hidden && $('aEdition').value !== state.accessEditionOriginal
-            ? $('aEdition').value : undefined
+        notes: $('aNotes').value.trim() || null
     }));
 
     if (error) {
         showFormError('accessErrors', `تعذّر الحفظ: ${esc(error.message)}`);
         return;
+    }
+
+    // The edition goes through the owner's own RPC (0010) AFTER the access
+    // row exists — it records the change (and any refusal) in the
+    // privileged audit, which sie_admin_set_access does not.
+    const editionChanged = state.isOwner && !$('aEditionWrap').hidden && $('aEdition').value !== state.accessEditionOriginal;
+    if (editionChanged) {
+        const { error: edError } = await ownerSetCustomerEdition(supabase, state.editingUserId, $('aEdition').value);
+        if (edError) {
+            showFormError('accessErrors', `الصلاحية اتحفظت، لكن الإصدار مااتغيّرش: ${esc(edError.message)}`);
+            state.dirtySnapshot = null;
+            await loadUsers();
+            return;
+        }
+        await loadEditionOverview();
     }
 
     // The rate limit is saved from the same button but through its own RPC:

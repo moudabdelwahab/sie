@@ -308,6 +308,18 @@ export {
 export { SIE_DEFAULT_SETTINGS, getSieSettings, saveSieSetting } from './sie-entitlement.js';
 
 /**
+ * Edition management — the platform owner's alone (migration 0010). The
+ * owner check and both mutations are answered by the database; these only
+ * call it.
+ */
+export {
+    isCurrentUserSieOwner,
+    ownerSetCustomerEdition,
+    getEditionOverview,
+    EDITION_RPC_ERRORS
+} from './sie-entitlement.js';
+
+/**
  * The settings schema — what each control is called in Arabic, what it does,
  * and what values it accepts. Re-exported so the console renders from the
  * same definition the engine obeys: a control cannot describe behaviour the
@@ -330,7 +342,7 @@ export {
 // ===================================================================
 
 export { EDITION_NAMES, editionSettingGuard, editionWarnings } from '../sie/editions/edition-guards.js';
-export { EDITION_IDS, EDITION_SCENARIO_CEILINGS, resolveEditionProfile } from '../sie/editions/editions.js';
+export { EDITION_IDS, EDITION_SCENARIO_CEILINGS, resolveEditionProfile, isEditionSettingKey, isEditionAvailable, resolveCustomerEdition } from '../sie/editions/editions.js';
 
 /**
  * What each edition actually runs with under the given settings: the

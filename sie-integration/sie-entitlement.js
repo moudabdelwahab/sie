@@ -34,6 +34,7 @@ import {
     mergeStoredSettings,
     validateSetting
 } from '../sie/config/settings-schema.js';
+import { isEditionSettingKey } from '../sie/editions/editions.js';
 
 /**
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
@@ -74,6 +75,89 @@ export async function isCurrentUserEngineStaff(supabase) {
     } catch (err) {
         console.warn('[sie] is_chat_engine_staff() RPC threw:', err?.message || err);
         return false;
+    }
+}
+
+/**
+ * Is the current session the platform OWNER, as far as SIE is concerned?
+ * Answered by sie_owner_authority() (Mad3oom 052: is_platform_owner()
+ * outside a member preview) — the one owner check the database enforces
+ * edition changes with (migration 0010). Never an e-mail comparison.
+ *
+ * Fails closed: an error, a missing function or anything but `true` is
+ * "not the owner", and the console then shows editions read-only. That is
+ * a courtesy; the refusal itself happens in the database.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<boolean>}
+ */
+export async function isCurrentUserSieOwner(supabase) {
+    try {
+        const { data, error } = await supabase.rpc('sie_owner_authority');
+        if (error) {
+            console.warn('[sie] sie_owner_authority() RPC failed:', error.message);
+            return false;
+        }
+        return data === true;
+    } catch (err) {
+        console.warn('[sie] sie_owner_authority() RPC threw:', err?.message || err);
+        return false;
+    }
+}
+
+/** Arabic text for the {ok:false, error} codes of the owner edition RPCs (0010). */
+export const EDITION_RPC_ERRORS = Object.freeze({
+    forbidden: 'إدارة إصدارات SIE لمالك المنصة وحده.',
+    invalid_edition: 'الإصدار ده مش موجود.',
+    no_access: 'العميل ده مالوش صلاحية على SIE — فعّلها له الأول من «المستخدمون».',
+    invalid_value: 'القيمة دي مش مقبولة للإعداد ده.',
+    unknown_setting: 'الإعداد ده مش من إعدادات الإصدارات.',
+    free_always_enabled: 'المجاني مايتقفلش: هو اللي أي إصدار مقفول بيرجع له.',
+    edition_is_default: 'ده الإصدار الافتراضي — غيّر الافتراضي الأول، وبعدين اقفله.',
+    edition_disabled: 'الإصدار ده مقفول — افتحه الأول قبل ما تخليه الافتراضي.'
+});
+
+function editionRpcError(result, fallback) {
+    const code = result && typeof result === 'object' ? result.error : null;
+    return new Error(EDITION_RPC_ERRORS[code] || fallback);
+}
+
+/**
+ * Owner-only: set a customer's SIE edition. Enforced inside
+ * sie_owner_set_customer_edition() (0010), which also records every
+ * attempt — success, rejected input and refusal — in privileged_audit.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @param {string} userId
+ * @param {'free'|'pro'|'max'|'default'} edition  'default' = follow default_edition
+ * @returns {Promise<{error: Error|null, result: Object|null}>}
+ */
+export async function ownerSetCustomerEdition(supabase, userId, edition) {
+    if (!userId) return { error: new Error('userId is required'), result: null };
+    try {
+        const { data, error } = await supabase.rpc('sie_owner_set_customer_edition', { p_user_id: userId, p_edition: edition });
+        if (error) return { error: new Error(error.message), result: null };
+        if (!data?.ok) return { error: editionRpcError(data, 'تعذّر تغيير الإصدار.'), result: data ?? null };
+        return { error: null, result: data };
+    } catch (err) {
+        return { error: err instanceof Error ? err : new Error(String(err)), result: null };
+    }
+}
+
+/**
+ * Owner-only: per-edition customer counts and this month's messages, from
+ * sie_owner_edition_overview() (0010). Never throws.
+ *
+ * @param {import('@supabase/supabase-js').SupabaseClient} supabase
+ * @returns {Promise<{rows: Array<{edition: string, enabled: boolean, is_default: boolean, assigned_customers: number, effective_customers: number, active_customers: number, messages_this_month: number}>, error: Error|null}>}
+ */
+export async function getEditionOverview(supabase) {
+    try {
+        const { data, error } = await supabase.rpc('sie_owner_edition_overview');
+        if (error) return { rows: [], error: new Error(error.message) };
+        return { rows: Array.isArray(data) ? data : [], error: null };
+    } catch (err) {
+        return { rows: [], error: err instanceof Error ? err : new Error(String(err)) };
     }
 }
 
@@ -202,6 +286,11 @@ export function evaluateSieAccessRow(row, { monthlyCap = 0 } = {}) {
  * enforced inside sie_admin_set_access() via is_sie_admin() — this call
  * simply fails with an authorization error for anyone else, exactly as
  * the profiles-table admin actions already behave elsewhere.
+ *
+ * The EDITION is not set here: it is the owner's alone, through
+ * ownerSetCustomerEdition(). `edition` is still accepted for callers that
+ * pass it, and then sent as p_edition — which migration 0010 refuses for
+ * anyone but the owner.
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
  * @param {{userId: string, isEnabled: boolean, accessMode: 'unlimited'|'quota'|'expiration', messageQuota?: number|null, expiresAt?: string|null, notes?: string|null, edition?: 'free'|'pro'|'max'|'default'}} params
@@ -439,6 +528,22 @@ export async function getSieSettings(supabase, { fresh = false } = {}) {
 export async function saveSieSetting(supabase, key, value) {
     const check = validateSetting(key, value);
     if (!check.ok) return { error: new Error(check.error) };
+
+    // Edition settings are the owner's alone (0010). They go through the
+    // owner RPC, which records refusals too; a direct write would be
+    // refused by the database anyway, without that record.
+    if (isEditionSettingKey(key)) {
+        try {
+            const { data, error } = await supabase.rpc('sie_owner_set_edition_setting', { p_key: key, p_value: check.value });
+            if (error) return { error: new Error(error.message) };
+            if (!data?.ok) return { error: editionRpcError(data, 'مااتحفظش.') };
+            settingsCache = null;
+            settingsCachedAt = 0;
+            return { error: null };
+        } catch (err) {
+            return { error: err instanceof Error ? err : new Error(String(err)) };
+        }
+    }
 
     try {
         const { error } = await supabase

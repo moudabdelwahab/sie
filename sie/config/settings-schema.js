@@ -480,7 +480,7 @@ function editionSettings() {
     const out = [{
         key: 'default_edition', group: 'editions', type: 'enum', default: 'free',
         title: 'الإصدار الافتراضي للعملاء',
-        desc: 'الإصدار اللي بياخده أي عميل مالوش إصدار متحدد له بالاسم من «مركز المراجعة».',
+        desc: 'الإصدار اللي بياخده أي عميل مالوش إصدار متحدد له بالاسم في قسم الإصدارات.',
         options: EDITION_IDS.map((id) => ({
             value: id,
             label: NAMES[id],
@@ -531,6 +531,18 @@ function editionSettings() {
         monthlyMessages: () => HARD_LIMITS.monthlyMessages
     };
     const DEFAULT_WHEN_NULL = { rateLimitPerMinute: 0, rateLimitBurst: 20 };
+
+    // Availability. Free has no switch: it is the floor every other edition
+    // falls back to.
+    for (const id of EDITION_IDS.filter((e) => e !== 'free')) {
+        out.push({
+            key: `edition_${id}_enabled`, group: 'editions', type: 'boolean', default: true,
+            edition: id, knob: 'enabled',
+            title: `إصدار ${NAMES[id]} متاح`,
+            desc: `لو اتقفل، أي عميل على ${NAMES[id]} بيتردّ عليه بالمجاني لحد ما يتفتح تاني — مش بالإصدار اللي تحته.`,
+            effect: 'editions.resolveCustomerEdition + sie_effective_edition() (migration 0010): a switched-off edition resolves to free'
+        });
+    }
 
     for (const id of EDITION_IDS) {
         for (const k of knobs) {
