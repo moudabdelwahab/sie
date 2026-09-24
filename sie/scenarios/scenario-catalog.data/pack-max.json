@@ -957,17 +957,17 @@
       "evidenceSignature": [
         {
           "token": "entity_computer",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
           "token": "qualifier_mobile",
-          "weight": 3,
+          "weight": 2,
           "source": "text"
         },
         {
           "token": "entity_works_normally",
-          "weight": 2,
+          "weight": 3,
           "source": "text"
         }
       ],
@@ -984,17 +984,17 @@
         [
           {
             "token": "entity_computer",
-            "weight": 3,
+            "weight": 305,
             "source": "text"
           },
           {
             "token": "qualifier_mobile",
-            "weight": 2,
+            "weight": 305,
             "source": "text"
           },
           {
             "token": "symptom_not_working",
-            "weight": 2,
+            "weight": 390,
             "source": "text"
           }
         ]
@@ -2343,6 +2343,393 @@
           }
         ]
       ]
+    },
+    {
+      "id": "gen_arabic_keyboard_computer",
+      "intent": "device/keyboard/add_arabic",
+      "label": {
+        "ar": "مش عارف أكتب عربي على الكمبيوتر",
+        "en": "I can't type Arabic on my computer"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_keyboard",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لازم تضيف العربي للكيبورد مرة واحدة:\n• ويندوز: الإعدادات ← الوقت واللغة ← اللغة والمنطقة ← إضافة لغة ← العربية. وبعدها تبدّل بـ Alt+Shift أو Windows+Space.\n• ماك: إعدادات النظام ← لوحة المفاتيح ← مصادر الإدخال ← (+) ← العربية. والتبديل بـ Control+Space.\n\nولو الحروف مش مطبوعة على الكيبورد، ترتيبها زي أي كيبورد عربي — وفيه ملصقات حروف رخيصة.",
+          "en": "You need to add Arabic to the keyboard once:\n• Windows: Settings ▸ Time & language ▸ Language & region ▸ Add a language ▸ Arabic. Then switch with Alt+Shift or Windows+Space.\n• Mac: System Settings ▸ Keyboard ▸ Input Sources ▸ (+) ▸ Arabic. Switch with Control+Space.\n\nIf the letters aren't printed on the keys, the layout is the standard Arabic one — cheap letter stickers are available."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_computer",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "social_asks_arabic",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "entity_keyboard",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_copy_paste_how",
+      "intent": "device/input/copy_paste_how",
+      "label": {
+        "ar": "أنسخ وألصق إزاي",
+        "en": "How do I copy and paste"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_copy",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_paste",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• على الكمبيوتر: حدّد الكلام بالماوس، واضغط Ctrl+C للنسخ، وروح للمكان اللي عايزه واضغط Ctrl+V للصق (على ماك: Cmd بدل Ctrl).\n• على الموبايل: اضغط ضغطة طويلة على الكلمة، وحرّك العلامات لحد ما تحدد الكلام كله ← «نسخ». وفي الخانة اللي عايز تلصق فيها: ضغطة طويلة ← «لصق».",
+          "en": "• On a computer: select the text with the mouse, press Ctrl+C to copy, go where you want it and press Ctrl+V to paste (on a Mac: Cmd instead of Ctrl).\n• On a phone: long-press a word, drag the handles until all the text is selected ▸ \"Copy\". In the field where you want it: long-press ▸ \"Paste\"."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_link_not_opening_on_tap",
+      "intent": "device/links/not_clickable",
+      "label": {
+        "ar": "الرابط مش بيفتح لما أدوس عليه",
+        "en": "The link does not open when I tap it"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_tap_link",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_reset_link",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "جرّب تفتحه بنفسك بدل الضغط:\n• اضغط ضغطة طويلة على الرابط ← «نسخ الرابط»، والصقه في شريط العنوان في المتصفح.\n• لو الرابط متقسّم على سطرين في الرسالة، انسخ الجزءين والزقهم من غير مسافة.\n• لو في تطبيق (زي واتساب أو الإيميل) مابيحصلش حاجة، افتح الرسالة من المتصفح أو من تطبيق تاني.\n\nولو الرابط نفسه فتح وقالك منتهي أو غلط، ابعتهولي.",
+          "en": "Try opening it yourself instead of tapping:\n• Long-press the link ▸ \"Copy link\", and paste it into the browser's address bar.\n• If the link is split over two lines in the message, copy both parts and join them without a space.\n• If nothing happens inside an app (such as WhatsApp or e-mail), open the message from a browser or another app.\n\nIf the link opens but says it has expired or is invalid, send it to me."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_scan_qr_code_how",
+      "intent": "device/camera/scan_qr_how",
+      "label": {
+        "ar": "أعمل مسح لكود QR إزاي",
+        "en": "How do I scan a QR code"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_qr_code",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_scan_document",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• آيفون: افتح الكاميرا ووجّهها على الكود — هيظهر رابط فوق، دوس عليه.\n• أندرويد: افتح الكاميرا أو «عدسة جوجل» ووجّهها على الكود.\n• لو الكود على شاشة الكمبيوتر، قرّب الموبايل لحد ما الكود يملى إطار الكاميرا، وكبّر سطوع الشاشة.\n\nلو الكود ده لربط حاجة أو لتفعيل حماية، افتحه من التطبيق المطلوب نفسه (زي تطبيق المصادقة) مش من الكاميرا.",
+          "en": "• iPhone: open the camera and point it at the code — a link appears at the top; tap it.\n• Android: open the camera or \"Google Lens\" and point it at the code.\n• If the code is on a computer screen, bring the phone closer until the code fills the camera frame, and raise the screen's brightness.\n\nIf the code is for linking something or enabling protection, scan it from inside the app that asks for it (such as the authenticator app), not the camera."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_desktop_site_on_phone",
+      "intent": "device/mobile/desktop_site",
+      "label": {
+        "ar": "عايز أفتح نسخة الكمبيوتر من الموبايل",
+        "en": "I want the desktop version on my phone"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_desktop_site",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "qualifier_mobile",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "من قائمة المتصفح على الموبايل:\n• كروم: القائمة (⋮) ← فعّل «موقع سطح المكتب».\n• سفاري: زرار «aA» في شريط العنوان ← «طلب موقع سطح المكتب».\n\nالشكل هيبقى أصغر — كبّر بإصبعين. ولو في حاجة ناقصة أو مكسورة في شكل الموبايل، قولّي هي أنهي.",
+          "en": "From the browser's menu on your phone:\n• Chrome: the menu (⋮) ▸ turn on \"Desktop site\".\n• Safari: the \"aA\" button in the address bar ▸ \"Request Desktop Website\".\n\nEverything will be smaller — pinch to zoom. If something is missing or broken in the mobile layout, tell me what."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_add_site_to_home_screen",
+      "intent": "device/mobile/home_screen_shortcut",
+      "label": {
+        "ar": "أحط الموقع على الشاشة الرئيسية للموبايل",
+        "en": "Add the site to my phone's home screen"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_home_screen",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        },
+        {
+          "token": "entity_dashboard",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تعمل له أيقونة زي التطبيق:\n• آيفون (سفاري): زرار المشاركة ← «إضافة إلى الشاشة الرئيسية».\n• أندرويد (كروم): القائمة (⋮) ← «إضافة إلى الشاشة الرئيسية».\n\nالأيقونة بتفتح الموقع على طول، وبتفضل مسجّل دخولك طول ما ماسجلتش خروج.",
+          "en": "You can give it an icon like an app:\n• iPhone (Safari): the Share button ▸ \"Add to Home Screen\".\n• Android (Chrome): the menu (⋮) ▸ \"Add to Home screen\".\n\nThe icon opens the site directly, and you stay signed in until you sign out."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_home_screen",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "qualifier_mobile",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_browser_mic_camera_blocked",
+      "intent": "device/browser/mic_camera_permission",
+      "label": {
+        "ar": "المتصفح مانع الميكروفون أو الكاميرا",
+        "en": "The browser is blocking the microphone or camera"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_device_permission",
+          "weight": 356,
+          "source": "text"
+        },
+        {
+          "token": "entity_microphone",
+          "weight": 420,
+          "source": "text"
+        },
+        {
+          "token": "entity_browser",
+          "weight": 223,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "الإذن ده بيتدّي للموقع من المتصفح نفسه:\n• كروم على الكمبيوتر: دوس على القفل جنب العنوان ← الميكروفون/الكاميرا ← «السماح»، وحدّث الصفحة.\n• كروم على أندرويد: القفل ← الأذونات.\n• سفاري على آيفون: «aA» ← إعدادات موقع الويب ← الميكروفون/الكاميرا ← «سماح».\n\nولو الإذن مسموح ومفيش صوت أو صورة، اتأكد إن مفيش برنامج تاني (زي زوم) ماسك الميكروفون أو الكاميرا.",
+          "en": "The permission is given to the site by the browser itself:\n• Chrome on a computer: click the lock next to the address ▸ Microphone/Camera ▸ \"Allow\", then refresh.\n• Chrome on Android: the lock ▸ Permissions.\n• Safari on iPhone: \"aA\" ▸ Website Settings ▸ Microphone/Camera ▸ \"Allow\".\n\nIf it's allowed but there's no sound or picture, make sure no other program (such as Zoom) is holding the microphone or camera."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_microphone",
+            "weight": 583,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 223,
+            "source": "text"
+          },
+          {
+            "token": "entity_device_permission",
+            "weight": 194,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_digits_shown_as_arabic_indic",
+      "intent": "device/locale/digits_display",
+      "label": {
+        "ar": "الأرقام ظاهرة ١٢٣ بدل 123",
+        "en": "Numbers show as Arabic-Indic digits (١٢٣)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_numbers_shown",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_digits",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "شكل الأرقام بيتحدد من إعدادات اللغة في جهازك، مش من الموقع:\n• أندرويد: الإعدادات ← النظام ← اللغة ← (حسب الجهاز) «الأرقام» ← الأرقام الغربية 123.\n• آيفون: الإعدادات ← عام ← اللغة والمنطقة ← «الأرقام».\n• ويندوز: الإعدادات ← الوقت واللغة ← المنطقة ← التنسيقات.\n\nالرقم نفسه واحد في الحالتين — ده شكل عرضه بس.",
+          "en": "How digits look is set by your device's language settings, not the site:\n• Android: Settings ▸ System ▸ Language ▸ (depending on the device) \"Numbers\" ▸ Western digits 123.\n• iPhone: Settings ▸ General ▸ Language & Region ▸ \"Numbers\".\n• Windows: Settings ▸ Time & language ▸ Region ▸ Formats.\n\nThe number is the same either way — only its display differs."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_site_works_on_wifi_only",
+      "intent": "device/network/wifi_only",
+      "label": {
+        "ar": "الموقع بيفتح على الواي فاي بس، ومش بيفتح على الداتا",
+        "en": "The site opens on Wi-Fi but not on mobile data"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mobile_data",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_wifi",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو بيفتح على الواي فاي ومش بيفتح على الداتا، المشكلة في الداتا نفسها:\n• اتأكد إن باقة النت لسه فيها رصيد (افتح أي موقع تاني على الداتا).\n• آيفون: الإعدادات ← البيانات الخلوية ← انزل للمتصفح (سفاري أو كروم) واتأكد إنه مسموح له.\n• لو مفعّل «توفير البيانات» في المتصفح أو الموبايل، اقفله مؤقتًا.\n• اقفل الداتا وافتحها، أو اعمل وضع الطيران وشيله.\n\nولو فضلت، ده غالبًا من شبكة الموبايل — جرّب خط تاني لو معاك.",
+          "en": "If it opens on Wi-Fi but not on mobile data, the problem is the data connection itself:\n• Make sure your data bundle still has balance (open any other site on data).\n• iPhone: Settings ▸ Mobile Data ▸ scroll to the browser (Safari or Chrome) and make sure it's allowed.\n• If \"Data Saver\" is on in the browser or phone, turn it off for now.\n• Turn data off and on, or toggle Airplane mode.\n\nIf it continues, it's most likely the mobile network — try another SIM if you have one."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_private_window_how",
+      "intent": "device/browser/private_window_how",
+      "label": {
+        "ar": "أفتح نافذة تصفح خفي إزاي",
+        "en": "How do I open a private window"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_private_window",
+          "weight": 688,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 172,
+          "source": "text"
+        },
+        {
+          "token": "atom_open_action",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "• كروم أو إيدج على الكمبيوتر: Ctrl+Shift+N (على ماك: Cmd+Shift+N).\n• فايرفوكس: Ctrl+Shift+P.\n• سفاري على ماك: Cmd+Shift+N.\n• على الموبايل: من قائمة المتصفح ← «علامة تبويب جديدة للتصفح المتخفي» (كروم)، أو زرار التابات ← «خاص» (سفاري).\n\nفيها لازم تسجّل دخولك من جديد، وكل حاجة بتتمسح أول ما تقفلها.",
+          "en": "• Chrome or Edge on a computer: Ctrl+Shift+N (Mac: Cmd+Shift+N).\n• Firefox: Ctrl+Shift+P.\n• Safari on a Mac: Cmd+Shift+N.\n• On a phone: the browser menu ▸ \"New Incognito tab\" (Chrome), or the tabs button ▸ \"Private\" (Safari).\n\nYou'll need to sign in again there, and everything is cleared when you close it."
+        }
+      },
+      "requiresTicketIfUnresolved": false
     }
   ]
 }

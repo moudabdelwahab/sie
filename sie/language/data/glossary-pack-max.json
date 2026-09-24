@@ -1281,6 +1281,165 @@
       ]
     },
     {
+      "canonical": "entity_keyboard",
+      "labels": {
+        "ar": "الكيبورد",
+        "en": "keyboard"
+      },
+      "patterns": [
+        "الكيبورد",
+        "كيبورد",
+        "لوحه المفاتيح",
+        "لوحة المفاتيح",
+        "اللغه العربيه للكيبورد",
+        "keyboard"
+      ]
+    },
+    {
+      "canonical": "entity_copy",
+      "labels": {
+        "ar": "نسخ",
+        "en": "copy"
+      },
+      "patterns": [
+        "انسخ",
+        "نسخ",
+        "انسخه",
+        "انسخها",
+        "كوبي",
+        "كوبي بيست",
+        "copy",
+        "copy paste"
+      ]
+    },
+    {
+      "canonical": "entity_tap_link",
+      "labels": {
+        "ar": "أدوس على الرابط",
+        "en": "tapping the link"
+      },
+      "patterns": [
+        "لما ادوس عليه",
+        "بدوس عليه",
+        "ادوس عليه",
+        "مش بيتداس",
+        "مابيتداسش",
+        "tap the link",
+        "click the link",
+        "link not clickable"
+      ]
+    },
+    {
+      "canonical": "entity_desktop_site",
+      "labels": {
+        "ar": "نسخة الكمبيوتر",
+        "en": "desktop site"
+      },
+      "patterns": [
+        "نسخه الكمبيوتر",
+        "نسخة الكمبيوتر",
+        "عرض سطح المكتب",
+        "موقع سطح المكتب",
+        "النسخه الكامله",
+        "النسخة الكاملة",
+        "desktop site",
+        "desktop version",
+        "request desktop site"
+      ]
+    },
+    {
+      "canonical": "entity_home_screen",
+      "labels": {
+        "ar": "الشاشة الرئيسية",
+        "en": "home screen"
+      },
+      "patterns": [
+        "الشاشه الرييسيه",
+        "الشاشة الرئيسية",
+        "الهوم سكرين",
+        "اختصار للموقع",
+        "ايقونه للموقع",
+        "home screen",
+        "add to home screen"
+      ]
+    },
+    {
+      "canonical": "entity_microphone",
+      "labels": {
+        "ar": "الميكروفون",
+        "en": "microphone"
+      },
+      "patterns": [
+        "الميكروفون",
+        "الميك",
+        "المايك",
+        "مايك",
+        "microphone",
+        "mic"
+      ]
+    },
+    {
+      "canonical": "entity_numbers_shown",
+      "labels": {
+        "ar": "الأرقام ظاهرة",
+        "en": "numbers are shown"
+      },
+      "patterns": [
+        "الارقام ظاهره",
+        "الارقام بتظهر",
+        "الارقام بقت",
+        "الارقام طالعه",
+        "numbers show",
+        "numbers appear"
+      ]
+    },
+    {
+      "canonical": "entity_mobile_data",
+      "labels": {
+        "ar": "الداتا",
+        "en": "mobile data"
+      },
+      "patterns": [
+        "الداتا",
+        "داتا",
+        "باقه النت",
+        "باقة النت",
+        "mobile data",
+        "cellular data",
+        "cellular"
+      ]
+    },
+    {
+      "canonical": "entity_wifi",
+      "labels": {
+        "ar": "الواي فاي",
+        "en": "Wi-Fi"
+      },
+      "patterns": [
+        "الواي فاي",
+        "واي فاي",
+        "الوايفاي",
+        "wifi"
+      ]
+    },
+    {
+      "canonical": "entity_private_window",
+      "labels": {
+        "ar": "نافذة تصفح خفي",
+        "en": "private window"
+      },
+      "patterns": [
+        "نافذه تصفح خفي",
+        "نافذة تصفح خفي",
+        "تصفح خفي",
+        "التصفح الخفي",
+        "incognito",
+        "private window",
+        "private browsing",
+        "inprivate"
+      ]
+    },
+    {
       "canonical": "entity_login",
       "synonym": true,
       "labels": {
@@ -1504,6 +1663,20 @@
       "patterns": [
         "الاكسل",
         "اكسل"
+      ]
+    },
+    {
+      "canonical": "entity_qr_code",
+      "synonym": true,
+      "labels": {
+        "ar": "entity_qr_code",
+        "en": "entity_qr_code"
+      },
+      "patterns": [
+        "كيو ار",
+        "كيو ار كود",
+        "الكيو ار كود",
+        "qr كود"
       ]
     },
     {

@@ -1282,6 +1282,46 @@
     [
       "gen_upload_stuck",
       "الرفع واقف ومش بيخلص"
+    ],
+    [
+      "gen_arabic_keyboard_computer",
+      "الكيبورد مفيهوش عربي ازاي اضيفه"
+    ],
+    [
+      "gen_copy_paste_how",
+      "انسخ والصق ازاي"
+    ],
+    [
+      "gen_link_not_opening_on_tap",
+      "الرابط مش بيفتح لما ادوس عليه"
+    ],
+    [
+      "gen_scan_qr_code_how",
+      "اعمل سكان للكيو ار كود ازاي"
+    ],
+    [
+      "gen_desktop_site_on_phone",
+      "عايز نسخة الكمبيوتر على الموبايل"
+    ],
+    [
+      "gen_add_site_to_home_screen",
+      "ازاي احط الموقع على الشاشة الرئيسية"
+    ],
+    [
+      "gen_browser_mic_camera_blocked",
+      "المتصفح مانع الميكروفون"
+    ],
+    [
+      "gen_digits_shown_as_arabic_indic",
+      "الارقام ظاهرة بالارقام الهندي"
+    ],
+    [
+      "gen_site_works_on_wifi_only",
+      "بيفتح على الواي فاي بس ومش بيفتح على الداتا"
+    ],
+    [
+      "gen_private_window_how",
+      "افتح نافذة تصفح خفي ازاي"
     ]
   ],
   "max_heldout": [
@@ -1524,6 +1564,46 @@
     [
       "gen_upload_stuck",
       "بيفضل يرفع في الصورة وخلاص مش بيكمل"
+    ],
+    [
+      "gen_arabic_keyboard_computer",
+      "اللابتوب بيكتب انجليزي بس وعايز اكتب بالعربي"
+    ],
+    [
+      "gen_copy_paste_how",
+      "عايز اخد الكلام ده واحطه في الرسالة مش عارف"
+    ],
+    [
+      "gen_link_not_opening_on_tap",
+      "بضغط على اللينك اللي في الرسالة مفيش حاجة بتحصل"
+    ],
+    [
+      "gen_scan_qr_code_how",
+      "طالب مني اصور الباركود المربع ده اعمله ازاي"
+    ],
+    [
+      "gen_desktop_site_on_phone",
+      "عايز الموقع يفتح على الموبايل بشكل اللابتوب"
+    ],
+    [
+      "gen_add_site_to_home_screen",
+      "عايز ايقونة للموقع على الموبايل افتحه منها على طول"
+    ],
+    [
+      "gen_browser_mic_camera_blocked",
+      "الموقع مش سامعني المتصفح قافل الصوت"
+    ],
+    [
+      "gen_digits_shown_as_arabic_indic",
+      "التواريخ والارقام بتطلع بالهندي عايزها انجليزي"
+    ],
+    [
+      "gen_site_works_on_wifi_only",
+      "من شبكة البيت شغال ولما اخرج ويبقى على باقة الموبايل مش بيحمل"
+    ],
+    [
+      "gen_private_window_how",
+      "يعني ايه incognito وافتحه منين"
     ]
   ]
 }

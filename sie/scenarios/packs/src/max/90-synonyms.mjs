@@ -64,6 +64,7 @@ export default {
         Y('symptom_crash', ['keeps crashing', 'crashing', 'بيقفل اول ما افتحه', 'بيقفل اول ما بفتحه']),
         Y('symptom_not_saving', ['مش بيتسيف', 'مبيتسيفش', 'مش بتتسيف', 'مفيش حاجة بتتسيف', 'مفيش حاجه بتتسيف']),
         Y('entity_spreadsheet', ['الاكسل', 'اكسل']),
+        Y('entity_qr_code', ['كيو ار', 'كيو ار كود', 'الكيو ار كود', 'qr كود']),
 
         // ── the conversation itself (core convo_* scenarios) ──────────────
         Y('trigger_nothing_else', ['خلاص مش عايز', 'سيبك منها', 'سيبك من الموضوع', 'انسى الموضوع', 'مش مهم خلاص', 'never mind', 'nevermind']),
