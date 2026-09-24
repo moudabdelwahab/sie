@@ -57,13 +57,19 @@ import { buildScenarioIndex } from '../retrieval/scenario-index.js';
  * @param {Object} [params.previousDecisionState]
  * @returns {{scenarios: Array, stats: Object}}
  */
-export function scopeCandidates({ scenarios, tokenPresences, previousHypotheses = [], previousDecisionState = null }) {
+export function scopeCandidates({ scenarios, tokenPresences, previousHypotheses = [], previousDecisionState = null, limit = Infinity }) {
     const index = buildScenarioIndex(scenarios);
 
     // `minConfidence: -1` keeps candidates scoring exactly 0. They share a
     // token but every occurrence was contradicted, and a scenario at 0 that
     // WAS active still has to be scored to transition to 'rejected'.
-    const retrieval = retrieveCandidates(index, tokenPresences, { minConfidence: -1 });
+    // `limit` keeps the top K RETRIEVED candidates by exact confidence (an
+    // edition's retrieval breadth). It never drops a remembered or referenced
+    // scenario — those are added below regardless — so hysteresis and every
+    // id the decision state names stay intact. Below the decision engine's
+    // needs (top two, three for questions, five for the ticket trail) it
+    // would change answers; editions.js HARD_LIMITS keeps it at 10 or more.
+    const retrieval = retrieveCandidates(index, tokenPresences, { minConfidence: -1, limit });
 
     const byId = new Map();
     for (const c of retrieval.candidates) byId.set(c.scenario.id, c.scenario);

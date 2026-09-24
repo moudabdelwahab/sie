@@ -27,6 +27,7 @@
  * rather than re-deriving the rules, so the explanation and the
  * enforcement cannot disagree.
  */
+import { resolveCustomerEdition, resolveEditionProfile } from '../../sie/editions/editions.js';
 
 /**
  * ردود الرفض. عربي، ومحددة، لأن العميل على قناة خارجية مالوش لوحة
@@ -37,6 +38,7 @@ export const ENTITLEMENT_REPLIES = Object.freeze({
     disabled: 'المساعد الذكي متوقف على حسابك دلوقتي. كلّم فريق الدعم لو محتاج تفعيله تاني.',
     expired: 'اشتراكك في المساعد الذكي خلص. جدّده من المنصة وهرجع أساعدك على طول.',
     quota_exceeded: 'خلصت رسايلك المتاحة على المساعد الذكي للفترة دي. تقدر تزوّد الباقة من المنصة.',
+    edition_monthly_limit: 'خلصت رسايل الشهر ده على المساعد الذكي في إصدارك. الحد بيتجدد أول الشهر، أو تقدر تطلب ترقية الإصدار من فريق الدعم.',
     // Entitlement was fine, so the null came from somewhere else in the
     // pipeline — a settings switch, or an internal failure. Do not claim a
     // billing problem the customer does not have.
@@ -48,10 +50,11 @@ export const ENTITLEMENT_REPLIES = Object.freeze({
  * @param {Object} params.supabase - service-role client
  * @param {Function} params.getSieAccessStatus - from sie-runtime.js
  * @param {Function} params.evaluateSieAccessRow - from sie-runtime.js
+ * @param {Function} [params.getSettings] - (supabase) => merged SIE settings; names the edition cap
  * @param {Object} [params.logger]
  * @returns {{explainRefusal: (userId: string) => Promise<string>}}
  */
-export function createEntitlementExplainer({ supabase, getSieAccessStatus, evaluateSieAccessRow, logger = null }) {
+export function createEntitlementExplainer({ supabase, getSieAccessStatus, evaluateSieAccessRow, getSettings = null, logger = null }) {
     return {
         /**
          * @param {string} userId
@@ -60,7 +63,15 @@ export function createEntitlementExplainer({ supabase, getSieAccessStatus, evalu
         async explainRefusal(userId) {
             try {
                 const row = await getSieAccessStatus(supabase, userId);
-                const verdict = evaluateSieAccessRow(row);
+                // The edition's monthly cap needs the settings; without a
+                // settings reader the explanation simply cannot name it.
+                let monthlyCap = 0;
+                if (getSettings && row) {
+                    const settings = await getSettings(supabase);
+                    const edition = resolveCustomerEdition({ accessRow: row, settings });
+                    monthlyCap = resolveEditionProfile(edition, settings).monthlyMessages;
+                }
+                const verdict = evaluateSieAccessRow(row, { monthlyCap });
 
                 if (verdict.available) {
                     // They ARE entitled, so the refusal came from elsewhere.

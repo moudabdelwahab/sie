@@ -65,7 +65,12 @@ import {
     behaviorProfileValues,
     detectBehaviorProfile,
     isSettingActive,
-    groupedSettings
+    groupedSettings,
+    describeEditions,
+    EDITION_IDS,
+    EDITION_NAMES,
+    editionSettingGuard,
+    editionWarnings
 } from '../sie-integration/sie-runtime.js';
 
 import { icon } from './ui/icons.js';
@@ -124,7 +129,12 @@ const state = {
     engineSignals: null,
     rateLimitBuckets: null,
     /** أقسام الإعدادات المتقدمة المفتوحة. */
-    openAdvanced: new Set()
+    openAdvanced: new Set(),
+    /** اللي كل إصدار شغّال بيه فعلاً — من describeEditions(). */
+    editions: null,
+    /** قاعدة البيانات فيها عمود الإصدار لكل عميل (تحديث 0009). */
+    editionColumn: false,
+    accessEditionOriginal: 'default'
 };
 
 /**
@@ -1478,6 +1488,7 @@ async function loadSettings() {
     state.settings = await getSieSettings(supabase, { fresh: true });
     state.settingsGroup = state.settingsGroup || groupedSettings()[0].id;
 
+    await refreshEditions();
     renderSettingsNav();
     renderSettingGroups();
     renderLiveBanner();
@@ -1566,6 +1577,13 @@ function renderSettingGroups() {
         ? groupedSettings().filter((group) => matchingSettings(group).length)
         : groupedSettings().filter((group) => group.id === state.settingsGroup);
 
+    // «الإصدارات» ليها شكلها: تلات كروت جنب بعض بدل ٢٢ سطر ورا بعض.
+    // أثناء البحث بتظهر زي أي إعداد تاني، عشان البحث مايكدبش.
+    if (!searching && state.settingsGroup === 'editions') {
+        renderEditionsPanel(container, groups[0]);
+        return;
+    }
+
     if (groups.length === 0) {
         container.innerHTML = emptyState({
             iconName: 'search', title: 'مفيش إعداد مطابق',
@@ -1623,6 +1641,152 @@ function renderSettingGroups() {
     if (!state.isStaff) {
         container.querySelectorAll('input, select').forEach((el) => { el.disabled = true; });
     }
+}
+
+// ═════════════════════════════════════════════════════════════
+// الإصدارات — المجاني / برو / ماكس
+// ═════════════════════════════════════════════════════════════
+
+/** يقرا اللي كل إصدار شغّال بيه فعلاً. مابيوقّعش الصفحة لو ملف فشل. */
+async function refreshEditions() {
+    try {
+        state.editions = await describeEditions(state.settings);
+    } catch (err) {
+        console.warn('[sie-admin] describeEditions failed:', err);
+        state.editions = null;
+    }
+}
+
+/**
+ * الحدود بالترتيب اللي بتظهر بيه في كل كارت، مع الوحدة اللي بتتكتب جنبها.
+ * `advanced` بيتطوي تحت «تفاصيل تقنية» — المسؤول العادي محتاج أول تلاتة بس.
+ */
+const EDITION_ROWS = [
+    { knob: 'max_scenarios', label: 'أقصى عدد حالات', unit: 'حالة' },
+    { knob: 'monthly_messages', label: 'رسايل في الشهر لكل عميل', unit: 'رسالة', zero: 'من غير حد' },
+    { knob: 'rate_limit_per_minute', label: 'طلبات في الدقيقة', unit: 'طلب', zero: 'زي الحد العام' },
+    { knob: 'rate_limit_burst', label: 'دفعة مفاجئة مسموحة', unit: 'طلب', advanced: true },
+    { knob: 'max_message_chars', label: 'أقصى طول للرسالة', unit: 'حرف', advanced: true },
+    { knob: 'retrieval_max_candidates', label: 'حالات مرشحة في كل رسالة', unit: 'حالة', advanced: true },
+    { knob: 'max_evidence_tokens', label: 'إشارات في الرسالة', unit: 'إشارة', advanced: true }
+];
+
+const EDITION_BLURB = {
+    free: 'الحالات الأساسية. ده سلوك المحرك النهارده.',
+    pro: 'الأساسية + حالات الدعم المتخصصة.',
+    max: 'كل الحالات: الأساسية + الدعم المتخصص + الحالات العامة.'
+};
+
+function renderEditionsPanel(container, group) {
+    const defaultDef = SETTINGS_BY_KEY.default_edition;
+    const byId = new Map((state.editions || []).map((e) => [e.id, e]));
+    const warnings = editionWarnings(state.settings);
+    const open = state.openAdvanced.has('editions');
+
+    const card = (id) => {
+        const info = byId.get(id);
+        const isDefault = state.settings.default_edition === id;
+        const available = info?.scenarios;
+        const rows = (advanced) => EDITION_ROWS.filter((r) => Boolean(r.advanced) === advanced).map((r) => {
+            const key = `edition_${id}_${r.knob}`;
+            const def = SETTINGS_BY_KEY[key];
+            const value = state.settings[key];
+            const changed = value !== SIE_DEFAULT_SETTINGS[key];
+            const zeroHint = r.zero && Number(value) === 0 ? r.zero : '';
+            return `
+              <label class="edition-field" data-key="${esc(key)}">
+                <span class="edition-field-label">${changed ? '<span class="setting-changed" title="متغيّر عن القيمة المعتادة"></span>' : ''}${esc(r.label)}</span>
+                <span class="edition-field-input">
+                  <input type="number" class="input num-box" dir="ltr" inputmode="numeric"
+                         min="${def.min}" max="${def.max}" step="${def.step || 1}"
+                         value="${esc(String(value))}" ${state.isStaff ? '' : 'disabled'}
+                         aria-label="${esc(`${r.label} — ${EDITION_NAMES[id]}`)}">
+                  <span class="edition-unit">${esc(r.unit)}</span>
+                </span>
+                <span class="edition-field-hint">${esc(zeroHint || (def.minNonZero ? `صفر، أو من ${def.minNonZero} لـ${def.max}` : `من ${def.min} لـ${def.max}`))}</span>
+              </label>`;
+        }).join('');
+
+        return `
+        <article class="edition-card${isDefault ? ' is-default' : ''}" data-edition="${esc(id)}">
+          <header class="edition-card-head">
+            <h3>${esc(EDITION_NAMES[id])}</h3>
+            ${isDefault ? '<span class="badge badge--primary">الافتراضي</span>' : ''}
+          </header>
+          <p class="hint">${esc(EDITION_BLURB[id])}</p>
+          <p class="edition-count">
+            ${info?.error
+                ? `${icon('alert')} <span>ملفات الإصدار ماتحمّلتش — عملاؤه بيتردّ عليهم بالمجاني لحد ما تتحل.</span>`
+                : available == null ? '<span>—</span>'
+                : `<b class="num">${fmtNumber(available)}</b> <span>حالة شغّالة من حد ${fmtNumber(info.profile.maxScenarios)}</span>`}
+          </p>
+          <div class="edition-fields">${rows(false)}</div>
+          <div class="edition-fields edition-fields--advanced"${open ? '' : ' hidden'}>${rows(true)}</div>
+        </article>`;
+    };
+
+    container.innerHTML = `
+    <section class="settings-section" id="settings-editions">
+      <header class="settings-section-head">
+        <div>
+          <h2>${esc(group.title)}</h2>
+          <p class="hint">${esc(group.desc)} كل الإصدارات بتعدي على نفس الحماية ونفس قواعد القرار — الفرق بس في عدد الحالات والحدود.</p>
+        </div>
+        ${changedInGroup(group) ? `<span class="badge badge--primary">${changedInGroup(group)} متغيّر</span>` : ''}
+      </header>
+
+      <div class="setting-list">${renderSetting(defaultDef)}</div>
+
+      ${warnings.length ? `
+        <ul class="edition-warnings" role="status">
+          ${warnings.map((w) => `<li>${icon('info')} <span>${esc(w)}</span></li>`).join('')}
+        </ul>` : ''}
+
+      <div class="edition-grid">${EDITION_IDS.map(card).join('')}</div>
+
+      <button type="button" class="advanced-toggle${open ? ' is-open' : ''}" data-advanced="editions" aria-expanded="${open}">
+        ${icon('chevronDown')}
+        <span>تفاصيل تقنية <span class="advanced-count">${EDITION_ROWS.filter((r) => r.advanced).length * EDITION_IDS.length}</span></span>
+      </button>
+
+      <p class="hint edition-footnote">
+        أي رقم بيتحفظ لما تخرج من الخانة، وبيشتغل على الرسايل الجديدة على طول.
+        الأرقام اللي ممكن تضر العملاء بتسألك الأول، واللي مالهاش معنى (زي برو أصغر من المجاني) بتترفض.
+        حد الشهر وحد الطلبات بيتطبّقوا من قاعدة البيانات${state.editionColumn ? '' : ' — ولسه محتاجين تحديث قاعدة البيانات (0009) عشان يشتغلوا'}.
+      </p>
+    </section>`;
+
+    container.querySelector('[data-advanced="editions"]').addEventListener('click', () => {
+        if (state.openAdvanced.has('editions')) state.openAdvanced.delete('editions');
+        else state.openAdvanced.add('editions');
+        renderSettingGroups();
+    });
+
+    // الاختيار الافتراضي بيستخدم نفس توصيل أي إعداد تاني.
+    wireSettingInputs();
+
+    container.querySelectorAll('.edition-field').forEach((field) => {
+        const key = field.dataset.key;
+        const def = SETTINGS_BY_KEY[key];
+        const box = field.querySelector('input');
+        const commit = () => {
+            const previous = state.settings[key];
+            const raw = box.value.trim();
+            const n = Number(raw);
+            if (raw === '' || !Number.isFinite(n)) { box.value = previous; return; }
+            // صفر ليه معنى في الخانات اللي بتقول كده؛ رقم صغير غير صفر بيطلع
+            // لأقل قيمة حقيقية؛ وأي حاجة تانية بتتقفل على الحدود.
+            let v = Math.min(Math.max(Math.round(n), def.min), def.max);
+            if (def.minNonZero && v > 0 && v < def.minNonZero) v = def.minNonZero;
+            box.value = v;
+            if (v === previous) return;
+            commitSetting(key, v, box, () => { box.value = previous; });
+        };
+        box.addEventListener('change', commit);
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); box.blur(); }
+        });
+    });
 }
 
 /**
@@ -1779,6 +1943,7 @@ function wireSettingInputs() {
             const clamp = (raw) => {
                 const n = Number(raw);
                 if (!Number.isFinite(n)) return null;
+                if (def.minNonZero && n > 0 && n < def.minNonZero) return def.minNonZero;
                 return Math.min(Math.max(n, def.min), def.max);
             };
 
@@ -1855,6 +2020,16 @@ async function commitSetting(key, value, control, revert) {
         if (!agreed) { revert(); return; }
     }
 
+    // ── حماية الإصدارات ──────────────────────────────────────
+    // قيم مسموحة بس غلط في سياقها (برو أصغر من المجاني، حد شهري بيخلص في
+    // يوم). يا إما بترفض مع السبب، يا إما بتسأل وتقول النتيجة.
+    const guard = editionSettingGuard(key, value, state.settings);
+    if (guard.error) { revert(); toast(guard.error, 'err'); return; }
+    if (guard.confirm) {
+        const agreed = await confirmAction(guard.confirm);
+        if (!agreed) { revert(); return; }
+    }
+
     control.disabled = true;
     const { error } = await saveSieSetting(supabase, key, value);
     control.disabled = false;
@@ -1878,6 +2053,8 @@ async function commitSetting(key, value, control, revert) {
             await saveSieSetting(supabase, 'behavior_profile', detected);
         }
     }
+
+    if (key === 'default_edition' || key.startsWith('edition_')) await refreshEditions();
 
     renderSettingsNav();
     renderSettingGroups();
@@ -2036,6 +2213,9 @@ async function loadUsers() {
     }
 
     const byUser = new Map((access || []).map((a) => [a.user_id, a]));
+    // The per-customer edition exists once migration 0009 is applied; a
+    // row read with select('*') then carries the key (even when null).
+    state.editionColumn = (access || []).some((a) => Object.prototype.hasOwnProperty.call(a, 'edition'));
     const rateLimitByUser = new Map((rateLimits || []).map((r) => [r.user_id, r]));
 
     // استهلاك الـtokens بيانات مساندة: لو RLS مخبّيها أو اتأخرت، الجدول
@@ -2329,6 +2509,15 @@ async function openAccessDialog(userId) {
     $('aNotes').value = row?.notes || '';
     syncAccessMode();
 
+    // الإصدار: بيتبعت بس لو اتغيّر، عشان حفظ الصلاحية مايلمسش إصدار العميل
+    // من غير قصد.
+    const hasEdition = state.editionColumn || (row && Object.prototype.hasOwnProperty.call(row, 'edition'));
+    $('aEditionWrap').hidden = !hasEdition;
+    state.accessEditionOriginal = row?.edition || 'default';
+    $('aEdition').value = state.accessEditionOriginal;
+    const fallback = EDITION_NAMES[state.settings?.default_edition] || EDITION_NAMES.free;
+    $('aEditionHint').textContent = `الإصدار الافتراضي دلوقتي: ${fallback}. تقدر تغيّره من الإعدادات ← الإصدارات.`;
+
     const evaluated = evaluateSieAccessRow(row);
     $('accessStatusBadge').innerHTML = badge(evaluated.statusLabel, evaluated.available ? 'success' : 'neutral');
     renderAccessUsage(row);
@@ -2436,7 +2625,9 @@ async function submitAccess() {
         accessMode: mode,
         messageQuota: mode === 'quota' ? Number($('aQuota').value) : null,
         expiresAt: mode === 'expiration' ? new Date($('aExpiry').value).toISOString() : null,
-        notes: $('aNotes').value.trim() || null
+        notes: $('aNotes').value.trim() || null,
+        edition: !$('aEditionWrap').hidden && $('aEdition').value !== state.accessEditionOriginal
+            ? $('aEdition').value : undefined
     }));
 
     if (error) {

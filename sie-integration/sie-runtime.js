@@ -326,6 +326,39 @@ export {
 } from '../sie/config/settings-schema.js';
 
 // ===================================================================
+// Editions (settings console's «الإصدارات» section)
+// ===================================================================
+
+export { EDITION_NAMES, editionSettingGuard, editionWarnings } from '../sie/editions/edition-guards.js';
+export { EDITION_IDS, EDITION_SCENARIO_CEILINGS, resolveEditionProfile } from '../sie/editions/editions.js';
+
+/**
+ * What each edition actually runs with under the given settings: the
+ * resolved profile and how many scenarios its packs really hold after the
+ * limit. Assembled by the same module the bridge uses, so the console
+ * counts what customers get. Never throws: an edition whose pack cannot be
+ * loaded is reported with `error` (and answers as Free in the bridge).
+ *
+ * @param {Object} settings  merged SIE settings
+ * @returns {Promise<Array<{id: string, profile: Object, scenarios: number|null, packCounts: Object|null, error: string|null}>>}
+ */
+export async function describeEditions(settings) {
+    const [{ EDITION_IDS: ids, resolveEditionProfile: resolve }, { editionCatalogs }] = await Promise.all([
+        import('../sie/editions/editions.js'),
+        import('../sie/editions/edition-catalog.local.js')
+    ]);
+    return Promise.all(ids.map(async (id) => {
+        const profile = resolve(id, settings);
+        try {
+            const assembly = await editionCatalogs.forProfile(profile);
+            return { id, profile, scenarios: assembly.scenarios.length, packCounts: assembly.packCounts || null, error: null };
+        } catch (err) {
+            return { id, profile, scenarios: null, packCounts: null, error: String(err?.message || err) };
+        }
+    }));
+}
+
+// ===================================================================
 // Scenario catalog editing (settings console's "Scenarios" tab)
 // ===================================================================
 

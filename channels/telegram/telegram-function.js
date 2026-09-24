@@ -142,7 +142,7 @@ export async function createTelegramFunction({
         logger,
         sieClient: createInProcessSieClient({ supabase, sessions, getSieReply, logger }),
         identity: createIdentityResolver({ supabase, logger }),
-        entitlement: createEntitlementExplainer({ supabase, getSieAccessStatus, evaluateSieAccessRow, logger }),
+        entitlement: createEntitlementExplainer({ supabase, getSieAccessStatus, evaluateSieAccessRow, getSettings: getSieSettings, logger }),
         dedupe: createMemoryDeduplicator()
     };
 

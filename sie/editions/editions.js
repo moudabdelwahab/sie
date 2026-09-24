@@ -145,10 +145,16 @@ export function resolveEditionProfile(edition, settings = {}) {
         if (ed === id) break;
     }
 
-    const optional = (knob) => {
-        const v = read(id, knob);
-        return v === null ? null : clampInt(v, HARD_LIMITS[knob], null);
-    };
+    // The edition's own rate: 0 (the stored "inherit") or null means the
+    // global rate-limit settings apply, and then so does the global burst —
+    // an edition burst without an edition rate would be a number with no
+    // bucket to size.
+    const rpmRaw = read(id, 'rateLimitPerMinute');
+    const rateLimitPerMinute = rpmRaw === null || Number(rpmRaw) === 0 || !Number.isFinite(Number(rpmRaw))
+        ? null : clampInt(rpmRaw, HARD_LIMITS.rateLimitPerMinute, null);
+    const burstRaw = read(id, 'rateLimitBurst');
+    const rateLimitBurst = rateLimitPerMinute === null || burstRaw === null
+        ? null : clampInt(burstRaw, HARD_LIMITS.rateLimitBurst, null);
 
     return Object.freeze({
         edition: id,
@@ -157,8 +163,8 @@ export function resolveEditionProfile(edition, settings = {}) {
         maxMessageChars: clampInt(read(id, 'maxMessageChars'), HARD_LIMITS.maxMessageChars, 8000),
         retrievalMaxCandidates: clampInt(read(id, 'retrievalMaxCandidates'), HARD_LIMITS.retrievalMaxCandidates, 60),
         maxEvidenceTokensPerTurn: clampInt(read(id, 'maxEvidenceTokensPerTurn'), HARD_LIMITS.maxEvidenceTokensPerTurn, 64),
-        rateLimitPerMinute: optional('rateLimitPerMinute'),
-        rateLimitBurst: optional('rateLimitBurst'),
+        rateLimitPerMinute,
+        rateLimitBurst,
         monthlyMessages: clampInt(read(id, 'monthlyMessages'), HARD_LIMITS.monthlyMessages, 0)
     });
 }

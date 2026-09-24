@@ -743,6 +743,16 @@
               <option value="expiration">لحد تاريخ معيّن</option>
             </select></label>
 
+          <!-- يظهر بس لما قاعدة البيانات يبقى فيها عمود الإصدار (تحديث 0009). -->
+          <label class="field" id="aEditionWrap" hidden><span>الإصدار</span>
+            <select class="select" id="aEdition">
+              <option value="default">زي الإصدار الافتراضي</option>
+              <option value="free">المجاني</option>
+              <option value="pro">برو</option>
+              <option value="max">ماكس</option>
+            </select>
+            <span class="sub" id="aEditionHint"></span></label>
+
           <label class="field" id="aQuotaWrap" hidden><span>عدد الرسائل المسموح بيها</span>
             <input type="number" class="input" id="aQuota" min="1" dir="ltr"></label>
 

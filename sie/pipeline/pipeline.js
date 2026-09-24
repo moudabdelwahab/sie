@@ -52,6 +52,7 @@ import { migrateState, updateSparseState, expandHypotheses, isSparseState } from
 import { interpretTurn, interpretationTrace, TURN_KINDS } from './interpretation.js';
 import { scopeCandidates } from './candidate-scope.js';
 import { evidenceFromQuestionAnswer } from '../diagnostics/question-answer.js';
+import { capEvidenceTokens } from '../editions/edition-turn.js';
 
 export { TURN_KINDS };
 
@@ -92,16 +93,23 @@ const now = () => Number(process.hrtime.bigint()) / 1e6;
  * @param {Object} [params.settings]
  * @param {string|Object} [params.variant='current']
  * @param {Object} [params.providers]           language providers, for Node tests
+ * @param {Object} [params.edition]             an edition to run as, exactly as the bridge applies it:
+ *                                              { profile (resolveEditionProfile), glossaryLayers }.
+ *                                              Absent = today's engine (no layers, no caps, no retrieval limit).
  * @returns {Promise<Object>}
  */
-export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {}, rankingOptions = {} }) {
+export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {}, rankingOptions = {}, edition = null }) {
     const cfg = resolveVariant(variant);
     const timings = {};
     const turn = (previous?.turnCount || 0) + 1;
 
     // ── Language ───────────────────────────────────────────────
     let t = now();
-    const normalized = await normalize(text, { previousLanguage: previous?.language || 'ar', ...providers });
+    const normalized = await normalize(text, {
+        previousLanguage: previous?.language || 'ar',
+        ...providers,
+        ...(edition ? { glossaryLayers: edition.glossaryLayers || [], maxInputChars: edition.profile.maxMessageChars } : {})
+    });
     timings.language = now() - t;
 
     // ── Interpretation ─────────────────────────────────────────
@@ -145,10 +153,11 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
         lookup: (id) => catalog.find((s) => s.id === id) || null,
         turn
     });
-    const { evidence: admitted, dropped } = admitEvidence(
-        answered ? [...evidence, ...answered.evidence] : evidence,
-        trustEnvelope
-    );
+    // The edition's distinct-token bound comes first, as in the bridge's
+    // evidenceFilter: a resource bound, applied before the trust boundary.
+    const offered = answered ? [...evidence, ...answered.evidence] : evidence;
+    const capped = edition ? capEvidenceTokens(offered, edition.profile.maxEvidenceTokensPerTurn) : { evidence: offered, dropped: 0 };
+    const { evidence: admitted, dropped } = admitEvidence(capped.evidence, trustEnvelope);
     const priorState = previous?.diagnosticState || null;
     const priorAccumulator = priorState?.accumulator || { entries: [] };
     const accumulator = mergeEvidence(priorAccumulator, admitted, turn);
@@ -170,7 +179,8 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
             scenarios: catalog,
             tokenPresences: presences,
             previousHypotheses,
-            previousDecisionState: previous?.decisionState
+            previousDecisionState: previous?.decisionState,
+            limit: edition ? edition.profile.retrievalMaxCandidates : Infinity
         })
         : { scenarios: catalog, stats: { catalogSize: catalog.length, postingsScanned: null, retrieved: catalog.length, rememberedAdded: 0, referencedAdded: 0, total: catalog.length } };
     timings.scope = now() - t;
@@ -219,7 +229,7 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
         responseLanguage: normalized.responseLanguage,
         ranking, decision: authorized, actionDowngraded: downgraded, decisionState,
         diagnosticState,
-        evidenceAdmitted: admitted.length, evidenceDropped: dropped,
+        evidenceAdmitted: admitted.length, evidenceDropped: dropped, evidenceCapped: capped.dropped,
         questionAnswer: answered ? { scenarioId: answered.scenarioId, questionId: answered.questionId, option: answered.optionValue } : null,
         scope: scope.stats, timings,
         trace: { interpretation: interpretationTrace(interpretation), trust: trustTrace(trustEnvelope) }
@@ -252,11 +262,11 @@ function buildPolicy(settings, activationThreshold) {
  * @param {string[]} params.messages
  * @returns {Promise<Object[]>} one result per turn
  */
-export async function runConversation({ messages, catalog, settings = {}, variant = 'current', providers = {} }) {
+export async function runConversation({ messages, catalog, settings = {}, variant = 'current', providers = {}, edition = null }) {
     const results = [];
     let previous = null;
     for (const message of messages) {
-        const result = await runTurn({ text: message, catalog, previous, settings, variant, providers });
+        const result = await runTurn({ text: message, catalog, previous, settings, variant, providers, edition });
         results.push(result);
         previous = {
             diagnosticState: result.diagnosticState,

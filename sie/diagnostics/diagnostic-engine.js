@@ -47,7 +47,8 @@ export async function processTurn({
     additionalEvidence = [],
     scenarioProvider = scenarioCatalogProvider,
     liveEvidenceProvider = liveEvidenceProviderStub,
-    evidenceFilter = null
+    evidenceFilter = null,
+    scope = null
 }) {
     const state = previousState || createEmptyDiagnosticState();
 
@@ -88,12 +89,32 @@ export async function processTurn({
         ? expandHypotheses(state, scenarios, Math.max(1, turn - 1))
         : (state.hypotheses || []);
 
-    const newHypotheses = updateHypotheses(scenarios, tokenPresences, previousHypotheses, turn);
+    // The seam retrieval occupies — a callback for the same reason
+    // evidenceFilter is one: this module must not depend on how the caller
+    // chooses which scenarios to score. The contract is exactness: the
+    // callback returns a SUBSET of `scenarios` that contains every scenario
+    // whose confidence could be non-zero, plus every scenario the
+    // conversation already tracks (see pipeline/candidate-scope.js, and
+    // retrieval/equivalence.test.mjs for the proof that nothing else can
+    // score). Absent, every scenario is scored — the behaviour this module
+    // has always had.
+    let scopeStats = null;
+    let scored = scenarios;
+    if (typeof scope === 'function') {
+        const scoped = scope({ scenarios, tokenPresences, previousHypotheses });
+        scored = scoped.scenarios;
+        scopeStats = scoped.stats || null;
+    }
+
+    const newHypotheses = updateHypotheses(scored, tokenPresences, previousHypotheses, turn);
 
     return {
         accumulator: newAccumulator,
         hypotheses: newHypotheses,
-        turnCount: turn
+        turnCount: turn,
+        // Not persisted by callers that spread only the three fields above;
+        // read by the bridge for the trace.
+        ...(scopeStats ? { scopeStats } : {})
     };
 }
 

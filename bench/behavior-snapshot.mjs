@@ -19,11 +19,11 @@
 import { runTurn } from '../sie/pipeline/pipeline.js';
 import { SIE_DEFAULT_SETTINGS } from '../sie/config/settings-schema.js';
 
-export async function snapshotBehavior({ messages, catalog, providers, settings = SIE_DEFAULT_SETTINGS, variant = 'current', rankingOptions = {} }) {
+export async function snapshotBehavior({ messages, catalog, providers, settings = SIE_DEFAULT_SETTINGS, variant = 'current', rankingOptions = {}, edition = null }) {
     const rows = [];
     for (const m of messages) {
         const t0 = performance.now();
-        const r = await runTurn({ text: m.text, catalog, settings, variant, providers, rankingOptions });
+        const r = await runTurn({ text: m.text, catalog, settings, variant, providers, rankingOptions, edition });
         const ms = performance.now() - t0;
         const ranking = r.ranking;
         rows.push({

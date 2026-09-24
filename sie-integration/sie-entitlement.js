@@ -100,7 +100,10 @@ export async function tryConsumeSieMessage(supabase, userId) {
         return {
             allowed: row?.allowed === true,
             reason: row?.reason ?? null,
-            remaining: row?.remaining ?? null
+            remaining: row?.remaining ?? null,
+            // Present once migration 0009 is applied; absent before it, which
+            // editions.js reads as "use the configured default" (Free).
+            edition: typeof row?.edition === 'string' ? row.edition : null
         };
     } catch (err) {
         console.warn('[sie] sie_consume_message() RPC threw:', err?.message || err);
@@ -156,7 +159,7 @@ export async function getSieAccessStatus(supabase, userId) {
  *   row: Object|null
  * }}
  */
-export function evaluateSieAccessRow(row) {
+export function evaluateSieAccessRow(row, { monthlyCap = 0 } = {}) {
     if (!row) {
         return { available: false, reason: 'no_access_row', statusLabel: 'غير مفعّل', remaining: null, row: null };
     }
@@ -168,6 +171,17 @@ export function evaluateSieAccessRow(row) {
     if (row.access_mode === 'expiration' && row.expires_at) {
         if (new Date(row.expires_at).getTime() <= Date.now()) {
             return { available: false, reason: 'expired', statusLabel: 'انتهت الصلاحية', remaining: null, row };
+        }
+    }
+
+    // The edition's monthly cap (migration 0009), checked after the three
+    // branches sie_consume_message() checks first — the same order. Only a
+    // counter for THIS calendar month (UTC) counts; last month's is stale.
+    if (monthlyCap > 0 && row.edition_period_start) {
+        const month = new Date().toISOString().slice(0, 7);
+        if (String(row.edition_period_start).slice(0, 7) === month && (row.edition_period_used ?? 0) >= monthlyCap
+            && !(row.access_mode === 'quota' && (row.messages_used ?? 0) >= (row.message_quota ?? 0) && (row.message_quota ?? 0) > 0)) {
+            return { available: false, reason: 'edition_monthly_limit', statusLabel: 'خلص حد الشهر', remaining: 0, row };
         }
     }
 
@@ -190,20 +204,25 @@ export function evaluateSieAccessRow(row) {
  * the profiles-table admin actions already behave elsewhere.
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @param {{userId: string, isEnabled: boolean, accessMode: 'unlimited'|'quota'|'expiration', messageQuota?: number|null, expiresAt?: string|null, notes?: string|null}} params
+ * @param {{userId: string, isEnabled: boolean, accessMode: 'unlimited'|'quota'|'expiration', messageQuota?: number|null, expiresAt?: string|null, notes?: string|null, edition?: 'free'|'pro'|'max'|'default'}} params
  * @returns {Promise<{error: Error|null}>}
  */
-export async function adminSetAccess(supabase, { userId, isEnabled, accessMode, messageQuota, expiresAt, notes }) {
+export async function adminSetAccess(supabase, { userId, isEnabled, accessMode, messageQuota, expiresAt, notes, edition }) {
     if (!userId) return { error: new Error('userId is required') };
     try {
-        const { error } = await supabase.rpc('sie_admin_set_access', {
+        const args = {
             p_user_id: userId,
             p_is_enabled: isEnabled,
             p_access_mode: accessMode,
             p_message_quota: messageQuota ?? null,
             p_expires_at: expiresAt ?? null,
             p_notes: notes ?? null
-        });
+        };
+        // Only sent when the caller chose one: before migration 0009 the
+        // function has no p_edition, and an unknown named argument fails the
+        // whole call. 'default' clears the customer's own edition.
+        if (edition !== undefined) args.p_edition = edition;
+        const { error } = await supabase.rpc('sie_admin_set_access', args);
         return { error: error ? new Error(error.message) : null };
     } catch (err) {
         return { error: err instanceof Error ? err : new Error(String(err)) };
