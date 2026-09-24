@@ -2,7 +2,7 @@
 
 > **التاريخ:** 2026-09-24 · **الفرع:** `claude/compassionate-franklin-nh9b7p` · **PR:** https://github.com/moudabdelwahab/sie/pull/16
 > **الحالة:** كل شيء في بيئة الاختبار. **لم يُطبَّق أي تغيير على الإنتاج** — لا migration، ولا نشر، ولا تغيير إعداد. الاستعلامات على قاعدة الإنتاج كانت قراءة فقط.
-> **الاختبارات:** 1027/1027 · فحوص SQL 118/118 · اختبارات الطفرات 16/16 · تدقيق الإصدارات 0 نتائج.
+> **الاختبارات:** 1027/1027 · فحوص SQL 122/122 · اختبارات الطفرات 16/16 · تدقيق الإصدارات 0 نتائج.
 > **نموذج التهديدات:** [`docs/security/editions-threat-model.md`](security/editions-threat-model.md)
 
 ---
@@ -501,7 +501,7 @@
 | الاختبار | النتيجة |
 |---|---|
 | `sie-integration/tests/sql/owner-editions.test.sql` — دوال السلطة **منسوخة حرفيًا من الإنتاج**؛ شخصيات: مالك، أدمن منصة، أدمن SIE مفوَّض، موظف، عميل، anon، مالك في وضع المعاينة، service role | **68/68** (الـ RPC والكتابة المباشرة، الإعدادات، الحل لـ Free، النظرة العامة، محتوى السجل) |
-| migrations كاملة مرتين (ثبات) | 118/118 فحص SQL |
+| migrations كاملة مرتين (ثبات) | 122/122 فحص SQL (منها 4 تساوي محدِّد الـ API مع النسخة المنشورة) |
 | `sie/editions/tests/owner-editions.test.mjs` | 11/11 |
 | طفرات M11–M16 (JS وSQL) | كلها KILLED |
 | `Mad3oom/tests/owner-authority-center.render.test.mjs` | 7/7 |
@@ -525,6 +525,6 @@ node bench/edition-compare.mjs --from free --to pro  # §5 (و pro→max، free�
 node --expose-gc bench/edition-perf.mjs --only pro   # §7 (free | pro | pad1000 | pad1500)
 PGURL=… node scripts/mutation-check.mjs              # 16/16 KILLED (M14–M16 محتاجة PGURL)
 node scripts/check-vocab-heldout.mjs                 # §18: Free 12 · Pro 12 · Max 22 (من 40) — مصري: 16 · 15 · 17 (من 53)
-PGURL=… scripts/test-migrations.sh                   # 118 فحص SQL (منها 68 لإدارة الإصدارات للمالك)
+PGURL=… scripts/test-migrations.sh                   # 122 فحص SQL (منها 68 لإدارة الإصدارات للمالك)
 node scripts/catalog-fixes/2026-09-core-add-agent.mjs  # §18.3 — التطبيق مرتين مابيغيّرش حاجة
 ```

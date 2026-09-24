@@ -15,4 +15,23 @@ insert into public.test_baseline
     select 'rate', row(allowed, enabled, limit_per_min, remaining)::text from sie_rate_limit_hit(null);
 reset test.uid;
 delete from public.sie_rate_limit_buckets;
+-- The service-role API limiter (deployed; 0009 replaces it): global, then
+-- with a per-customer override, then disabled by override.
+insert into public.test_baseline
+    select 'api', row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit('00000000-0000-0000-0000-0000000000ff', null);
+delete from public.sie_rate_limit_buckets;
+insert into public.sie_rate_limit_overrides (user_id, requests_per_minute, burst) values ('00000000-0000-0000-0000-0000000000ff', 42, 3);
+insert into public.test_baseline
+    select 'api_override', row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit('00000000-0000-0000-0000-0000000000ff', null);
+update public.sie_rate_limit_overrides set is_enabled = false where user_id = '00000000-0000-0000-0000-0000000000ff';
+insert into public.test_baseline
+    select 'api_off', row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit('00000000-0000-0000-0000-0000000000ff', null);
+insert into public.test_baseline
+    select 'api_ip', row(allowed, enabled, limit_per_min, remaining, reset_seconds, retry_after, key_used)::text
+      from sie_api_rate_limit_hit(null, '203.0.113.9');
+delete from public.sie_rate_limit_overrides where user_id = '00000000-0000-0000-0000-0000000000ff';
+delete from public.sie_rate_limit_buckets;
 update public.customer_sie_access set messages_used = 0 where user_id = '00000000-0000-0000-0000-0000000000ff';

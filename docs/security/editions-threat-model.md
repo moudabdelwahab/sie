@@ -112,7 +112,7 @@
 npm test                                     # 1027 اختبار
 node scripts/audit-editions.mjs              # يجب: 0 findings
 node scripts/check-phrasings.mjs             # يجب: Pro 200/200 · Max 96/96
-PGURL=… scripts/test-migrations.sh           # 118 فحص SQL (T-13: 68)
+PGURL=… scripts/test-migrations.sh           # 122 فحص SQL (T-13: 68)
 PGURL=… node scripts/mutation-check.mjs      # 16/16 KILLED
 node bench/edition-compare.mjs --from free --to pro
 ```
