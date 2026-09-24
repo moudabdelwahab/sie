@@ -400,15 +400,20 @@
       ]
     },
     {
-      "canonical": "entity_inside",
+      "canonical": "entity_opens_inside",
       "labels": {
-        "ar": "جوّه",
-        "en": "inside"
+        "ar": "بيفتح جوّه التطبيق",
+        "en": "opens inside the app"
       },
       "patterns": [
-        "جوه",
-        "جوا",
-        "inapp"
+        "بيفتح جوه",
+        "بيفتح جوا",
+        "بتفتح جوه",
+        "بتفتح جوا",
+        "فتح جوه",
+        "opens inside",
+        "inapp",
+        "webview"
       ]
     },
     {
@@ -1437,6 +1442,169 @@
         "private window",
         "private browsing",
         "inprivate"
+      ]
+    },
+    {
+      "canonical": "entity_promotions_tab",
+      "labels": {
+        "ar": "تبويب الترويج",
+        "en": "Promotions tab"
+      },
+      "patterns": [
+        "promotions",
+        "الترويجيه",
+        "تبويب الترويج",
+        "other tab",
+        "focused",
+        "updates tab"
+      ]
+    },
+    {
+      "canonical": "entity_mailbox_full",
+      "labels": {
+        "ar": "صندوق البريد مليان",
+        "en": "mailbox full"
+      },
+      "patterns": [
+        "صندوق البريد مليان",
+        "صندوق البريد",
+        "البريد مليان",
+        "الانبوكس مليان",
+        "mailbox full",
+        "mailbox quota"
+      ]
+    },
+    {
+      "canonical": "entity_blocked_sender",
+      "labels": {
+        "ar": "بلوك للمرسل",
+        "en": "blocked the sender"
+      },
+      "patterns": [
+        "بلوك للايميل",
+        "عملت بلوك",
+        "حظرت المرسل",
+        "blocked sender",
+        "blocked the sender",
+        "unblock"
+      ]
+    },
+    {
+      "canonical": "entity_mail_receiving",
+      "labels": {
+        "ar": "مش بيستقبل",
+        "en": "not receiving"
+      },
+      "patterns": [
+        "بيستقبل",
+        "مش بيستقبل",
+        "مابيستقبلش",
+        "مبيستقبلش",
+        "بيوصلوش",
+        "quarantine"
+      ]
+    },
+    {
+      "canonical": "entity_remote_app",
+      "labels": {
+        "ar": "برنامج تحكّم عن بعد",
+        "en": "remote-access app"
+      },
+      "patterns": [
+        "anydesk",
+        "اني ديسك",
+        "انى ديسك",
+        "teamviewer",
+        "تيم فيوير",
+        "تيم فيور",
+        "rustdesk",
+        "quicksupport",
+        "تحكم عن بعد",
+        "برنامج تحكم",
+        "remote access",
+        "remote control"
+      ]
+    },
+    {
+      "canonical": "entity_someone_asked",
+      "labels": {
+        "ar": "حد طلب مني",
+        "en": "someone asked me"
+      },
+      "patterns": [
+        "حد طلب مني",
+        "طلب مني",
+        "حد عايزني",
+        "someone asked me",
+        "asked me to"
+      ]
+    },
+    {
+      "canonical": "entity_caller",
+      "labels": {
+        "ar": "حد كلّمني",
+        "en": "someone called me"
+      },
+      "patterns": [
+        "حد كلمني",
+        "كلمني حد",
+        "حد اتصل",
+        "اتصل بيا",
+        "كلموني",
+        "رن عليا",
+        "مكالمه من",
+        "مكالمة من",
+        "someone called",
+        "called me"
+      ]
+    },
+    {
+      "canonical": "entity_adware",
+      "labels": {
+        "ar": "إعلانات بتفتح لوحدها",
+        "en": "ads opening by themselves"
+      },
+      "patterns": [
+        "اعلانات بتفتح",
+        "اعلانات كتير",
+        "اعلانات غريبه",
+        "صفحات غريبه بتفتح",
+        "صفحات غريبة بتفتح",
+        "نوافذ بتفتح لوحدها",
+        "popups everywhere",
+        "adware",
+        "ads keep opening"
+      ]
+    },
+    {
+      "canonical": "entity_my_data",
+      "labels": {
+        "ar": "بياناتي",
+        "en": "my personal data"
+      },
+      "patterns": [
+        "بياناتي",
+        "بيانات شخصيه",
+        "بيانات شخصية",
+        "my data",
+        "personal data",
+        "my details"
+      ]
+    },
+    {
+      "canonical": "entity_redact",
+      "labels": {
+        "ar": "أخبّي",
+        "en": "hide / blur"
+      },
+      "patterns": [
+        "اخبي",
+        "اغطي",
+        "اشطب",
+        "اطمس",
+        "blur",
+        "redact",
+        "hide my data"
       ]
     },
     {

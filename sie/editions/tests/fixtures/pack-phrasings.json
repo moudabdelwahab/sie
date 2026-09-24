@@ -1322,6 +1322,38 @@
     [
       "gen_private_window_how",
       "افتح نافذة تصفح خفي ازاي"
+    ],
+    [
+      "gen_email_in_promotions_tab",
+      "الايميلات بتاعتكم بتروح في promotions"
+    ],
+    [
+      "gen_mailbox_full",
+      "صندوق البريد بتاعي مليان"
+    ],
+    [
+      "gen_email_sender_blocked",
+      "عملت بلوك للايميل بتاعكم بالغلط"
+    ],
+    [
+      "gen_company_mail_filter",
+      "ايميل الشركة مش بيستقبل منكم خالص"
+    ],
+    [
+      "gen_remote_access_scam",
+      "حد طلب مني انزل anydesk"
+    ],
+    [
+      "gen_caller_asks_for_code",
+      "حد كلمني وطلب الكود اللي جالي"
+    ],
+    [
+      "gen_adware_popups",
+      "اعلانات بتفتح لوحدها كل شوية"
+    ],
+    [
+      "gen_screenshot_privacy",
+      "ينفع ابعت صورة فيها بياناتي ولا اخبي حاجة"
     ]
   ],
   "max_heldout": [
@@ -1604,6 +1636,38 @@
     [
       "gen_private_window_how",
       "يعني ايه incognito وافتحه منين"
+    ],
+    [
+      "gen_email_in_promotions_tab",
+      "رسايلكم بتنزل في خانة العروض في جيميل مش الاساسي"
+    ],
+    [
+      "gen_mailbox_full",
+      "جيميل بيقولي المساحة خلصت والايميلات مش بتيجي"
+    ],
+    [
+      "gen_email_sender_blocked",
+      "حظرتكم على الاوتلوك من غير قصد ازاي افكه"
+    ],
+    [
+      "gen_company_mail_filter",
+      "الايميل الرسمي بتاع شغلي مابيوصلوش رسايل منكم"
+    ],
+    [
+      "gen_remote_access_scam",
+      "واحد عايزني اسطب تيم فيوير عشان يحل المشكلة"
+    ],
+    [
+      "gen_caller_asks_for_code",
+      "جالي اتصال بيقول انا من خدمة العملاء قولي الرقم اللي جالك"
+    ],
+    [
+      "gen_adware_popups",
+      "المتصفح عمال يفتح مواقع قمار واعلانات لوحده"
+    ],
+    [
+      "gen_screenshot_privacy",
+      "هصور الشاشة بس فيها رقم الفيزا اعمل ايه"
     ]
   ]
 }

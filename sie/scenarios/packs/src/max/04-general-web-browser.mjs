@@ -30,7 +30,10 @@ export default {
         T('entity_auto_translate', 'الترجمة التلقائية', 'automatic translation', ['ترجم', 'ترجمت', 'الترجمه', 'الترجمه التلقاييه', 'ترجمه جوجل', 'جوجل ترجم', 'translate', 'google translate', 'translated']),
         T('entity_broke', 'باظ', 'broke', ['باظ', 'بوظت', 'بوظ', 'اتبوظ', 'اتبوظت']),
         T('entity_mail_app', 'تطبيق الإيميل', 'mail app', ['الجيميل', 'جيميل', 'gmail', 'اوتلوك', 'outlook']),
-        T('entity_inside', 'جوّه', 'inside', ['جوه', 'جوا', 'inapp']),
+        // «بيفتح جوه» — the link opening INSIDE the app. The mail app alone
+        // («جيميل») carried this scenario at 0.72 and pulled any Gmail message
+        // here (found by the 1,000-phase held-out); the phrase now leads.
+        T('entity_opens_inside', 'بيفتح جوّه التطبيق', 'opens inside the app', ['بيفتح جوه', 'بيفتح جوا', 'بتفتح جوه', 'بتفتح جوا', 'فتح جوه', 'opens inside', 'inapp', 'webview']),
         T('entity_garbled', 'رموز غريبة', 'garbled characters', ['رموز غريبه', 'حروف غريبه', 'رموز غريبة', 'حروف غريبة', 'علامات استفهام', 'gibberish', 'garbled', 'weird characters'])
     ],
     scenarios: [
@@ -52,7 +55,7 @@ export default {
             { alt: ['entity_auto_translate:5 entity_browser:1'] }),
         S('gen_link_opens_in_mail_app', 'device/mobile/in_app_browser', 'technical',
             'اللينك بيفتح جوّه تطبيق الإيميل ومش لاقي حسابي', 'The link opens inside the mail app and I am not signed in',
-            'entity_mail_app:720 entity_inside:139 atom_open_action:139',
+            'entity_opens_inside:4 entity_mail_app:2',
             `لما تفتح لينك من تطبيق إيميل (زي Gmail) على الموبايل، ساعات بيفتح في متصفح صغير جوّه التطبيق نفسه — ومش بيكون مسجّل دخولك فيه.\n• من القائمة (⋮ أو …) في المتصفح الصغير ده اختار «فتح في المتصفح» أو «Open in Chrome/Safari».\n• أو انسخ اللينك وافتحه في المتصفح اللي انت مسجّل دخولك عليه.`,
             `When you open a link from a mail app (such as Gmail) on your phone, it sometimes opens in a small browser inside the app itself — where you're not signed in.\n• From that small browser's menu (⋮ or …) choose "Open in browser" or "Open in Chrome/Safari".\n• Or copy the link and open it in the browser you're signed in on.`),
         S('gen_csv_garbled_in_excel', 'files/csv/arabic_garbled_excel', 'technical',

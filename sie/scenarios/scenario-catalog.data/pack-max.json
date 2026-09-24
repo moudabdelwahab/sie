@@ -5,14 +5,15 @@
     "entity_policy_word",
     "entity_forgot",
     "entity_broke",
-    "entity_inside",
     "entity_works_normally",
     "entity_remember_word",
     "entity_shared_with_someone",
     "entity_strength_word",
     "entity_failed_word",
     "entity_stuck_word",
-    "entity_convert_word"
+    "entity_convert_word",
+    "entity_caller",
+    "entity_someone_asked"
   ],
   "scenarios": [
     {
@@ -763,18 +764,13 @@
       "category": "technical",
       "evidenceSignature": [
         {
+          "token": "entity_opens_inside",
+          "weight": 4,
+          "source": "text"
+        },
+        {
           "token": "entity_mail_app",
-          "weight": 720,
-          "source": "text"
-        },
-        {
-          "token": "entity_inside",
-          "weight": 139,
-          "source": "text"
-        },
-        {
-          "token": "atom_open_action",
-          "weight": 139,
+          "weight": 2,
           "source": "text"
         }
       ],
@@ -2730,6 +2726,301 @@
         }
       },
       "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_email_in_promotions_tab",
+      "intent": "email/client/promotions_tab",
+      "label": {
+        "ar": "الإيميلات بتروح لتبويب الترويج (Promotions)",
+        "en": "E-mails land in the Promotions tab"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_promotions_tab",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "Gmail بيوزّع الإيميلات على تبويبات (الأساسي، الترويج، التحديثات)، وOutlook بيقسمها «المركّز» و«أخرى»:\n• افتح الإيميل من التبويب اللي وصل فيه، واسحبه لـ «الأساسي» (أو في Outlook: «نقل إلى المركّز» ← «دايمًا»).\n• Gmail هيسألك تعمل كده لكل الإيميلات الجاية من نفس المرسل — وافق.\n• ضيف عنوان المرسل لجهات الاتصال.",
+          "en": "Gmail sorts mail into tabs (Primary, Promotions, Updates), and Outlook into \"Focused\" and \"Other\":\n• Open the e-mail from the tab it landed in and drag it to \"Primary\" (in Outlook: \"Move to Focused\" ▸ \"Always\").\n• Gmail will offer to do this for future mail from the same sender — accept.\n• Add the sender's address to your contacts."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_mailbox_full",
+      "intent": "email/client/mailbox_full",
+      "label": {
+        "ar": "صندوق البريد بتاعي مليان",
+        "en": "My mailbox is full"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mailbox_full",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما صندوق البريد يتملي، الإيميلات الجديدة (ومنها رسايلنا وأكواد التحقق) بترجع ومابتوصلش:\n• Gmail: المساحة مشتركة مع Drive وصور جوجل — امسح الإيميلات الكبيرة (دوّر بـ larger:10M)، وفضّي «المهملات».\n• Outlook/Hotmail: امسح القديم وفضّي «العناصر المحذوفة».\n\nبعدها اطلب الإيميل اللي كنت مستنيه تاني.",
+          "en": "When a mailbox is full, new e-mails (including ours and verification codes) bounce and never arrive:\n• Gmail: storage is shared with Drive and Google Photos — delete large e-mails (search larger:10M) and empty the Bin.\n• Outlook/Hotmail: delete old mail and empty \"Deleted Items\".\n\nThen request the e-mail you were waiting for again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_email_sender_blocked",
+      "intent": "email/client/sender_blocked",
+      "label": {
+        "ar": "عملت بلوك لإيميلكم بالغلط",
+        "en": "I blocked your e-mails by mistake"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_blocked_sender",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "تقدر تشيل الحظر من إعدادات الإيميل:\n• Gmail (كمبيوتر): الإعدادات ← «عرض كل الإعدادات» ← «الفلاتر والعناوين المحظورة» ← امسح العنوان من القائمة.\n• Gmail (موبايل): افتح أي إيميل قديم من المرسل ← القائمة (⋮) ← «إلغاء حظر».\n• Outlook: الإعدادات ← البريد ← البريد العشوائي ← «المرسلون المحظورون».\n\nوبعدها بصّ في الـ Spam — الإيميلات اللي اتحظرت غالبًا راحت هناك.",
+          "en": "You can remove the block in your mail settings:\n• Gmail (computer): Settings ▸ \"See all settings\" ▸ \"Filters and Blocked Addresses\" ▸ remove the address.\n• Gmail (phone): open any old e-mail from the sender ▸ menu (⋮) ▸ \"Unblock\".\n• Outlook: Settings ▸ Mail ▸ Junk email ▸ \"Blocked senders\".\n\nThen check Spam — blocked e-mails usually went there."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_company_mail_filter",
+      "intent": "email/client/company_filter",
+      "label": {
+        "ar": "إيميل الشركة مش بيستقبل رسايلكم",
+        "en": "Our company e-mail does not receive your messages"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mail_receiving",
+          "weight": 516,
+          "source": "text"
+        },
+        {
+          "token": "atom_company",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "entity_email",
+          "weight": 344,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "إيميلات الشركات غالبًا وراها فلتر أو «حجر» بيحجز الرسايل الأوتوماتيك قبل ما توصل:\n• اطلب من قسم IT يدوّر في الحجر (Quarantine) على رسايلنا ويسمح بدومين المرسل.\n• اطلب منهم يضيفوه لقائمة المرسلين الموثوقين.\n• لحد ما يتحل، تقدر تستخدم إيميل شخصي للحاجات المستعجلة زي أكواد التحقق.",
+          "en": "Company mailboxes often sit behind a filter or \"quarantine\" that holds automated messages before they arrive:\n• Ask your IT team to look in the quarantine for our messages and allow the sender's domain.\n• Ask them to add it to the trusted senders list.\n• Until it's fixed, you can use a personal e-mail for urgent things such as verification codes."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_remote_access_scam",
+      "intent": "security/scam/remote_access_app",
+      "label": {
+        "ar": "حد طلب مني أنزّل برنامج تحكّم عن بعد (AnyDesk)",
+        "en": "Someone asked me to install a remote-access app (AnyDesk)"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_remote_app",
+          "weight": 4,
+          "source": "text"
+        },
+        {
+          "token": "entity_someone_asked",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "متنزّلوش — وده مهم: برنامج التحكم عن بعد بيدّي اللي على الطرف التاني تحكّم كامل في جهازك، وبيقدر يشوف حساباتك وأكوادك وتطبيق البنك.\n• احنا مش بنطلب منك تنزّل برنامج تحكّم ولا نطلب كلمة المرور أو كود تحقق.\n• لو نزّلته فعلًا: اقفله وامسحه، غيّر كلمات المرور المهمة من جهاز تاني، وسجّل خروج من كل الأجهزة.\n• لو في حد اتصل بيك باسمنا، ابعتلي رقمه وميعاد المكالمة.",
+          "en": "Don't install it — this matters: a remote-access app gives the person on the other end full control of your device, including your accounts, codes and banking app.\n• We never ask you to install a remote-control app, nor for your password or a verification code.\n• If you already installed it: close and uninstall it, change your important passwords from another device, and sign out of all devices.\n• If someone called you in our name, send me their number and when they called."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_caller_asks_for_code",
+      "intent": "security/scam/caller_asks_code",
+      "label": {
+        "ar": "حد كلّمني وطلب الكود اللي جالي",
+        "en": "Someone called me and asked for the code I received"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_caller",
+          "weight": 810,
+          "source": "text"
+        },
+        {
+          "token": "entity_otp",
+          "weight": 190,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "متديهوش الكود — أي حد بيطلب كود التحقق اللي وصلك بيحاول يدخل حسابك، حتى لو قال إنه من الدعم:\n• احنا مش بنطلب كود التحقق ولا كلمة المرور أبدًا، لا بمكالمة ولا برسالة.\n• لو قلته فعلًا: غيّر كلمة المرور دلوقتي، سجّل خروج من كل الأجهزة، وفعّل التحقق بخطوتين.\n• ابعتلي رقمه وميعاد المكالمة عشان الفريق يتابع.",
+          "en": "Don't give them the code — anyone asking for a verification code you received is trying to get into your account, even if they say they're from support:\n• We never ask for a verification code or your password, not by call and not by message.\n• If you already told them: change your password now, sign out of all devices, and turn on two-step verification.\n• Send me their number and when they called so the team can follow up."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_caller",
+            "weight": 860,
+            "source": "text"
+          },
+          {
+            "token": "atom_code",
+            "weight": 139,
+            "source": "text"
+          }
+        ],
+        [
+          {
+            "token": "entity_caller",
+            "weight": 670,
+            "source": "text"
+          },
+          {
+            "token": "atom_support",
+            "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_otp",
+            "weight": 190,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_adware_popups",
+      "intent": "security/device/adware_popups",
+      "label": {
+        "ar": "إعلانات وصفحات غريبة بتفتح لوحدها",
+        "en": "Ads and strange pages open by themselves"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_adware",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_itself",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ده غالبًا إضافة متصفح أو برنامج إعلانات اتسطّب من غير ما تاخد بالك — مش من الموقع:\n• المتصفح: افتح الإضافات وامسح أي إضافة ماتعرفهاش أو مش فاكر سطّبتها.\n• كروم: الإعدادات ← إعادة الضبط والتنظيف ← «استعادة الإعدادات لقيمها الأصلية».\n• أندرويد: الإعدادات ← الإشعارات، ودوّر على موقع أو تطبيق بيبعت إعلانات واقفل إشعاراته.\n• شغّل فحص من برنامج حماية معروف.",
+          "en": "This is usually a browser extension or adware installed without you noticing — not the site:\n• Browser: open Extensions and remove anything you don't recognise or don't remember installing.\n• Chrome: Settings ▸ Reset settings ▸ \"Restore settings to their original defaults\".\n• Android: Settings ▸ Notifications — find any site or app sending ads and turn its notifications off.\n• Run a scan with a well-known security program."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_screenshot_privacy",
+      "intent": "security/privacy/screenshot_redact",
+      "label": {
+        "ar": "أبعت صورة فيها بياناتي؟",
+        "en": "Should I send a screenshot that shows my personal data?"
+      },
+      "category": "security",
+      "evidenceSignature": [
+        {
+          "token": "entity_my_data",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_redact",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "entity_wa_media",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ابعتها، بس خبّي الحساس الأول:\n• غطّي أو اشطب: رقم الكارت كامل، الرقم السري أو الـ CVV، كلمات المرور، وأي كود تحقق.\n• على الموبايل: بعد ما تاخد الصورة، دوس «تعديل» وارسم فوق البيانات.\n• آخر ٤ أرقام من الكارت، والتاريخ والمبلغ، مفيش مشكلة تبان — بيساعدوني ألاقي العملية.",
+          "en": "Send it, but hide the sensitive parts first:\n• Cover or cross out: the full card number, PIN or CVV, passwords, and any verification code.\n• On a phone: after taking the screenshot, tap \"Edit\" and draw over the data.\n• The last 4 digits of the card, the date and the amount are fine to show — they help me find the transaction."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_my_data",
+            "weight": 3,
+            "source": "text"
+          },
+          {
+            "token": "entity_wa_media",
+            "weight": 2,
+            "source": "text"
+          }
+        ]
+      ]
     }
   ]
 }
