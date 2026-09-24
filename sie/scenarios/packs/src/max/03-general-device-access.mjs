@@ -7,7 +7,9 @@
  * verified: sign-in accepts e-mail, phone or username (Mad3oom login.html,
  * Pro login_identifier_options), and the session is kept in the browser's
  * site data (api-config.js creates the default supabase-js client, which
- * persists the session in browser storage).
+ * persists the session in browser storage). The site is served from
+ * mad3oom.com and its subdomains (www., sie., wa. in Mad3oom's HTML/JS);
+ * mad3oom.online is only the e-mail domain and is NOT named as a site.
  *
  * Each case was checked against its nearest neighbours before writing:
  *   home internet   ≠ gen_work_network_blocking (work firewall), convo_weak_internet
@@ -51,8 +53,8 @@ export default {
         S('gen_antivirus_blocking', 'device/security_software/blocking', 'technical',
             'برنامج الحماية (Antivirus) مانع الموقع', 'Antivirus software is blocking the site',
             'entity_antivirus:5 symptom_blank_page:1',
-            `برامج الحماية ساعات بتمنع مواقع، أو بتفحص الاتصال الآمن بطريقة بتعطّل الصفحة:\n• وقّف «حماية الويب» في البرنامج دقيقة وافتح الموقع — لو اشتغل، يبقى البرنامج هو السبب.\n• ضيف نطاقات المنصة (mad3oom.com وmad3oom.online) لقائمة المواقع الموثوقة أو الاستثناءات جوه البرنامج.\n• ورجّع الحماية تشتغل بعدها.`,
-            `Security software sometimes blocks sites, or inspects secure connections in a way that breaks the page:\n• Pause the program's "web protection" for a minute and open the site — if it works, the program is the cause.\n• Add the platform's domains (mad3oom.com and mad3oom.online) to the program's trusted sites or exceptions.\n• Then turn protection back on.`,
+            `برامج الحماية ساعات بتمنع مواقع، أو بتفحص الاتصال الآمن بطريقة بتعطّل الصفحة:\n• وقّف «حماية الويب» في البرنامج دقيقة وافتح الموقع — لو اشتغل، يبقى البرنامج هو السبب.\n• ضيف mad3oom.com ونطاقاته الفرعية (*.mad3oom.com) لقائمة المواقع الموثوقة أو الاستثناءات جوه البرنامج.\n• ورجّع الحماية تشتغل بعدها.`,
+            `Security software sometimes blocks sites, or inspects secure connections in a way that breaks the page:\n• Pause the program's "web protection" for a minute and open the site — if it works, the program is the cause.\n• Add mad3oom.com and its subdomains (*.mad3oom.com) to the program's trusted sites or exceptions.\n• Then turn protection back on.`,
             { alt: ['entity_antivirus:5 symptom_not_working:1'] }),
         S('gen_device_clock_wrong', 'device/clock/security_errors', 'technical',
             'المتصفح بيقول إن ساعة الجهاز غلط أو الاتصال مش آمن', 'The browser says the clock is wrong or the connection is not secure',

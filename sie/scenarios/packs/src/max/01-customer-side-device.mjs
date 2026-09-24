@@ -22,7 +22,9 @@
  *
  * Facts used (general, stable): Ctrl/Cmd+0 resets zoom; Help ▸ About shows the browser version; Ctrl+Shift+V pastes
  * plain text; captive portals block every site until accepted; a browser's
- * pop-up blocker shows an icon in the address bar.
+ * pop-up blocker shows an icon in the address bar. Platform fact: the site is
+ * served from mad3oom.com and its subdomains (corrected 2026-09-24 — the
+ * first version also named mad3oom.online, which is only the e-mail domain).
  *
  * @no-legitimate-corpus
  */
@@ -70,8 +72,8 @@ export default {
         S('gen_work_network_blocking', 'device/network/work_firewall', 'technical',
             'الموقع مش بيفتح من شبكة الشغل', 'The site does not open on my work network',
             'entity_work_network:5 symptom_blank_page:1 entity_dashboard:1',
-            `شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة (mad3oom.com وmad3oom.online).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.`,
-            `Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domains (mad3oom.com and mad3oom.online).\n\nIf it doesn't open on mobile data either, tell me exactly what you see.`,
+            `شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة: mad3oom.com ونطاقاته الفرعية (*.mad3oom.com).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.`,
+            `Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domain: mad3oom.com and its subdomains (*.mad3oom.com).\n\nIf it doesn't open on mobile data either, tell me exactly what you see.`,
             { alt: ['entity_work_network:5 symptom_not_working:1'] }),
         S('gen_public_wifi_login_page', 'device/network/captive_portal', 'technical',
             'واي فاي عام (فندق أو كافيه) والموقع مش بيفتح', 'Public Wi-Fi (hotel or café) and the site does not open',

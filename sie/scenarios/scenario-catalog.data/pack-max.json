@@ -206,8 +206,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة (mad3oom.com وmad3oom.online).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.",
-          "en": "Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domains (mad3oom.com and mad3oom.online).\n\nIf it doesn't open on mobile data either, tell me exactly what you see."
+          "ar": "شبكات الشركات أحيانًا بتمنع مواقع جديدة عليها (فايروول أو بروكسي).\n• جرّب من نت الموبايل: لو فتح، يبقى المنع من شبكة الشغل.\n• اطلب من قسم الـ IT يسمحوا بنطاقات المنصة: mad3oom.com ونطاقاته الفرعية (*.mad3oom.com).\n\nلو مافتحش من الموبايل كمان، قولّي إيه اللي بيظهرلك بالظبط.",
+          "en": "Company networks sometimes block sites that are new to them (a firewall or proxy).\n• Try on your phone's mobile data: if it opens, the block is on the work network.\n• Ask your IT team to allow the platform's domain: mad3oom.com and its subdomains (*.mad3oom.com).\n\nIf it doesn't open on mobile data either, tell me exactly what you see."
         }
       },
       "requiresTicketIfUnresolved": false,
@@ -424,8 +424,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "برامج الحماية ساعات بتمنع مواقع، أو بتفحص الاتصال الآمن بطريقة بتعطّل الصفحة:\n• وقّف «حماية الويب» في البرنامج دقيقة وافتح الموقع — لو اشتغل، يبقى البرنامج هو السبب.\n• ضيف نطاقات المنصة (mad3oom.com وmad3oom.online) لقائمة المواقع الموثوقة أو الاستثناءات جوه البرنامج.\n• ورجّع الحماية تشتغل بعدها.",
-          "en": "Security software sometimes blocks sites, or inspects secure connections in a way that breaks the page:\n• Pause the program's \"web protection\" for a minute and open the site — if it works, the program is the cause.\n• Add the platform's domains (mad3oom.com and mad3oom.online) to the program's trusted sites or exceptions.\n• Then turn protection back on."
+          "ar": "برامج الحماية ساعات بتمنع مواقع، أو بتفحص الاتصال الآمن بطريقة بتعطّل الصفحة:\n• وقّف «حماية الويب» في البرنامج دقيقة وافتح الموقع — لو اشتغل، يبقى البرنامج هو السبب.\n• ضيف mad3oom.com ونطاقاته الفرعية (*.mad3oom.com) لقائمة المواقع الموثوقة أو الاستثناءات جوه البرنامج.\n• ورجّع الحماية تشتغل بعدها.",
+          "en": "Security software sometimes blocks sites, or inspects secure connections in a way that breaks the page:\n• Pause the program's \"web protection\" for a minute and open the site — if it works, the program is the cause.\n• Add mad3oom.com and its subdomains (*.mad3oom.com) to the program's trusted sites or exceptions.\n• Then turn protection back on."
         }
       },
       "requiresTicketIfUnresolved": false,
