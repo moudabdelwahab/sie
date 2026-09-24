@@ -11,8 +11,8 @@ import { runTurn } from '../sie/pipeline/pipeline.js';
 import { SIE_DEFAULT_SETTINGS } from '../sie/config/settings-schema.js';
 import { nodeEdition } from '../sie/editions/tests/helpers/node-editions.js';
 
-export async function vocabHeldout(editionName) {
-    const { rows } = JSON.parse(fs.readFileSync(new URL('../sie/editions/tests/fixtures/vocabulary-heldout.json', import.meta.url), 'utf8'));
+export async function vocabHeldout(editionName, set = 'vocabulary-heldout') {
+    const { rows } = JSON.parse(fs.readFileSync(new URL(`../sie/editions/tests/fixtures/${set}.json`, import.meta.url), 'utf8'));
     const ed = await nodeEdition(editionName, SIE_DEFAULT_SETTINGS);
     const results = [];
     for (const [expect, text] of rows) {
@@ -25,9 +25,11 @@ export async function vocabHeldout(editionName) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-    for (const e of ['free', 'pro', 'max']) {
-        const { results, landed } = await vocabHeldout(e);
-        console.log(`${e}: ${landed}/${results.length}`);
-        if (process.argv.includes('--list') && e === 'max') for (const r of results.filter((x) => !x.ok)) console.log(`   ✗ ${r.expect} «${r.text}» → ${r.kind}/${r.action}/${r.got}`);
+    for (const set of ['vocabulary-heldout', 'vocabulary-heldout-egyptian']) {
+        for (const e of ['free', 'pro', 'max']) {
+            const { results, landed } = await vocabHeldout(e, set);
+            console.log(`${set} ${e}: ${landed}/${results.length}`);
+            if (process.argv.includes('--list') && e === 'max') for (const r of results.filter((x) => !x.ok)) console.log(`   ✗ ${r.expect} «${r.text}» → ${r.kind}/${r.action}/${r.got}`);
+        }
     }
 }
