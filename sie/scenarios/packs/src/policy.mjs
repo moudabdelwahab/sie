@@ -29,5 +29,5 @@ export const GENERIC_WORDS = Object.freeze({
         'entity_ticket_counter', 'entity_linked_word',
         'entity_traditional_mode', 'entity_sample_data', 'entity_reset_link'
     ]),
-    max: Object.freeze(['entity_browser_version', 'entity_policy_word', 'entity_forgot'])
+    max: Object.freeze(['entity_browser_version', 'entity_policy_word', 'entity_forgot', 'entity_broke', 'entity_inside'])
 });

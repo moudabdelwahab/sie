@@ -1082,6 +1082,26 @@
     [
       "gen_lost_access_to_email",
       "الايميل اللي على الحساب مبقاش معايا خالص"
+    ],
+    [
+      "gen_too_many_redirects",
+      "الصفحة مش بتفتح ومكتوب تم اعادة توجيهك مرات كتير"
+    ],
+    [
+      "gen_page_not_found",
+      "دخلت على اللينك طلعلي 404 والصفحة مش موجودة"
+    ],
+    [
+      "gen_browser_auto_translate",
+      "جوجل ترجم الموقع والزراير باظت"
+    ],
+    [
+      "gen_link_opens_in_mail_app",
+      "لما بفتح اللينك من الجيميل بيفتح جوه ومش لاقي الحساب"
+    ],
+    [
+      "gen_csv_garbled_in_excel",
+      "صدرت csv وفتحته طلع حروف غريبة بدل العربي"
     ]
   ],
   "max_heldout": [
@@ -1144,6 +1164,26 @@
     [
       "gen_lost_access_to_email",
       "مبقتش بقدر افتح الايميل القديم اللي عليه الحساب"
+    ],
+    [
+      "gen_too_many_redirects",
+      "المتصفح بيقول too many redirects ومش بيدخلني"
+    ],
+    [
+      "gen_page_not_found",
+      "بيقولي page not found لما افتح الرابط"
+    ],
+    [
+      "gen_browser_auto_translate",
+      "فعلت الترجمة في الكروم والصفحة اتلخبطت"
+    ],
+    [
+      "gen_link_opens_in_mail_app",
+      "اللينك اللي في الاوتلوك بيفتح جوا التطبيق مش في الكروم"
+    ],
+    [
+      "gen_csv_garbled_in_excel",
+      "الملف اللي نزلته علامات استفهام بدل الكلام العربي في الاكسيل"
     ]
   ]
 }

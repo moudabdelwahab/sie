@@ -317,6 +317,116 @@
         "مش بقدر افتحه",
         "lost access"
       ]
+    },
+    {
+      "canonical": "entity_redirect_loop",
+      "labels": {
+        "ar": "إعادة توجيه متكررة",
+        "en": "redirect loop"
+      },
+      "patterns": [
+        "اعاده توجيهك",
+        "تم اعاده توجيهك",
+        "اعادة توجيه",
+        "اعاده توجيه",
+        "بتلف وترجع",
+        "بيلف ويرجع",
+        "بيرجعني لنفس الصفحه",
+        "too many redirects",
+        "redirects",
+        "redirect loop"
+      ]
+    },
+    {
+      "canonical": "entity_page_not_found",
+      "labels": {
+        "ar": "الصفحة مش موجودة",
+        "en": "page not found"
+      },
+      "patterns": [
+        "الصفحه مش موجوده",
+        "الصفحة مش موجودة",
+        "الصفحه غير موجوده",
+        "الصفحة غير موجودة",
+        "صفحه مش موجوده",
+        "page not found",
+        "not found"
+      ]
+    },
+    {
+      "canonical": "entity_auto_translate",
+      "labels": {
+        "ar": "الترجمة التلقائية",
+        "en": "automatic translation"
+      },
+      "patterns": [
+        "ترجم",
+        "ترجمت",
+        "الترجمه",
+        "الترجمه التلقاييه",
+        "ترجمه جوجل",
+        "جوجل ترجم",
+        "translate",
+        "google translate",
+        "translated"
+      ]
+    },
+    {
+      "canonical": "entity_broke",
+      "labels": {
+        "ar": "باظ",
+        "en": "broke"
+      },
+      "patterns": [
+        "باظ",
+        "بوظت",
+        "بوظ",
+        "اتبوظ",
+        "اتبوظت"
+      ]
+    },
+    {
+      "canonical": "entity_mail_app",
+      "labels": {
+        "ar": "تطبيق الإيميل",
+        "en": "mail app"
+      },
+      "patterns": [
+        "الجيميل",
+        "جيميل",
+        "gmail",
+        "اوتلوك",
+        "outlook"
+      ]
+    },
+    {
+      "canonical": "entity_inside",
+      "labels": {
+        "ar": "جوّه",
+        "en": "inside"
+      },
+      "patterns": [
+        "جوه",
+        "جوا",
+        "inapp"
+      ]
+    },
+    {
+      "canonical": "entity_garbled",
+      "labels": {
+        "ar": "رموز غريبة",
+        "en": "garbled characters"
+      },
+      "patterns": [
+        "رموز غريبه",
+        "حروف غريبه",
+        "رموز غريبة",
+        "حروف غريبة",
+        "علامات استفهام",
+        "gibberish",
+        "garbled",
+        "weird characters"
+      ]
     }
   ]
 }

@@ -3,7 +3,9 @@
   "genericTokens": [
     "entity_browser_version",
     "entity_policy_word",
-    "entity_forgot"
+    "entity_forgot",
+    "entity_broke",
+    "entity_inside"
   ],
   "scenarios": [
     {
@@ -640,6 +642,189 @@
           {
             "token": "entity_email",
             "weight": 390,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_too_many_redirects",
+      "intent": "device/browser/redirect_loop",
+      "label": {
+        "ar": "الصفحة بتقول «تم إعادة توجيهك مرات كتير»",
+        "en": "The page says \"too many redirects\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_redirect_loop",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«تم إعادة توجيهك مرات كتير» غالبًا سببها بيانات موقع قديمة محفوظة في المتصفح:\n• امسح بيانات موقعنا بس (الكوكيز وبيانات الموقع) من إعدادات المتصفح ← الخصوصية.\n• جرّب نافذة تصفح خفي — لو اشتغلت، يبقى السبب البيانات المحفوظة.\n• اقفل أي إضافة بتغيّر الروابط أو بتحجب محتوى.\n\nوبعدين سجّل دخولك من جديد.",
+          "en": "\"Too many redirects\" is usually caused by old site data saved in the browser:\n• Clear our site's data only (cookies and site data) from the browser's settings ▸ Privacy.\n• Try a private window — if it works there, the saved data is the cause.\n• Turn off any extension that rewrites links or blocks content.\n\nThen sign in again."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_page_not_found",
+      "intent": "device/browser/page_404",
+      "label": {
+        "ar": "الصفحة بتقول «مش موجودة» (404)",
+        "en": "The page says \"not found\" (404)"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_page_not_found",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "http_status_404",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«الصفحة مش موجودة» (404) معناها إن الرابط نفسه مش بيشاور على صفحة موجودة — غالبًا رابط قديم، أو حرف ناقص وانت بتكتبه أو بتنسخه.\n• افتح الموقع من الصفحة الرئيسية وادخل للمكان اللي عايزه من القائمة.\n• لو الرابط جالك في رسالة منّا أو من حد، ابعتهولي وأنا أشوف المفروض يوديك فين.",
+          "en": "\"Page not found\" (404) means the link itself doesn't point to an existing page — usually an old link, or a character lost while typing or copying it.\n• Open the site from the home page and go where you need from the menu.\n• If the link came in a message from us or from someone, send it to me and I'll check where it should take you."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_browser_auto_translate",
+      "intent": "device/browser/auto_translate",
+      "label": {
+        "ar": "الترجمة التلقائية في المتصفح بوّظت الصفحة",
+        "en": "The browser's automatic translation broke the page"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_auto_translate",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "entity_broke",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ميزة الترجمة التلقائية في المتصفح (زي ترجمة جوجل) بتغيّر نصوص الصفحة وهي شغالة، وده ممكن يلخبط الشكل ويخلّي أزرار ماتشتغلش.\n• اقفل الترجمة للموقع ده: من أيقونة الترجمة في شريط العنوان ← «عدم ترجمة هذا الموقع».\n• وحدّث الصفحة.\n\nولو محتاج الواجهة بلغة تانية، غيّرها من زرار «تغيير اللغة» في القائمة الجانبية بدل الترجمة.",
+          "en": "The browser's automatic translation (such as Google Translate) rewrites the page's text while it runs, which can scramble the layout and stop buttons from working.\n• Turn translation off for this site: from the translate icon in the address bar ▸ \"Never translate this site\".\n• Then refresh the page.\n\nIf you need the interface in another language, switch it from the \"Change language\" button in the sidebar instead of translating."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_auto_translate",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "entity_browser",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gen_link_opens_in_mail_app",
+      "intent": "device/mobile/in_app_browser",
+      "label": {
+        "ar": "اللينك بيفتح جوّه تطبيق الإيميل ومش لاقي حسابي",
+        "en": "The link opens inside the mail app and I am not signed in"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_mail_app",
+          "weight": 720,
+          "source": "text"
+        },
+        {
+          "token": "entity_inside",
+          "weight": 139,
+          "source": "text"
+        },
+        {
+          "token": "atom_open_action",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لما تفتح لينك من تطبيق إيميل (زي Gmail) على الموبايل، ساعات بيفتح في متصفح صغير جوّه التطبيق نفسه — ومش بيكون مسجّل دخولك فيه.\n• من القائمة (⋮ أو …) في المتصفح الصغير ده اختار «فتح في المتصفح» أو «Open in Chrome/Safari».\n• أو انسخ اللينك وافتحه في المتصفح اللي انت مسجّل دخولك عليه.",
+          "en": "When you open a link from a mail app (such as Gmail) on your phone, it sometimes opens in a small browser inside the app itself — where you're not signed in.\n• From that small browser's menu (⋮ or …) choose \"Open in browser\" or \"Open in Chrome/Safari\".\n• Or copy the link and open it in the browser you're signed in on."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "gen_csv_garbled_in_excel",
+      "intent": "files/csv/arabic_garbled_excel",
+      "label": {
+        "ar": "ملف CSV بالعربي بيطلع رموز غريبة في Excel",
+        "en": "An Arabic CSV shows garbled characters in Excel"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_garbled",
+          "weight": 573,
+          "source": "text"
+        },
+        {
+          "token": "entity_spreadsheet",
+          "weight": 287,
+          "source": "text"
+        },
+        {
+          "token": "entity_arabic_word",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "ملف CSV بالعربي لما يتفتح في Excel بالضغط عليه مرتين، Excel ساعات بيقراه بترميز غلط فالعربي يطلع رموز غريبة — الملف نفسه سليم.\n• بدل ما تفتحه مباشرة: من Excel ← «بيانات» ← «من نص/CSV»، واختار الترميز UTF-8.\n• ولو هتشتغل عليه في Excel والتصدير عندك فيه XLSX، اختار XLSX بدل CSV.",
+          "en": "An Arabic CSV opened in Excel by double-clicking is sometimes read with the wrong encoding, so the Arabic shows as strange symbols — the file itself is fine.\n• Instead of opening it directly: in Excel ▸ Data ▸ From Text/CSV, and choose UTF-8 encoding.\n• If you'll work on it in Excel and the export offers XLSX, choose XLSX instead of CSV."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_garbled",
+            "weight": 4,
+            "source": "text"
+          },
+          {
+            "token": "entity_spreadsheet",
+            "weight": 2,
             "source": "text"
           }
         ]

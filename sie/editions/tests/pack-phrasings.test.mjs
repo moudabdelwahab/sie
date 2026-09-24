@@ -53,7 +53,7 @@ test('known limits still behave as documented (fixing one means updating the fix
 // pack is never tuned against them. Measured 2026-09-24: 15/51 land. This is
 // a floor (a change that loses one fails here) and a report, not a target.
 // Measured 2026-09-24. Floors, not targets.
-const HELDOUT_FLOOR = { pro: 15, max: 7 };
+const HELDOUT_FLOOR = { pro: 15, max: 12 };
 
 for (const pack of ['pro', 'max']) {
     test(`${pack} held-out paraphrases: landing rate never drops below what was measured`, async () => {
