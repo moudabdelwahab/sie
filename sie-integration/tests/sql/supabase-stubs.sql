@@ -42,6 +42,25 @@ create table if not exists public.customer_sie_access (
     updated_by uuid
 );
 
+-- Row-level security and grants exactly as production has them (pg_policy
+-- and information_schema.role_table_grants, read 2026-09-24). The broad
+-- table grants are Supabase's defaults; RLS is what actually guards the rows.
+grant usage on schema auth to anon, authenticated;
+grant all on public.customer_sie_access, public.sie_settings to anon, authenticated;
+alter table public.customer_sie_access enable row level security;
+drop policy if exists sie_access_select on public.customer_sie_access;
+create policy sie_access_select on public.customer_sie_access for select
+    using (is_sie_admin() or (user_id = auth.uid()));
+drop policy if exists sie_access_write on public.customer_sie_access;
+create policy sie_access_write on public.customer_sie_access for all
+    using (is_sie_admin()) with check (is_sie_admin());
+alter table public.sie_settings enable row level security;
+drop policy if exists sie_settings_read on public.sie_settings;
+create policy sie_settings_read on public.sie_settings for select to authenticated using (true);
+drop policy if exists sie_settings_write on public.sie_settings;
+create policy sie_settings_write on public.sie_settings for all to authenticated
+    using (is_chat_engine_staff()) with check (is_chat_engine_staff());
+
 -- The production functions 0009 replaces, verbatim (pg_get_functiondef,
 -- read 2026-09-24), so the migration is tested against what it drops.
 CREATE OR REPLACE FUNCTION public.sie_consume_message(p_user_id uuid)

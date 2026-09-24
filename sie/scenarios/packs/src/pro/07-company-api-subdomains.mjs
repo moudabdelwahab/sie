@@ -79,7 +79,7 @@ export default {
             `The limit for API keys is 60 calls per minute. Beyond it, requests return 429 until the minute passes.\n\nTo stay under it: batch requests instead of sending them one by one, cache results that rarely change, and on a 429 wait and back off gradually rather than retrying immediately.`),
         S('api_register_webhook_how', 'webhook/registration/customer_path', 'api',
             'أسجّل Webhook لأحداث التذاكر إزاي', 'How to register a webhook for ticket events',
-            'entity_webhook:490 intent_add:340 intent_how_to:170',
+            'entity_webhook:400 intent_add:520 intent_how_to:80',
             `تسجيل الـ Webhooks مش متاح من حسابك — إعداده بيتم من فريق المنصة. قولّي «افتح تذكرة» مع رابط الـ endpoint بتاعك والأحداث اللي عايزها، وأنا أبعت الطلب.\n\nولحد ما يتظبط، تقدر تسحب البيانات بنفسك بمفتاح API من «لوحة الشركة» ← الـ API.`,
             `Registering webhooks isn't available from your account — the platform team sets it up. Say "open a ticket" with your endpoint URL and the events you need, and I'll send the request.\n\nUntil it's set up, you can pull the data yourself with an API key from the "Company dashboard" → API.`,
             { alt: ['entity_webhook:490 atom_register:330 entity_ticket:180'] }),
@@ -107,9 +107,9 @@ export default {
             `A rejected request shows in "My requests" with status "Rejected", usually with a note giving the reason (an unsuitable or duplicate name, for example).\n\nRead the note and submit a new request with a different name. If there's no note or you disagree, tell me and I'll open a ticket.`),
         S('subdomain_rename_or_delete', 'domain/subdomain/rename_or_delete', 'other',
             'عايز أغيّر اسم النطاق الفرعي أو أمسحه', 'Rename or delete my subdomain',
-            'entity_subdomain:390 atom_change:139 atom_remove:235 entity_domain:235',
+            'entity_subdomain:390 atom_change:139 atom_remove:330 entity_domain:141',
             `تغيير اسم نطاق فرعي شغال أو حذفه بيتم من فريق المنصة، مش من حسابك. قولّي الاسم الحالي والجديد (أو إنك عايز تحذفه) وأنا أفتحلك تذكرة.\n\nخد بالك: بعد تغيير الاسم الرابط القديم بيوقف، فحدّث أي مكان كنت ناشره فيه.`,
             `Renaming or deleting a live subdomain is done by the platform team, not from your account. Tell me the current and new names (or that you want it deleted) and I'll open a ticket.\n\nNote: after a rename the old link stops working, so update anywhere you had shared it.`,
-            { alt: ['entity_subdomain:390 intent_change:223 intent_how_to:387', 'entity_subdomain:390 atom_remove:330 entity_domain:280'] })
+            { alt: ['entity_subdomain:390 intent_change:223 intent_how_to:387'] })
     ]
 };

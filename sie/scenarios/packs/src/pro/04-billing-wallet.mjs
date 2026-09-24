@@ -24,7 +24,7 @@ export default {
         T('entity_file_size_mb', 'حجم الملف بالميجا', 'file size in MB', ['ميجا', 'ميجابايت', 'mb', 'حجم الاثبات', 'حجمه كبير']),
         T('intent_subscribe', 'اشتراك جديد', 'subscribe', ['اشترك', 'عايز اشترك', 'ازاي اشترك', 'subscribe', 'اشتركت', 'بعد ما اشتركت']),
         T('entity_transactions', 'حركات الرصيد', 'balance transactions', ['الحركات', 'حركات الرصيد', 'المعاملات', 'transactions']),
-        T('entity_date_notes', 'ملاحظات على التواريخ', 'notes on dates', ['ملاحظات على التواريخ', 'التواريخ', 'تاريخ الانتهاء', 'تاريخ البداية', 'dates']),
+        T('entity_date_notes', 'ملاحظات على التواريخ', 'notes on dates', ['ملاحظات على التواريخ', 'تاريخ الانتهاء', 'تاريخ البداية']),
         T('entity_available_services', 'الخدمات المتاحة', 'available services', ['الخدمات المتاحة', 'الخدمات المتاحه', 'خدماتي', 'available services']),
         T('entity_low_balance', 'رصيد منخفض', 'low balance', ['رصيد منخفض', 'الرصيد قليل', 'نفد الرصيد', 'الرصيد نفد'])
     ],
@@ -73,7 +73,7 @@ export default {
             `Under "Usage & limits" you'll find the current WhatsApp balance and its last 5 transactions (top-ups or deductions).\n\nIf you need a longer statement, or a transaction isn't clear, give me its approximate date and I'll open a ticket for the finance team.`),
         S('billing_subscription_dates_notes', 'subscription/dates/inconsistent', 'subscription',
             'مكتوب «ملاحظات على التواريخ» في الاشتراك', '"Notes on the dates" on my subscription',
-            'entity_date_notes:508 entity_subscription:323 symptom_wrong_data:169',
+            'entity_date_notes:650 entity_subscription:230 symptom_wrong_data:120',
             `«ملاحظات على التواريخ» في لوحة الشركة بتشرح حاجة في تواريخ الاشتراك، ومش كلها مشكلة:\n• المدة خلصت والحالة لسه «نشط»: الخدمات اتسحبت فعلًا، والحالة بتتصحح لوحدها خلال ساعة.\n• تداخل مع اشتراك تاني في نفس الباقة: المدتين بيغطوا نفس الفترة، والخدمات مابتتضاعفش.\n• فترة انقطاع بين الاشتراك واللي قبله: أيام ماكانتش الخدمات متاحة فيها.\n• ساعة جهازك مختلفة عن الخادم بأكتر من يوم: الأرقام محسوبة على ساعة الخادم، وهي المعتمدة.\n\nأما «تاريخ النهاية قبل البداية» أو «تاريخ غير صالح» فده سجل غلط — ابعتلي اسم الاشتراك وأنا أفتح تذكرة للفريق يصححه.`,
             `"Notes on the dates" in the company dashboard explain something about a subscription's dates, and not all of them are problems:\n• Period ended but status still "active": the services are already withdrawn, and the status corrects itself within an hour.\n• Overlaps another subscription on the same plan: both periods cover the same days, and services don't double.\n• A gap between this subscription and the previous one: days when the services weren't available.\n• Your device clock differs from the server's by more than a day: the figures use the server clock, which is authoritative.\n\n"End date before start date" or "invalid date" means the record itself is wrong — send me the subscription's name and I'll open a ticket for the team to fix it.`),
         S('billing_available_services_missing', 'subscription/available_services/missing', 'subscription',

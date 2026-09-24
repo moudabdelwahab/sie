@@ -21,7 +21,7 @@
 import { validateCatalog } from '../scenarios/scenario-types.js';
 import { scenarioTokens } from '../scenarios/scenario-types.js';
 import { EDITION_PACKS, resolveEditionProfile } from './editions.js';
-import { checkPackScenario, checkPackGlossaryEntry } from './pack-guard.js';
+import { checkPackScenario, checkPackGlossaryEntry, PACK_LIMITS } from './pack-guard.js';
 
 /**
  * @param {Object} loaders
@@ -37,7 +37,7 @@ export function createEditionCatalogs(loaders) {
             const p = (async () => {
                 if (name === 'core') {
                     const scenarios = await loaders.coreScenarios();
-                    return { scenarios, glossary: null, warnings: [] };
+                    return { scenarios, glossary: null, genericTokens: [], warnings: [] };
                 }
                 const raw = await loaders.pack(name);
                 const { valid, invalid } = validateCatalog(Array.isArray(raw?.scenarios) ? raw.scenarios : []);
@@ -58,7 +58,11 @@ export function createEditionCatalogs(loaders) {
                     if (why.length) warnings.push(`Skipped ${name} glossary entry (${e?.canonical ?? 'unknown'}) by pack guard: ${why.join('; ')}`);
                     else glossary.push(e);
                 }
-                return { scenarios: guarded, glossary, warnings };
+                // Generic words (packs/src/policy.mjs): plain token names only;
+                // anything else in the list is dropped, not trusted.
+                const genericTokens = (Array.isArray(raw?.genericTokens) ? raw.genericTokens : [])
+                    .filter((t) => typeof t === 'string' && PACK_LIMITS.tokenPattern.test(t)).slice(0, 500);
+                return { scenarios: guarded, glossary, genericTokens, warnings };
             })();
             // A failed load is not cached: the next turn retries instead of
             // serving a permanently degraded edition from one bad fetch.
@@ -99,7 +103,12 @@ export function createEditionCatalogs(loaders) {
                     packCounts[name] = kept;
                     if (pack.glossary && pack.glossary.length) glossaryLayers.push(pack.glossary);
                 });
-                return Object.freeze({ profile, scenarios, glossaryLayers, packCounts, warnings });
+                // Ids a pack added on top of the core — what the Free floor
+                // (edition-turn.freeFloor) needs to know to take them out.
+                const coreName = EDITION_PACKS[profile.edition][0];
+                const packIds = new Set(scenarios.slice(packCounts[coreName] || 0).map((s) => s.id));
+                const genericTokens = new Set(packs.flatMap((pk) => pk.genericTokens || []));
+                return Object.freeze({ profile, scenarios, glossaryLayers, packCounts, packIds, genericTokens, warnings });
             })();
             p.catch(() => assembled.delete(key));
             assembled.set(key, p);

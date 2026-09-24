@@ -29,7 +29,7 @@ export async function snapshotEdition(edition, messages) {
         catalog: ed.scenarios,
         providers: { glossaryProvider: ed.providers.glossaryProvider, arabiziProvider: ed.providers.arabiziProvider },
         variant: 'retrieval_only',
-        edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers }
+        edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers, packIds: ed.packIds, genericTokens: ed.genericTokens }
     });
 }
 

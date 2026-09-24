@@ -69,7 +69,7 @@ test('fact (a+b) on the real pipeline: every observed presence is ≥ 0.75', asy
         for (const m of corpus.slice(i, i + 3)) {
             const r = await runTurn({ text: m.text, catalog: pro.scenarios, previous, settings: SIE_DEFAULT_SETTINGS, variant,
                 providers: { glossaryProvider: pro.providers.glossaryProvider, arabiziProvider: pro.providers.arabiziProvider },
-                edition: { profile: pro.profile, glossaryLayers: pro.glossaryLayers } });
+                edition: { profile: pro.profile, glossaryLayers: pro.glossaryLayers, packIds: pro.packIds, genericTokens: pro.genericTokens } });
             for (const [t, p] of getAllTokenPresences(r.diagnosticState?.accumulator)) {
                 seen += 1;
                 if (p < OBSERVED_PRESENCE_MIN - 1e-9) low.push(`${t}=${p} «${m.text}»`);
@@ -87,7 +87,7 @@ test('fact (a+b) on the real pipeline: every observed presence is ≥ 0.75', asy
 function simulated(p, a, c2, d) {
     const cands = [d * a, d * c2].filter((x) => x >= ACT);
     const freeDecisive = cands.length > 0 && (cands.length === 1 || cands[0] - cands[1] >= M);
-    const rival = d * p >= ACT && d * a - d * p < M;
+    const rival = d * p >= ACT && Math.abs(d * a - d * p) < M;
     return freeDecisive && rival;
 }
 

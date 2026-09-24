@@ -24,7 +24,7 @@ import { S, T } from '../dsl.mjs';
 
 export default {
     tokens: [
-        T('entity_assistant', 'المساعد الذكي', 'the smart assistant', ['المساعد الذكي', 'المحرك الذكي', 'المساعد', 'المحرك', 'sie']),
+        T('entity_assistant', 'المساعد الذكي', 'the smart assistant', ['المساعد الذكي', 'المحرك الذكي', 'المساعد']),
         T('entity_message_quota', 'حصة رسائل المساعد', 'assistant message quota', ['حصة الرسايل', 'حصه الرسايل', 'الحصة', 'الحصه', 'الكوتة', 'الكوته', 'رصيد الرسايل', 'quota']),
         T('entity_access_period', 'صلاحية الوصول', 'access period', ['صلاحية الوصول', 'صلاحيه الوصول', 'مدة الوصول']),
         T('entity_link_code', 'كود الربط', 'link code', ['كود الربط', 'كود ربط', 'link code']),
@@ -58,10 +58,9 @@ export default {
             { alt: ['entity_assistant:429 entity_telegram:356 intent_how_to:214'] }),
         S('assistant_link_code_rejected', 'assistant/telegram/link_code_rejected', 'other',
             'كود ربط تيليجرام مش شغال', 'The Telegram link code is not working',
-            'entity_link_code:327 symptom_rejected:336 entity_telegram:336',
+            'entity_link_code:357 symptom_not_working:390 symptom_rejected:253',
             `لو البوت رد إن «الكود ده مش مظبوط أو انتهت صلاحيته»:\n• الكود لمرة واحدة وليه مدة — اطلب كود جديد من صفحة الإعدادات.\n• ابعته لوحده في رسالة، من غير مسافات أو كلام قبله.\n• اتأكد إنك بتبعته للبوت الصح.\n\nولو رد «حصلت مشكلة مؤقتة»، ده من عندنا — استنى دقيقة وجرّب تاني.`,
-            `If the bot replies that "this code isn't right or has expired":\n• codes are single-use and time-limited — request a new one from the settings page;\n• send it alone in a message, with no spaces or text before it;\n• make sure you're sending it to the right bot.\n\nIf it replies "a temporary problem occurred", that's on our side — wait a minute and try again.`,
-            { alt: ['entity_link_code:327 symptom_not_working:390 symptom_rejected:283', 'entity_link_code:327 symptom_expired:190 entity_telegram:241 symptom_rejected:241'] }),
+            `If the bot replies that "this code isn't right or has expired":\n• codes are single-use and time-limited — request a new one from the settings page;\n• send it alone in a message, with no spaces or text before it;\n• make sure you're sending it to the right bot.\n\nIf it replies "a temporary problem occurred", that's on our side — wait a minute and try again.`),
         S('assistant_unlink_telegram', 'assistant/telegram/unlink', 'other',
             'عايز أفك ربط تيليجرام بحسابي', 'Unlink Telegram from my account',
             'intent_unlink:4 entity_telegram:2',

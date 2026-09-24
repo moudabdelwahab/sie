@@ -19,9 +19,11 @@ export function readBaseGlossary() { return read('sie/language/data/technical-gl
 export function readPack(name) {
     const catalog = path.join(ROOT, `sie/scenarios/scenario-catalog.data/pack-${name}.json`);
     const glossary = path.join(ROOT, `sie/language/data/glossary-pack-${name}.json`);
-    if (!fs.existsSync(catalog)) return { scenarios: [], glossary: [] };
+    if (!fs.existsSync(catalog)) return { scenarios: [], glossary: [], genericTokens: [] };
+    const data = JSON.parse(fs.readFileSync(catalog, 'utf8'));
     return {
-        scenarios: JSON.parse(fs.readFileSync(catalog, 'utf8')).scenarios,
+        scenarios: data.scenarios,
+        genericTokens: data.genericTokens || [],
         glossary: fs.existsSync(glossary) ? JSON.parse(fs.readFileSync(glossary, 'utf8')).entries : []
     };
 }

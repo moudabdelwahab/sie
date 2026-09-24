@@ -72,7 +72,7 @@ export function padCatalog(base, target, seed = 7) {
 
 async function measure(name, catalog, edition, messages, providers) {
     const profile = { ...edition.profile, maxScenarios: catalog.length };
-    const ed = { profile, glossaryLayers: edition.glossaryLayers };
+    const ed = { profile, glossaryLayers: edition.glossaryLayers, packIds: new Set(catalog.slice(readCore().length).map((s) => s.id)), genericTokens: edition.genericTokens };
     const before = heap();
     // Cold: a fresh array identity forces index construction on first use.
     const fresh = catalog.map((s) => s);

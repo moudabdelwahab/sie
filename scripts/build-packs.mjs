@@ -18,6 +18,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { GENERIC_WORDS } from '../sie/scenarios/packs/src/policy.mjs';
+
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'sie/scenarios/packs/src');
 
@@ -33,7 +35,9 @@ export async function compilePack(pack) {
         for (const s of list) scenarios.push(s);
     }
     return {
-        catalog: { pack, scenarios },
+        // Generic everyday words ship WITH the pack, so the runtime guard
+        // (edition-turn.freeFloor) reads the same list the author wrote.
+        catalog: { pack, genericTokens: [...(GENERIC_WORDS[pack] || [])], scenarios },
         glossary: { pack, entries: entries.map(({ source, ...e }) => e) }
     };
 }

@@ -52,7 +52,7 @@ import { migrateState, updateSparseState, expandHypotheses, isSparseState } from
 import { interpretTurn, interpretationTrace, TURN_KINDS } from './interpretation.js';
 import { scopeCandidates } from './candidate-scope.js';
 import { evidenceFromQuestionAnswer } from '../diagnostics/question-answer.js';
-import { capEvidenceTokens } from '../editions/edition-turn.js';
+import { capEvidenceTokens, freeFloor } from '../editions/edition-turn.js';
 
 export { TURN_KINDS };
 
@@ -100,6 +100,11 @@ const now = () => Number(process.hrtime.bigint()) / 1e6;
  */
 export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {}, rankingOptions = {}, edition = null }) {
     const cfg = resolveVariant(variant);
+    // A bigger edition without its pack ids would run without the Free floor
+    // and still look like it worked. Refuse instead.
+    if (edition && edition.profile?.edition !== 'free' && !(edition.packIds instanceof Set && edition.genericTokens instanceof Set)) {
+        throw new TypeError(`runTurn: edition "${edition.profile?.edition}" needs packIds and genericTokens (the assembly's) for the Free floor`);
+    }
     const timings = {};
     const turn = (previous?.turnCount || 0) + 1;
 
@@ -197,18 +202,25 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     // is empty whenever the message shares no vocabulary with any scenario,
     // and the decision engine has to be able to tell that from a catalog that
     // failed to load. See R4_EMPTY_SCOPE.
-    const ranking = rankHypotheses(hypotheses, scope.scenarios, { ...rankingOptions, activationThreshold, catalogSize: catalog.length });
+    const rankOptions = { ...rankingOptions, activationThreshold, catalogSize: catalog.length };
+    const ranking = rankHypotheses(hypotheses, scope.scenarios, rankOptions);
     timings.ranking = now() - t;
 
     // ── Decision ───────────────────────────────────────────────
     t = now();
     const newEvidenceAddedThisTurn = (accumulator.entries || []).filter((e) => e.turn === turn).length;
-    const { decision, decisionState } = decide({
-        ranking, turn,
+    const decideWith = (r) => decide({
+        ranking: r, turn,
         previousDecisionState: previous?.decisionState,
         newEvidenceAddedThisTurn,
         policy: buildPolicy(settings, activationThreshold),
         customerSignal: interpretation.resolutionSignal
+    });
+    // The Free floor (edition-turn.freeFloor): a stand-off a pack created is
+    // never escalated past what Free would do. Inert for Free.
+    const { decision, decisionState, floored } = freeFloor({
+        ...decideWith(ranking), ranking, hypotheses, scenarios: scope.scenarios,
+        packIds: edition?.packIds, genericTokens: edition?.genericTokens, rankOptions, decideWith
     });
     timings.decision = now() - t;
 
@@ -227,7 +239,7 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     return {
         variant: cfg.name, turn, interpretation, trustEnvelope,
         responseLanguage: normalized.responseLanguage,
-        ranking, decision: authorized, actionDowngraded: downgraded, decisionState,
+        ranking, decision: authorized, actionDowngraded: downgraded, editionFloor: floored, decisionState,
         diagnosticState,
         evidenceAdmitted: admitted.length, evidenceDropped: dropped, evidenceCapped: capped.dropped,
         questionAnswer: answered ? { scenarioId: answered.scenarioId, questionId: answered.questionId, option: answered.optionValue } : null,

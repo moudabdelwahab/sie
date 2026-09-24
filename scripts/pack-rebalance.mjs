@@ -85,7 +85,12 @@ for (const t of coreTokens) {
 // Pack scenarios get their confidence from their OWN evidence: core words
 // together carry at most CORE_SHARE_MAX of any pack signature, so a message
 // made only of core words never crowns a pack scenario.
-const CORE_SHARE_MAX = 1; // group cap disabled: measured, not needed — see the report
+// Group cap disabled on purpose. Word SETS are judged exactly by the audit
+// (edition-audit word_set_competition, the real ranking at presences
+// 0.75–1). Approximating that here with one cap on all core words, from the
+// strictest subset, made 45 signatures infeasible; the 9 real findings were
+// fixed by hand with distinctive words instead.
+const CORE_SHARE_MAX = 1;
 const usage = new Map();
 for (const s of packScenarios) for (const t of scenarioTokens(s)) usage.set(t, (usage.get(t) || 0) + 1);
 
@@ -132,7 +137,8 @@ for (const s of packScenarios) {
 // large" and tied with an unrelated core reading of the rest of a message.
 const GLUE = new Set([
     'entity_too_big', 'entity_service_word', 'atom_link', 'entity_arabic_word',
-    'entity_what_is', 'symptom_not_happening', 'atom_code', 'entity_key_word', 'entity_merge_plan', 'entity_not_accepted'
+    'entity_what_is', 'symptom_not_happening', 'atom_code', 'entity_key_word', 'entity_merge_plan', 'entity_not_accepted',
+    'entity_official_word'
 ]);
 
 function cap(t, scenarioId, authoredShare = 1) {

@@ -39,11 +39,12 @@ test('T-1: the lint catches the attacks it exists for, and not the safe advice',
     for (const bad of [
         'اضغط [هنا](https://evil.example/login)', '<script>alert(1)</script>', '<a href="x">اضغط</a>',
         'ادخل على https://mad3oom-support.help/reset', 'حوّل على evil.xyz/pay',
-        'ابعتلي كلمة المرور بتاعتك', 'قولي رمز التحقق اللي وصلك', 'send me your password'
+        'ابعتلي كلمة المرور بتاعتك', 'قولي رمز التحقق اللي وصلك', 'send me your password',
+        'الحد بيتحسب في sie_consume_message', 'اتأكد من SUPABASE_SERVICE_KEY', 'شوف supabase/functions/sie-api/index.ts'
     ]) assert.ok(lintAnswerText(bad).length > 0, `not caught: ${bad}`);
     for (const ok of [
         'ماتبعتش كلمة المرور لحد، ولا في التذكرة.', 'افتح https://mad3oom.com/tickets', 'Authorization: Bearer <token>',
-        'قولي الكود وأنا أراجعه', 'support@mad3oom.com'
+        'قولي الكود وأنا أراجعه', 'support@mad3oom.com', 'Authorization: Bearer <api_key>.<secret>', 'مثال: My_Store'
     ]) assert.deepEqual(lintAnswerText(ok), [], `false positive: ${ok}`);
 });
 
@@ -51,6 +52,7 @@ test('T-1: the lint catches the attacks it exists for, and not the safe advice',
 
 const coreVictim = core[0];
 const MALICIOUS = {
+    genericTokens: ['entity_ok', 'Bad Token!', 42, null],
     scenarios: [
         { ...coreVictim, resolution: { hasAutoResolution: true, text: { ar: 'مخترق', en: 'owned' } } },  // steals a core id
         mk('phish', 'اضغط [هنا](https://evil.example/login) عشان تكمل'),
@@ -90,6 +92,7 @@ test('T-2: a malicious pack loses every bad item and cannot touch the core', asy
     assert.ok(ids.has('fine_one'), 'a valid item in the same pack still loads');
     assert.deepEqual(a.glossaryLayers.flat().map((e) => e.canonical), ['entity_ok'], 'only the valid glossary entry survives');
     assert.ok(a.warnings.length >= 9, 'every rejection is recorded');
+    assert.deepEqual([...a.genericTokens], ['entity_ok'], 'a tampered generic-word list keeps only plain token names');
 });
 
 test('T-2: a pack file that is not even a pack degrades to nothing, not to a crash', async () => {
@@ -127,7 +130,7 @@ for (const variantName of ['enforce', 'off']) {
             const ed = await nodeEdition(edition, SIE_DEFAULT_SETTINGS);
             return runTurn({ text, catalog: ed.scenarios, settings: SIE_DEFAULT_SETTINGS, variant,
                 providers: { glossaryProvider: ed.providers.glossaryProvider, arabiziProvider: ed.providers.arabiziProvider },
-                edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers } });
+                edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers, packIds: ed.packIds, genericTokens: ed.genericTokens } });
         };
         const worse = [];
         for (const a of ATTACKS) {

@@ -159,4 +159,35 @@ do $$ begin
     end;
 end $$;
 
+-- 9. A customer cannot raise their own edition — run AS the customer, under
+--    the production RLS policies (supabase-stubs.sql), not as the superuser
+--    the rest of this file uses.
+set test.admin = 'false';
+set test.role = 'authenticated';
+set test.uid = '00000000-0000-0000-0000-00000000000b';
+set role authenticated;
+update customer_sie_access set edition = 'max', message_quota = 1000000 where user_id = '00000000-0000-0000-0000-00000000000b';
+update sie_settings set value = '"max"' where key = 'default_edition';
+do $$ begin
+    begin
+        insert into customer_sie_access (user_id, is_enabled, edition) values ('00000000-0000-0000-0000-00000000000d', true, 'max');
+        raise exception 'FAIL: a customer inserted an access row';
+    exception when insufficient_privilege then raise notice 'ok  a customer cannot insert an access row (RLS)';
+    end;
+end $$;
+select pg_temp.eq((select count(*)::int from customer_sie_access), 1, 'a customer sees only their own access row');
+do $$ begin
+    begin
+        perform sie_edition_setting_int('pro', 'monthly_messages');
+        raise exception 'FAIL: a customer called an internal function';
+    exception when insufficient_privilege then raise notice 'ok  the internal edition functions are not callable by a customer';
+    end;
+end $$;
+reset role;
+reset test.uid;
+select pg_temp.eq((select edition from customer_sie_access where user_id = '00000000-0000-0000-0000-00000000000b'), null::text, 'the customer''s own UPDATE of edition changed nothing');
+select pg_temp.eq((select message_quota from customer_sie_access where user_id = '00000000-0000-0000-0000-00000000000b'), 3, '...nor their quota');
+select pg_temp.eq((select value #>> '{}' from sie_settings where key = 'default_edition'), 'free', 'a customer cannot change default_edition');
+select pg_temp.eq((select count(*)::int from customer_sie_access where user_id = '00000000-0000-0000-0000-00000000000d'), 0, 'no row was inserted');
+
 \echo ALL EDITION MIGRATION CHECKS PASSED

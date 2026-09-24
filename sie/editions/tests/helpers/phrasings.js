@@ -18,7 +18,7 @@ export async function checkPhrasings(pack, { edition = pack } = {}) {
     const providers = { glossaryProvider: ed.providers.glossaryProvider, arabiziProvider: ed.providers.arabiziProvider };
     const results = [];
     for (const [expect, text] of readPhrasings(pack)) {
-        const r = await runTurn({ text, catalog: ed.scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only', providers, edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers } });
+        const r = await runTurn({ text, catalog: ed.scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only', providers, edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers, packIds: ed.packIds, genericTokens: ed.genericTokens } });
         const got = r.decision?.scenarioId ?? null;
         const ambiguous = Boolean(r.ranking?.isAmbiguous);
         results.push({

@@ -1,5 +1,28 @@
 {
   "pack": "pro",
+  "genericTokens": [
+    "entity_closed_state",
+    "entity_turn_off",
+    "entity_colleague",
+    "entity_my_name",
+    "entity_early_timing",
+    "entity_coming_soon",
+    "entity_useful_vote",
+    "intent_thank_agent",
+    "entity_ticket_draft_lost",
+    "entity_attach_in_reply",
+    "entity_reply_unclear",
+    "entity_not_started",
+    "entity_operator_scope",
+    "entity_key_state",
+    "intent_hide_ticket",
+    "entity_how_will_i_know",
+    "entity_post_topic",
+    "entity_ticket_counter",
+    "entity_linked_word",
+    "entity_traditional_mode",
+    "entity_sample_data"
+  ],
   "scenarios": [
     {
       "id": "ticket_awaiting_customer_reply",
@@ -660,7 +683,7 @@
       "evidenceSignature": [
         {
           "token": "entity_ticket_counter",
-          "weight": 3,
+          "weight": 6,
           "source": "text"
         },
         {
@@ -2949,17 +2972,17 @@
       "evidenceSignature": [
         {
           "token": "entity_date_notes",
-          "weight": 508,
+          "weight": 650,
           "source": "text"
         },
         {
           "token": "entity_subscription",
-          "weight": 323,
+          "weight": 230,
           "source": "text"
         },
         {
           "token": "symptom_wrong_data",
-          "weight": 169,
+          "weight": 120,
           "source": "text"
         }
       ],
@@ -3198,17 +3221,17 @@
       "evidenceSignature": [
         {
           "token": "entity_link_code",
-          "weight": 327,
+          "weight": 357,
+          "source": "text"
+        },
+        {
+          "token": "symptom_not_working",
+          "weight": 390,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 336,
-          "source": "text"
-        },
-        {
-          "token": "entity_telegram",
-          "weight": 336,
+          "weight": 253,
           "source": "text"
         }
       ],
@@ -3220,48 +3243,7 @@
           "en": "If the bot replies that \"this code isn't right or has expired\":\n• codes are single-use and time-limited — request a new one from the settings page;\n• send it alone in a message, with no spaces or text before it;\n• make sure you're sending it to the right bot.\n\nIf it replies \"a temporary problem occurred\", that's on our side — wait a minute and try again."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "entity_link_code",
-            "weight": 327,
-            "source": "text"
-          },
-          {
-            "token": "symptom_not_working",
-            "weight": 390,
-            "source": "text"
-          },
-          {
-            "token": "symptom_rejected",
-            "weight": 283,
-            "source": "text"
-          }
-        ],
-        [
-          {
-            "token": "entity_link_code",
-            "weight": 327,
-            "source": "text"
-          },
-          {
-            "token": "symptom_expired",
-            "weight": 190,
-            "source": "text"
-          },
-          {
-            "token": "entity_telegram",
-            "weight": 241,
-            "source": "text"
-          },
-          {
-            "token": "symptom_rejected",
-            "weight": 241,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "assistant_unlink_telegram",
@@ -3764,12 +3746,12 @@
         [
           {
             "token": "entity_sender_address",
-            "weight": 3,
+            "weight": 860,
             "source": "text"
           },
           {
             "token": "entity_official_word",
-            "weight": 2,
+            "weight": 139,
             "source": "text"
           }
         ]
@@ -3981,18 +3963,18 @@
       "alternativeSignatures": [
         [
           {
+            "token": "entity_linked_word",
+            "weight": 640,
+            "source": "text"
+          },
+          {
             "token": "intent_change",
-            "weight": 223,
+            "weight": 150,
             "source": "text"
           },
           {
             "token": "entity_whatsapp_number",
-            "weight": 390,
-            "source": "text"
-          },
-          {
-            "token": "entity_whatsapp",
-            "weight": 387,
+            "weight": 210,
             "source": "text"
           }
         ]
@@ -4364,17 +4346,17 @@
       "evidenceSignature": [
         {
           "token": "entity_webhook",
-          "weight": 490,
+          "weight": 400,
           "source": "text"
         },
         {
           "token": "intent_add",
-          "weight": 340,
+          "weight": 520,
           "source": "text"
         },
         {
           "token": "intent_how_to",
-          "weight": 170,
+          "weight": 80,
           "source": "text"
         }
       ],
@@ -4601,12 +4583,12 @@
         },
         {
           "token": "atom_remove",
-          "weight": 235,
+          "weight": 330,
           "source": "text"
         },
         {
           "token": "entity_domain",
-          "weight": 235,
+          "weight": 141,
           "source": "text"
         }
       ],
@@ -4634,23 +4616,6 @@
           {
             "token": "intent_how_to",
             "weight": 387,
-            "source": "text"
-          }
-        ],
-        [
-          {
-            "token": "entity_subdomain",
-            "weight": 390,
-            "source": "text"
-          },
-          {
-            "token": "atom_remove",
-            "weight": 330,
-            "source": "text"
-          },
-          {
-            "token": "entity_domain",
-            "weight": 280,
             "source": "text"
           }
         ]
@@ -5045,17 +5010,22 @@
       "evidenceSignature": [
         {
           "token": "entity_official_word",
-          "weight": 203,
+          "weight": 139,
           "source": "text"
         },
         {
           "token": "entity_whatsapp",
-          "weight": 390,
+          "weight": 265,
           "source": "text"
         },
         {
           "token": "intent_compare",
-          "weight": 407,
+          "weight": 331,
+          "source": "text"
+        },
+        {
+          "token": "entity_api",
+          "weight": 265,
           "source": "text"
         }
       ],
@@ -5661,7 +5631,7 @@
         [
           {
             "token": "entity_one_time_secret",
-            "weight": 645,
+            "weight": 536,
             "source": "text"
           },
           {
@@ -5671,7 +5641,7 @@
           },
           {
             "token": "intent_recover",
-            "weight": 215,
+            "weight": 323,
             "source": "text"
           }
         ]
@@ -6405,12 +6375,12 @@
         [
           {
             "token": "entity_2fa",
-            "weight": 390,
+            "weight": 370,
             "source": "text"
           },
           {
             "token": "entity_otp",
-            "weight": 153,
+            "weight": 130,
             "source": "text"
           },
           {
@@ -6420,7 +6390,7 @@
           },
           {
             "token": "entity_trust_device",
-            "weight": 153,
+            "weight": 195,
             "source": "text"
           }
         ]

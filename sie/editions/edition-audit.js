@@ -48,6 +48,12 @@
  *                            «مرفوض», «مشكلة», «تيليجرام» each became a Pro
  *                            ticket where Free asked a question.
  *
+ *     word_set_competition   the same rule for every set of 2+ core words a
+ *                            pack signature carries, against the core's own
+ *                            readings of that set («تيليجرام بيرفض»: Pro's
+ *                            "link code rejected" tied core "channel token
+ *                            invalid" at 0.67).
+ *
  * The reviewed allowlist (sie/scenarios/tests/fixtures/reviewed-pairs.json)
  * is the ONLY way a flagged pair ships, and every entry carries the reason a
  * human (or the author, in writing) decided they are different cases.
@@ -58,9 +64,12 @@ import {
     analyzeReachability, findStructuralDuplicates, findSemanticNearDuplicates, findSynonymTokens
 } from '../scenarios/catalog-audit.js';
 import { normalizeArabicToken } from '../language/dialect-normalizer.js';
-import { computeScenarioConfidence, ACTIVATION_THRESHOLD } from '../diagnostics/hypothesis-tracker.js';
-import { AMBIGUITY_MARGIN } from '../ranking/ranking-engine.js';
-import { standOffPresence } from './stand-off.js';
+import { computeScenarioConfidence, updateHypotheses, ACTIVATION_THRESHOLD } from '../diagnostics/hypothesis-tracker.js';
+import { AMBIGUITY_MARGIN, rankHypotheses } from '../ranking/ranking-engine.js';
+
+/** Presences the word-set check ranks at: the engine's range, 0.75–1. */
+const PRESENCE_GRID = Array.from({ length: 11 }, (_, i) => 1 - i * (1 - OBSERVED_PRESENCE_MIN) / 10);
+import { standOffPresence, wordSets, OBSERVED_PRESENCE_MIN } from './stand-off.js';
 
 function normPattern(p) {
     return String(p || '').split(/\s+/).map((w) => (/[؀-ۿ]/.test(w) ? normalizeArabicToken(w) : w.toLowerCase())).filter(Boolean).join(' ');
@@ -238,6 +247,58 @@ export async function auditEditions({ core, baseGlossary, packs, providers, revi
                 pack.sort((a, b) => b.c - a.c);
                 const tied = pack.slice(1).filter((x) => pack[0].c - x.c < AMBIGUITY_MARGIN - 1e-9 || standOffPresence(x.c, pack[0].c, 0) !== null).map((x) => x.id);
                 if (tied.length) add('single_token_competition', { edition: ed.name, token: t, leader: pack[0].id, tied, confidence: round3(pack[0].c), coreBest: 0 });
+            }
+        }
+    }
+
+    // The same for every SET of core words a pack signature carries: a
+    // message made only of core words must not meet a pack reading that
+    // stands off against the core's own reading of those words. Judged by
+    // the REAL ranking (rankHypotheses: margin, specificity, subsumption) over
+    // the edition's scenarios and over the core's alone, at presences across
+    // the range the engine produces (stand-off.js): a finding is "the edition
+    // is ambiguous where the core alone is not". A clear, more specific pack
+    // win is allowed — that is what a pack adds; the no-regression gate
+    // guards core answers.
+    for (const ed of editions) {
+        if (ed.name === 'free') continue;
+        const coreCatalog = editions[0].catalog;
+        const coreTok = new Set(coreCatalog.flatMap((sc) => [...scenarioTokens(sc)]));
+        const coreIdSet = new Set(coreCatalog.map((sc) => sc.id));
+        const byToken = new Map();
+        for (const sc of ed.catalog) for (const t of scenarioTokens(sc)) {
+            if (!byToken.has(t)) byToken.set(t, []);
+            byToken.get(t).push(sc);
+        }
+        const rankAt = (scenarios, set, d) => {
+            const presence = new Map(set.map((t) => [t, d]));
+            return rankHypotheses(updateHypotheses(scenarios, presence, [], 1), scenarios, { activationThreshold: ACTIVATION_THRESHOLD, catalogSize: scenarios.length });
+        };
+        const seen = new Set();
+        for (const sc of ed.catalog) {
+            if (coreIdSet.has(sc.id)) continue;
+            for (const sig of scenarioSignatures(sc)) {
+                const coreWords = [...new Set(sig.map((e) => e.token).filter((t) => coreTok.has(t)))];
+                for (const set of wordSets(coreWords)) {
+                    const key = [...set].sort().join(' ');
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+                    const touched = [...new Set(set.flatMap((t) => byToken.get(t) || []))];
+                    const touchedCore = touched.filter((x) => coreIdSet.has(x.id));
+                    for (const d of PRESENCE_GRID) {
+                        const coreRank = rankAt(touchedCore, set, d);
+                        if (!coreRank.topHypothesis || coreRank.topHypothesis.hypothesis.confidence < ACTIVATION_THRESHOLD || coreRank.isAmbiguous) continue;
+                        const edRank = rankAt(touched, set, d);
+                        if (!edRank.isAmbiguous) continue;
+                        add('word_set_competition', {
+                            edition: ed.name, words: set, atPresence: round3(d),
+                            core: `${coreRank.topHypothesis.hypothesis.scenarioId} ${round3(coreRank.topHypothesis.hypothesis.confidence)}`,
+                            standOff: [edRank.topHypothesis, edRank.runnerUp].map((e) => `${e.hypothesis.scenarioId} ${round3(e.hypothesis.confidence)}`),
+                            packInTop: edRank.ranked.slice(0, 4).filter((e) => !coreIdSet.has(e.hypothesis.scenarioId)).map((e) => `${e.hypothesis.scenarioId} ${round3(e.hypothesis.confidence)}`)
+                        });
+                        break;
+                    }
+                }
             }
         }
     }

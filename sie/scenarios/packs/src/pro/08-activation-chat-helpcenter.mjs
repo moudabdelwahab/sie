@@ -25,7 +25,7 @@ export default {
         T('entity_waitlist', 'قائمة الانتظار', 'waitlist', ['قائمة الانتظار', 'قايمة الانتظار', 'قايمه الانتظار', 'ويت ليست', 'waitlist']),
         T('entity_passcode', 'كود المرور', 'passcode', ['كود المرور', 'كود مرور', 'passcode']),
         T('symptom_already_registered', 'متسجل على حساب تاني', 'already registered', ['متسجل قبل كده', 'مستخدم قبل كده', 'متسجل على حساب تاني', 'already registered', 'already used']),
-        T('entity_invoice_verify', 'التحقق من صحة الفاتورة', 'invoice verification', ['التحقق من', 'اتاكد انها صحيحة', 'مزورة', 'مزوره', 'صحيحه', 'verify']),
+        T('entity_invoice_verify', 'التحقق من صحة الفاتورة', 'invoice verification', ['اتاكد انها صحيحة', 'مزورة', 'مزوره']),
         T('entity_chat_ended', 'إنهاء المحادثة', 'chat ended', ['انهيت', 'انهيتها', 'قفلت', 'اتقفلت مني', 'ended']),
         T('entity_live_word', 'الفورية', 'live', ['الفورية', 'الفوريه', 'لايف شات', 'live']),
         T('entity_article', 'مقال في مركز المساعدة', 'help article', ['مقال', 'المقالات', 'مقاله', 'مقالة', 'article', 'articles']),
@@ -95,7 +95,7 @@ export default {
             { alt: ['entity_gateway_word:338 entity_payment:323 symptom_not_working:338'] }),
         S('whatsapp_cloud_api_vs_app', 'whatsapp/cloud_api/compare_app', 'inquiry',
             'الفرق بين WhatsApp Cloud API والواتساب العادي', 'WhatsApp Cloud API vs the regular app',
-            'entity_official_word:203 entity_whatsapp:390 intent_compare:407',
+            'entity_official_word:139 entity_whatsapp:265 intent_compare:331 entity_api:265',
             `خدمة الواتساب في مدعوم مبنية على WhatsApp Cloud API الرسمي من ميتا، والفرق عن الواتساب العادي:\n• أكتر من موظف يردوا من نفس الرقم في نفس الوقت.\n• الرسايل اللي بتبدأها إنت بره نافذة الـ ٢٤ ساعة لازم تكون بقالب معتمد.\n• الرقم المربوط بالـ API مابيشتغلش في نفس الوقت على تطبيق الواتساب العادي.\n\nلو محتاج تعرف تفاصيل الباقات، صفحة مقارنة حلول الواتساب بتوضحها.`,
             `Mad3oom's WhatsApp service is built on Meta's official WhatsApp Cloud API. Compared with the regular app:\n• several agents can reply from the same number at once;\n• messages you initiate outside the 24-hour window must use an approved template;\n• a number connected to the API can't be used at the same time in the regular WhatsApp app.\n\nThe WhatsApp solutions comparison page explains the plans in detail.`)
     ]

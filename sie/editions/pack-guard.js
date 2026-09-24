@@ -20,7 +20,8 @@
  *               bounded in count (a 10,000-token signature is a CPU attack)
  *   size        answers, labels and patterns bounded in length
  *   content     answer text carries no links, no markup, no instruction to
- *               hand over a credential (lintAnswerText — also run over the
+ *               hand over a credential, no internal identifier (table,
+ *               function, role, env var, source path) (lintAnswerText — also run over the
  *               core in CI, sie/editions/tests/pack-security.test.mjs)
  *
  * Every check returns reasons instead of throwing; the loader skips the item
@@ -76,6 +77,14 @@ export function lintAnswerText(text) {
     }
     if (/\b(?:send|tell|give)\s+me\s+(?:your\s+)?(?:password|otp|verification code|2fa code|card number|secret)\b/i.test(t)) {
         reasons.push('asks for a credential (en)');
+    }
+    // Internal knowledge: names of our own tables, functions, roles, env
+    // vars and source files never belong in a customer answer.
+    // Public developer placeholders («<api_key>») are fine and do not match.
+    if (/\b(?:sie_[a-z0-9_]+|customer_sie_access|service_role|supabase|postgres(?:ql)?|process\.env|security definer)\b/i.test(t)
+        || /\b[A-Z][A-Z0-9_]*_(?:KEY|SECRET|TOKEN|URL)\b/.test(t)
+        || /\b[\w-]+\/[\w./-]*\.(?:js|mjs|ts|sql)\b/.test(t)) {
+        reasons.push('internal identifier');
     }
     return reasons;
 }

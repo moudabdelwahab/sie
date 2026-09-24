@@ -57,7 +57,7 @@ export async function runEquivalence({ edition = 'free', conversations = 1500, s
     const baseProviders = { glossaryProvider: { getEntries: async () => glossary }, arabiziProvider: createRealArabiziProvider() };
     const ed = await nodeEdition(edition, settings);
     const edProviders = { glossaryProvider: baseProviders.glossaryProvider, arabiziProvider: baseProviders.arabiziProvider };
-    const edArg = { profile: ed.profile, glossaryLayers: ed.glossaryLayers };
+    const edArg = { profile: ed.profile, glossaryLayers: ed.glossaryLayers, packIds: ed.packIds, genericTokens: ed.genericTokens };
 
     const corpus = buildBehaviorCorpus({ catalog: core, glossary });
     const rnd = lcg(20260924);

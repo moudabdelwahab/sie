@@ -24,7 +24,7 @@ export default {
         T('entity_phone_number', 'رقم الهاتف في الحساب', 'phone number on the account', ['رقم الهاتف', 'رقم موبايلي', 'رقم التليفون', 'رقم الموبايل', 'phone number']),
         T('entity_my_name', 'اسمي في الحساب', 'my display name', ['اسمي', 'الاسم الظاهر', 'my name']),
         T('entity_account_activity', 'نشاط الحساب', 'account activity', ['نشاط الحساب', 'account activity']),
-        T('entity_announced_outage', 'عطل معلن', 'announced outage', ['عطل معلن', 'يوجد عطل', 'معلن', 'announced outage']),
+        T('entity_announced_outage', 'عطل معلن', 'announced outage', ['عطل معلن', 'يوجد عطل', 'announced outage']),
         T('entity_degraded_service', 'خدمة بأداء منخفض', 'degraded service', ['باداء منخفض', 'أداء منخفض', 'اداء ضعيف', 'degraded']),
         T('entity_company_dashboard', 'لوحة الشركة', 'company dashboard', ['لوحة الشركة', 'لوحه الشركه', 'لوحة شركتي']),
         T('entity_customer_portal', 'بوابة العميل', 'customer portal', ['بوابة الدعم', 'بوابه الدعم', 'بوابة العميل', 'customer portal']),

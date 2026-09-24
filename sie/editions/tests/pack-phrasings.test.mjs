@@ -41,7 +41,7 @@ test('known limits still behave as documented (fixing one means updating the fix
         const ed = await nodeEdition(lim.pack, SIE_DEFAULT_SETTINGS);
         const r = await runTurn({ text: lim.text, catalog: ed.scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only',
             providers: { glossaryProvider: ed.providers.glossaryProvider, arabiziProvider: ed.providers.arabiziProvider },
-            edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers } });
+            edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers, packIds: ed.packIds, genericTokens: ed.genericTokens } });
         assert.equal(r.interpretation.kind, lim.actualKind, `«${lim.text}» no longer behaves as documented — move it back to the phrasings`);
     }
 });

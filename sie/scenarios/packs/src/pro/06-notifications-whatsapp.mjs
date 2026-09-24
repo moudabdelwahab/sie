@@ -16,6 +16,7 @@ import { S, T } from '../dsl.mjs';
 
 export default {
     tokens: [
+        T('entity_linked_word', 'المربوط', 'connected (one)', ['المربوط', 'مربوط', 'المربوطة', 'المربوطه', 'المتربط', 'connected']),
         T('entity_bell', 'جرس الإشعارات', 'notification bell', ['الجرس', 'العداد على الجرس', 'bell']),
         T('intent_mark_read', 'تعليم كمقروء', 'mark as read', ['كمقروء', 'مقروءة', 'مقروءه', 'علم الكل', 'mark as read', 'mark all read', 'كمقروءه', 'كمقروءة', 'مقروء', 'مقروءين']),
         T('entity_notif_click', 'فتح الإشعار', 'opening a notification', ['بيوديني', 'الاشعار بيوديني', 'لما ادوس على الاشعار', 'بيفتح فين', 'when i click']),
@@ -59,7 +60,7 @@ export default {
             'entity_sender_address:610 entity_email:390',
             `إيميلات المنصة الرسمية بتيجي من عناوين دعم مدعوم المعروفة: support@ وno-reply@ وinfo@ على دومين مدعوم.\n\nأي إيميل من عنوان تاني بيدّعي إنه مننا، متفتحش روابطه وابعته لنا في تذكرة. واحنا عمرنا ما هنطلب كلمة المرور بتاعتك في إيميل.`,
             `Official platform e-mails come from Mad3oom's known support addresses: support@, no-reply@ and info@ on the Mad3oom domain.\n\nIf an e-mail from any other address claims to be us, don't open its links — forward it to us in a ticket. We never ask for your password by e-mail.`,
-            { alt: ['entity_sender_address:3 entity_official_word:2'] }),
+            { alt: ['entity_sender_address:860 entity_official_word:139'] }),
         S('email_phishing_suspected', 'security/phishing/suspected', 'login',
             'وصلتني رسالة مشبوهة بتدّعي إنها منكم', 'A suspicious message claims to be from you',
             'entity_phishing:4',
@@ -91,6 +92,6 @@ export default {
             'atom_change:139 entity_whatsapp_number:390 entity_whatsapp:235 intent_add:235',
             `تغيير الرقم المربوط برقم تاني بيتم كفصل للرقم الحالي وربط الجديد — والمحادثات القديمة بتفضل مرتبطة بالرقم القديم، والقوالب المعتمدة ممكن تحتاج تتقدم تاني للرقم الجديد.\n\nعشان التغيير مايوقفش شغلك في النص، قولّي «افتح تذكرة» وأنا أبعت الطلب للفريق يرتب معاك التوقيت.`,
             `Replacing the connected number means disconnecting the current one and linking the new one — past conversations stay tied to the old number, and approved templates may need resubmitting for the new one.\n\nSo the change doesn't interrupt your work, say "open a ticket" and I'll send the request so the team can arrange the timing with you.`,
-            { alt: ['intent_change:223 entity_whatsapp_number:390 entity_whatsapp:387'] })
+            { alt: ['entity_linked_word:640 intent_change:150 entity_whatsapp_number:210'] })
     ]
 };

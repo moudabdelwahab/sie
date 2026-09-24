@@ -22,6 +22,6 @@ export const editionCatalogs = createEditionCatalogs({
             fetchJson(`../scenarios/scenario-catalog.data/pack-${name}.json`),
             fetchJson(`../language/data/glossary-pack-${name}.json`)
         ]);
-        return { scenarios: catalog.scenarios || [], glossary: glossary.entries || [] };
+        return { scenarios: catalog.scenarios || [], glossary: glossary.entries || [], genericTokens: catalog.genericTokens || [] };
     }
 });

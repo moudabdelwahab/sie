@@ -20,7 +20,7 @@ for (let i = 0; i < args.length; i++) {
     if (args[i] === '--expect') { pairs.push([args[i + 1], args[i + 2]]); i += 2; } else pairs.push([null, args[i]]);
 }
 for (const [expect, text] of pairs) {
-    const r = await runTurn({ text, catalog: ed.scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only', providers, edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers } });
+    const r = await runTurn({ text, catalog: ed.scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only', providers, edition: { profile: ed.profile, glossaryLayers: ed.glossaryLayers, packIds: ed.packIds, genericTokens: ed.genericTokens } });
     const top = r.ranking ? r.ranking.ranked.filter((e) => e.hypothesis.confidence > 0).slice(0, 3).map((e) => `${e.hypothesis.scenarioId}(${e.hypothesis.confidence.toFixed(2)})`).join(' ') : '';
     const got = r.decision?.scenarioId ?? null;
     const ok = expect ? got === expect && r.decision?.action === 'ANSWER' : null;

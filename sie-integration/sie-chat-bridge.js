@@ -49,7 +49,7 @@ import { runShadowComparison } from './sie-shadow.js';
 import { resolveCustomerEdition, resolveEditionProfile } from '../sie/editions/editions.js';
 import { editionCatalogs } from '../sie/editions/edition-catalog.local.js';
 import { providerForAssembly } from '../sie/editions/edition-catalog.js';
-import { capEvidenceTokens, scopeFor } from '../sie/editions/edition-turn.js';
+import { capEvidenceTokens, scopeFor, freeFloor } from '../sie/editions/edition-turn.js';
 
 /**
  * How the trust boundary is configured for this turn, from settings.
@@ -943,8 +943,8 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         );
 
         // 5. Decision (Module 5)
-        const { decision, decisionState } = decide({
-            ranking,
+        const decideWith = (r) => decide({
+            ranking: r,
             turn,
             previousDecisionState: prevSie?.decisionState,
             newEvidenceAddedThisTurn,
@@ -967,6 +967,20 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             // الاتنين بيدّوا توكنز وبيسيبوا الثقة زي ما هي.
             customerSignal: resolutionSignal
         });
+        // «أرضية Free»: تعادل عمله سيناريو من حزمة الإصدار مايتحوّلش لتذكرة
+        // لو Free كان هيسأل سؤال — see edition-turn.freeFloor. Inert on Free.
+        const { decision, decisionState, floored: editionFloor } = freeFloor({
+            ...decideWith(ranking), ranking,
+            hypotheses: diagnosticState.hypotheses,
+            scenarios: await scenarioProvider.getAllScenarios(),
+            packIds: editionAssembly?.packIds,
+            genericTokens: editionAssembly?.genericTokens,
+            rankOptions: { activationThreshold },
+            decideWith
+        });
+        if (editionFloor) {
+            console.info(`[sie] edition floor (${editionProfile.edition}): ${editionFloor.from} → ${editionFloor.to} (stand-off with ${editionFloor.scenarioId})`);
+        }
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
         //    the decision is an ANSWER with a knowledgeSource.
@@ -1194,6 +1208,8 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 engine: {
                     edition: editionProfile.edition,
                     degradedFrom: editionDegradedFrom,
+                    // Set when the Free floor replaced an ambiguity ticket (edition-turn.freeFloor).
+                    floor: editionFloor,
                     catalogSize: editionAssembly.scenarios.length,
                     scope: scopeStats || null
                 }
