@@ -63,7 +63,7 @@ export default {
             `No problem — open "Live chat" from the sidebar again and start a new conversation.\n\nIf you were mid-topic, start with a short summary of what was said so whoever answers can continue without starting over. If it needs longer follow-up, a ticket suits it better.`),
         S('livechat_rate_quality', 'chat/live_chat/rating', 'inquiry',
             'تقييم المحادثة الفورية بعد إنهائها', 'Rating the live chat after it ends',
-            'entity_rate_service:2 entity_chat_widget:3 entity_live_word:2',
+            'entity_rate_service:256 entity_chat_widget:446 entity_live_word:297',
             `بعد ما تنهي المحادثة بتظهر صفحة «تم إنهاء المحادثة» بسؤال «كيف كانت جودة الخدمة؟» من «سيء جداً» لـ«ممتاز».\n\nالتقييم اختياري بس بيوصل للفريق فعلًا. ولو فيه حاجة محددة ضايقتك في المحادثة، قولهالي هنا وأنا أوصلها.`,
             `When you end a chat, the "Conversation ended" page asks "How was the quality of service?" from "Very bad" to "Excellent".\n\nRating is optional but does reach the team. If something specific bothered you in the chat, tell me here and I'll pass it on.`),
         S('livechat_vs_ticket', 'support/channel_choice/chat_vs_ticket', 'inquiry',

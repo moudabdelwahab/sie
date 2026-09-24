@@ -149,7 +149,7 @@ export default {
             'entity_sensitive_data:4 entity_ticket:1',
             `اتصرف بسرعة بالترتيب ده:\n١. لو اللي اتبعت كلمة مرور: غيّرها دلوقتي من الأمان، وفعّل التحقق بخطوتين لو مش مفعّل.\n٢. لو مفتاح API: اعمل مفتاح جديد وعطّل القديم.\n٣. اكتب رد على التذكرة تطلب من الفريق يتعامل مع الرسالة دي كبيانات حساسة.\n\nالرد نفسه مابيتمسحش من عندك، فالتغيير (الخطوة ١ و٢) هو الحماية الحقيقية.`,
             `Act quickly, in this order:\n1. If it was a password: change it now under Security, and turn on two-step verification if it isn't on.\n2. If it was an API key: create a new key and disable the old one.\n3. Reply on the ticket asking the team to treat that message as sensitive.\n\nThe message can't be deleted from your side, so steps 1 and 2 are the real protection.`,
-            { alt: ['entity_password:290 atom_by_mistake:139 entity_ticket:285 entity_sensitive_data:285'] }),
+            { alt: ['entity_password:256 atom_by_mistake:139 entity_ticket:302 entity_sensitive_data:302'] }),
         S('ticket_reply_in_english_wanted_arabic', 'ticket/reply_language/wants_arabic', 'inquiry',
             'رد الدعم جالي بالإنجليزي', "Support replied in English",
             'entity_english_language:580 atom_reply:139 atom_support:139 entity_arabic_word:139',

@@ -42,7 +42,7 @@ export default {
             { alt: ['entity_transfer_proof:516 entity_too_big:139 entity_upload_refused:344'] }),
         S('billing_transfer_proof_rejected', 'billing/transfer_proof/rejected', 'subscription',
             'إثبات التحويل اترفض', 'My proof of transfer was rejected',
-            'entity_transfer_proof:458 symptom_rejected:390 entity_payment:153',
+            'entity_transfer_proof:482 symptom_rejected:356 entity_payment:161',
             `غالبًا الإثبات اترفض لسبب من دول: الصورة مش واضحة، أو المبلغ مش مطابق للباقة، أو التاريخ/رقم العملية مش ظاهرين.\n\nافتح التذكرة اللي اتفتحت مع الطلب — السبب بيكون مكتوب هناك — وارفع إثبات أوضح أو اكتب رقم العملية كرد. لو السبب مش مكتوب، قولّي وأنا أسأل الفريق المالي.`,
             `A proof is usually rejected because the image is unclear, the amount doesn't match the plan, or the date/transaction number isn't visible.\n\nOpen the ticket created with the request — the reason is normally there — and send a clearer proof or the transaction number as a reply. If no reason is given, tell me and I'll ask the finance team.`),
         S('billing_request_rolled_back_upload_failed', 'billing/subscription_request/rolled_back', 'subscription',

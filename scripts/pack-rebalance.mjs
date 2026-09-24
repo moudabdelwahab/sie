@@ -5,11 +5,14 @@
  *   node scripts/pack-rebalance.mjs pro [--dry]
  *
  * Each token gets a CAP — the most of a signature's weight it may carry:
- *   token some CORE scenario uses      best core single-token confidence
- *                                      minus AMBIGUITY_MARGIN (never below
- *                                      the inactive cap)
- *   pack-only token shared by 2+ pack  just under ACTIVATION_THRESHOLD: a
- *   scenarios                          bare shared word activates nothing
+ *   token some CORE scenario uses      the largest confidence that never
+ *                                      makes a stand-off Free does not have,
+ *                                      at any presence 0.75–1 (stand-off.js),
+ *                                      and under the core third where the
+ *                                      question pool is at stake
+ *   glue word, atom                    inactive (atoms: one weak leader)
+ *   pack-only token shared by 2+ pack  leader keeps its share; the others
+ *   scenarios                          stay a stand-off below it (same rule)
  *   token only this scenario uses      uncapped
  * Caps depend on the core catalog and on token usage only, so they are fixed
  * before any weight changes — no oscillation. Per signature, water-filling:
@@ -24,6 +27,7 @@ import { readCore, readPack } from '../sie/editions/tests/helpers/node-editions.
 import { ACTIVATION_THRESHOLD, computeScenarioConfidence } from '../sie/diagnostics/hypothesis-tracker.js';
 import { AMBIGUITY_MARGIN } from '../sie/ranking/ranking-engine.js';
 import { scenarioTokens } from '../sie/scenarios/scenario-types.js';
+import { maxSafePackConfidence } from '../sie/editions/stand-off.js';
 
 const pack = process.argv[2] || 'pro';
 const dry = process.argv.includes('--dry');
@@ -33,6 +37,7 @@ const packScenarios = readPack(pack).scenarios;
 const INACTIVE = ACTIVATION_THRESHOLD - 0.01;
 const LEADER_CAP = 0.5;
 const ATOM_LEADER_CAP = 0.33;
+const LEADER_FILL_MAX = 0.6;
 const ATOM_LEADERS = {
     atom_balance: 'billing_whatsapp_transactions',
     atom_button: 'ticket_reopen_button_missing',
@@ -53,7 +58,7 @@ const ATOM_LEADERS = {
     atom_topup: 'billing_whatsapp_topup_how',
     atom_upgrade: 'subscription_upgrade_end_date_unchanged'
     // no generic reading: atom_cancel, atom_change, atom_code, atom_company,
-    // atom_link, atom_open_action, atom_reply, atom_request, atom_unchanged, atom_where
+    // atom_link, atom_open_action, atom_reply, atom_unchanged, atom_where
 };
 const coreBest = new Map();
 const coreTokens = new Set(core.flatMap((s) => [...scenarioTokens(s)]));
@@ -66,11 +71,13 @@ const coreTokens = new Set(core.flatMap((s) => [...scenarioTokens(s)]));
 // of the word already tie (R6 will look for a question) and one of the top
 // three carries a discriminating question.
 const coreThird = new Map();
+const coreSecond = new Map();
 for (const t of coreTokens) {
     const presence = new Map([[t, 1]]);
     const ranked = core.map((s) => ({ s, c: computeScenarioConfidence(s, presence).confidence }))
         .filter((x) => x.c >= ACTIVATION_THRESHOLD).sort((a, b) => b.c - a.c);
     coreBest.set(t, ranked[0]?.c || 0);
+    coreSecond.set(t, ranked[1]?.c || 0);
     const tied = ranked.length >= 2 && ranked[0].c - ranked[1].c < AMBIGUITY_MARGIN;
     const asks = ranked.slice(0, 3).some((x) => (x.s.discriminatingQuestions || []).length > 0);
     coreThird.set(t, tied && asks && ranked.length >= 3 ? ranked[2].c : 0);
@@ -124,7 +131,7 @@ for (const s of packScenarios) {
 // even when unique — otherwise «كبير» alone scored 0.5 for "proof file too
 // large" and tied with an unrelated core reading of the rest of a message.
 const GLUE = new Set([
-    'entity_too_big', 'atom_request', 'entity_service_word', 'atom_link', 'entity_arabic_word',
+    'entity_too_big', 'entity_service_word', 'atom_link', 'entity_arabic_word',
     'entity_what_is', 'symptom_not_happening', 'atom_code', 'entity_key_word', 'entity_merge_plan', 'entity_not_accepted'
 ]);
 
@@ -140,15 +147,19 @@ function cap(t, scenarioId, authoredShare = 1) {
         const lead = ATOM_LEADERS[t];
         return lead === scenarioId ? ATOM_LEADER_CAP : INACTIVE;
     }
-    // Pack-only TOPIC words («كود الربط», «اثبات التحويل») keep the weight
-    // their author gave them: capping a non-leader's own topic word moved its
-    // weight onto generic core words and created new pair stand-offs.
-    if (!coreTokens.has(t)) return 1;
+    // A core word: under the best core reading by the margin at every
+    // presence the engine can give the word, 0.75–1 — gaps shrink with
+    // presence (stand-off.js).
     if (coreTokens.has(t)) {
-        let c = coreBest.get(t) - AMBIGUITY_MARGIN - 0.01;
+        let c = Math.min(coreBest.get(t) - AMBIGUITY_MARGIN, maxSafePackConfidence(coreBest.get(t), coreSecond.get(t))) - 0.01;
         if (coreThird.get(t) > 0) c = Math.min(c, coreThird.get(t) - 0.01);
         return c >= ACTIVATION_THRESHOLD ? c : INACTIVE;
     }
+    // A pack-only word only this scenario uses is its own: uncapped.
+    // Capping a SHARED topic word («كود الربط») for its non-leaders is safe
+    // now that core words are capped too — the weight has nowhere generic
+    // to go, and a signature with no distinctive word is reported
+    // infeasible instead of quietly creating a pair stand-off.
     if ((usage.get(t) || 0) < 2) return 1;
     const l = leader.get(t);
     // The leader of a SHARED word keeps the share its author gave it — the
@@ -156,13 +167,23 @@ function cap(t, scenarioId, authoredShare = 1) {
     // turned «المفتاح» alone into a 0.78 answer). Floor LEADER_CAP so a hub
     // authored at a lower share can still absorb a little.
     if (l.id === scenarioId) return Math.max(LEADER_CAP, authoredShare);
-    const c = Math.min(l.conf, LEADER_CAP) - AMBIGUITY_MARGIN - 0.01;
+    // Measured against the leader's AUTHORED confidence: water-filling never
+    // lowers the leader's share of its own word (it is either untouched or
+    // raised), so its final confidence is at least this.
+    const c = Math.min(l.conf - AMBIGUITY_MARGIN, maxSafePackConfidence(l.conf, 0)) - 0.01;
     return c >= ACTIVATION_THRESHOLD ? c : INACTIVE;
 }
 
 function waterFill(entries, id) {
     const total0 = entries.reduce((a, e) => a + e.w, 0);
     const caps = entries.map((e) => cap(e.t, id, e.w / total0));
+    // A leader may absorb the slack of its own signature, up to
+    // LEADER_FILL_MAX: raising a leader only widens its lead.
+    const slack = 1 - caps.reduce((a, c) => a + c, 0);
+    if (slack > 1e-9) {
+        const i = entries.findIndex((e) => !coreTokens.has(e.t) && !e.t.startsWith('atom_') && leader.get(e.t)?.id === id);
+        if (i >= 0 && caps[i] + slack <= LEADER_FILL_MAX + 1e-9) caps[i] += slack + 1e-6;
+    }
     if (caps.reduce((a, c) => a + c, 0) < 1 - 1e-9) return null;
     const pinned = new Array(entries.length).fill(false);
     const share = new Array(entries.length).fill(0);
@@ -216,7 +237,11 @@ for (const s of packScenarios) {
         const coreShare = entries.reduce((a, e) => a + (coreTokens.has(e.t) ? e.w / total : 0), 0);
         if (coreShare <= CORE_SHARE_MAX + 1e-3 && entries.every((e) => e.w / total <= cap(e.t, s.id, e.w / total) + 1e-3)) return m;
         const share = waterFill(entries, s.id);
-        if (!share) { infeasible.push(`${s.id}: ${sig}`); return m; }
+        if (!share) {
+            const why = entries.map((e) => `${e.t}≤${cap(e.t, s.id, e.w / total).toFixed(2)}${leader.get(e.t) && !coreTokens.has(e.t) ? `(lead ${leader.get(e.t).id})` : ''}`).join(' ');
+            infeasible.push(`${s.id}: ${sig}\n      caps: ${why}`);
+            return m;
+        }
         // Per-mille weights; capped tokens rounded DOWN so rounding can never
         // push a share back over its cap (whole percents oscillated).
         const caps = entries.map((e) => cap(e.t, s.id, e.w / total));
@@ -224,6 +249,7 @@ for (const s of packScenarios) {
             const w = share[i] >= caps[i] - 1e-9 ? Math.floor(share[i] * 1000) : Math.round(share[i] * 1000);
             return `${e.t}:${Math.max(1, w)}`;
         }).join(' ');
+        if (next === sig.trim()) return m; // a leader that filled its slack last time
         changed += 1;
         console.log(`${s.id}: ${sig} -> ${next}`);
         return `'${next}'`;

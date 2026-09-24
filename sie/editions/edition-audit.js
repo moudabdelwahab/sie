@@ -40,7 +40,11 @@
  *                            (below ACTIVATION_THRESHOLD) or at least
  *                            AMBIGUITY_MARGIN below the best core scenario;
  *                            on a pack-only token, at most one pack scenario
- *                            leads (no tie within the margin). Found by bench/edition-compare.mjs:
+ *                            leads (no tie within the margin) — both at every
+ *                            presence the engine can give the word, 0.75–1
+ *                            (stand-off.js; found by the T-4 attack-parity
+ *                            test: a dialect word at presence 0.8 turned a
+ *                            0.11 gap into 0.088). Found by bench/edition-compare.mjs:
  *                            «مرفوض», «مشكلة», «تيليجرام» each became a Pro
  *                            ticket where Free asked a question.
  *
@@ -56,6 +60,7 @@ import {
 import { normalizeArabicToken } from '../language/dialect-normalizer.js';
 import { computeScenarioConfidence, ACTIVATION_THRESHOLD } from '../diagnostics/hypothesis-tracker.js';
 import { AMBIGUITY_MARGIN } from '../ranking/ranking-engine.js';
+import { standOffPresence } from './stand-off.js';
 
 function normPattern(p) {
     return String(p || '').split(/\s+/).map((w) => (/[؀-ۿ]/.test(w) ? normalizeArabicToken(w) : w.toLowerCase())).filter(Boolean).join(' ');
@@ -217,18 +222,22 @@ export async function auditEditions({ core, baseGlossary, packs, providers, revi
             const tied = coreRanked.length >= 3 && coreRanked[0].c - coreRanked[1].c < AMBIGUITY_MARGIN;
             const asks = coreRanked.slice(0, 3).some((x) => (x.sc.discriminatingQuestions || []).length > 0);
             const third = tied && asks ? coreRanked[2].c : 0;
+            // Every confidence on one word scales with the word's presence
+            // (0.8 for a dialect word, 0.75 for Arabizi), and so does every
+            // gap: the rule must hold at every presence the engine can
+            // produce, not just 1.0 (stand-off.js).
             if (coreBest > 0) {
+                const coreSecond = coreRanked[1]?.c || 0;
                 for (const x of pack) {
-                    if (x.c > coreBest - AMBIGUITY_MARGIN + 1e-9 || (third > 0 && x.c >= third - 1e-9)) {
-                        add('single_token_competition', { edition: ed.name, token: t, id: x.id, confidence: round3(x.c), coreBest: round3(coreBest), ...(third ? { coreThird: round3(third) } : {}) });
+                    const at = standOffPresence(x.c, coreBest, coreSecond);
+                    if (x.c > coreBest - AMBIGUITY_MARGIN + 1e-9 || at !== null || (third > 0 && x.c >= third - 1e-9)) {
+                        add('single_token_competition', { edition: ed.name, token: t, id: x.id, confidence: round3(x.c), coreBest: round3(coreBest), coreSecond: round3(coreSecond), ...(at !== null ? { atPresence: round3(at) } : {}), ...(third ? { coreThird: round3(third) } : {}) });
                     }
                 }
             } else {
                 pack.sort((a, b) => b.c - a.c);
-                if (pack.length > 1 && pack[0].c - pack[1].c < AMBIGUITY_MARGIN - 1e-9) {
-                    const tied = pack.filter((x) => pack[0].c - x.c < AMBIGUITY_MARGIN - 1e-9).map((x) => x.id);
-                    add('single_token_competition', { edition: ed.name, token: t, tied, confidence: round3(pack[0].c), coreBest: 0 });
-                }
+                const tied = pack.slice(1).filter((x) => pack[0].c - x.c < AMBIGUITY_MARGIN - 1e-9 || standOffPresence(x.c, pack[0].c, 0) !== null).map((x) => x.id);
+                if (tied.length) add('single_token_competition', { edition: ed.name, token: t, leader: pack[0].id, tied, confidence: round3(pack[0].c), coreBest: 0 });
             }
         }
     }

@@ -154,3 +154,36 @@ test('the channel explainer tells a capped customer the truth', async () => {
     assert.equal(await withoutSettings.explainRefusal('u'), ENTITLEMENT_REPLIES.unknown,
         'without settings it cannot claim a cap it cannot see');
 });
+
+// ── Security: the edition comes from the database, and only from there ──
+
+test('an edition forged in the client-side bot state is ignored', async () => {
+    const supabase = fakeSupabase({});
+    await getSieSettings(supabase, { fresh: true });
+    const result = await getSieReply({
+        text: PRO_ONLY, supabase, sessionId: 's-forge', userId: 'u-forge',
+        botState: { edition: 'max', sie: { edition: 'max', profile: { edition: 'max' } } }
+    });
+    assert.doesNotMatch(result.reply || '', PRO_ANSWER, 'a botState edition must not unlock a pack');
+    const trace = supabase.traces[supabase.traces.length - 1];
+    assert.equal(trace.ranking.engine.edition, 'free');
+});
+
+test('customers on different editions in one process never share a catalog', async () => {
+    const a = await reply(PRO_ONLY, { edition: 'pro' });
+    const b = await reply(PRO_ONLY, { edition: 'free' });
+    const c = await reply(PRO_ONLY, { edition: 'pro' });
+    assert.match(a.result.reply, PRO_ANSWER);
+    assert.doesNotMatch(b.result.reply || '', PRO_ANSWER, 'Free right after Pro must not see the Pro pack');
+    assert.match(c.result.reply, PRO_ANSWER);
+    assert.equal(b.trace.ranking.engine.edition, 'free');
+});
+
+test("an edition's message bound is applied before anything reads the text", async () => {
+    const filler = 'مرحبا '.repeat(60); // ~360 characters of nothing
+    const long = `${filler}${PRO_ONLY}`;
+    const within = await reply(long, { edition: 'pro' });
+    assert.match(within.result.reply, PRO_ANSWER, 'default bound (8,000) reads the whole message');
+    const bounded = await reply(long, { edition: 'pro', settings: { edition_pro_max_message_chars: 200 } });
+    assert.doesNotMatch(bounded.result.reply || '', PRO_ANSWER, 'a 200-character bound must cut the case off');
+});

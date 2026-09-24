@@ -21,6 +21,7 @@
 import { validateCatalog } from '../scenarios/scenario-types.js';
 import { scenarioTokens } from '../scenarios/scenario-types.js';
 import { EDITION_PACKS, resolveEditionProfile } from './editions.js';
+import { checkPackScenario, checkPackGlossaryEntry } from './pack-guard.js';
 
 /**
  * @param {Object} loaders
@@ -39,10 +40,25 @@ export function createEditionCatalogs(loaders) {
                     return { scenarios, glossary: null, warnings: [] };
                 }
                 const raw = await loaders.pack(name);
-                const { valid, invalid } = validateCatalog(raw?.scenarios || []);
+                const { valid, invalid } = validateCatalog(Array.isArray(raw?.scenarios) ? raw.scenarios : []);
                 const warnings = invalid.map(({ scenario, errors }) =>
                     `Skipped invalid ${name} scenario (id: ${scenario?.id ?? 'unknown'}): ${errors.join('; ')}`);
-                return { scenarios: valid, glossary: Array.isArray(raw?.glossary) ? raw.glossary : [], warnings };
+                // Pack guard (pack-guard.js): bounds and content rules the
+                // general validator does not know about. A tampered item is
+                // skipped, never trusted.
+                const guarded = [];
+                for (const sc of valid) {
+                    const why = checkPackScenario(sc);
+                    if (why.length) warnings.push(`Skipped ${name} scenario (id: ${sc?.id ?? 'unknown'}) by pack guard: ${why.slice(0, 3).join('; ')}`);
+                    else guarded.push(sc);
+                }
+                const glossary = [];
+                for (const e of Array.isArray(raw?.glossary) ? raw.glossary : []) {
+                    const why = checkPackGlossaryEntry(e);
+                    if (why.length) warnings.push(`Skipped ${name} glossary entry (${e?.canonical ?? 'unknown'}) by pack guard: ${why.join('; ')}`);
+                    else glossary.push(e);
+                }
+                return { scenarios: guarded, glossary, warnings };
             })();
             // A failed load is not cached: the next turn retries instead of
             // serving a permanently degraded edition from one bad fetch.

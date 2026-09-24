@@ -102,17 +102,17 @@
       "evidenceSignature": [
         {
           "token": "symptom_rejected",
-          "weight": 390,
+          "weight": 356,
           "source": "text"
         },
         {
           "token": "entity_ticket",
-          "weight": 470,
+          "weight": 429,
           "source": "text"
         },
         {
-          "token": "atom_close",
-          "weight": 139,
+          "token": "intent_status_check",
+          "weight": 214,
           "source": "text"
         }
       ],
@@ -124,26 +124,7 @@
           "en": "\"Rejected\" means the team closed the ticket without carrying out the request — usually because it's out of scope, a duplicate of another ticket, or missing essential details. The last reply normally explains why.\n\nA rejected ticket can't be reopened. If you think the rejection was wrong, open a new ticket, mention the old number and explain what was missed."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "symptom_rejected",
-            "weight": 390,
-            "source": "text"
-          },
-          {
-            "token": "entity_ticket",
-            "weight": 407,
-            "source": "text"
-          },
-          {
-            "token": "intent_status_check",
-            "weight": 203,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "ticket_reply_did_not_change_status",
@@ -1867,7 +1848,7 @@
         [
           {
             "token": "entity_password",
-            "weight": 290,
+            "weight": 256,
             "source": "text"
           },
           {
@@ -1877,12 +1858,12 @@
           },
           {
             "token": "entity_ticket",
-            "weight": 285,
+            "weight": 302,
             "source": "text"
           },
           {
             "token": "entity_sensitive_data",
-            "weight": 285,
+            "weight": 302,
             "source": "text"
           }
         ]
@@ -2739,17 +2720,17 @@
       "evidenceSignature": [
         {
           "token": "entity_transfer_proof",
-          "weight": 458,
+          "weight": 482,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 390,
+          "weight": 356,
           "source": "text"
         },
         {
           "token": "entity_payment",
-          "weight": 153,
+          "weight": 161,
           "source": "text"
         }
       ],
@@ -3163,12 +3144,12 @@
       "evidenceSignature": [
         {
           "token": "entity_link_code",
-          "weight": 470,
+          "weight": 503,
           "source": "text"
         },
         {
           "token": "entity_telegram",
-          "weight": 390,
+          "weight": 356,
           "source": "text"
         },
         {
@@ -3190,17 +3171,17 @@
         [
           {
             "token": "entity_assistant",
-            "weight": 407,
+            "weight": 429,
             "source": "text"
           },
           {
             "token": "entity_telegram",
-            "weight": 390,
+            "weight": 356,
             "source": "text"
           },
           {
             "token": "intent_how_to",
-            "weight": 203,
+            "weight": 214,
             "source": "text"
           }
         ]
@@ -3217,17 +3198,17 @@
       "evidenceSignature": [
         {
           "token": "entity_link_code",
-          "weight": 4,
+          "weight": 327,
           "source": "text"
         },
         {
           "token": "symptom_rejected",
-          "weight": 1,
+          "weight": 336,
           "source": "text"
         },
         {
           "token": "entity_telegram",
-          "weight": 1,
+          "weight": 336,
           "source": "text"
         }
       ],
@@ -3244,39 +3225,39 @@
         [
           {
             "token": "entity_link_code",
-            "weight": 3,
+            "weight": 327,
             "source": "text"
           },
           {
             "token": "symptom_not_working",
-            "weight": 2,
+            "weight": 390,
             "source": "text"
           },
           {
             "token": "symptom_rejected",
-            "weight": 1,
+            "weight": 283,
             "source": "text"
           }
         ],
         [
           {
             "token": "entity_link_code",
-            "weight": 4,
+            "weight": 327,
             "source": "text"
           },
           {
             "token": "symptom_expired",
-            "weight": 1,
+            "weight": 190,
             "source": "text"
           },
           {
             "token": "entity_telegram",
-            "weight": 1,
+            "weight": 241,
             "source": "text"
           },
           {
             "token": "symptom_rejected",
-            "weight": 1,
+            "weight": 241,
             "source": "text"
           }
         ]
@@ -4236,7 +4217,7 @@
         [
           {
             "token": "symptom_expired",
-            "weight": 223,
+            "weight": 190,
             "source": "text"
           },
           {
@@ -4246,7 +4227,7 @@
           },
           {
             "token": "entity_key_state",
-            "weight": 637,
+            "weight": 670,
             "source": "text"
           }
         ]
@@ -4437,17 +4418,17 @@
       "evidenceSignature": [
         {
           "token": "entity_mcp",
-          "weight": 390,
+          "weight": 356,
           "source": "text"
         },
         {
           "token": "entity_developers_word",
-          "weight": 407,
+          "weight": 429,
           "source": "text"
         },
         {
           "token": "intent_how_to",
-          "weight": 203,
+          "weight": 214,
           "source": "text"
         }
       ],
@@ -4464,29 +4445,17 @@
         [
           {
             "token": "entity_mcp",
-            "weight": 390,
+            "weight": 356,
             "source": "text"
           },
           {
             "token": "entity_api_docs",
-            "weight": 470,
+            "weight": 503,
             "source": "text"
           },
           {
             "token": "entity_what_is",
             "weight": 139,
-            "source": "text"
-          }
-        ],
-        [
-          {
-            "token": "entity_mcp",
-            "weight": 390,
-            "source": "text"
-          },
-          {
-            "token": "intent_how_to",
-            "weight": 610,
             "source": "text"
           }
         ]
@@ -4592,12 +4561,12 @@
         },
         {
           "token": "symptom_rejected",
-          "weight": 390,
+          "weight": 356,
           "source": "text"
         },
         {
           "token": "intent_status_check",
-          "weight": 220,
+          "weight": 253,
           "source": "text"
         }
       ],
@@ -4848,17 +4817,17 @@
       "evidenceSignature": [
         {
           "token": "entity_rate_service",
-          "weight": 2,
+          "weight": 256,
           "source": "text"
         },
         {
           "token": "entity_chat_widget",
-          "weight": 3,
+          "weight": 446,
           "source": "text"
         },
         {
           "token": "entity_live_word",
-          "weight": 2,
+          "weight": 297,
           "source": "text"
         }
       ],
@@ -5255,12 +5224,12 @@
         },
         {
           "token": "symptom_rejected",
-          "weight": 390,
+          "weight": 356,
           "source": "text"
         },
         {
           "token": "entity_device_clock",
-          "weight": 220,
+          "weight": 253,
           "source": "text"
         }
       ],
@@ -5299,17 +5268,17 @@
       "evidenceSignature": [
         {
           "token": "entity_reset_link",
-          "weight": 487,
+          "weight": 553,
           "source": "text"
         },
         {
           "token": "entity_password",
-          "weight": 290,
+          "weight": 256,
           "source": "text"
         },
         {
           "token": "symptom_expired",
-          "weight": 223,
+          "weight": 190,
           "source": "text"
         }
       ],
@@ -5326,17 +5295,17 @@
         [
           {
             "token": "entity_reset_link",
-            "weight": 533,
+            "weight": 557,
             "source": "text"
           },
           {
             "token": "entity_password",
-            "weight": 290,
+            "weight": 256,
             "source": "text"
           },
           {
             "token": "symptom_already_registered",
-            "weight": 178,
+            "weight": 186,
             "source": "text"
           }
         ]
@@ -5941,12 +5910,12 @@
       "evidenceSignature": [
         {
           "token": "entity_ai_client",
-          "weight": 3,
+          "weight": 190,
           "source": "text"
         },
         {
           "token": "intent_reauthorize",
-          "weight": 3,
+          "weight": 810,
           "source": "text"
         }
       ],
@@ -5971,7 +5940,7 @@
       "evidenceSignature": [
         {
           "token": "entity_mcp_tool",
-          "weight": 370,
+          "weight": 340,
           "source": "text"
         },
         {
@@ -5981,7 +5950,12 @@
         },
         {
           "token": "entity_ticket",
-          "weight": 490,
+          "weight": 400,
+          "source": "text"
+        },
+        {
+          "token": "symptom_rejected",
+          "weight": 121,
           "source": "text"
         }
       ],
@@ -5998,7 +5972,7 @@
         [
           {
             "token": "entity_ai_client",
-            "weight": 215,
+            "weight": 190,
             "source": "text"
           },
           {
@@ -6008,12 +5982,12 @@
           },
           {
             "token": "entity_ticket",
-            "weight": 430,
+            "weight": 447,
             "source": "text"
           },
           {
             "token": "symptom_rejected",
-            "weight": 215,
+            "weight": 223,
             "source": "text"
           }
         ]
@@ -6062,17 +6036,22 @@
         [
           {
             "token": "entity_ai_client",
-            "weight": 215,
+            "weight": 190,
             "source": "text"
           },
           {
             "token": "intent_cancel",
-            "weight": 645,
+            "weight": 600,
             "source": "text"
           },
           {
             "token": "symptom_not_happening",
             "weight": 139,
+            "source": "text"
+          },
+          {
+            "token": "entity_mcp_tool",
+            "weight": 71,
             "source": "text"
           }
         ]
@@ -6195,31 +6174,7 @@
           "en": "One open request per plan is allowed, so the same thing isn't paid twice. Your previous request is still awaiting review.\n\nWait for the team's reply on it (transfer requests are usually reviewed within an hour), or tell me if you want to cancel or change it and I'll take you to its ticket."
         }
       },
-      "requiresTicketIfUnresolved": false,
-      "alternativeSignatures": [
-        [
-          {
-            "token": "symptom_pending",
-            "weight": 223,
-            "source": "text"
-          },
-          {
-            "token": "intent_subscribe",
-            "weight": 424,
-            "source": "text"
-          },
-          {
-            "token": "entity_subscription",
-            "weight": 212,
-            "source": "text"
-          },
-          {
-            "token": "atom_request",
-            "weight": 139,
-            "source": "text"
-          }
-        ]
-      ]
+      "requiresTicketIfUnresolved": false
     },
     {
       "id": "subscription_early_renewal_days_kept",
@@ -6371,17 +6326,17 @@
       "evidenceSignature": [
         {
           "token": "entity_coming_soon",
-          "weight": 3,
+          "weight": 604,
           "source": "text"
         },
         {
           "token": "entity_gateway_word",
-          "weight": 1,
+          "weight": 195,
           "source": "text"
         },
         {
           "token": "entity_payment",
-          "weight": 1,
+          "weight": 201,
           "source": "text"
         }
       ],
@@ -6539,12 +6494,12 @@
         [
           {
             "token": "symptom_too_many_attempts",
-            "weight": 777,
+            "weight": 810,
             "source": "text"
           },
           {
             "token": "entity_otp",
-            "weight": 223,
+            "weight": 190,
             "source": "text"
           }
         ]
@@ -6561,17 +6516,22 @@
       "evidenceSignature": [
         {
           "token": "entity_telegram",
-          "weight": 390,
+          "weight": 340,
           "source": "text"
         },
         {
           "token": "entity_otp",
-          "weight": 223,
+          "weight": 190,
           "source": "text"
         },
         {
           "token": "symptom_not_working",
-          "weight": 387,
+          "weight": 300,
+          "source": "text"
+        },
+        {
+          "token": "symptom_name_taken",
+          "weight": 170,
           "source": "text"
         }
       ],
@@ -6588,7 +6548,7 @@
         [
           {
             "token": "entity_telegram",
-            "weight": 390,
+            "weight": 356,
             "source": "text"
           },
           {
@@ -6598,19 +6558,19 @@
           },
           {
             "token": "symptom_name_taken",
-            "weight": 247,
+            "weight": 313,
             "source": "text"
           },
           {
             "token": "entity_otp",
-            "weight": 223,
+            "weight": 190,
             "source": "text"
           }
         ],
         [
           {
             "token": "entity_telegram",
-            "weight": 390,
+            "weight": 356,
             "source": "text"
           },
           {
@@ -6620,12 +6580,12 @@
           },
           {
             "token": "symptom_not_working",
-            "weight": 247,
+            "weight": 313,
             "source": "text"
           },
           {
             "token": "entity_otp",
-            "weight": 223,
+            "weight": 190,
             "source": "text"
           }
         ]
@@ -6897,12 +6857,17 @@
         [
           {
             "token": "entity_vat_invoice",
-            "weight": 2,
+            "weight": 505,
             "source": "text"
           },
           {
             "token": "intent_subscribe",
-            "weight": 3,
+            "weight": 327,
+            "source": "text"
+          },
+          {
+            "token": "entity_commercial_register",
+            "weight": 168,
             "source": "text"
           }
         ]
@@ -6971,12 +6936,12 @@
         [
           {
             "token": "entity_expiry_popup",
-            "weight": 4,
+            "weight": 686,
             "source": "text"
           },
           {
             "token": "entity_every_time",
-            "weight": 2,
+            "weight": 314,
             "source": "text"
           }
         ]
@@ -7057,12 +7022,12 @@
         [
           {
             "token": "entity_company_mode",
-            "weight": 610,
+            "weight": 643,
             "source": "text"
           },
           {
             "token": "symptom_login_failed",
-            "weight": 390,
+            "weight": 356,
             "source": "text"
           }
         ]
@@ -7136,17 +7101,17 @@
         [
           {
             "token": "entity_username",
-            "weight": 3,
+            "weight": 514,
             "source": "text"
           },
           {
             "token": "symptom_name_taken",
-            "weight": 2,
+            "weight": 314,
             "source": "text"
           },
           {
             "token": "entity_signup",
-            "weight": 1,
+            "weight": 171,
             "source": "text"
           }
         ],
@@ -7653,12 +7618,12 @@
         [
           {
             "token": "entity_post_topic",
-            "weight": 610,
+            "weight": 643,
             "source": "text"
           },
           {
             "token": "entity_forum",
-            "weight": 390,
+            "weight": 356,
             "source": "text"
           }
         ]

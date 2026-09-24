@@ -2420,18 +2420,6 @@
       ]
     },
     {
-      "canonical": "atom_request",
-      "labels": {
-        "ar": "طلب",
-        "en": "request"
-      },
-      "patterns": [
-        "طلب",
-        "الطلب",
-        "طلبي"
-      ]
-    },
-    {
       "canonical": "entity_upload_refused",
       "labels": {
         "ar": "مش راضي يترفع",
