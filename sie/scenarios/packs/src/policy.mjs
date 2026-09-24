@@ -27,7 +27,7 @@ export const GENERIC_WORDS = Object.freeze({
         'entity_attach_in_reply', 'entity_reply_unclear', 'entity_not_started', 'entity_operator_scope',
         'entity_key_state', 'intent_hide_ticket', 'entity_how_will_i_know', 'entity_post_topic',
         'entity_ticket_counter', 'entity_linked_word',
-        'entity_traditional_mode', 'entity_sample_data'
+        'entity_traditional_mode', 'entity_sample_data', 'entity_reset_link'
     ]),
     max: Object.freeze([])
 });

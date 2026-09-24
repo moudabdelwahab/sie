@@ -56,10 +56,10 @@ const HELDOUT_FLOOR = 15;
 
 test('held-out paraphrases: landing rate never drops below what was measured', async () => {
     const { results, misses } = await checkPhrasings('pro_heldout', { edition: 'pro' });
-    assert.equal(results.length, 51);
+    assert.equal(results.length, readPhrasings('pro_heldout').length);
     const landed = results.length - misses;
-    assert.ok(landed >= HELDOUT_FLOOR, `held-out landing ${landed}/51 < measured ${HELDOUT_FLOOR}/51`);
-    if (landed > HELDOUT_FLOOR) console.log(`# held-out landing improved to ${landed}/51 — raise HELDOUT_FLOOR`);
+    assert.ok(landed >= HELDOUT_FLOOR, `held-out landing ${landed}/${results.length} < measured ${HELDOUT_FLOOR}`);
+    if (landed > HELDOUT_FLOOR) console.log(`# held-out landing ${landed}/${results.length} (floor ${HELDOUT_FLOOR})`);
 });
 
 test('held-out paraphrases: Pro is never more effectful than Free on them', async () => {

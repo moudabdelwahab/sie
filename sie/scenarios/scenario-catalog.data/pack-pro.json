@@ -21,7 +21,8 @@
     "entity_ticket_counter",
     "entity_linked_word",
     "entity_traditional_mode",
-    "entity_sample_data"
+    "entity_sample_data",
+    "entity_reset_link"
   ],
   "scenarios": [
     {
@@ -7620,6 +7621,218 @@
         "text": {
           "ar": "المنصة نصية حاليًا — مفيش مكالمات ولا دعم صوتي.\n\nفي خارطة الطريق: الدعم الصوتي خطوة جاية، والمكالمات بالذكاء الاصطناعي ورسائل الصوت رؤية مستقبلية مش ضمن الجدول الحالي. لحد كده، التذاكر والمحادثة الفورية هما أسرع طريق للدعم.",
           "en": "The platform is text-based today — there are no calls and no voice support.\n\nOn the roadmap: voice support is a next step, while AI voice calls and voice messages are a future vision outside the current schedule. Until then, tickets and live chat are the fastest route to support."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "blog_write_article_not_allowed",
+      "intent": "blog/write/not_allowed",
+      "label": {
+        "ar": "ينفع أكتب مقال في المدوّنة؟",
+        "en": "Can I write an article on the blog?"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_write_article",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_blog",
+          "weight": 3,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "المدوّنة بيكتبها فريق المنصة بس — العملاء والشركات بيقروا المقالات المنشورة، من غير ما يقدروا يضيفوا أو يعدّلوا.\n\nلو عندك تجربة أو سؤال عايز تشاركه مع الناس، انشره كموضوع في المنتدى. ولو عندك فكرة لمقال، قولّي وأنا أوصّلها للفريق.",
+          "en": "The blog is written by the platform team only — customers and companies read published articles but cannot add or edit them.\n\nIf you have an experience or a question to share with others, post it as a topic in the forum. And if you have an idea for an article, tell me and I'll pass it to the team."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_write_article",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "blog_find_article",
+      "intent": "blog/search/how",
+      "label": {
+        "ar": "أدوّر على مقال في المدوّنة إزاي",
+        "en": "How to find an article on the blog"
+      },
+      "category": "inquiry",
+      "evidenceSignature": [
+        {
+          "token": "entity_blog",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_search",
+          "weight": 2,
+          "source": "text"
+        },
+        {
+          "token": "intent_how_to",
+          "weight": 1,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "في صفحة المدوّنة:\n• خانة البحث فوق.\n• التصنيفات والوسوم بتفلتر المقالات حسب الموضوع — والتصنيف اللي مفيهوش مقالات مابيظهرش أصلًا.\n• في آخر كل مقال «مقالات ذات صلة».\n\nلو بتدوّر على خطوات استخدام ميزة معيّنة، مركز المساعدة غالبًا أقرب — أو اسألني هنا على طول.",
+          "en": "On the blog page:\n• The search box at the top.\n• Categories and tags filter articles by topic — a category with no articles isn't shown at all.\n• At the end of each article, \"Related articles\".\n\nIf you're after the steps to use a specific feature, the help center is usually closer — or just ask me here."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_blog",
+            "weight": 5,
+            "source": "text"
+          },
+          {
+            "token": "entity_article",
+            "weight": 2,
+            "source": "text"
+          },
+          {
+            "token": "intent_how_to",
+            "weight": 1,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "blog_article_link_not_working",
+      "intent": "blog/article_link/not_working",
+      "label": {
+        "ar": "رابط مقال في المدوّنة مش بيفتح",
+        "en": "A blog article link does not open"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_blog",
+          "weight": 481,
+          "source": "text"
+        },
+        {
+          "token": "entity_article",
+          "weight": 259,
+          "source": "text"
+        },
+        {
+          "token": "symptom_blank_page",
+          "weight": 259,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "لو رابط مقال في المدوّنة مابيفتحش:\n• ممكن يكون المقال اتأرشف — ساعتها بيختفي من المدوّنة ورابطه بيفضل شغال لفريق المنصة بس.\n• أو رابطه اتغيّر بعد ما اتنشر، فالرابط القديم اللي اتشارك وقف.\n\nدوّر عليه بعنوانه من خانة البحث في المدوّنة. ولو مش لاقيه، ابعتلي الرابط وأنا أبلّغ الفريق.",
+          "en": "If a blog article link doesn't open:\n• The article may have been archived — it then leaves the blog, and its link keeps working for the platform team only.\n• Or its link was changed after publishing, so the old shared link stopped working.\n\nSearch for it by title in the blog. If you can't find it, send me the link and I'll let the team know."
+        }
+      },
+      "requiresTicketIfUnresolved": false,
+      "alternativeSignatures": [
+        [
+          {
+            "token": "entity_blog",
+            "weight": 481,
+            "source": "text"
+          },
+          {
+            "token": "entity_article",
+            "weight": 259,
+            "source": "text"
+          },
+          {
+            "token": "symptom_not_working",
+            "weight": 259,
+            "source": "text"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "blog_articles_load_failed",
+      "intent": "blog/load/failed",
+      "label": {
+        "ar": "المدوّنة مكتوب فيها «تعذّر تحميل المقالات»",
+        "en": "The blog says \"failed to load articles\""
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_load_failed_msg",
+          "weight": 5,
+          "source": "text"
+        },
+        {
+          "token": "entity_article",
+          "weight": 3,
+          "source": "text"
+        },
+        {
+          "token": "entity_blog",
+          "weight": 2,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "«تعذّر تحميل المقالات» معناها إن صفحة المدوّنة ماقدرتش تجيب المقالات.\n\nحدّث الصفحة بعد دقيقة واتأكد إن النت شغال. لو الرسالة فضلت، قولّي وأنا أبلّغ الفريق التقني.",
+          "en": "\"Failed to load articles\" means the blog page could not fetch the articles.\n\nRefresh the page in a minute and check your connection. If the message stays, tell me and I'll report it to the technical team."
+        }
+      },
+      "requiresTicketIfUnresolved": false
+    },
+    {
+      "id": "pref_theme_not_kept",
+      "intent": "preferences/theme/per_browser",
+      "label": {
+        "ar": "الوضع الليلي/الفاتح: فين وليه بيتغيّر",
+        "en": "Dark/light mode: where it is and why it changes"
+      },
+      "category": "technical",
+      "evidenceSignature": [
+        {
+          "token": "entity_dark_theme",
+          "weight": 860,
+          "source": "text"
+        },
+        {
+          "token": "atom_by_itself",
+          "weight": 139,
+          "source": "text"
+        }
+      ],
+      "discriminatingQuestions": [],
+      "resolution": {
+        "hasAutoResolution": true,
+        "text": {
+          "ar": "زرار «تبديل الوضع الليلي والنهاري» موجود في القائمة الجانبية.\n\nاختيارك بيتحفظ في المتصفح اللي انت عليه، مش في حسابك:\n• لو فتحت من جهاز أو متصفح تاني، العرض بيبدأ حسب إعداد الجهاز نفسه (فاتح أو داكن).\n• لو الوضع بيرجع لوحده، غالبًا المتصفح بيمسح بيانات المواقع، أو انت في التصفح الخفي.",
+          "en": "The \"toggle dark and light mode\" button is in the sidebar.\n\nYour choice is saved in the browser you're using, not in your account:\n• On another device or browser, the display starts from that device's own setting (light or dark).\n• If the mode keeps switching back, your browser is probably clearing site data, or you're in private browsing."
         }
       },
       "requiresTicketIfUnresolved": false

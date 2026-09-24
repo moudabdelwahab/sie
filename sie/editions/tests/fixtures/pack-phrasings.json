@@ -780,6 +780,26 @@
     [
       "platform_voice_support_availability",
       "في دعم صوتي ولا مكالمات"
+    ],
+    [
+      "blog_write_article_not_allowed",
+      "عايز انشر مقال عندكم في المدونة ينفع"
+    ],
+    [
+      "blog_find_article",
+      "فين البحث في المدونه عايز الاقي مقال قديم"
+    ],
+    [
+      "blog_article_link_not_working",
+      "بعتولي لينك مقال من المدونة والصفحة مش بتفتح"
+    ],
+    [
+      "blog_articles_load_failed",
+      "صفحة المدونة مكتوب فيها تعذر تحميل المقالات"
+    ],
+    [
+      "pref_theme_not_kept",
+      "الوضع الليلي بيرجع فاتح لوحده كل ما افتح"
     ]
   ],
   "known_limits": [
@@ -996,6 +1016,10 @@
     [
       "forum_post_topic_how",
       "عايز اكتب بوست في المنتدى"
+    ],
+    [
+      "blog_articles_load_failed",
+      "المقالات مش بتحمل خالص في المدونه وبيطلعلي خطأ"
     ]
   ]
 }

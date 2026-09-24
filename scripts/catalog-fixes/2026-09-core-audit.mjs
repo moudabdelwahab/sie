@@ -208,6 +208,14 @@ const CORRECTIONS = {
     ui_delete_account_request: answer(
         'حذف الحساب وبياناته بيتم بطلب مكتوب على الإيميل:\n١. ابعت على support@mad3oom.com من نفس الإيميل المسجّل بيه حسابك.\n٢. اكتب إنه طلب حذف بيانات، ونوع الطلب (الحساب كله أو بيانات معيّنة).\n\nالطلب بيتنفّذ خلال ٣٠ يوم. لو محتاج أي حاجة من بياناتك، احفظها عندك قبل ما تبعت الطلب.',
         'Account and data deletion is done by written request by e-mail:\n1. Write to support@mad3oom.com from the e-mail address your account is registered with.\n2. Say it is a data-deletion request, and which kind (the whole account or specific data).\n\nRequests are processed within 30 days. If you need anything from your data, keep a copy before sending the request.'),
+    // Mad3oom language-manager.js: the language is stored per BROWSER
+    // (localStorage 'mad3oom-language'), defaulting to Arabic; it is switched
+    // from the sidebar button «تغيير اللغة» or the account-settings modal.
+    // The shipped answer said it was saved per account ("each user has their
+    // own setting"), which is what a customer on a second device disproves.
+    ui_language_wrong: answer(
+        'غيّر اللغة من زرار «تغيير اللغة» في القائمة الجانبية (أو من إعدادات الحساب)، واختار العربية.\n\nالاختيار بيتحفظ في المتصفح ده، مش في حسابك — فلو فتحت من جهاز أو متصفح تاني هيبدأ بالعربي لحد ما تغيّره.\n\nلو رجعت إنجليزي لوحدها بعد ما غيرتها، ده معناه إن المتصفح بيمسح بيانات المواقع: اتأكد إنك مش في وضع التصفح الخفي.',
+        'Change the language from the "Change language" button in the sidebar (or from account settings) and pick Arabic.\n\nThe choice is saved in this browser, not in your account — so on another device or browser it starts in Arabic until you change it.\n\nIf it goes back to English by itself after you changed it, your browser is clearing site data: make sure you are not in private browsing.'),
     // KB audit: external payment requests open a ticket with a 1-hour first-response target; proof ≤ 8MB mandatory.
     billing_bank_transfer_pending: answer(
         'الدفع بتحويل بنكي أو محفظة كاش أو إنستاباي بيتراجع يدويًا: طلبك بيفتح تذكرة تلقائيًا، وهدف أول رد عليها ساعة واحدة.\n\nعشان المراجعة تمشي بسرعة، اتأكد إن إثبات التحويل (صورة أو PDF لحد ٨ ميجا) اترفع وإنه واضح فيه المبلغ والتاريخ. تقدر تتابع التذكرة من «تذاكري».',

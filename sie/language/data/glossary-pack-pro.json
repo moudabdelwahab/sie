@@ -2820,6 +2820,69 @@
         "كول سنتر",
         "اتصال تليفوني"
       ]
+    },
+    {
+      "canonical": "entity_blog",
+      "labels": {
+        "ar": "المدوّنة",
+        "en": "the blog"
+      },
+      "patterns": [
+        "المدونة",
+        "المدونه",
+        "مدونة",
+        "مدونه",
+        "blog",
+        "البلوج",
+        "بلوج"
+      ]
+    },
+    {
+      "canonical": "entity_write_article",
+      "labels": {
+        "ar": "كتابة مقال",
+        "en": "writing an article"
+      },
+      "patterns": [
+        "اكتب مقال",
+        "اكتب مقالة",
+        "اكتب مقاله",
+        "انشر مقال",
+        "انشر مقالة",
+        "write an article",
+        "write a post"
+      ]
+    },
+    {
+      "canonical": "entity_load_failed_msg",
+      "labels": {
+        "ar": "تعذّر التحميل",
+        "en": "failed to load"
+      },
+      "patterns": [
+        "تعذر تحميل",
+        "تعذّر تحميل",
+        "فشل تحميل",
+        "failed to load"
+      ]
+    },
+    {
+      "canonical": "entity_dark_theme",
+      "labels": {
+        "ar": "الوضع الليلي أو النهاري",
+        "en": "dark or light mode"
+      },
+      "patterns": [
+        "الوضع الليلي",
+        "الوضع النهاري",
+        "الوضع الفاتح",
+        "الوضع الداكن",
+        "الدارك مود",
+        "dark mode",
+        "light mode",
+        "الليلي",
+        "النهاري"
+      ]
     }
   ]
 }

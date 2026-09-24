@@ -7443,8 +7443,8 @@
       "resolution": {
         "hasAutoResolution": true,
         "text": {
-          "ar": "غيّر لغة الواجهة من إعدادات الحساب ← اللغة، واختار العربية.\n\nالتغيير بيتطبق فورًا على حسابك إنت بس — كل مستخدم عنده إعداده الخاص.\n\nلو رجعت إنجليزي لوحدها بعد ما غيرتها، ده معناه إن المتصفح بيمسح بياناتك المحلية. اتأكد إنك مش في وضع التصفح الخفي وإن الموقع مسموح له يحفظ الكوكيز.",
-          "en": "Change it under Account settings → Language and pick Arabic.\n\nIt applies immediately, and only to your own account — every user has their own preference.\n\nIf it reverts to English on its own, your browser is clearing local data. Make sure you are not in private browsing and that the site is allowed to store cookies."
+          "ar": "غيّر اللغة من زرار «تغيير اللغة» في القائمة الجانبية (أو من إعدادات الحساب)، واختار العربية.\n\nالاختيار بيتحفظ في المتصفح ده، مش في حسابك — فلو فتحت من جهاز أو متصفح تاني هيبدأ بالعربي لحد ما تغيّره.\n\nلو رجعت إنجليزي لوحدها بعد ما غيرتها، ده معناه إن المتصفح بيمسح بيانات المواقع: اتأكد إنك مش في وضع التصفح الخفي.",
+          "en": "Change the language from the \"Change language\" button in the sidebar (or from account settings) and pick Arabic.\n\nThe choice is saved in this browser, not in your account — so on another device or browser it starts in Arabic until you change it.\n\nIf it goes back to English by itself after you changed it, your browser is clearing site data: make sure you are not in private browsing."
         }
       },
       "requiresTicketIfUnresolved": false,
