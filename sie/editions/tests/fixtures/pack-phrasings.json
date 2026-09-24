@@ -790,5 +790,212 @@
       "actualKind": "small_talk",
       "why": "Base small-talk reads the suffix «مدعوم ده ايه» as a platform question and answers with the platform introduction before diagnosis runs. Left as is: changing small-talk would change Free, which has no community scenario to fall back to. Other phrasings of the same question reach the scenario."
     }
+  ],
+  "note_heldout": "pro_heldout: one independent paraphrase for each of the 51 pack phrasings that share >= 75% of their words with the scenario's own label (34 were identical). Written to AVOID the label's wording. Held out: the pack is never tuned against them; the landing rate is measured and pinned as a floor (pack-phrasings.test.mjs), never forced to 100%. @no-legitimate-corpus",
+  "pro_heldout": [
+    [
+      "ticket_reply_did_not_change_status",
+      "بعت رد للدعم بس التذكرة لسه زي ما هي مااتحركتش"
+    ],
+    [
+      "ticket_reply_on_closed_allowed",
+      "التذكرة اتقفلت هل اقدر اكتب فيها تاني"
+    ],
+    [
+      "ticket_reopen_button_missing",
+      "مش لاقي اي زرار افتح بيه التذكرة من جديد"
+    ],
+    [
+      "ticket_duplicate_title_blocked",
+      "بيرفض يعمل تذكرة جديدة وبيقول العنوان متكرر"
+    ],
+    [
+      "ticket_similar_ticket_warning",
+      "وانا بقدم التذكرة طلعلي رسالة ان في تذكرة شبهها"
+    ],
+    [
+      "ticket_reply_late_badge",
+      "ظاهر على طلبي علامة ان الرد متأخر"
+    ],
+    [
+      "ticket_opened_by_mistake",
+      "عملت تذكرة من غير قصد عايز الغيها"
+    ],
+    [
+      "ticket_resolution_time_expectation",
+      "قدامها قد ايه التذكرة عشان تتحل"
+    ],
+    [
+      "ticket_attachment_field_missing",
+      "مفيش مكان ارفع فيه ملف وانا بعمل التذكرة"
+    ],
+    [
+      "ticket_follow_on_whatsapp",
+      "ينفع اتابع التذكرة من الواتساب بدل الموقع"
+    ],
+    [
+      "ticket_email_on_reply_expectation",
+      "الدعم رد على طلبي ومجاليش اي ايميل"
+    ],
+    [
+      "ticket_company_customer_tickets_stream",
+      "فين تذاكر عملائي جوه لوحة الشركة"
+    ],
+    [
+      "ticket_opened_on_wrong_account",
+      "التذكرة طلعت على حساب تاني مش حسابي"
+    ],
+    [
+      "account_restricted_notice",
+      "حسابي عليه قيود ومش عارف ليه"
+    ],
+    [
+      "account_activity_section",
+      "ايه اللي بيتسجل في نشاط حسابي"
+    ],
+    [
+      "account_portal_vs_company_dashboard",
+      "ايه الفرق بين صفحة العميل وصفحة الشركة"
+    ],
+    [
+      "account_company_dashboard_link_missing",
+      "لوحة الشركة اختفت من المنيو"
+    ],
+    [
+      "billing_upload_transfer_proof",
+      "حولت الفلوس وعايز ابعتلكم ايصال التحويل"
+    ],
+    [
+      "billing_subscribe_whatsapp_service",
+      "ازاي افعل خدمة الواتساب عندي"
+    ],
+    [
+      "billing_whatsapp_topup_how",
+      "عايز ازود رصيد رسايل الواتساب"
+    ],
+    [
+      "billing_whatsapp_low_balance_alert",
+      "جالي تنبيه ان رصيد الواتساب قرب يخلص"
+    ],
+    [
+      "assistant_not_replying",
+      "المساعد مش بيجاوبني خالص"
+    ],
+    [
+      "assistant_opened_ticket_where",
+      "المساعد قال انه عمل تذكرة بس مش لاقيها"
+    ],
+    [
+      "assistant_ticket_creation_disabled",
+      "المساعد بيقولي مش هقدر افتح تذكرة دلوقتي"
+    ],
+    [
+      "assistant_where_available",
+      "هو فيه بوت مساعد اكلمه جوه حسابي"
+    ],
+    [
+      "assistant_reply_in_english",
+      "can i talk to the assistant in english"
+    ],
+    [
+      "notif_click_destination",
+      "الاشعار لما افتحه بيوديني على صفحة غلط"
+    ],
+    [
+      "email_official_senders",
+      "ازاي اعرف ان الايميل ده جاي منكم فعلا"
+    ],
+    [
+      "wa_number_country_code_format",
+      "اكتب الرقم ب 20 ولا 0020 ولا من غير"
+    ],
+    [
+      "wa_link_preview_missing",
+      "اللينك اللي ببعته في الواتساب مش بيطلع صورة"
+    ],
+    [
+      "api_calls_log_empty",
+      "مش ظاهر اي طلبات في سجل الـ API"
+    ],
+    [
+      "subdomain_request_rejected",
+      "رفضوا طلب الدومين الفرعي بتاعي"
+    ],
+    [
+      "account_waitlist",
+      "انا لسه مستني في الانتظار ومش متفعل"
+    ],
+    [
+      "account_phone_already_registered",
+      "بيقولي الرقم ده مستخدم على حساب تاني"
+    ],
+    [
+      "livechat_ended_restart",
+      "قفلت الشات مع الدعم من غير ما اقصد"
+    ],
+    [
+      "subscription_request_already_pending",
+      "مش راضي ياخد طلب اشتراك جديد وبيقول في طلب مستني"
+    ],
+    [
+      "security_2fa_too_many_attempts",
+      "جربت الكود كذا مرة وقفلني"
+    ],
+    [
+      "chatbot_switched_to_traditional",
+      "البوت بطل يستخدم الذكاء الاصطناعي ورجع للردود الثابتة"
+    ],
+    [
+      "chatbot_model_list_empty",
+      "قايمة الموديلات فاضية في اعدادات البوت"
+    ],
+    [
+      "subscription_status_not_started",
+      "الاشتراك لسه مابدأش ليه"
+    ],
+    [
+      "subscription_expiry_popup_repeats",
+      "كل ما افتح الموقع يقولي الاشتراك قرب يخلص"
+    ],
+    [
+      "access_page_for_other_account_type",
+      "الصفحة بتقولي انها لحسابات العملاء بس"
+    ],
+    [
+      "login_company_member_mode",
+      "انا موظف في شركة ادخل منين"
+    ],
+    [
+      "security_logout_other_devices",
+      "اطلع من حسابي على الموبايل والجهاز التاني"
+    ],
+    [
+      "security_2fa_turn_off",
+      "مش عايز التحقق بخطوتين تاني شيله"
+    ],
+    [
+      "security_2fa_qr_not_showing",
+      "الموبايل مش بيقرا الباركود بتاع التحقق"
+    ],
+    [
+      "account_email_change_pending",
+      "عدلت الايميل بس لسه بيظهر القديم"
+    ],
+    [
+      "account_phone_not_verified_label",
+      "جنب رقمي مكتوب مش متوثق"
+    ],
+    [
+      "account_bio_visibility",
+      "الكلام اللي كاتبه عن نفسي في البروفايل حد بيشوفه"
+    ],
+    [
+      "notif_ticket_updates_on_whatsapp",
+      "عايز التحديثات بتاعة تذاكري توصلني واتساب"
+    ],
+    [
+      "forum_post_topic_how",
+      "عايز اكتب بوست في المنتدى"
+    ]
   ]
 }

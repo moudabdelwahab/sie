@@ -84,8 +84,12 @@ test('T-2: a malicious pack loses every bad item and cannot touch the core', asy
     const catalogs = createEditionCatalogs({ coreScenarios: async () => core, pack: async () => MALICIOUS });
     const a = await catalogs.forProfile(resolveEditionProfile('pro', {}));
     const ids = new Set(a.scenarios.map((s) => s.id));
-    // The core scenario is the core's, byte for byte.
-    assert.equal(a.scenarios.find((s) => s.id === coreVictim.id).resolution.text?.ar, coreVictim.resolution.text?.ar);
+    // The core scenario is the core's, byte for byte — and there is exactly
+    // one of it (find() alone would pass with a second copy appended; the
+    // mutation check showed that).
+    const copies = a.scenarios.filter((s) => s.id === coreVictim.id);
+    assert.equal(copies.length, 1);
+    assert.equal(copies[0].resolution.text?.ar, coreVictim.resolution.text?.ar);
     for (const bad of ['phish', 'huge_sig', 'nan_weight', 'huge_weight', 'huge_answer', 'Bad Id!', 'asks_password']) {
         assert.ok(!ids.has(bad), `${bad} should have been skipped`);
     }

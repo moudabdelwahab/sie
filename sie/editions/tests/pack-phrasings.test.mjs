@@ -45,3 +45,32 @@ test('known limits still behave as documented (fixing one means updating the fix
         assert.equal(r.interpretation.kind, lim.actualKind, `«${lim.text}» no longer behaves as documented — move it back to the phrasings`);
     }
 });
+
+// ── held-out paraphrases: the honest robustness number ──────────────────
+// 51 of the 195 phrasings share ≥ 75% of their words with the scenario's own
+// label (34 are identical), so "195/195" partly measures the author's own
+// wording. pro_heldout rephrases each of those 51 AVOIDING the label. The
+// pack is never tuned against them. Measured 2026-09-24: 15/51 land. This is
+// a floor (a change that loses one fails here) and a report, not a target.
+const HELDOUT_FLOOR = 15;
+
+test('held-out paraphrases: landing rate never drops below what was measured', async () => {
+    const { results, misses } = await checkPhrasings('pro_heldout', { edition: 'pro' });
+    assert.equal(results.length, 51);
+    const landed = results.length - misses;
+    assert.ok(landed >= HELDOUT_FLOOR, `held-out landing ${landed}/51 < measured ${HELDOUT_FLOOR}/51`);
+    if (landed > HELDOUT_FLOOR) console.log(`# held-out landing improved to ${landed}/51 — raise HELDOUT_FLOOR`);
+});
+
+test('held-out paraphrases: Pro is never more effectful than Free on them', async () => {
+    const eds = { free: await nodeEdition('free', SIE_DEFAULT_SETTINGS), pro: await nodeEdition('pro', SIE_DEFAULT_SETTINGS) };
+    const run = (n, text) => runTurn({ text, catalog: eds[n].scenarios, settings: SIE_DEFAULT_SETTINGS, variant: 'retrieval_only',
+        providers: { glossaryProvider: eds[n].providers.glossaryProvider, arabiziProvider: eds[n].providers.arabiziProvider }, edition: eds[n] });
+    const E = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
+    const worse = [];
+    for (const [id, text] of readPhrasings('pro_heldout')) {
+        const f = await run('free', text), p = await run('pro', text);
+        if (E.has(p.decision.action) && !E.has(f.decision.action)) worse.push(`${id} «${text}»`);
+    }
+    assert.deepEqual(worse, []);
+});
