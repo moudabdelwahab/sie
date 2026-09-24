@@ -139,6 +139,13 @@ export function createEmptyDecisionState() {
         // engine does not re-diagnose a conversation that is finished.
         resolvedByCustomer: false,
         ticketAlreadyCreated: false,
+        // The discriminating question asked on the LAST turn, if the last
+        // turn asked one: { scenarioId, questionId }. Explicit rather than
+        // inferred from askedQuestionIds, because a generic clarification
+        // asks no catalog question and would leave "the last asked id"
+        // pointing at an older question. Read by question-answer.js so a
+        // clicked option becomes the evidence it was written to imply.
+        pendingQuestion: null,
         history: []
     };
 }

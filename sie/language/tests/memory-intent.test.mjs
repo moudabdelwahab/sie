@@ -83,3 +83,25 @@ test('MEMORY_REPLIES: ordinary stored text is unchanged', () => {
     const reply = MEMORY_REPLIES.recalled([{ key: 'name', value: 'محمد من شركة النور' }]);
     assert.ok(reply.includes('• محمد من شركة النور'));
 });
+
+// ── «اسمي» و«شركتي» كمفعول به مش تعريف بالنفس ─────────────────────
+// Found by the Pro phrasing benchmark: these were stored as facts, so the
+// customer's question was swallowed as a memory write and never diagnosed.
+
+test('«اغير اسمي» طلب، مش اسم جديد', () => {
+    assert.deepEqual(extractFacts('عايز اغير اسمي اللي ظاهر'), []);
+    assert.deepEqual(extractFacts('ازاي اغير اسمي'), []);
+    assert.equal(detectMemoryIntent('عايز اغير اسمي اللي ظاهر'), null);
+});
+
+test('«لوجو شركتي» / «بيانات شركتي» مش اسم شركة', () => {
+    assert.deepEqual(extractFacts('عايز احط لوجو شركتي على البوابة بتاعتي'), []);
+    assert.deepEqual(extractFacts('بيانات شركتي مش ظاهرة'), []);
+});
+
+test('الأشكال الصريحة لسه بتتحفظ', () => {
+    assert.deepEqual(extractFacts('مرحبا اسمي محمد، عندي مشكلة'), [{ key: 'name', value: 'محمد' }]);
+    assert.deepEqual(extractFacts('شركتي اسمها النور'), [{ key: 'company', value: 'النور' }]);
+    assert.deepEqual(extractFacts('شركتي النور للتجارة'), [{ key: 'company', value: 'النور للتجارة' }]);
+    assert.deepEqual(extractFacts('انا احمد وشركتي اسمها تك'), [{ key: 'name', value: 'احمد' }, { key: 'company', value: 'تك' }]);
+});

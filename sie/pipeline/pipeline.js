@@ -51,6 +51,8 @@ import { openTurn, admitEvidence, admitAction, trustTrace } from '../trust/trust
 import { migrateState, updateSparseState, expandHypotheses, isSparseState } from '../diagnostics/sparse-state.js';
 import { interpretTurn, interpretationTrace, TURN_KINDS } from './interpretation.js';
 import { scopeCandidates } from './candidate-scope.js';
+import { evidenceFromQuestionAnswer } from '../diagnostics/question-answer.js';
+import { capEvidenceTokens, freeFloor } from '../editions/edition-turn.js';
 
 export { TURN_KINDS };
 
@@ -91,16 +93,28 @@ const now = () => Number(process.hrtime.bigint()) / 1e6;
  * @param {Object} [params.settings]
  * @param {string|Object} [params.variant='current']
  * @param {Object} [params.providers]           language providers, for Node tests
+ * @param {Object} [params.edition]             an edition to run as, exactly as the bridge applies it:
+ *                                              { profile (resolveEditionProfile), glossaryLayers }.
+ *                                              Absent = today's engine (no layers, no caps, no retrieval limit).
  * @returns {Promise<Object>}
  */
-export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {} }) {
+export async function runTurn({ text, catalog, previous = null, settings = {}, variant = 'current', providers = {}, rankingOptions = {}, edition = null }) {
     const cfg = resolveVariant(variant);
+    // A bigger edition without its pack ids would run without the Free floor
+    // and still look like it worked. Refuse instead.
+    if (edition && edition.profile?.edition !== 'free' && !(edition.packIds instanceof Set && edition.genericTokens instanceof Set)) {
+        throw new TypeError(`runTurn: edition "${edition.profile?.edition}" needs packIds and genericTokens (the assembly's) for the Free floor`);
+    }
     const timings = {};
     const turn = (previous?.turnCount || 0) + 1;
 
     // ── Language ───────────────────────────────────────────────
     let t = now();
-    const normalized = await normalize(text, { previousLanguage: previous?.language || 'ar', ...providers });
+    const normalized = await normalize(text, {
+        previousLanguage: previous?.language || 'ar',
+        ...providers,
+        ...(edition ? { glossaryLayers: edition.glossaryLayers || [], maxInputChars: edition.profile.maxMessageChars } : {})
+    });
     timings.language = now() - t;
 
     // ── Interpretation ─────────────────────────────────────────
@@ -135,7 +149,20 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
 
     // ── Evidence, bounded by CP2 ───────────────────────────────
     t = now();
-    const { evidence: admitted, dropped } = admitEvidence(evidence, trustEnvelope);
+    // A tapped discriminating-question option becomes the evidence it was
+    // written to imply. It joins the text evidence BEFORE the trust boundary,
+    // so it is bounded exactly like everything else the customer sends.
+    const answered = await evidenceFromQuestionAnswer({
+        text,
+        decisionState: previous?.decisionState,
+        lookup: (id) => catalog.find((s) => s.id === id) || null,
+        turn
+    });
+    // The edition's distinct-token bound comes first, as in the bridge's
+    // evidenceFilter: a resource bound, applied before the trust boundary.
+    const offered = answered ? [...evidence, ...answered.evidence] : evidence;
+    const capped = edition ? capEvidenceTokens(offered, edition.profile.maxEvidenceTokensPerTurn) : { evidence: offered, dropped: 0 };
+    const { evidence: admitted, dropped } = admitEvidence(capped.evidence, trustEnvelope);
     const priorState = previous?.diagnosticState || null;
     const priorAccumulator = priorState?.accumulator || { entries: [] };
     const accumulator = mergeEvidence(priorAccumulator, admitted, turn);
@@ -157,7 +184,8 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
             scenarios: catalog,
             tokenPresences: presences,
             previousHypotheses,
-            previousDecisionState: previous?.decisionState
+            previousDecisionState: previous?.decisionState,
+            limit: edition ? edition.profile.retrievalMaxCandidates : Infinity
         })
         : { scenarios: catalog, stats: { catalogSize: catalog.length, postingsScanned: null, retrieved: catalog.length, rememberedAdded: 0, referencedAdded: 0, total: catalog.length } };
     timings.scope = now() - t;
@@ -174,18 +202,25 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     // is empty whenever the message shares no vocabulary with any scenario,
     // and the decision engine has to be able to tell that from a catalog that
     // failed to load. See R4_EMPTY_SCOPE.
-    const ranking = rankHypotheses(hypotheses, scope.scenarios, { activationThreshold, catalogSize: catalog.length });
+    const rankOptions = { ...rankingOptions, activationThreshold, catalogSize: catalog.length };
+    const ranking = rankHypotheses(hypotheses, scope.scenarios, rankOptions);
     timings.ranking = now() - t;
 
     // ── Decision ───────────────────────────────────────────────
     t = now();
     const newEvidenceAddedThisTurn = (accumulator.entries || []).filter((e) => e.turn === turn).length;
-    const { decision, decisionState } = decide({
-        ranking, turn,
+    const decideWith = (r) => decide({
+        ranking: r, turn,
         previousDecisionState: previous?.decisionState,
         newEvidenceAddedThisTurn,
         policy: buildPolicy(settings, activationThreshold),
         customerSignal: interpretation.resolutionSignal
+    });
+    // The Free floor (edition-turn.freeFloor): a stand-off a pack created is
+    // never escalated past what Free would do. Inert for Free.
+    const { decision, decisionState, floored } = freeFloor({
+        ...decideWith(ranking), ranking, hypotheses, scenarios: scope.scenarios,
+        packIds: edition?.packIds, genericTokens: edition?.genericTokens, rankOptions, decideWith
     });
     timings.decision = now() - t;
 
@@ -204,9 +239,10 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     return {
         variant: cfg.name, turn, interpretation, trustEnvelope,
         responseLanguage: normalized.responseLanguage,
-        ranking, decision: authorized, actionDowngraded: downgraded, decisionState,
+        ranking, decision: authorized, actionDowngraded: downgraded, editionFloor: floored, decisionState,
         diagnosticState,
-        evidenceAdmitted: admitted.length, evidenceDropped: dropped,
+        evidenceAdmitted: admitted.length, evidenceDropped: dropped, evidenceCapped: capped.dropped,
+        questionAnswer: answered ? { scenarioId: answered.scenarioId, questionId: answered.questionId, option: answered.optionValue } : null,
         scope: scope.stats, timings,
         trace: { interpretation: interpretationTrace(interpretation), trust: trustTrace(trustEnvelope) }
     };
@@ -238,11 +274,11 @@ function buildPolicy(settings, activationThreshold) {
  * @param {string[]} params.messages
  * @returns {Promise<Object[]>} one result per turn
  */
-export async function runConversation({ messages, catalog, settings = {}, variant = 'current', providers = {} }) {
+export async function runConversation({ messages, catalog, settings = {}, variant = 'current', providers = {}, edition = null }) {
     const results = [];
     let previous = null;
     for (const message of messages) {
-        const result = await runTurn({ text: message, catalog, previous, settings, variant, providers });
+        const result = await runTurn({ text: message, catalog, previous, settings, variant, providers, edition });
         results.push(result);
         previous = {
             diagnosticState: result.diagnosticState,

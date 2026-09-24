@@ -68,9 +68,12 @@ export function extractFacts(text) {
 
     const found = [];
 
-    // «اسمي X» — the least ambiguous form, so it wins outright.
-    const explicitName = input.match(/اسمي\s+([\u0600-\u06FF\s]{2,40}?)(?:\s*[,،]|$)/);
-    if (explicitName) {
+    // «اسمي X» — the least ambiguous form, so it wins outright. Unless
+    // «اسمي» is the OBJECT of a verb («عايز اغير اسمي اللي ظاهر»): that is a
+    // request about the name, and storing "اللي ظاهر" as the name was a bug.
+    const explicitName = input.match(/(?:^|\s)(?:([\u0600-\u06FF]+)\s+)?اسمي\s+([\u0600-\u06FF\s]{2,40}?)(?:\s*[,،]|$)/);
+    if (explicitName && !OBJECT_VERBS.includes(foldWord(explicitName[1]))) {
+        explicitName[1] = explicitName[2];
         const value = tidy(explicitName[1]);
         if (isPlausibleName(value)) found.push({ key: 'name', value });
     }
@@ -79,7 +82,8 @@ export function extractFacts(text) {
     // as two facts rather than one unusable string.
     const selfIntro = input.match(/(?:^|\s)(?:انا|أنا)\s+([\u0600-\u06FF\s]{2,80}?)(?:\s*[,،.]|$)/);
     if (selfIntro) {
-        const rest = tidy(selfIntro[1]);
+        // «انا احمد وشركتي اسمها تك» — the name ends where the company starts.
+        const rest = tidy(selfIntro[1].split(/\s+و\s*شركتي/)[0]);
         const markerIndex = ROLE_MARKERS
             .map((marker) => ({ marker, at: rest.indexOf(marker) }))
             .filter((m) => m.at > 0)
@@ -96,10 +100,15 @@ export function extractFacts(text) {
         }
     }
 
-    const company = input.match(/شركتي\s+(?:اسمها\s+)?([\u0600-\u06FF\s]{2,40}?)(?:\s*[,،]|$)/);
+    // «شركتي X» only as a statement: at the start, after «انا/و», or as
+    // «شركتي اسمها X». After any other word it is an object («لوجو شركتي على
+    // البوابة», «بيانات شركتي مش ظاهرة») and the "value" was the rest of the
+    // sentence.
+    const company = input.match(/(?:^|(?:^|\s)(?:انا|أنا|و)\s+)شركتي\s+(?:اسمها\s+)?([\u0600-\u06FF\s]{2,40}?)(?:\s*[,،]|$)/)
+        || input.match(/شركتي\s+اسمها\s+([\u0600-\u06FF\s]{2,40}?)(?:\s*[,،]|$)/);
     if (company) {
         const value = tidy(company[1]);
-        if (value.length >= 2) found.push({ key: 'company', value });
+        if (value.length >= 2 && !NOT_A_COMPANY.includes(foldWord(value.split(' ')[0]))) found.push({ key: 'company', value });
     }
 
     return found;
@@ -165,13 +174,28 @@ export function detectMemoryIntent(rawText, previousText = '') {
 /** كلمات لو ظهرت بعد «انا» تبقى دي جملة عادية مش اسم. */
 const NOT_A_NAME = [
     'عندي', 'محتاج', 'عايز', 'مش', 'بحاول', 'زهقت', 'تعبت', 'اسف', 'متضايق',
-    'بسال', 'حابب', 'كنت', 'هحاول', 'شايف', 'قلت', 'جاي', 'لسه', 'بقالي'
+    'بسال', 'حابب', 'كنت', 'هحاول', 'شايف', 'قلت', 'جاي', 'لسه', 'بقالي',
+    // After «اسمي»: a description of the name, not a name.
+    'اللي', 'الظاهر', 'ظاهر', 'مكتوب', 'غلط', 'اتغير', 'متسجل', 'في', 'على', 'علي'
 ];
+
+/** أفعال لو جت قبل «اسمي» يبقى الاسم مفعول به مش تعريف بالنفس. */
+const OBJECT_VERBS = [
+    'اغير', 'غير', 'اغيير', 'تغيير', 'اعدل', 'عدل', 'تعديل', 'احط', 'حط', 'اكتب',
+    'امسح', 'اشيل', 'ابدل', 'اصحح', 'صحح', 'يظهر', 'اظهر', 'ازاي'
+];
+
+/** أول كلمة بعد «شركتي» لو كانت واحدة من دول، الجملة مش اسم شركة. */
+const NOT_A_COMPANY = ['على', 'علي', 'في', 'من', 'مش', 'عندها', 'فيها', 'بتاعتي', 'مسجله', 'مسجلة', 'اتقفلت', 'محتاجه', 'محتاجة'];
+
+function foldWord(word) {
+    return String(word || '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
+}
 
 function isPlausibleName(value) {
     const words = value.split(/\s+/).filter(Boolean);
     if (words.length === 0 || words.length > 4) return false;
-    return !NOT_A_NAME.includes(words[0]);
+    return !NOT_A_NAME.includes(words[0]) && !NOT_A_NAME.includes(foldWord(words[0]));
 }
 
 /**

@@ -1,0 +1,7 @@
+{
+  "note": "Pairs the duplicate gate flagged and a reviewer judged to be DIFFERENT cases. A pair may ship only if it is listed here with the reason. Key: ids sorted and joined by '|'.",
+  "pairs": {
+    "ticket_follow_on_whatsapp|ticket_whatsapp_follow_button_missing": "How the button works (it is visible) vs why it is not visible (support WhatsApp number not configured): different questions, different answers, and the second is only asked by someone who cannot see the first.",
+    "wa_change_connected_number|whatsapp_number_not_linked": "Different cases on the same number: whatsapp_number_not_linked is a number that failed to connect (a fault to diagnose); wa_change_connected_number is a working, connected number the customer wants to swap for another (a request with its own steps and Meta limits). Same lexicon, different decision."
+  }
+}

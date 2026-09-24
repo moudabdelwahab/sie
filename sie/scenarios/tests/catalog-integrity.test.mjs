@@ -35,7 +35,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { validateCatalog } from '../scenario-types.js';
+import { validateCatalog, scenarioSignatures, scenarioTokens } from '../scenario-types.js';
 import { detectSmallTalk } from '../../language/small-talk.js';
 import { normalizeArabicToken } from '../../language/dialect-normalizer.js';
 
@@ -48,8 +48,10 @@ const glossaryEntries = glossaryFile.entries || glossaryFile;
 
 const glossaryCanonicals = new Set(glossaryEntries.map((e) => e.canonical));
 const signatureTokens = new Set();
+// Every signature, not just the primary: a token that only an alternative
+// signature uses is still a token the catalog depends on.
 for (const scenario of scenarios) {
-    for (const entry of scenario.evidenceSignature) signatureTokens.add(entry.token);
+    for (const token of scenarioTokens(scenario)) signatureTokens.add(token);
 }
 
 test('every scenario passes the validator the engine loads it with', () => {
@@ -74,9 +76,9 @@ test('scenario ids are unique', () => {
 test('every evidence token is one the glossary can actually produce', () => {
     const unreachable = [];
     for (const scenario of scenarios) {
-        for (const entry of scenario.evidenceSignature) {
-            if (!glossaryCanonicals.has(entry.token)) {
-                unreachable.push(`${scenario.id} -> ${entry.token}`);
+        for (const token of scenarioTokens(scenario)) {
+            if (!glossaryCanonicals.has(token)) {
+                unreachable.push(`${scenario.id} -> ${token}`);
             }
         }
     }
@@ -86,12 +88,13 @@ test('every evidence token is one the glossary can actually produce', () => {
 test('no two scenarios share the same evidence token set', () => {
     const byTokenSet = new Map();
     for (const scenario of scenarios) {
-        const key = scenario.evidenceSignature
-            .map((e) => e.token)
-            .sort()
-            .join('|');
-        if (!byTokenSet.has(key)) byTokenSet.set(key, []);
-        byTokenSet.get(key).push(scenario.id);
+        // Each signature separately: two scenarios colliding on ANY pair of
+        // their signatures are permanently tied on the messages that match it.
+        for (const signature of scenarioSignatures(scenario)) {
+            const key = signature.map((e) => e.token).sort().join('|');
+            if (!byTokenSet.has(key)) byTokenSet.set(key, []);
+            if (!byTokenSet.get(key).includes(scenario.id)) byTokenSet.get(key).push(scenario.id);
+        }
     }
     const collisions = [...byTokenSet.entries()]
         .filter(([, ids]) => ids.length > 1)
@@ -220,5 +223,14 @@ test('an auto-resolving scenario carries an answer, and an escalating one does n
 });
 
 test('the catalog holds the expected number of scenarios', () => {
-    assert.equal(scenarios.length, 650);
+    // 650 until the 2026-09 audit merged 15 pairs that were the same case
+    // (scripts/catalog-fixes/2026-09-core-audit.mjs). Every removed id is in
+    // aliases.json, so the count and the alias map must move together.
+    const aliases = readJson('../scenario-catalog.data/aliases.json').aliases;
+    assert.equal(scenarios.length + Object.keys(aliases).length, 650);
+    assert.equal(scenarios.length, 635);
+    for (const [removed, { into }] of Object.entries(aliases)) {
+        assert.ok(!scenarios.some((s) => s.id === removed), `${removed} is aliased but still present`);
+        assert.ok(scenarios.some((s) => s.id === into), `${removed} aliases to missing ${into}`);
+    }
 });

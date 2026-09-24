@@ -33,7 +33,7 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.2;
  * @param {string} [params.timestamp]
  * @returns {import('./trace-types.js').TraceEvent}
  */
-export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null, shadow = null }) {
+export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null, shadow = null, engine = null }) {
     const hypothesesSnapshot = (diagnosticState?.hypotheses || [])
         .filter((h) => h.status !== 'unconsidered')
         .map((h) => ({ scenarioId: h.scenarioId, confidence: h.confidence, status: h.status }));
@@ -49,6 +49,10 @@ export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, di
         // null unless shadow running is on. Carries what the vNext pipeline
         // would have decided on this same turn, and whether it agreed.
         shadow,
+        // Which edition answered, how big its catalog was, and how many
+        // scenarios this turn actually scored. null from callers that predate
+        // editions, so existing traces keep their shape.
+        engine,
         normalizedTokenCanonicals: (normalizedTokens || []).map((t) => t.canonical).filter(Boolean),
         hypothesesSnapshot,
         rankingSnapshot: {

@@ -14,7 +14,7 @@
  * (logging a warning) rather than throwing — a malformed scenario
  * definition should degrade the catalog, not crash the engine.
  */
-import { validateCatalog } from './scenario-types.js';
+import { validateCatalog, scenarioTokens } from './scenario-types.js';
 
 /**
  * Creates a scenario catalog provider around a given async loader
@@ -67,7 +67,7 @@ export function createScenarioCatalogProvider(loadFn) {
         const { scenarios } = await loadAndValidate();
         const tokens = new Set();
         for (const scenario of scenarios) {
-            for (const entry of scenario.evidenceSignature) tokens.add(entry.token);
+            for (const token of scenarioTokens(scenario)) tokens.add(token);
         }
         return Array.from(tokens);
     }

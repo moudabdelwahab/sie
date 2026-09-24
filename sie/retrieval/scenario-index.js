@@ -65,6 +65,8 @@
  * to get wrong.
  */
 
+import { scenarioSignatures } from '../scenarios/scenario-types.js';
+
 const INDEX_CACHE = new WeakMap();
 
 /**
@@ -94,41 +96,50 @@ export function buildScenarioIndex(scenarios) {
     const cached = INDEX_CACHE.get(scenarios);
     if (cached) return cached;
 
+    // One ROW per signature. A scenario without alternativeSignatures has
+    // exactly one row, at the same position as before; a scenario with
+    // alternatives has one more row per alternative, and retrieval takes the
+    // maximum over a scenario's rows — the same maximum computeScenarioConfidence
+    // takes. `rowScenario` maps a row back to its scenario.
     const postings = new Map();
-    const totalWeight = new Float64Array(scenarios.length);
+    const rowTotals = [];
+    const rowScenarioList = [];
     let postingsTotal = 0;
 
     for (let i = 0; i < scenarios.length; i++) {
-        const signature = scenarios[i]?.evidenceSignature;
-        if (!Array.isArray(signature)) continue;
-        let sum = 0;
-        for (const entry of signature) {
-            if (!entry || typeof entry.token !== 'string') continue;
-            const weight = typeof entry.weight === 'number' ? entry.weight : 0;
-            sum += weight;
-            let list = postings.get(entry.token);
-            if (!list) { list = { ids: [], weights: [] }; postings.set(entry.token, list); }
-            // A token repeated inside one signature must not appear twice in
-            // its posting list, or that scenario is scored twice. The
-            // signature's own duplicate weight still counts toward the
-            // denominator above, which is what the full-scan scorer does too.
-            if (list.ids[list.ids.length - 1] !== i) {
-                list.ids.push(i);
-                list.weights.push(weight);
-                postingsTotal += 1;
-            } else {
-                list.weights[list.weights.length - 1] += weight;
+        for (const signature of scenarioSignatures(scenarios[i] || {})) {
+            const row = rowTotals.length;
+            let sum = 0;
+            for (const entry of signature) {
+                if (!entry || typeof entry.token !== 'string') continue;
+                const weight = typeof entry.weight === 'number' ? entry.weight : 0;
+                sum += weight;
+                let list = postings.get(entry.token);
+                if (!list) { list = { ids: [], weights: [] }; postings.set(entry.token, list); }
+                // A token repeated inside one signature must not appear twice in
+                // its posting list, or that row is scored twice. The
+                // signature's own duplicate weight still counts toward the
+                // denominator above, which is what the full-scan scorer does too.
+                if (list.ids[list.ids.length - 1] !== row) {
+                    list.ids.push(row);
+                    list.weights.push(weight);
+                    postingsTotal += 1;
+                } else {
+                    list.weights[list.weights.length - 1] += weight;
+                }
             }
+            rowTotals.push(sum);
+            rowScenarioList.push(i);
         }
-        totalWeight[i] = sum;
     }
 
     const n = scenarios.length || 1;
     const idf = new Map();
     for (const [token, list] of postings) {
-        // ln(N / df). A token in every scenario scores 0 and is worthless for
-        // discrimination; a token in one scores ln(N) and identifies it.
-        idf.set(token, Math.log(n / list.ids.length));
+        // ln(N / df), with df counted in SCENARIOS, not rows — two signatures
+        // of one scenario sharing a token do not make it more common.
+        const df = new Set(list.ids.map((row) => rowScenarioList[row])).size;
+        idf.set(token, Math.log(n / df));
         // Frozen into typed arrays once building is done: the lists never
         // change after this, and typed arrays halve the memory and keep the
         // scoring loop monomorphic.
@@ -139,7 +150,9 @@ export function buildScenarioIndex(scenarios) {
         scenarios,
         postings,
         idf,
-        totalWeight,
+        totalWeight: Float64Array.from(rowTotals),
+        rowScenario: Int32Array.from(rowScenarioList),
+        rows: rowTotals.length,
         size: scenarios.length,
         vocabulary: postings.size,
         postingsTotal

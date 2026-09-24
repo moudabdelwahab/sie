@@ -12,6 +12,7 @@
  * test here: the effective catalog can never be smaller than the base.
  */
 import { test } from 'node:test';
+import { lintAnswerText } from '../../editions/pack-guard.js';
 import assert from 'node:assert/strict';
 import {
     mergeScenarioCatalogs,
@@ -283,7 +284,8 @@ function productionOverlayRows() {
     });
     const inquiry = (id, ar, ks, tokens) => ({
         id, label: { ar, en: '' }, category: 'inquiry',
-        resolution: { text: { ar: 'نص', en: '' }, knowledgeSource: ks, hasAutoResolution: true },
+        // The texts production actually publishes (read-only query, 2026-09-24).
+        resolution: { text: { ar: `حصل خطأ بسيط وإحنا بنجيب ${ks === 'ticket_status' ? 'تذاكرك' : 'بيانات اشتراكك'}، جرب تاني كمان شوية [[icon:note]]`, en: '' }, knowledgeSource: ks, hasAutoResolution: true },
         evidenceSignature: sig(tokens), discriminatingQuestions: [], requiresTicketIfUnresolved: false
     });
     return [
@@ -396,4 +398,33 @@ test('an explicitly-false setting still reports "disabled", not "unknown"', asyn
         loadOverlay: async () => []
     });
     assert.equal(resolution.overlayStatus, 'disabled');
+});
+
+// ===================================================================
+// Content rules — a published row speaks in the brand's voice
+// ===================================================================
+
+test('a published row is held to the same content lint as shipped content', async () => {
+    const base = [scenario('a'), scenario('victim')];
+    const phish = { ...scenario('victim'), resolution: { text: { ar: 'ادخل على [الرابط](https://mad3oom-help.xyz) وجدد', en: 'renew there' }, hasAutoResolution: true } };
+    const creds = { ...scenario('asks'), resolution: { text: { ar: 'عشان أساعدك ابعتلي كلمة المرور بتاعتك', en: 'x' }, hasAutoResolution: true } };
+    const { provider, resolution } = await resolveScenarioCatalog({
+        supabase: FAKE_CLIENT, settings: SETTINGS_ON, baseProvider: baseProviderOf(base),
+        loadOverlay: async () => [phish, creds, scenario('fine')]
+    });
+    const byId = new Map((await provider.getAllScenarios()).map((x) => [x.id, x]));
+    assert.equal(byId.get('victim').resolution.text.ar, 'نص', 'the shipped scenario is not replaced by the phishing row');
+    assert.ok(!byId.has('asks'));
+    assert.ok(byId.has('fine'));
+    assert.equal(resolution.overlayInvalid, 2);
+    assert.ok((await provider.getLoadWarnings()).some((w) => /markdown link|link to/.test(w)));
+});
+
+test('the lint adds no rejection of its own to what production publishes today', () => {
+    // Production's seven rows already fail the schema (INVARIANT F), so the
+    // overlay loads nothing today; this pins that their TEXT is also clean,
+    // so the day the schema problem is fixed the lint does not drop them.
+    for (const row of productionOverlayRows()) {
+        for (const l of ['ar', 'en']) assert.deepEqual(lintAnswerText(row.resolution?.text?.[l] ?? ''), [], `${row.id}.${l}`);
+    }
 });

@@ -43,8 +43,13 @@ import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
 import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
 import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace } from '../sie/trust/trust-boundary.js';
 import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
+import { evidenceFromQuestionAnswer } from '../sie/diagnostics/question-answer.js';
 import { toSparseState } from '../sie/diagnostics/sparse-state.js';
 import { runShadowComparison } from './sie-shadow.js';
+import { resolveCustomerEdition, resolveEditionProfile } from '../sie/editions/editions.js';
+import { editionCatalogs } from '../sie/editions/edition-catalog.local.js';
+import { providerForAssembly } from '../sie/editions/edition-catalog.js';
+import { capEvidenceTokens, scopeFor, freeFloor } from '../sie/editions/edition-turn.js';
 
 /**
  * How the trust boundary is configured for this turn, from settings.
@@ -366,9 +371,30 @@ const TICKET_DISABLED_TEXT = {
  * instead, so the effective catalog can never be smaller than the
  * shipped one.
  */
-async function resolveTurnScenarioProvider(supabase, settings) {
-    const { provider, resolution } = await resolveScenarioCatalog({ supabase, settings });
+async function resolveTurnScenarioProvider(supabase, settings, baseProvider) {
+    const { provider, resolution } = await resolveScenarioCatalog({ supabase, settings, ...(baseProvider ? { baseProvider } : {}) });
     return { provider, resolution };
+}
+
+/**
+ * The edition this turn runs as, and the catalog + vocabulary it brings.
+ *
+ * Never throws and never leaves a turn without a catalog: a pack that fails
+ * to load (a CDN hiccup at cold start, a malformed file) degrades the turn to
+ * the Free profile, which needs nothing but the core files every deployment
+ * already loads. The failure is logged with the edition that was lost, so a
+ * silent downgrade cannot hide.
+ */
+async function resolveTurnEdition(entitlement, settings) {
+    const edition = resolveCustomerEdition({ accessRow: { edition: entitlement?.edition ?? null }, settings });
+    const profile = resolveEditionProfile(edition, settings);
+    try {
+        return { profile, assembly: await editionCatalogs.forProfile(profile), degradedFrom: null };
+    } catch (err) {
+        console.error(`[sie] edition "${edition}" could not be assembled, answering as Free:`, err?.message || err);
+        const free = resolveEditionProfile('free', settings);
+        return { profile: free, assembly: await editionCatalogs.forProfile(free), degradedFrom: edition };
+    }
 }
 
 const TICKET_DECLINE_TEXT = {
@@ -698,6 +724,13 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
     const port = createRealSupabasePort(supabase);
     const turnStartedAt = Date.now();
 
+    // Which edition, and therefore which catalog, vocabulary and limits.
+    // Resolved once per turn, before anything reads the text. A missing
+    // edition (a database without the edition column yet) is Free — exactly
+    // today's engine.
+    const { profile: editionProfile, assembly: editionAssembly, degradedFrom: editionDegradedFrom } =
+        await resolveTurnEdition(entitlement, settings);
+
     try {
         let prevSie = recallPreviousState(botState?.sie || null, settings);
 
@@ -725,7 +758,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
 
         // 2. Language (Module 1)
         const { normalizedTokens, responseLanguage } = await normalize(text, {
-            previousLanguage: prevSie?.language || 'ar'
+            previousLanguage: prevSie?.language || 'ar',
+            // The edition's vocabulary layers (none for Free) and its message
+            // cap (never above the hard 8,000 normalize() enforces anyway).
+            glossaryLayers: editionAssembly.glossaryLayers,
+            maxInputChars: editionProfile.maxMessageChars
         });
 
         // 2.5. كلام عادي (تحية / شكر / اعتذار / سؤال هوية أو عن المنصة / طلب
@@ -835,7 +872,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // BOTH processTurn and rankDiagnosticState below, so the two can
         // never disagree about what the candidates are.
         const { provider: scenarioProvider, resolution: catalogResolution } =
-            await resolveTurnScenarioProvider(supabase, settings);
+            await resolveTurnScenarioProvider(supabase, settings, providerForAssembly(editionAssembly));
 
         // The one catalog outcome worth a line in the logs: the operator
         // asked for their published rows and did not get them. Silence
@@ -853,17 +890,37 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         // is arithmetic rather than detection: a turn the boundary constrained
         // moves belief no further than one ordinary sentence, however phrased.
         let evidenceDropped = 0;
+        // A tapped discriminating-question option carries the evidence its
+        // option declares (question-answer.js). Passed as additionalEvidence
+        // so the trust boundary's evidenceFilter below bounds it too.
+        const questionAnswer = await evidenceFromQuestionAnswer({
+            text,
+            decisionState: prevSie?.decisionState,
+            lookup: (id) => scenarioProvider.getScenarioById(id),
+            turn
+        });
         const diagnosticState = await processTurn({
             normalizedTokens,
             turn,
             previousState: prevSie?.diagnosticState,
             liveEvidenceContext: { userId },
+            additionalEvidence: questionAnswer ? questionAnswer.evidence : [],
             scenarioProvider,
             evidenceFilter: (evidence) => {
-                const { evidence: kept, dropped } = admitEvidence(evidence, trustEnvelope);
-                evidenceDropped = dropped;
+                // Resource bound first (the edition's distinct-token cap), then
+                // the trust boundary — the same order the pipeline applies.
+                const capped = capEvidenceTokens(evidence, editionProfile.maxEvidenceTokensPerTurn);
+                const { evidence: kept, dropped } = admitEvidence(capped.evidence, trustEnvelope);
+                evidenceDropped = dropped + capped.dropped;
                 return kept;
-            }
+            },
+            // Score only the scenarios that can score, plus the ones the
+            // conversation already tracks or names. Exact — see
+            // retrieval/scenario-index.js — and the reason 1,500 scenarios
+            // cost what 650 did. The switch exists for incident response only.
+            scope: settings.retrieval_scoped_diagnosis === false
+                ? null
+                : scopeFor({ previousDecisionState: prevSie?.decisionState, limit: editionProfile.retrievalMaxCandidates })
         });
         if (evidenceDropped > 0) {
             console.warn(`[sie] trust boundary dropped ${evidenceDropped} evidence item(s) (${trustEnvelope.rationale})`);
@@ -886,8 +943,8 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         );
 
         // 5. Decision (Module 5)
-        const { decision, decisionState } = decide({
-            ranking,
+        const decideWith = (r) => decide({
+            ranking: r,
             turn,
             previousDecisionState: prevSie?.decisionState,
             newEvidenceAddedThisTurn,
@@ -910,6 +967,20 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             // الاتنين بيدّوا توكنز وبيسيبوا الثقة زي ما هي.
             customerSignal: resolutionSignal
         });
+        // «أرضية Free»: تعادل عمله سيناريو من حزمة الإصدار مايتحوّلش لتذكرة
+        // لو Free كان هيسأل سؤال — see edition-turn.freeFloor. Inert on Free.
+        const { decision, decisionState, floored: editionFloor } = freeFloor({
+            ...decideWith(ranking), ranking,
+            hypotheses: diagnosticState.hypotheses,
+            scenarios: await scenarioProvider.getAllScenarios(),
+            packIds: editionAssembly?.packIds,
+            genericTokens: editionAssembly?.genericTokens,
+            rankOptions: { activationThreshold },
+            decideWith
+        });
+        if (editionFloor) {
+            console.info(`[sie] edition floor (${editionProfile.edition}): ${editionFloor.from} → ${editionFloor.to} (stand-off with ${editionFloor.scenarioId})`);
+        }
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
         //    the decision is an ANSWER with a knowledgeSource.
@@ -1010,9 +1081,10 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             shadowState = shadow.shadowState;
         }
 
+        const { scopeStats, ...diagnosticStateToPersist } = diagnosticState;
         const persistedDiagnosticState = settings.sparse_diagnostic_state === true
-            ? toSparseState(diagnosticState)
-            : diagnosticState;
+            ? toSparseState(diagnosticStateToPersist)
+            : diagnosticStateToPersist;
 
         const nextBotState = {
             ...(botState || {}),
@@ -1129,7 +1201,18 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
                 trust: trustTrace(trustEnvelope),
                 // null unless the shadow ran. This is the field an offline
                 // analysis of production agreement reads.
-                shadow: shadowRecord
+                shadow: shadowRecord,
+                // Which edition answered and how much of its catalog this turn
+                // actually scored. `degradedFrom` is set only when a pack
+                // failed to load and the turn fell back to Free.
+                engine: {
+                    edition: editionProfile.edition,
+                    degradedFrom: editionDegradedFrom,
+                    // Set when the Free floor replaced an ambiguity ticket (edition-turn.freeFloor).
+                    floor: editionFloor,
+                    catalogSize: editionAssembly.scenarios.length,
+                    scope: scopeStats || null
+                }
             });
             await logTraceEvent({
                 sessionId, turn, traceEvent, port,

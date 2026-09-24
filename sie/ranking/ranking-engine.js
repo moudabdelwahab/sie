@@ -89,7 +89,19 @@ export function rankHypotheses(hypotheses, scenarios, options = {}) {
         (a, b) => b.confidence - a.confidence || a.scenarioId.localeCompare(b.scenarioId)
     );
 
-    const ranked = sorted.map((hypothesis, index) => ({
+    const specificity = options.specificity !== false;
+
+    // Only hypotheses that actually cleared the activation threshold count
+    // as real candidates for ambiguity/comparison purposes — a leader at
+    // 0.02 confidence with a "runner-up" at 0.01 isn't a meaningful
+    // two-horse race, it's just noise.
+    const isCandidate = (h) => h.confidence >= activationThreshold;
+
+    const { order, subsumedIds } = specificity
+        ? resolveSpecificity(sorted, isCandidate, (id) => scenarioById.get(id)?.catchAll !== true)
+        : { order: sorted, subsumedIds: new Set() };
+
+    const ranked = order.map((hypothesis, index) => ({
         hypothesis,
         scenario: scenarioById.get(hypothesis.scenarioId) || null,
         rank: index + 1
@@ -98,14 +110,16 @@ export function rankHypotheses(hypotheses, scenarios, options = {}) {
     const topHypothesis = ranked[0] || null;
     const runnerUp = ranked[1] || null;
 
-    // Only hypotheses that actually cleared the activation threshold count
-    // as real candidates for ambiguity/comparison purposes — a leader at
-    // 0.02 confidence with a "runner-up" at 0.01 isn't a meaningful
-    // two-horse race, it's just noise.
-    const candidates = ranked.filter((entry) => entry.hypothesis.confidence >= activationThreshold);
+    const candidates = ranked.filter((entry) => isCandidate(entry.hypothesis));
+
+    // The contender the leader actually has to be separated from: the best
+    // candidate it does NOT subsume. A candidate whose matched evidence is a
+    // strict subset of the leader's is not a rival reading of the message —
+    // it is a less complete reading of the same one. See resolveSpecificity.
+    const rival = candidates.slice(1).find((entry) => !subsumedIds.has(entry.hypothesis.scenarioId)) || null;
 
     const confidenceGap =
-        candidates.length >= 2 ? candidates[0].hypothesis.confidence - candidates[1].hypothesis.confidence : null;
+        candidates.length >= 2 && rival ? candidates[0].hypothesis.confidence - rival.hypothesis.confidence : null;
 
     const isAmbiguous = confidenceGap !== null && confidenceGap < AMBIGUITY_MARGIN;
 
@@ -115,6 +129,10 @@ export function rankHypotheses(hypotheses, scenarios, options = {}) {
 
     return {
         ranked, topHypothesis, runnerUp, confidenceGap, isAmbiguous, candidateDiscriminatingQuestions,
+        /** The candidate the gap was measured against (null when unopposed). */
+        rival,
+        /** Candidates set aside because the leader's evidence strictly contains theirs. */
+        subsumedIds: [...subsumedIds],
         /**
          * How many scenarios were in SCOPE this turn — the ones actually
          * scored. Equals the catalog size under a full scan; equals the
@@ -135,6 +153,99 @@ export function rankHypotheses(hypotheses, scenarios, options = {}) {
          */
         catalogSize: typeof options.catalogSize === 'number' ? options.catalogSize : (scenarios || []).length
     };
+}
+
+/**
+ * «الأدق يكسب» — the more complete explanation wins a near-tie.
+ *
+ * ------------------------------------------------------------
+ * THE DEFECT THIS FIXES
+ *
+ * Confidence is a coverage ratio, so a scenario with a two-token signature
+ * scores 1.0 the moment both tokens appear. A MORE specific scenario — the
+ * same two tokens plus the one word that makes it a different case — also
+ * scores at most 1.0. On exactly the messages that describe the specific
+ * case, the two tie, `isAmbiguous` fires, and the engine asks a question
+ * (or hands off) about a message it had every word it needed to answer.
+ * The alphabetical tie-break then decides which one is even offered.
+ *
+ * That is the engine penalising detail, and it gets strictly worse as the
+ * catalog grows: every specialised scenario added on top of a general one
+ * turns a message the general one answered into an ambiguous one.
+ *
+ * ------------------------------------------------------------
+ * THE RULE
+ *
+ * Among candidates, B is SUBSUMED by A when B's supporting evidence is a
+ * strict subset of A's and A is within the ambiguity margin of B (or above
+ * it). A then explains everything B explains plus something B cannot, so:
+ *
+ *   - A is preferred over B for the top position, and
+ *   - B does not count as A's rival when measuring ambiguity.
+ *
+ * It is deliberately narrow:
+ *   - Only CANDIDATES take part (≥ activation threshold). Noise cannot be
+ *     promoted.
+ *   - Only a STRICT subset counts. Two readings supported by different
+ *     evidence are real rivals and stay ambiguous — that is what
+ *     discriminating questions are for.
+ *   - Only within the margin. A specific scenario far below a general one is
+ *     missing its defining evidence, and does not jump the queue.
+ *
+ * Deterministic, and equivalent under retrieval: it reads only candidates,
+ * which retrieval never drops.
+ *
+ * A scenario marked `catchAll` (the generic "unknown problem" bucket) is
+ * never PROMOTED this way: matching several generic words makes it broader,
+ * not more specific, and letting it climb over a named scenario on
+ * "slow and not working" was the one regression this rule produced on the
+ * behaviour corpus before the exemption existed. It can still be subsumed.
+ *
+ * @param {Array} sorted hypotheses sorted by (confidence desc, id asc)
+ * @param {(h: object) => boolean} isCandidate
+ * @param {(id: string) => boolean} [isPromotable]
+ * @returns {{order: Array, subsumedIds: Set<string>}}
+ */
+function resolveSpecificity(sorted, isCandidate, isPromotable = () => true) {
+    const candidates = [];
+    for (const h of sorted) {
+        if (!isCandidate(h)) break; // sorted by confidence: the rest are below too
+        candidates.push(h);
+    }
+    if (candidates.length < 2) return { order: sorted, subsumedIds: new Set() };
+
+    const supportOf = new Map(candidates.map((h) => [h.scenarioId, new Set(h.supportingEvidenceTokens || [])]));
+    const strictlyContains = (outer, inner) => {
+        if (outer.size <= inner.size) return false;
+        for (const t of inner) if (!outer.has(t)) return false;
+        return true;
+    };
+
+    // Climb from the confidence leader to the most complete reading within
+    // the margin. Each step strictly grows the supporting set, so this ends.
+    let top = candidates[0];
+    for (;;) {
+        const topSupport = supportOf.get(top.scenarioId);
+        const better = candidates.find((c) =>
+            c !== top &&
+            isPromotable(c.scenarioId) &&
+            c.confidence > top.confidence - AMBIGUITY_MARGIN &&
+            strictlyContains(supportOf.get(c.scenarioId), topSupport));
+        if (!better) break;
+        top = better;
+    }
+
+    const topSupport = supportOf.get(top.scenarioId);
+    const subsumedIds = new Set();
+    for (const c of candidates) {
+        if (c === top) continue;
+        if (isPromotable(top.scenarioId) &&
+            top.confidence > c.confidence - AMBIGUITY_MARGIN && strictlyContains(topSupport, supportOf.get(c.scenarioId))) {
+            subsumedIds.add(c.scenarioId);
+        }
+    }
+    if (top === sorted[0]) return { order: sorted, subsumedIds };
+    return { order: [top, ...sorted.filter((h) => h !== top)], subsumedIds };
 }
 
 /**

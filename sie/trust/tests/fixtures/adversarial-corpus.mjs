@@ -14,6 +14,9 @@
  * `constrained` passing as `quarantined` is fine; the reverse is a miss.
  * `null` means "must not fire" — these are the attack-shaped messages a real
  * customer might plausibly send.
+ *
+ * @no-legitimate-corpus — the attack corpus itself (stated explicitly; the
+ * path backstop in adversarial.test.mjs used to be the only thing excluding it).
  */
 
 /** @typedef {{text: string, class: string, minLevel: string|null, note?: string}} AttackCase */

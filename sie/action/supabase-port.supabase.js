@@ -76,7 +76,17 @@ export function createRealSupabasePort(supabaseClient) {
                 canonicals: traceEvent?.normalizedTokenCanonicals ?? []
             },
             hypotheses: traceEvent?.hypothesesSnapshot ?? [],
-            ranking: traceEvent?.rankingSnapshot ?? {},
+            // trust / shadow / engine ride in the ranking column: they were
+            // built into every trace event but never written anywhere, so the
+            // "offline agreement analysis" their comments describe had no
+            // data. jsonb takes them without a schema change, and the
+            // rankingSnapshot keys readers already use are untouched.
+            ranking: {
+                ...(traceEvent?.rankingSnapshot ?? {}),
+                ...(traceEvent?.trust ? { trust: traceEvent.trust } : {}),
+                ...(traceEvent?.shadow ? { shadow: traceEvent.shadow } : {}),
+                ...(traceEvent?.engine ? { engine: traceEvent.engine } : {})
+            },
             decision: traceEvent?.decision ?? {},
             knowledge_data: traceEvent?.decision?.knowledgeData ?? null,
             rendered: { responseText: traceEvent?.responseText ?? '', options: renderedOptions ?? [] },

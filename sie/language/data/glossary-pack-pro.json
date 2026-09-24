@@ -1,0 +1,2888 @@
+{
+  "pack": "pro",
+  "entries": [
+    {
+      "canonical": "atom_close",
+      "labels": {
+        "ar": "قفل",
+        "en": "close"
+      },
+      "patterns": [
+        "اقفل",
+        "اقفلها",
+        "اقفله",
+        "قفلوها",
+        "قفلوه",
+        "قفلوا",
+        "اتقفلت",
+        "اتقفل",
+        "يقفل",
+        "يقفلها",
+        "تقفل",
+        "close",
+        "closed"
+      ]
+    },
+    {
+      "canonical": "atom_reply",
+      "labels": {
+        "ar": "رد",
+        "en": "reply"
+      },
+      "patterns": [
+        "رديت",
+        "ارد",
+        "ردي",
+        "رد",
+        "بعت رد",
+        "ابعت رد",
+        "reply",
+        "replied",
+        "يرد",
+        "يردوا",
+        "بيرد",
+        "بيردوا",
+        "ردوا"
+      ]
+    },
+    {
+      "canonical": "atom_open_action",
+      "labels": {
+        "ar": "فتح",
+        "en": "open"
+      },
+      "patterns": [
+        "فتحت",
+        "اتفتحت",
+        "افتح",
+        "افتحها",
+        "open",
+        "opened",
+        "فتحلي",
+        "فتحولي",
+        "اتفتحتلي"
+      ]
+    },
+    {
+      "canonical": "atom_reopen",
+      "labels": {
+        "ar": "إعادة فتح",
+        "en": "reopen"
+      },
+      "patterns": [
+        "اعيد فتحها",
+        "اعيد فتح",
+        "افتحها تاني",
+        "اعادة الفتح",
+        "اعاده الفتح",
+        "reopen"
+      ]
+    },
+    {
+      "canonical": "atom_unchanged",
+      "labels": {
+        "ar": "مااتغيرش",
+        "en": "unchanged"
+      },
+      "patterns": [
+        "ماتغيرتش",
+        "مااتغيرتش",
+        "متغيرتش",
+        "ماتغيرش",
+        "ما اتغيرش",
+        "ما اتغيرتش",
+        "زي ما هي",
+        "زي ما هو",
+        "ثابتة",
+        "ثابته"
+      ]
+    },
+    {
+      "canonical": "atom_by_itself",
+      "labels": {
+        "ar": "لوحده",
+        "en": "by itself"
+      },
+      "patterns": [
+        "لوحدها",
+        "لوحده",
+        "من نفسها",
+        "من نفسه",
+        "تلقائي",
+        "تلقائيا",
+        "by itself"
+      ]
+    },
+    {
+      "canonical": "atom_by_mistake",
+      "labels": {
+        "ar": "بالغلط",
+        "en": "by mistake"
+      },
+      "patterns": [
+        "بالغلط",
+        "بالخطأ",
+        "بالخطا",
+        "غلط مني",
+        "غلط",
+        "الغلط"
+      ]
+    },
+    {
+      "canonical": "atom_similar",
+      "labels": {
+        "ar": "مشابه",
+        "en": "similar"
+      },
+      "patterns": [
+        "مشابهة",
+        "مشابهه",
+        "مشابه",
+        "زيها",
+        "شبهها",
+        "similar",
+        "نفس الموضوع"
+      ]
+    },
+    {
+      "canonical": "atom_where",
+      "labels": {
+        "ar": "فين",
+        "en": "where"
+      },
+      "patterns": [
+        "فين",
+        "الاقيه فين",
+        "الاقيها فين",
+        "مكانه فين",
+        "where"
+      ]
+    },
+    {
+      "canonical": "atom_change",
+      "labels": {
+        "ar": "تغيير",
+        "en": "change"
+      },
+      "patterns": [
+        "اغير",
+        "اتغيرت",
+        "اتغير",
+        "غيرت",
+        "اعدل",
+        "عدلت",
+        "تعديل"
+      ]
+    },
+    {
+      "canonical": "atom_remove",
+      "labels": {
+        "ar": "حذف",
+        "en": "remove"
+      },
+      "patterns": [
+        "امسح",
+        "احذف",
+        "اشيل",
+        "شيلت",
+        "مسحت"
+      ]
+    },
+    {
+      "canonical": "atom_member",
+      "labels": {
+        "ar": "عضو في الفريق",
+        "en": "team member"
+      },
+      "patterns": [
+        "موظف",
+        "عضو",
+        "الاعضاء",
+        "member",
+        "teammate"
+      ]
+    },
+    {
+      "canonical": "atom_company",
+      "labels": {
+        "ar": "الشركة",
+        "en": "company"
+      },
+      "patterns": [
+        "الشركة",
+        "الشركه",
+        "شركتنا",
+        "شركتي",
+        "company"
+      ]
+    },
+    {
+      "canonical": "atom_device",
+      "labels": {
+        "ar": "جهاز",
+        "en": "device"
+      },
+      "patterns": [
+        "جهاز",
+        "اجهزة",
+        "الاجهزة",
+        "اجهزه",
+        "الاجهزه",
+        "device",
+        "devices"
+      ]
+    },
+    {
+      "canonical": "atom_renewal",
+      "labels": {
+        "ar": "تجديد",
+        "en": "renewal"
+      },
+      "patterns": [
+        "تجديد",
+        "جددت",
+        "اجدد",
+        "التجديد",
+        "renew",
+        "renewal"
+      ]
+    },
+    {
+      "canonical": "atom_upgrade",
+      "labels": {
+        "ar": "ترقية",
+        "en": "upgrade"
+      },
+      "patterns": [
+        "ترقية",
+        "ترقيه",
+        "رقيت",
+        "ارقي"
+      ]
+    },
+    {
+      "canonical": "atom_cancel",
+      "labels": {
+        "ar": "إلغاء",
+        "en": "cancel"
+      },
+      "patterns": [
+        "الغاء",
+        "الغي",
+        "لغيت"
+      ]
+    },
+    {
+      "canonical": "atom_balance",
+      "labels": {
+        "ar": "رصيد",
+        "en": "balance"
+      },
+      "patterns": [
+        "رصيد",
+        "الرصيد",
+        "رصيدي"
+      ]
+    },
+    {
+      "canonical": "atom_topup",
+      "labels": {
+        "ar": "شحن",
+        "en": "top-up"
+      },
+      "patterns": [
+        "شحن",
+        "اشحن",
+        "شحنت",
+        "topup",
+        "top up"
+      ]
+    },
+    {
+      "canonical": "atom_button",
+      "labels": {
+        "ar": "زرار",
+        "en": "button"
+      },
+      "patterns": [
+        "زرار",
+        "زر",
+        "الزرار",
+        "button"
+      ]
+    },
+    {
+      "canonical": "atom_support",
+      "labels": {
+        "ar": "فريق الدعم",
+        "en": "support team"
+      },
+      "patterns": [
+        "الدعم",
+        "فريق الدعم",
+        "الدعم الفني",
+        "خدمة الدعم",
+        "support",
+        "support team"
+      ]
+    },
+    {
+      "canonical": "atom_follow",
+      "labels": {
+        "ar": "متابعة",
+        "en": "follow up"
+      },
+      "patterns": [
+        "متابعة",
+        "متابعه",
+        "اتابع",
+        "يتابع",
+        "نتابع",
+        "follow up",
+        "follow"
+      ]
+    },
+    {
+      "canonical": "entity_status_awaiting_reply",
+      "labels": {
+        "ar": "حالة بانتظار ردك",
+        "en": "awaiting your reply status"
+      },
+      "patterns": [
+        "بانتظار ردك",
+        "بانتظار ردي",
+        "في انتظار ردك",
+        "مستني ردك",
+        "awaiting your reply",
+        "waiting for your reply"
+      ]
+    },
+    {
+      "canonical": "entity_status_in_progress",
+      "labels": {
+        "ar": "حالة قيد المعالجة",
+        "en": "in progress status"
+      },
+      "patterns": [
+        "قيد المعالجة",
+        "قيد المعالجه",
+        "تحت المعالجة",
+        "جاري المعالجة",
+        "in progress",
+        "in-progress"
+      ]
+    },
+    {
+      "canonical": "entity_status_confirmed",
+      "labels": {
+        "ar": "حالة مكتملة",
+        "en": "confirmed status"
+      },
+      "patterns": [
+        "مكتملة",
+        "مكتمله",
+        "confirmed"
+      ]
+    },
+    {
+      "canonical": "entity_open_ticket_cap",
+      "labels": {
+        "ar": "حد التذاكر المفتوحة",
+        "en": "open ticket cap"
+      },
+      "patterns": [
+        "للتذاكر المفتوحة",
+        "للتذاكر المفتوحه",
+        "تذاكر مفتوحة كتير",
+        "زرار الارسال مقفول",
+        "open tickets limit"
+      ]
+    },
+    {
+      "canonical": "entity_duplicate_title",
+      "labels": {
+        "ar": "تذكرة بنفس العنوان",
+        "en": "duplicate title"
+      },
+      "patterns": [
+        "بنفس العنوان",
+        "نفس العنوان",
+        "العنوان متكرر",
+        "same title"
+      ]
+    },
+    {
+      "canonical": "entity_title_too_short",
+      "labels": {
+        "ar": "العنوان أو الوصف قصير",
+        "en": "title too short"
+      },
+      "patterns": [
+        "العنوان قصير",
+        "الوصف قصير",
+        "الوصف مش كفاية",
+        "عدد الحروف",
+        "title too short",
+        "description too short"
+      ]
+    },
+    {
+      "canonical": "entity_presubmit_alert",
+      "labels": {
+        "ar": "تنبيه قبل الإرسال",
+        "en": "pre-submit alert"
+      },
+      "patterns": [
+        "قبل الارسال",
+        "قبل ما ابعت",
+        "قبل ما ابعتها",
+        "before submitting"
+      ]
+    },
+    {
+      "canonical": "entity_expected_reply_badge",
+      "labels": {
+        "ar": "شارة الرد المتوقع",
+        "en": "expected reply badge"
+      },
+      "patterns": [
+        "الرد المتوقع",
+        "هدف اول رد",
+        "الوقت المتوقع للرد",
+        "expected reply"
+      ]
+    },
+    {
+      "canonical": "entity_reply_late_badge",
+      "labels": {
+        "ar": "شارة تأخر الرد",
+        "en": "late reply badge"
+      },
+      "patterns": [
+        "تاخر الرد",
+        "مكتوب تأخر الرد",
+        "reply delayed",
+        "late reply"
+      ]
+    },
+    {
+      "canonical": "entity_importance_choice",
+      "labels": {
+        "ar": "اختيار أهمية التذكرة",
+        "en": "choosing ticket importance"
+      },
+      "patterns": [
+        "الاهمية",
+        "الاهميه",
+        "اختار الاهمية",
+        "importance"
+      ]
+    },
+    {
+      "canonical": "intent_raise_priority_after",
+      "labels": {
+        "ar": "رفع الأولوية بعد الفتح",
+        "en": "raise priority after opening"
+      },
+      "patterns": [
+        "ارفع اهميتها",
+        "اخليها عاجلة",
+        "اغير اهميتها",
+        "make it urgent"
+      ]
+    },
+    {
+      "canonical": "intent_edit_ticket_details",
+      "labels": {
+        "ar": "تعديل بيانات التذكرة بعد الإرسال",
+        "en": "edit ticket after sending"
+      },
+      "patterns": [
+        "اعدل الوصف",
+        "اعدل العنوان",
+        "غلطت في الوصف",
+        "كتبت الوصف غلط"
+      ]
+    },
+    {
+      "canonical": "entity_wrong_ticket_category",
+      "labels": {
+        "ar": "تصنيف التذكرة غلط",
+        "en": "wrong ticket category"
+      },
+      "patterns": [
+        "التصنيف غلط",
+        "اخترت التصنيف الغلط",
+        "اخترت قسم غلط",
+        "wrong category"
+      ]
+    },
+    {
+      "canonical": "intent_hide_ticket",
+      "labels": {
+        "ar": "إخفاء تذكرة من القائمة",
+        "en": "hide a ticket"
+      },
+      "patterns": [
+        "اخفاء من قايمتي",
+        "اخفاء من قائمتي",
+        "اخفيها",
+        "اخفي",
+        "اخفيهم",
+        "اشيلها من القائمة",
+        "hide from my list"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_counter",
+      "labels": {
+        "ar": "عدادات قائمة التذاكر",
+        "en": "ticket list counters"
+      },
+      "patterns": [
+        "العداد",
+        "العدادات",
+        "views"
+      ]
+    },
+    {
+      "canonical": "entity_auto_archive_notice",
+      "labels": {
+        "ar": "تنبيه الأرشفة التلقائية",
+        "en": "auto archive notice"
+      },
+      "patterns": [
+        "تؤرشف تلقائيا",
+        "بتتأرشف لوحدها",
+        "بتتارشف",
+        "تتارشف لوحدها"
+      ]
+    },
+    {
+      "canonical": "entity_multi_issue",
+      "labels": {
+        "ar": "أكتر من مشكلة",
+        "en": "several issues"
+      },
+      "patterns": [
+        "مشكلتين",
+        "تلات مشاكل",
+        "كذا حاجة",
+        "اكتر من حاجة",
+        "several issues"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_number_lost",
+      "labels": {
+        "ar": "نسيت رقم التذكرة",
+        "en": "forgot ticket number"
+      },
+      "patterns": [
+        "نسيت رقمها",
+        "مش فاكر رقمها"
+      ]
+    },
+    {
+      "canonical": "entity_without_asking",
+      "labels": {
+        "ar": "من غير ما حد يسألني",
+        "en": "without asking me"
+      },
+      "patterns": [
+        "من غير ما يسألوني",
+        "محدش سألني",
+        "من غير ما حد يسألني",
+        "without asking me"
+      ]
+    },
+    {
+      "canonical": "entity_resolution_time",
+      "labels": {
+        "ar": "مدة حل التذكرة",
+        "en": "resolution time"
+      },
+      "patterns": [
+        "هتتحل امتى",
+        "هتخلص امتى",
+        "مدة الحل",
+        "وقت الحل"
+      ]
+    },
+    {
+      "canonical": "entity_long_open_ticket",
+      "labels": {
+        "ar": "تذكرة مفتوحة من زمان",
+        "en": "long-open ticket"
+      },
+      "patterns": [
+        "مفتوحة من اسبوع",
+        "بقالها ايام",
+        "بقالها اسبوع",
+        "open for a week"
+      ]
+    },
+    {
+      "canonical": "entity_reply_button_failing",
+      "labels": {
+        "ar": "إرسال الرد على التذكرة بيفشل",
+        "en": "ticket reply fails to send"
+      },
+      "patterns": [
+        "الرد مش بيتبعت",
+        "زرار الرد",
+        "الرد مش راضي يتبعت"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_draft_lost",
+      "labels": {
+        "ar": "اللي كتبته في التذكرة ضاع",
+        "en": "ticket draft lost"
+      },
+      "patterns": [
+        "اللي كتبته راح",
+        "الصفحة عملت ريفرش",
+        "lost what i wrote",
+        "كتبته",
+        "كتبتها",
+        "اللي كتبته"
+      ]
+    },
+    {
+      "canonical": "entity_reply_unclear",
+      "labels": {
+        "ar": "رد الدعم مش واضح",
+        "en": "support reply unclear"
+      },
+      "patterns": [
+        "الرد مش واضح",
+        "ردهم مش واضح",
+        "مش فاهم ردهم",
+        "ردهم",
+        "مش مفهوم",
+        "رد الدعم مش واضح",
+        "ردكم مش واضح",
+        "الرد بتاعهم مش واضح"
+      ]
+    },
+    {
+      "canonical": "entity_support_asked_info",
+      "labels": {
+        "ar": "الدعم طلب مني معلومة",
+        "en": "support asked me for information"
+      },
+      "patterns": [
+        "طلبوا مني",
+        "طالبين مني",
+        "عايزين مني",
+        "بيطلبوا مني",
+        "asked me for"
+      ]
+    },
+    {
+      "canonical": "entity_attach_in_reply",
+      "labels": {
+        "ar": "إرفاق ملف في الرد",
+        "en": "attach a file in a reply"
+      },
+      "patterns": [
+        "ارفق في الرد",
+        "ارفق ملف في الرد",
+        "مفيش مرفقات",
+        "ارفق ملف",
+        "ارفق",
+        "attach in reply"
+      ]
+    },
+    {
+      "canonical": "entity_file_type",
+      "labels": {
+        "ar": "نوع الملف",
+        "en": "file type"
+      },
+      "patterns": [
+        "نوع الملف",
+        "امتداد الملف",
+        "امتداد",
+        "docx",
+        "zip",
+        "rar",
+        "file type"
+      ]
+    },
+    {
+      "canonical": "entity_form_field",
+      "labels": {
+        "ar": "خانة في النموذج",
+        "en": "form field"
+      },
+      "patterns": [
+        "خانة",
+        "خانه",
+        "الخانة",
+        "الخانه"
+      ]
+    },
+    {
+      "canonical": "entity_contact_channels",
+      "labels": {
+        "ar": "طرق التواصل مع الدعم",
+        "en": "ways to contact support"
+      },
+      "patterns": [
+        "طرق التواصل",
+        "وسائل التواصل",
+        "اتواصل معاكم"
+      ]
+    },
+    {
+      "canonical": "entity_english_language",
+      "labels": {
+        "ar": "اللغة الإنجليزية",
+        "en": "English language"
+      },
+      "patterns": [
+        "بالانجليزي",
+        "انجليزي",
+        "بالإنجليزي",
+        "english"
+      ]
+    },
+    {
+      "canonical": "entity_screenshot_howto",
+      "labels": {
+        "ar": "تصوير الشاشة",
+        "en": "taking a screenshot"
+      },
+      "patterns": [
+        "اصور الشاشة",
+        "اصور الشاشه",
+        "سكرين شوت",
+        "سكرين",
+        "screenshot"
+      ]
+    },
+    {
+      "canonical": "entity_screen_record",
+      "labels": {
+        "ar": "تسجيل فيديو للشاشة",
+        "en": "screen recording"
+      },
+      "patterns": [
+        "تسجيل شاشة",
+        "اسجل الشاشة",
+        "تسجيل الشاشه",
+        "screen recording",
+        "screen record"
+      ]
+    },
+    {
+      "canonical": "entity_console_logs",
+      "labels": {
+        "ar": "سجلات المتصفح",
+        "en": "browser console logs"
+      },
+      "patterns": [
+        "الكونسول",
+        "console",
+        "اعدادات المطور",
+        "devtools"
+      ]
+    },
+    {
+      "canonical": "entity_ticket_writing_tips",
+      "labels": {
+        "ar": "أكتب إيه في التذكرة",
+        "en": "what to write in a ticket"
+      },
+      "patterns": [
+        "اكتب ايه",
+        "اكتب ايه بالظبط",
+        "المفروض اكتب",
+        "what should i write"
+      ]
+    },
+    {
+      "canonical": "entity_customer_tickets_stream",
+      "labels": {
+        "ar": "تذاكر العملاء في لوحة الشركة",
+        "en": "customer tickets stream"
+      },
+      "patterns": [
+        "تذاكر العملاء",
+        "تذاكر عملائنا",
+        "تذاكر عملاءنا",
+        "customer tickets"
+      ]
+    },
+    {
+      "canonical": "entity_sensitive_data",
+      "labels": {
+        "ar": "بيانات حساسة",
+        "en": "sensitive data"
+      },
+      "patterns": [
+        "بيانات حساسة",
+        "بيانات حساسه",
+        "معلومات سرية",
+        "sensitive data"
+      ]
+    },
+    {
+      "canonical": "entity_rate_service",
+      "labels": {
+        "ar": "تقييم الخدمة",
+        "en": "rate the service"
+      },
+      "patterns": [
+        "تقييم",
+        "قيمت",
+        "اقيم",
+        "اقيّم",
+        "نجوم",
+        "rate"
+      ]
+    },
+    {
+      "canonical": "entity_wrong_account",
+      "labels": {
+        "ar": "الحساب الغلط",
+        "en": "wrong account"
+      },
+      "patterns": [
+        "الحساب الغلط",
+        "حساب تاني",
+        "من حساب غلط",
+        "wrong account"
+      ]
+    },
+    {
+      "canonical": "symptom_restricted",
+      "labels": {
+        "ar": "حساب مقيد",
+        "en": "restricted account"
+      },
+      "patterns": [
+        "مقيد",
+        "مقيّد",
+        "متقيد",
+        "مقيده",
+        "متقيدة",
+        "restricted"
+      ]
+    },
+    {
+      "canonical": "entity_health_attention",
+      "labels": {
+        "ar": "تنبيهات حالة الحساب",
+        "en": "account health alerts"
+      },
+      "patterns": [
+        "محتاج انتباه",
+        "يحتاج انتباه",
+        "يحتاج اجراء",
+        "محتاجة مني اجراء",
+        "needs attention"
+      ]
+    },
+    {
+      "canonical": "entity_phone_number",
+      "labels": {
+        "ar": "رقم الهاتف في الحساب",
+        "en": "phone number on the account"
+      },
+      "patterns": [
+        "رقم الهاتف",
+        "رقم موبايلي",
+        "رقم التليفون",
+        "رقم الموبايل",
+        "phone number"
+      ]
+    },
+    {
+      "canonical": "entity_my_name",
+      "labels": {
+        "ar": "اسمي في الحساب",
+        "en": "my display name"
+      },
+      "patterns": [
+        "اسمي",
+        "الاسم الظاهر",
+        "my name"
+      ]
+    },
+    {
+      "canonical": "entity_account_activity",
+      "labels": {
+        "ar": "نشاط الحساب",
+        "en": "account activity"
+      },
+      "patterns": [
+        "نشاط الحساب",
+        "account activity"
+      ]
+    },
+    {
+      "canonical": "entity_announced_outage",
+      "labels": {
+        "ar": "عطل معلن",
+        "en": "announced outage"
+      },
+      "patterns": [
+        "عطل معلن",
+        "يوجد عطل",
+        "announced outage"
+      ]
+    },
+    {
+      "canonical": "entity_degraded_service",
+      "labels": {
+        "ar": "خدمة بأداء منخفض",
+        "en": "degraded service"
+      },
+      "patterns": [
+        "باداء منخفض",
+        "أداء منخفض",
+        "اداء ضعيف",
+        "degraded"
+      ]
+    },
+    {
+      "canonical": "entity_company_dashboard",
+      "labels": {
+        "ar": "لوحة الشركة",
+        "en": "company dashboard"
+      },
+      "patterns": [
+        "لوحة الشركة",
+        "لوحه الشركه",
+        "لوحة شركتي"
+      ]
+    },
+    {
+      "canonical": "entity_customer_portal",
+      "labels": {
+        "ar": "بوابة العميل",
+        "en": "customer portal"
+      },
+      "patterns": [
+        "بوابة الدعم",
+        "بوابه الدعم",
+        "بوابة العميل",
+        "customer portal"
+      ]
+    },
+    {
+      "canonical": "entity_sidebar_menu",
+      "labels": {
+        "ar": "القائمة الجانبية",
+        "en": "sidebar menu"
+      },
+      "patterns": [
+        "القائمة الجانبية",
+        "القايمة الجانبية",
+        "المنيو",
+        "sidebar",
+        "menu"
+      ]
+    },
+    {
+      "canonical": "entity_usage_limits",
+      "labels": {
+        "ar": "الاستهلاك والحدود",
+        "en": "usage and limits"
+      },
+      "patterns": [
+        "الاستهلاك والحدود",
+        "الاستهلاك",
+        "استهلاكي",
+        "usage and limits",
+        "usage"
+      ]
+    },
+    {
+      "canonical": "entity_expiring_soon",
+      "labels": {
+        "ar": "قرب الانتهاء",
+        "en": "expiring soon"
+      },
+      "patterns": [
+        "تنتهي خلال",
+        "هتخلص خلال",
+        "قربت تخلص",
+        "expiring soon"
+      ]
+    },
+    {
+      "canonical": "entity_badges",
+      "labels": {
+        "ar": "الشارات",
+        "en": "badges"
+      },
+      "patterns": [
+        "الشارات",
+        "شارة",
+        "شاره",
+        "الشاره"
+      ]
+    },
+    {
+      "canonical": "entity_reward_points",
+      "labels": {
+        "ar": "المكافآت والنقاط",
+        "en": "rewards and points"
+      },
+      "patterns": [
+        "النقاط",
+        "نقاطي",
+        "المكافات",
+        "المكافآت",
+        "نقط",
+        "points",
+        "rewards"
+      ]
+    },
+    {
+      "canonical": "intent_redeem",
+      "labels": {
+        "ar": "استبدال",
+        "en": "redeem"
+      },
+      "patterns": [
+        "استبدل",
+        "ابدل",
+        "اصرف",
+        "استخدم النقاط",
+        "redeem"
+      ]
+    },
+    {
+      "canonical": "entity_bug_report",
+      "labels": {
+        "ar": "بلاغ عن مشكلة",
+        "en": "bug report"
+      },
+      "patterns": [
+        "بلاغ",
+        "بلاغاتي",
+        "بلغت",
+        "ابلغ",
+        "بلاغي"
+      ]
+    },
+    {
+      "canonical": "entity_community",
+      "labels": {
+        "ar": "مجتمع مدعوم",
+        "en": "Mad3oom community"
+      },
+      "patterns": [
+        "مجتمع مدعوم",
+        "ميثاق"
+      ]
+    },
+    {
+      "canonical": "entity_roadmap",
+      "labels": {
+        "ar": "خارطة الطريق",
+        "en": "roadmap"
+      },
+      "patterns": [
+        "خارطة الطريق",
+        "خارطه الطريق",
+        "roadmap"
+      ]
+    },
+    {
+      "canonical": "entity_transfer_proof",
+      "labels": {
+        "ar": "إثبات التحويل",
+        "en": "proof of transfer"
+      },
+      "patterns": [
+        "اثبات التحويل",
+        "ايصال التحويل",
+        "اثبات الدفع",
+        "اثبات",
+        "الاثبات",
+        "proof of transfer"
+      ]
+    },
+    {
+      "canonical": "entity_file_size_mb",
+      "labels": {
+        "ar": "حجم الملف بالميجا",
+        "en": "file size in MB"
+      },
+      "patterns": [
+        "ميجا",
+        "ميجابايت",
+        "mb",
+        "حجم الاثبات",
+        "حجمه كبير"
+      ]
+    },
+    {
+      "canonical": "intent_subscribe",
+      "labels": {
+        "ar": "اشتراك جديد",
+        "en": "subscribe"
+      },
+      "patterns": [
+        "اشترك",
+        "عايز اشترك",
+        "ازاي اشترك",
+        "subscribe",
+        "اشتركت",
+        "بعد ما اشتركت"
+      ]
+    },
+    {
+      "canonical": "entity_transactions",
+      "labels": {
+        "ar": "حركات الرصيد",
+        "en": "balance transactions"
+      },
+      "patterns": [
+        "الحركات",
+        "حركات الرصيد",
+        "المعاملات",
+        "transactions"
+      ]
+    },
+    {
+      "canonical": "entity_date_notes",
+      "labels": {
+        "ar": "ملاحظات على التواريخ",
+        "en": "notes on dates"
+      },
+      "patterns": [
+        "ملاحظات على التواريخ",
+        "تاريخ الانتهاء",
+        "تاريخ البداية"
+      ]
+    },
+    {
+      "canonical": "entity_available_services",
+      "labels": {
+        "ar": "الخدمات المتاحة",
+        "en": "available services"
+      },
+      "patterns": [
+        "الخدمات المتاحة",
+        "الخدمات المتاحه",
+        "خدماتي",
+        "available services"
+      ]
+    },
+    {
+      "canonical": "entity_low_balance",
+      "labels": {
+        "ar": "رصيد منخفض",
+        "en": "low balance"
+      },
+      "patterns": [
+        "رصيد منخفض",
+        "الرصيد قليل",
+        "نفد الرصيد",
+        "الرصيد نفد"
+      ]
+    },
+    {
+      "canonical": "entity_assistant",
+      "labels": {
+        "ar": "المساعد الذكي",
+        "en": "the smart assistant"
+      },
+      "patterns": [
+        "المساعد الذكي",
+        "المحرك الذكي",
+        "المساعد"
+      ]
+    },
+    {
+      "canonical": "entity_message_quota",
+      "labels": {
+        "ar": "حصة رسائل المساعد",
+        "en": "assistant message quota"
+      },
+      "patterns": [
+        "حصة الرسايل",
+        "حصه الرسايل",
+        "الحصة",
+        "الحصه",
+        "الكوتة",
+        "الكوته",
+        "رصيد الرسايل",
+        "quota"
+      ]
+    },
+    {
+      "canonical": "entity_access_period",
+      "labels": {
+        "ar": "صلاحية الوصول",
+        "en": "access period"
+      },
+      "patterns": [
+        "صلاحية الوصول",
+        "صلاحيه الوصول",
+        "مدة الوصول"
+      ]
+    },
+    {
+      "canonical": "entity_link_code",
+      "labels": {
+        "ar": "كود الربط",
+        "en": "link code"
+      },
+      "patterns": [
+        "كود الربط",
+        "كود ربط",
+        "link code"
+      ]
+    },
+    {
+      "canonical": "intent_unlink",
+      "labels": {
+        "ar": "فك الربط",
+        "en": "unlink"
+      },
+      "patterns": [
+        "فك الربط",
+        "الغي الربط",
+        "افصل الربط",
+        "unlink",
+        "افك الربط",
+        "افك ربط"
+      ]
+    },
+    {
+      "canonical": "symptom_no_reply",
+      "labels": {
+        "ar": "مش بيرد",
+        "en": "not replying"
+      },
+      "patterns": [
+        "مش بترد",
+        "مابتردش",
+        "مش بيرد",
+        "مابيردش",
+        "ساكت",
+        "not replying"
+      ]
+    },
+    {
+      "canonical": "intent_declined_ticket",
+      "labels": {
+        "ar": "رفضت فتح تذكرة",
+        "en": "declined a ticket"
+      },
+      "patterns": [
+        "قلت لا",
+        "قولت لأ",
+        "مارضيتش افتح"
+      ]
+    },
+    {
+      "canonical": "symptom_disabled",
+      "labels": {
+        "ar": "متوقف من الإعدادات",
+        "en": "switched off in settings"
+      },
+      "patterns": [
+        "متوقف",
+        "متوقفة",
+        "متوقفه",
+        "مقفول من الاعدادات",
+        "disabled"
+      ]
+    },
+    {
+      "canonical": "entity_counts_toward",
+      "labels": {
+        "ar": "بتتحسب من الرصيد",
+        "en": "counts toward"
+      },
+      "patterns": [
+        "بتتحسب",
+        "بيتحسب",
+        "بتتخصم",
+        "بيتخصم",
+        "counts"
+      ]
+    },
+    {
+      "canonical": "entity_linked_word",
+      "labels": {
+        "ar": "المربوط",
+        "en": "connected (one)"
+      },
+      "patterns": [
+        "المربوط",
+        "مربوط",
+        "المربوطة",
+        "المربوطه",
+        "المتربط",
+        "connected"
+      ]
+    },
+    {
+      "canonical": "entity_bell",
+      "labels": {
+        "ar": "جرس الإشعارات",
+        "en": "notification bell"
+      },
+      "patterns": [
+        "الجرس",
+        "العداد على الجرس",
+        "bell"
+      ]
+    },
+    {
+      "canonical": "intent_mark_read",
+      "labels": {
+        "ar": "تعليم كمقروء",
+        "en": "mark as read"
+      },
+      "patterns": [
+        "كمقروء",
+        "مقروءة",
+        "مقروءه",
+        "علم الكل",
+        "mark as read",
+        "mark all read",
+        "كمقروءه",
+        "كمقروءة",
+        "مقروء",
+        "مقروءين"
+      ]
+    },
+    {
+      "canonical": "entity_notif_click",
+      "labels": {
+        "ar": "فتح الإشعار",
+        "en": "opening a notification"
+      },
+      "patterns": [
+        "بيوديني",
+        "الاشعار بيوديني",
+        "لما ادوس على الاشعار",
+        "بيفتح فين",
+        "when i click"
+      ]
+    },
+    {
+      "canonical": "entity_notif_categories",
+      "labels": {
+        "ar": "تصنيفات الإشعارات",
+        "en": "notification categories"
+      },
+      "patterns": [
+        "تصنيفات",
+        "تصنيف الاشعار",
+        "categories"
+      ]
+    },
+    {
+      "canonical": "atom_security",
+      "labels": {
+        "ar": "الأمان",
+        "en": "security"
+      },
+      "patterns": [
+        "الامان",
+        "امان",
+        "أمان",
+        "امني",
+        "أمني",
+        "security"
+      ]
+    },
+    {
+      "canonical": "entity_sender_address",
+      "labels": {
+        "ar": "عنوان مرسل البريد",
+        "en": "e-mail sender address"
+      },
+      "patterns": [
+        "عنوان المرسل",
+        "من عنوان",
+        "noreply",
+        "no reply",
+        "sender address",
+        "انهي عنوان"
+      ]
+    },
+    {
+      "canonical": "entity_phishing",
+      "labels": {
+        "ar": "رسالة احتيال",
+        "en": "phishing"
+      },
+      "patterns": [
+        "احتيال",
+        "مشبوه",
+        "مشبوهة",
+        "بيدعي انه منكم",
+        "phishing",
+        "scam"
+      ]
+    },
+    {
+      "canonical": "entity_country_code",
+      "labels": {
+        "ar": "كود الدولة",
+        "en": "country code"
+      },
+      "patterns": [
+        "كود الدولة",
+        "كود الدوله",
+        "مفتاح الدولة",
+        "مفتاح الدوله",
+        "country code"
+      ]
+    },
+    {
+      "canonical": "entity_delivery_ticks",
+      "labels": {
+        "ar": "علامات التسليم",
+        "en": "delivery ticks"
+      },
+      "patterns": [
+        "صحين",
+        "علامتين",
+        "الصح الازرق",
+        "صح رمادي",
+        "ticks",
+        "double tick",
+        "blue ticks"
+      ]
+    },
+    {
+      "canonical": "entity_text_formatting",
+      "labels": {
+        "ar": "تنسيق النص",
+        "en": "text formatting"
+      },
+      "patterns": [
+        "خط عريض",
+        "بولد",
+        "مايل",
+        "تنسيق الرسالة",
+        "تنسيق",
+        "bold",
+        "italic"
+      ]
+    },
+    {
+      "canonical": "entity_link_preview",
+      "labels": {
+        "ar": "معاينة الرابط",
+        "en": "link preview"
+      },
+      "patterns": [
+        "معاينة الرابط",
+        "معاينه الرابط",
+        "preview",
+        "link preview"
+      ]
+    },
+    {
+      "canonical": "entity_no_permission_msg",
+      "labels": {
+        "ar": "رسالة لا تملك صلاحية",
+        "en": "\"you do not have permission\" message"
+      },
+      "patterns": [
+        "لا تملك صلاحية",
+        "مش مسموحلي",
+        "مش مسموح لي",
+        "مش من حقي",
+        "not allowed"
+      ]
+    },
+    {
+      "canonical": "intent_create_key",
+      "labels": {
+        "ar": "إنشاء مفتاح",
+        "en": "create a key"
+      },
+      "patterns": [
+        "انشاء مفتاح",
+        "اعمل مفتاح",
+        "انشئ مفتاح",
+        "مفتاح جديد",
+        "create key"
+      ]
+    },
+    {
+      "canonical": "entity_key_word",
+      "labels": {
+        "ar": "المفتاح",
+        "en": "the key"
+      },
+      "patterns": [
+        "المفتاح",
+        "مفتاح",
+        "مفاتيح",
+        "المفاتيح",
+        "key"
+      ]
+    },
+    {
+      "canonical": "entity_key_state",
+      "labels": {
+        "ar": "حالة المفتاح",
+        "en": "key state"
+      },
+      "patterns": [
+        "موقوف",
+        "مسحوب",
+        "منتهٍ",
+        "revoked"
+      ]
+    },
+    {
+      "canonical": "intent_toggle_key",
+      "labels": {
+        "ar": "إيقاف أو تفعيل المفتاح",
+        "en": "stop or activate a key"
+      },
+      "patterns": [
+        "اوقف المفتاح",
+        "افعل المفتاح",
+        "ايقاف المفتاح",
+        "تفعيل المفتاح",
+        "deactivate key",
+        "activate key"
+      ]
+    },
+    {
+      "canonical": "entity_call_log",
+      "labels": {
+        "ar": "سجل النداءات",
+        "en": "calls log"
+      },
+      "patterns": [
+        "سجل النداءات",
+        "النداءات",
+        "calls log"
+      ]
+    },
+    {
+      "canonical": "entity_key_no_scopes",
+      "labels": {
+        "ar": "مفتاح بلا صلاحيات",
+        "en": "key without scopes"
+      },
+      "patterns": [
+        "بلا صلاحيات",
+        "من غير صلاحيات",
+        "بلا تاريخ انتهاء",
+        "no scopes"
+      ]
+    },
+    {
+      "canonical": "entity_calls_per_minute",
+      "labels": {
+        "ar": "نداءات في الدقيقة",
+        "en": "calls per minute"
+      },
+      "patterns": [
+        "نداء في الدقيقة",
+        "في الدقيقة",
+        "calls per minute",
+        "per minute"
+      ]
+    },
+    {
+      "canonical": "entity_developers_word",
+      "labels": {
+        "ar": "المطورين",
+        "en": "developers"
+      },
+      "patterns": [
+        "المطورين",
+        "للمطورين",
+        "developers"
+      ]
+    },
+    {
+      "canonical": "entity_subdomain_name_format",
+      "labels": {
+        "ar": "صيغة اسم النطاق",
+        "en": "subdomain name format"
+      },
+      "patterns": [
+        "صيغة الاسم",
+        "صيغه الاسم",
+        "الاسم غلط",
+        "حروف كابيتال",
+        "invalid name"
+      ]
+    },
+    {
+      "canonical": "symptom_name_taken",
+      "labels": {
+        "ar": "الاسم متاخد",
+        "en": "name taken"
+      },
+      "patterns": [
+        "محجوز",
+        "متاخد",
+        "مش متاح",
+        "غير متاح",
+        "taken",
+        "unavailable"
+      ]
+    },
+    {
+      "canonical": "entity_waitlist",
+      "labels": {
+        "ar": "قائمة الانتظار",
+        "en": "waitlist"
+      },
+      "patterns": [
+        "قائمة الانتظار",
+        "قايمة الانتظار",
+        "قايمه الانتظار",
+        "ويت ليست",
+        "waitlist"
+      ]
+    },
+    {
+      "canonical": "entity_passcode",
+      "labels": {
+        "ar": "كود المرور",
+        "en": "passcode"
+      },
+      "patterns": [
+        "كود المرور",
+        "كود مرور",
+        "passcode"
+      ]
+    },
+    {
+      "canonical": "symptom_already_registered",
+      "labels": {
+        "ar": "متسجل على حساب تاني",
+        "en": "already registered"
+      },
+      "patterns": [
+        "متسجل قبل كده",
+        "مستخدم قبل كده",
+        "متسجل على حساب تاني",
+        "already registered",
+        "already used"
+      ]
+    },
+    {
+      "canonical": "entity_invoice_verify",
+      "labels": {
+        "ar": "التحقق من صحة الفاتورة",
+        "en": "invoice verification"
+      },
+      "patterns": [
+        "اتاكد انها صحيحة",
+        "مزورة",
+        "مزوره"
+      ]
+    },
+    {
+      "canonical": "entity_chat_ended",
+      "labels": {
+        "ar": "إنهاء المحادثة",
+        "en": "chat ended"
+      },
+      "patterns": [
+        "انهيت",
+        "انهيتها",
+        "قفلت",
+        "اتقفلت مني",
+        "ended"
+      ]
+    },
+    {
+      "canonical": "entity_live_word",
+      "labels": {
+        "ar": "الفورية",
+        "en": "live"
+      },
+      "patterns": [
+        "الفورية",
+        "الفوريه",
+        "لايف شات",
+        "live"
+      ]
+    },
+    {
+      "canonical": "entity_article",
+      "labels": {
+        "ar": "مقال في مركز المساعدة",
+        "en": "help article"
+      },
+      "patterns": [
+        "مقال",
+        "المقالات",
+        "مقاله",
+        "مقالة",
+        "article",
+        "articles"
+      ]
+    },
+    {
+      "canonical": "entity_not_found_word",
+      "labels": {
+        "ar": "مالقيتش",
+        "en": "didn't find"
+      },
+      "patterns": [
+        "مالقيتش",
+        "مالاقيتش",
+        "ملقتش",
+        "مفيش مقال"
+      ]
+    },
+    {
+      "canonical": "entity_useful_vote",
+      "labels": {
+        "ar": "مفيد أو مش مفيد",
+        "en": "helpful vote"
+      },
+      "patterns": [
+        "مفيد",
+        "مش مفيد",
+        "مفيده",
+        "helpful",
+        "not helpful"
+      ]
+    },
+    {
+      "canonical": "entity_oauth",
+      "labels": {
+        "ar": "OAuth",
+        "en": "OAuth"
+      },
+      "patterns": [
+        "oauth",
+        "اوث",
+        "o auth"
+      ]
+    },
+    {
+      "canonical": "entity_gateway_word",
+      "labels": {
+        "ar": "بوابة",
+        "en": "gateway"
+      },
+      "patterns": [
+        "بوابة",
+        "بوابه",
+        "gateway"
+      ]
+    },
+    {
+      "canonical": "entity_official_word",
+      "labels": {
+        "ar": "رسمي",
+        "en": "official"
+      },
+      "patterns": [
+        "الرسمي",
+        "رسمي",
+        "cloud",
+        "كلاود",
+        "official",
+        "الرسميه",
+        "رسميه",
+        "الرسمية"
+      ]
+    },
+    {
+      "canonical": "entity_avg_first_response",
+      "labels": {
+        "ar": "متوسط أول استجابة",
+        "en": "average first response"
+      },
+      "patterns": [
+        "متوسط اول استجابة",
+        "اول استجابة",
+        "اول استجابه",
+        "first response"
+      ]
+    },
+    {
+      "canonical": "entity_avg_close_time",
+      "labels": {
+        "ar": "متوسط زمن الإغلاق",
+        "en": "average close time"
+      },
+      "patterns": [
+        "متوسط زمن الاغلاق",
+        "زمن الاغلاق",
+        "وقت الاغلاق",
+        "close time"
+      ]
+    },
+    {
+      "canonical": "entity_pdf",
+      "labels": {
+        "ar": "ملف PDF",
+        "en": "PDF file"
+      },
+      "patterns": [
+        "pdf",
+        "بي دي اف"
+      ]
+    },
+    {
+      "canonical": "entity_report_filter",
+      "labels": {
+        "ar": "فلتر التقرير",
+        "en": "report filter"
+      },
+      "patterns": [
+        "فلتر التاريخ",
+        "الفترة الزمنية",
+        "الفتره الزمنيه"
+      ]
+    },
+    {
+      "canonical": "entity_device_clock",
+      "labels": {
+        "ar": "ساعة الموبايل",
+        "en": "device clock"
+      },
+      "patterns": [
+        "ساعة الموبايل",
+        "ساعه الموبايل",
+        "الوقت في الموبايل",
+        "توقيت الموبايل",
+        "phone clock"
+      ]
+    },
+    {
+      "canonical": "entity_reset_link",
+      "labels": {
+        "ar": "لينك تغيير كلمة المرور",
+        "en": "password reset link"
+      },
+      "patterns": [
+        "لينك",
+        "اللينك",
+        "الرابط بتاع",
+        "reset link"
+      ]
+    },
+    {
+      "canonical": "entity_email_changed_by_other",
+      "labels": {
+        "ar": "حد غيّر إيميلي",
+        "en": "someone changed my e-mail"
+      },
+      "patterns": [
+        "حد غير ايميلي",
+        "ايميلي اتغير",
+        "من غيري"
+      ]
+    },
+    {
+      "canonical": "entity_my_portal",
+      "labels": {
+        "ar": "بوابة الدعم الخاصة بشركتي",
+        "en": "my company support portal"
+      },
+      "patterns": [
+        "البوابة بتاعتي",
+        "البوابه بتاعتي",
+        "بوابتنا",
+        "بوابة الدعم بتاعتنا",
+        "our portal"
+      ]
+    },
+    {
+      "canonical": "entity_my_customers",
+      "labels": {
+        "ar": "عملائي",
+        "en": "my customers"
+      },
+      "patterns": [
+        "عملائي",
+        "عملايي",
+        "عملاءنا",
+        "عملائنا",
+        "my customers"
+      ]
+    },
+    {
+      "canonical": "entity_staff_complaint",
+      "labels": {
+        "ar": "شكوى في موظف دعم",
+        "en": "complaint about a support agent"
+      },
+      "patterns": [
+        "شكوى في موظف",
+        "شكوي في موظف",
+        "اسلوب",
+        "اتعامل معايا وحش",
+        "قليل الذوق"
+      ]
+    },
+    {
+      "canonical": "intent_thank_agent",
+      "labels": {
+        "ar": "شكر موظف بعينه",
+        "en": "thank a specific agent"
+      },
+      "patterns": [
+        "اشكر",
+        "عايز اشكر",
+        "تشكر"
+      ]
+    },
+    {
+      "canonical": "entity_formal_letter",
+      "labels": {
+        "ar": "رد رسمي مكتوب",
+        "en": "formal written response"
+      },
+      "patterns": [
+        "رد رسمي",
+        "خطاب رسمي",
+        "جواب رسمي",
+        "ورقة رسمية",
+        "official letter"
+      ]
+    },
+    {
+      "canonical": "entity_template_language",
+      "labels": {
+        "ar": "لغة القالب",
+        "en": "template language"
+      },
+      "patterns": [
+        "لغة القالب",
+        "لغه القالب",
+        "القالب بالانجليزي",
+        "القالب بالعربي"
+      ]
+    },
+    {
+      "canonical": "entity_one_time_secret",
+      "labels": {
+        "ar": "سرّ المفتاح",
+        "en": "key secret"
+      },
+      "patterns": [
+        "السر",
+        "السرّ",
+        "السيكرت",
+        "secret"
+      ]
+    },
+    {
+      "canonical": "symptom_values_not_shown",
+      "labels": {
+        "ar": "القيم ماظهرتش",
+        "en": "values not shown"
+      },
+      "patterns": [
+        "تعذر عرض",
+        "ماظهرليش السر",
+        "مظهرش السر",
+        "القيم مظهرتش"
+      ]
+    },
+    {
+      "canonical": "entity_operator_scope",
+      "labels": {
+        "ar": "صلاحية مخصصة للمشغل",
+        "en": "operator-only scope"
+      },
+      "patterns": [
+        "مخصصة لمشغل",
+        "مخصصه لمشغل",
+        "لمشغل",
+        "مشغل"
+      ]
+    },
+    {
+      "canonical": "entity_bearer_token",
+      "labels": {
+        "ar": "رمز Bearer",
+        "en": "Bearer token"
+      },
+      "patterns": [
+        "bearer",
+        "بيرر",
+        "بيرير"
+      ]
+    },
+    {
+      "canonical": "entity_ai_client",
+      "labels": {
+        "ar": "تطبيق ذكاء اصطناعي",
+        "en": "AI assistant app"
+      },
+      "patterns": [
+        "claude",
+        "chatgpt",
+        "cursor",
+        "كلود",
+        "شات جي بي تي"
+      ]
+    },
+    {
+      "canonical": "entity_mcp_tool",
+      "labels": {
+        "ar": "أداة MCP",
+        "en": "MCP tool"
+      },
+      "patterns": [
+        "الاداة",
+        "الاداه",
+        "الادوات",
+        "اداه",
+        "tools",
+        "tool"
+      ]
+    },
+    {
+      "canonical": "intent_reauthorize",
+      "labels": {
+        "ar": "أوافق تاني",
+        "en": "authorize again"
+      },
+      "patterns": [
+        "اوافق تاني",
+        "موافقه تاني",
+        "اربطه تاني",
+        "اعيد الربط",
+        "reconnect",
+        "reauthorize"
+      ]
+    },
+    {
+      "canonical": "entity_leads",
+      "labels": {
+        "ar": "العملاء المحتملون",
+        "en": "leads"
+      },
+      "patterns": [
+        "العملاء المحتملين",
+        "العملاء المحتملون",
+        "عملاء محتملين",
+        "leads",
+        "lead"
+      ]
+    },
+    {
+      "canonical": "entity_sample_data",
+      "labels": {
+        "ar": "بيانات تجريبية",
+        "en": "sample data"
+      },
+      "patterns": [
+        "اسماء غريبه",
+        "اسماء غريبة",
+        "مش بتوعي",
+        "ماضفتهمش",
+        "بيانات وهمية",
+        "بيانات وهميه"
+      ]
+    },
+    {
+      "canonical": "entity_merge_plan",
+      "labels": {
+        "ar": "دمج الباقة",
+        "en": "plan merge"
+      },
+      "patterns": [
+        "دمج",
+        "اندمج",
+        "ادمج",
+        "دمجت"
+      ]
+    },
+    {
+      "canonical": "entity_bonus_days",
+      "labels": {
+        "ar": "أيام إضافية مجانية",
+        "en": "free bonus days"
+      },
+      "patterns": [
+        "الايام المجانيه",
+        "الايام المجانية",
+        "ايام اضافيه",
+        "ايام اضافية",
+        "الشهور الزياده",
+        "الشهور الزيادة"
+      ]
+    },
+    {
+      "canonical": "entity_launch_price",
+      "labels": {
+        "ar": "سعر الإطلاق",
+        "en": "launch price"
+      },
+      "patterns": [
+        "عرض الاطلاق",
+        "سعر الاطلاق"
+      ]
+    },
+    {
+      "canonical": "entity_coming_soon",
+      "labels": {
+        "ar": "متاحة قريبًا",
+        "en": "coming soon"
+      },
+      "patterns": [
+        "قريبا",
+        "قريباً",
+        "متاحه قريبا",
+        "متاحة قريبا",
+        "coming soon"
+      ]
+    },
+    {
+      "canonical": "entity_trust_device",
+      "labels": {
+        "ar": "الثقة في الجهاز",
+        "en": "trust this device"
+      },
+      "patterns": [
+        "ثق بهذا الجهاز",
+        "الثقه في الجهاز",
+        "افتكر الجهاز",
+        "الجهاز ده",
+        "trust this device",
+        "الاجهزه الموثوقه",
+        "الاجهزة الموثوقة",
+        "جهاز موثوق",
+        "الموثوقه"
+      ]
+    },
+    {
+      "canonical": "atom_code",
+      "labels": {
+        "ar": "كود/رمز",
+        "en": "code"
+      },
+      "patterns": [
+        "رمز",
+        "الرمز",
+        "كود",
+        "الكود"
+      ]
+    },
+    {
+      "canonical": "entity_early_timing",
+      "labels": {
+        "ar": "بدري",
+        "en": "early"
+      },
+      "patterns": [
+        "بدري",
+        "بدرى",
+        "قبل ما يخلص",
+        "قبل ما تخلص",
+        "قبل الانتهاء",
+        "الايام الفاضله",
+        "الايام الفاضلة"
+      ]
+    },
+    {
+      "canonical": "symptom_too_many_attempts",
+      "labels": {
+        "ar": "محاولات كتير",
+        "en": "too many attempts"
+      },
+      "patterns": [
+        "عدد المحاولات",
+        "محاولات كتير",
+        "تجاوز عدد",
+        "too many attempts"
+      ]
+    },
+    {
+      "canonical": "entity_expiry_setting",
+      "labels": {
+        "ar": "تاريخ انتهاء المفتاح",
+        "en": "key expiry"
+      },
+      "patterns": [
+        "تاريخ انتهاء",
+        "تاريخ انتهاءه",
+        "مده صلاحيه",
+        "مدة صلاحية",
+        "بلا انتهاء",
+        "من غير انتهاء"
+      ]
+    },
+    {
+      "canonical": "entity_every_time",
+      "labels": {
+        "ar": "كل مرة",
+        "en": "every time"
+      },
+      "patterns": [
+        "كل مره",
+        "كل مرة",
+        "كل ما ادخل",
+        "كل ما افتح",
+        "every time"
+      ]
+    },
+    {
+      "canonical": "entity_how_will_i_know",
+      "labels": {
+        "ar": "هعرف منين",
+        "en": "how will I know"
+      },
+      "patterns": [
+        "هعرف منين",
+        "اعرف منين",
+        "هيوصلني خبر",
+        "هتبلغوني"
+      ]
+    },
+    {
+      "canonical": "entity_too_big",
+      "labels": {
+        "ar": "حجمه كبير",
+        "en": "too big"
+      },
+      "patterns": [
+        "كبير",
+        "كبيره",
+        "الحجم كبير",
+        "تقيل"
+      ]
+    },
+    {
+      "canonical": "atom_register",
+      "labels": {
+        "ar": "أسجّل",
+        "en": "register"
+      },
+      "patterns": [
+        "اسجل",
+        "تسجيل"
+      ]
+    },
+    {
+      "canonical": "entity_logo",
+      "labels": {
+        "ar": "لوجو",
+        "en": "logo"
+      },
+      "patterns": [
+        "لوجو",
+        "لوغو",
+        "شعار"
+      ]
+    },
+    {
+      "canonical": "entity_cannot_make",
+      "labels": {
+        "ar": "مش قادر أعمل",
+        "en": "cannot create"
+      },
+      "patterns": [
+        "مش قادر اعمل",
+        "مش قادر انشئ"
+      ]
+    },
+    {
+      "canonical": "entity_review_state",
+      "labels": {
+        "ar": "قيد المراجعة",
+        "en": "under review"
+      },
+      "patterns": [
+        "قيد المراجعه",
+        "قيد المراجعة"
+      ]
+    },
+    {
+      "canonical": "atom_mode",
+      "labels": {
+        "ar": "وضع",
+        "en": "mode"
+      },
+      "patterns": [
+        "وضع",
+        "اوضاع",
+        "الوضع",
+        "الاوضاع",
+        "mode",
+        "modes"
+      ]
+    },
+    {
+      "canonical": "entity_traditional_mode",
+      "labels": {
+        "ar": "الوضع التقليدي",
+        "en": "traditional mode"
+      },
+      "patterns": [
+        "التقليدي",
+        "الوضع التقليدي",
+        "تقليدي"
+      ]
+    },
+    {
+      "canonical": "entity_subscribers_only",
+      "labels": {
+        "ar": "للمشتركين فقط",
+        "en": "subscribers only"
+      },
+      "patterns": [
+        "للمشتركين فقط",
+        "للمشتركين بس",
+        "للمشتركين"
+      ]
+    },
+    {
+      "canonical": "entity_ai_model",
+      "labels": {
+        "ar": "موديل الذكاء الاصطناعي",
+        "en": "AI model"
+      },
+      "patterns": [
+        "الموديل",
+        "موديل",
+        "الموديلات",
+        "موديلات",
+        "المزود",
+        "مزود",
+        "المزودات"
+      ]
+    },
+    {
+      "canonical": "entity_commercial_register",
+      "labels": {
+        "ar": "السجل التجاري",
+        "en": "commercial register"
+      },
+      "patterns": [
+        "سجل تجاري",
+        "رقم السجل",
+        "سجلي التجاري"
+      ]
+    },
+    {
+      "canonical": "entity_not_started",
+      "labels": {
+        "ar": "لم يبدأ بعد",
+        "en": "not started yet"
+      },
+      "patterns": [
+        "لم يبدأ بعد",
+        "لسه مابداش",
+        "لسه ما بدأش",
+        "مابدأش",
+        "مبدأش"
+      ]
+    },
+    {
+      "canonical": "entity_expiry_popup",
+      "labels": {
+        "ar": "نافذة تنبيه الانتهاء",
+        "en": "expiry pop-up"
+      },
+      "patterns": [
+        "سينتهي قريبا",
+        "هينتهي قريب",
+        "تذكرني لاحقا",
+        "تذكرني بعدين",
+        "الرساله دي بتطلع",
+        "الرسالة دي بتطلع"
+      ]
+    },
+    {
+      "canonical": "entity_given_rating",
+      "labels": {
+        "ar": "التقييم اللي اديته",
+        "en": "the rating I gave"
+      },
+      "patterns": [
+        "اديته",
+        "اديتها",
+        "اللي اديته",
+        "اللي اديتها",
+        "حطيته"
+      ]
+    },
+    {
+      "canonical": "entity_what_is",
+      "labels": {
+        "ar": "ده إيه",
+        "en": "what is it"
+      },
+      "patterns": [
+        "ده ايه",
+        "دي ايه",
+        "ده عباره عن ايه"
+      ]
+    },
+    {
+      "canonical": "entity_upload_refused",
+      "labels": {
+        "ar": "مش راضي يترفع",
+        "en": "upload refused"
+      },
+      "patterns": [
+        "مش راضي يترفع",
+        "مش بيترفع",
+        "مش راضي يرفع",
+        "مش عايز يترفع",
+        "الرفع بيفشل"
+      ]
+    },
+    {
+      "canonical": "symptom_not_happening",
+      "labels": {
+        "ar": "مش بيحصل",
+        "en": "not happening"
+      },
+      "patterns": [
+        "مش بيحصل",
+        "ماحصلش",
+        "مش بتحصل",
+        "مابيحصلش"
+      ]
+    },
+    {
+      "canonical": "entity_arabic_word",
+      "labels": {
+        "ar": "بالعربي",
+        "en": "in Arabic"
+      },
+      "patterns": [
+        "بالعربي",
+        "عربي",
+        "العربي"
+      ]
+    },
+    {
+      "canonical": "entity_service_word",
+      "labels": {
+        "ar": "خدمة",
+        "en": "service"
+      },
+      "patterns": [
+        "خدمة",
+        "خدمه",
+        "الخدمة",
+        "الخدمه"
+      ]
+    },
+    {
+      "canonical": "atom_link",
+      "labels": {
+        "ar": "أربط",
+        "en": "link"
+      },
+      "patterns": [
+        "اربط",
+        "اربطه",
+        "ربط",
+        "الربط"
+      ]
+    },
+    {
+      "canonical": "entity_closed_state",
+      "labels": {
+        "ar": "مقفولة",
+        "en": "closed (state)"
+      },
+      "patterns": [
+        "مقفوله",
+        "مقفولة",
+        "المقفوله",
+        "المقفولة",
+        "مغلقه",
+        "مغلقة"
+      ]
+    },
+    {
+      "canonical": "entity_colleague",
+      "labels": {
+        "ar": "زميلي",
+        "en": "my colleague"
+      },
+      "patterns": [
+        "زميلي",
+        "زميلتي",
+        "زميل",
+        "زملائي",
+        "زمايلي"
+      ]
+    },
+    {
+      "canonical": "entity_request_cancelled",
+      "labels": {
+        "ar": "الطلب اتلغى لوحده",
+        "en": "request cancelled by itself"
+      },
+      "patterns": [
+        "اتلغي لوحده",
+        "اتلغت لوحدها",
+        "الطلب اتلغي",
+        "طلبي اتلغي",
+        "اتلغي من نفسه"
+      ]
+    },
+    {
+      "canonical": "entity_company_data",
+      "labels": {
+        "ar": "بيانات الشركة",
+        "en": "company data"
+      },
+      "patterns": [
+        "بيانات الشركه",
+        "بيانات الشركة",
+        "بيانات شركتي",
+        "بيانات شركتنا",
+        "ملف الشركه"
+      ]
+    },
+    {
+      "canonical": "entity_rating_place",
+      "labels": {
+        "ar": "مكان التقييم",
+        "en": "where to rate"
+      },
+      "patterns": [
+        "مكان التقييم",
+        "زرار التقييم",
+        "التقييم فين",
+        "فين التقييم",
+        "خانة التقييم"
+      ]
+    },
+    {
+      "canonical": "entity_use_code",
+      "labels": {
+        "ar": "أستخدم رمز",
+        "en": "use a code"
+      },
+      "patterns": [
+        "استخدم رمز",
+        "استخدام رمز",
+        "ادخل رمز",
+        "اكتب رمز",
+        "استخدم كود"
+      ]
+    },
+    {
+      "canonical": "entity_page_not_for_me",
+      "labels": {
+        "ar": "الصفحة مش لحسابي",
+        "en": "page not for my account"
+      },
+      "patterns": [
+        "مخصصه لحسابات العملاء",
+        "مخصصة لحسابات العملاء",
+        "مخصصه لفريق",
+        "مخصصة لفريق",
+        "الصفحه دي مش ليا",
+        "الصفحة دي مش ليا"
+      ]
+    },
+    {
+      "canonical": "entity_company_mode",
+      "labels": {
+        "ar": "حساب تابع لشركة",
+        "en": "company member account"
+      },
+      "patterns": [
+        "حساب تابع لشركه",
+        "حساب تابع لشركة",
+        "تابع لشركه",
+        "تابع لشركة",
+        "حساب تابع"
+      ]
+    },
+    {
+      "canonical": "entity_username",
+      "labels": {
+        "ar": "اسم المستخدم",
+        "en": "username"
+      },
+      "patterns": [
+        "اسم المستخدم",
+        "اليوزر",
+        "يوزر",
+        "اليوزرنيم",
+        "username"
+      ]
+    },
+    {
+      "canonical": "entity_signup",
+      "labels": {
+        "ar": "إنشاء حساب",
+        "en": "signing up"
+      },
+      "patterns": [
+        "بعمل حساب",
+        "اعمل حساب",
+        "انشاء حساب",
+        "انشئ حساب",
+        "حساب جديد",
+        "بسجل",
+        "وانا بسجل"
+      ]
+    },
+    {
+      "canonical": "entity_not_accepted",
+      "labels": {
+        "ar": "مش مقبول",
+        "en": "not accepted"
+      },
+      "patterns": [
+        "مش مقبول",
+        "مش راضي يقبل"
+      ]
+    },
+    {
+      "canonical": "entity_pi_network",
+      "labels": {
+        "ar": "Pi Network",
+        "en": "Pi Network"
+      },
+      "patterns": [
+        "pi network",
+        "باي نتورك",
+        "باي نت ورك",
+        "متصفح pi"
+      ]
+    },
+    {
+      "canonical": "entity_not_linked_account",
+      "labels": {
+        "ar": "مش مرتبط بحسابك",
+        "en": "not linked to your account"
+      },
+      "patterns": [
+        "مش مرتبط بحسابك",
+        "ليس مرتبطا بحسابك",
+        "مش مرتبط"
+      ]
+    },
+    {
+      "canonical": "entity_all_devices",
+      "labels": {
+        "ar": "كل الأجهزة",
+        "en": "all devices"
+      },
+      "patterns": [
+        "كل الاجهزه",
+        "كل الاجهزة",
+        "باقي الاجهزه",
+        "باقي الاجهزة",
+        "الاجهزه التانيه",
+        "الاجهزة التانية"
+      ]
+    },
+    {
+      "canonical": "entity_logout",
+      "labels": {
+        "ar": "تسجيل خروج",
+        "en": "sign out"
+      },
+      "patterns": [
+        "تسجيل خروج",
+        "اسجل خروج",
+        "اعمل خروج",
+        "خروج",
+        "logout"
+      ]
+    },
+    {
+      "canonical": "entity_turn_off",
+      "labels": {
+        "ar": "أوقف",
+        "en": "turn off"
+      },
+      "patterns": [
+        "اوقف",
+        "اوقفه",
+        "اعطل",
+        "اعطله",
+        "الغي تفعيل",
+        "الغي التفعيل"
+      ]
+    },
+    {
+      "canonical": "entity_codes_word",
+      "labels": {
+        "ar": "رموز",
+        "en": "codes"
+      },
+      "patterns": [
+        "رموز",
+        "الرموز",
+        "اكواد",
+        "الاكواد"
+      ]
+    },
+    {
+      "canonical": "entity_still_old",
+      "labels": {
+        "ar": "لسه القديم",
+        "en": "still the old one"
+      },
+      "patterns": [
+        "لسه القديم",
+        "ولسه القديم",
+        "لسه هو القديم"
+      ]
+    },
+    {
+      "canonical": "entity_unverified",
+      "labels": {
+        "ar": "غير موثّق",
+        "en": "not verified"
+      },
+      "patterns": [
+        "غير موثق",
+        "مش موثق",
+        "غير متوثق",
+        "مش متوثق"
+      ]
+    },
+    {
+      "canonical": "entity_bio",
+      "labels": {
+        "ar": "النبذة",
+        "en": "bio"
+      },
+      "patterns": [
+        "النبذه",
+        "نبذه",
+        "نبذة عني",
+        "نبذه عني",
+        "bio"
+      ]
+    },
+    {
+      "canonical": "entity_too_many_messages",
+      "labels": {
+        "ar": "رسايل كتير",
+        "en": "too many messages"
+      },
+      "patterns": [
+        "رسايل كتير",
+        "رسائل كتير",
+        "رسايل كتيره",
+        "في وقت قصير"
+      ]
+    },
+    {
+      "canonical": "entity_notify_me",
+      "labels": {
+        "ar": "توصلني إشعارات",
+        "en": "notify me"
+      },
+      "patterns": [
+        "توصلني اشعارات",
+        "ابقي اعرف علي",
+        "تبعتولي اشعارات"
+      ]
+    },
+    {
+      "canonical": "entity_post_topic",
+      "labels": {
+        "ar": "أنشر موضوع",
+        "en": "post a topic"
+      },
+      "patterns": [
+        "انشر موضوع",
+        "انشر",
+        "اكتب موضوع",
+        "موضوع جديد",
+        "بوست"
+      ]
+    },
+    {
+      "canonical": "entity_voice_support",
+      "labels": {
+        "ar": "دعم صوتي",
+        "en": "voice support"
+      },
+      "patterns": [
+        "دعم صوتي",
+        "مكالمات",
+        "مكالمه صوتيه",
+        "كول سنتر",
+        "اتصال تليفوني"
+      ]
+    },
+    {
+      "canonical": "entity_blog",
+      "labels": {
+        "ar": "المدوّنة",
+        "en": "the blog"
+      },
+      "patterns": [
+        "المدونة",
+        "المدونه",
+        "مدونة",
+        "مدونه",
+        "blog",
+        "البلوج",
+        "بلوج"
+      ]
+    },
+    {
+      "canonical": "entity_write_article",
+      "labels": {
+        "ar": "كتابة مقال",
+        "en": "writing an article"
+      },
+      "patterns": [
+        "اكتب مقال",
+        "اكتب مقالة",
+        "اكتب مقاله",
+        "انشر مقال",
+        "انشر مقالة",
+        "write an article",
+        "write a post"
+      ]
+    },
+    {
+      "canonical": "entity_load_failed_msg",
+      "labels": {
+        "ar": "تعذّر التحميل",
+        "en": "failed to load"
+      },
+      "patterns": [
+        "تعذر تحميل",
+        "تعذّر تحميل",
+        "فشل تحميل",
+        "failed to load"
+      ]
+    },
+    {
+      "canonical": "entity_dark_theme",
+      "labels": {
+        "ar": "الوضع الليلي أو النهاري",
+        "en": "dark or light mode"
+      },
+      "patterns": [
+        "الوضع الليلي",
+        "الوضع النهاري",
+        "الوضع الفاتح",
+        "الوضع الداكن",
+        "الدارك مود",
+        "dark mode",
+        "light mode",
+        "الليلي",
+        "النهاري"
+      ]
+    }
+  ]
+}

@@ -22,7 +22,7 @@
  *    uncertainty from the transliteration step itself)
  */
 
-const BASE_WEIGHT_BY_SOURCE = {
+export const BASE_WEIGHT_BY_SOURCE = {
     glossary: 1.0,
     arabic: 0.8,
     arabizi: 0.75

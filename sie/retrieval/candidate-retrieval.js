@@ -76,11 +76,21 @@ export function retrieveCandidates(catalogOrIndex, tokenPresences, options = {})
         }
     }
 
-    const candidates = [];
-    for (const [id, sum] of numerator) {
-        const total = index.totalWeight[id];
+    // `numerator` is keyed by signature ROW. A scenario's confidence is the
+    // best of its rows — the maximum computeScenarioConfidence takes — so the
+    // rows are reduced per scenario before anything is filtered or sorted.
+    const bestByScenario = new Map();
+    for (const [row, sum] of numerator) {
+        const total = index.totalWeight[row];
         if (!total) continue;
         const confidence = sum / total;
+        const id = index.rowScenario ? index.rowScenario[row] : row;
+        const prior = bestByScenario.get(id);
+        if (prior === undefined || confidence > prior) bestByScenario.set(id, confidence);
+    }
+
+    const candidates = [];
+    for (const [id, confidence] of bestByScenario) {
         if (confidence <= minConfidence) continue;
         candidates.push({ scenario: index.scenarios[id], index: id, confidence });
     }

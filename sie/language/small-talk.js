@@ -122,6 +122,10 @@ const CATEGORIES = [
             'ايه هي خدماتكم', 'ايه هي مميزات مدعوم', 'مدعوم بتساعد في ايه',
             'ليه استخدم مدعوم', 'ايه فايدة مدعوم', 'ازاي مدعوم بيشتغل',
             'احكيلي عن مدعوم', 'عرفني على مدعوم', 'وضحلي مدعوم ايه',
+            // Production trace (two sessions, 2026-09): "كلمني عن منصة مدعوم"
+            // matched nothing here and fell through to FALLBACK in one session
+            // and an unrelated clarifying question in the other.
+            'كلمني عن مدعوم', 'كلمني عن منصة مدعوم', 'كلمني عن المنصة', 'قولي عن مدعوم',
             'ايه هي خطط الاشتراك', 'عندكم باقات ايه'
         ]
     },

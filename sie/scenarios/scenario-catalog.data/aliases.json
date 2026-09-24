@@ -1,0 +1,65 @@
+{
+  "note": "Scenario ids removed by the 2026-09 audit, and the scenario that now handles the same case. Read by the comparator and available to anything resolving a stored scenario id.",
+  "aliases": {
+    "convo_trial_extension_request": {
+      "into": "billing_trial_extension_request",
+      "why": "Same request (\"extend my trial\"); both open a ticket."
+    },
+    "report_scheduled_delivery_new": {
+      "into": "report_scheduled_delivery",
+      "why": "Same request; the \"_new\" copy was added without noticing the first."
+    },
+    "infra_data_location": {
+      "into": "compliance_data_residency",
+      "why": "Same question (\"where is my data stored\"); both open a ticket."
+    },
+    "scale_attachment_too_big": {
+      "into": "ticket_attachment_too_large",
+      "why": "Same complaint, with contradictory limits in the two answers (see the fact correction below)."
+    },
+    "convo_seasonal_rush": {
+      "into": "ops_seasonal_capacity",
+      "why": "Same primary token (social_seasonal_rush) and the same advice at two lengths."
+    },
+    "everything_broken_urgent": {
+      "into": "platform_wide_outage",
+      "why": "Same case (\"everything is down\"); both open a ticket."
+    },
+    "bot_flow_testing": {
+      "into": "bot_test_mode",
+      "why": "Same question (\"test the bot before publishing\"); one answered, one only opened a ticket."
+    },
+    "api_test_credentials": {
+      "into": "api_sandbox_request",
+      "why": "Same request (a test environment / credentials for the API), same primary token."
+    },
+    "convo_asks_shorter_answer": {
+      "into": "convo_answer_too_long",
+      "why": "Same request (\"shorter, please\")."
+    },
+    "convo_sent_by_mistake": {
+      "into": "convo_wrong_message",
+      "why": "Same case (message sent by mistake)."
+    },
+    "convo_apologizes_after_anger": {
+      "into": "convo_angry_calming_down",
+      "why": "Same case (customer apologises for earlier anger)."
+    },
+    "wa_number_suspended_by_meta": {
+      "into": "whatsapp_number_banned",
+      "why": "Same event: a banned WhatsApp number is a number suspended by Meta. Both open a ticket."
+    },
+    "convo_short_ok": {
+      "into": "convo_neutral_acknowledgement",
+      "why": "Identical answers to a bare \"ok\"."
+    },
+    "wa_emoji_arabic_garbled": {
+      "into": "data_import_encoding",
+      "why": "Same cause and same fix (file not saved as UTF-8). The survivor only opened a ticket; it now carries the answer."
+    },
+    "team_remove_agent_data": {
+      "into": "team_offboarding_agent",
+      "why": "Same situation with CONTRADICTORY answers (one said open tickets move to unassigned automatically, the other that they are left without an owner). The survivor keeps the safe ordering (reassign, then disable)."
+    }
+  }
+}

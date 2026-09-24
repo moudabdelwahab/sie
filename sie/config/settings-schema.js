@@ -27,6 +27,10 @@
  * first.
  */
 
+import {
+    EDITION_IDS, EDITION_DEFAULTS, EDITION_SCENARIO_CEILINGS, HARD_LIMITS, editionSettingKey
+} from '../editions/editions.js';
+
 /** @typedef {'boolean'|'number'|'enum'} SettingType */
 
 /**
@@ -40,6 +44,7 @@ export const SETTING_GROUPS = Object.freeze([
     { id: 'memory', title: 'الذاكرة', desc: 'قد إيه المحرك يفتكر من المحادثة ومن اللي قبلها.' },
     { id: 'support', title: 'إدارة الدعم', desc: 'إمتى يسلّم المشكلة لموظف بشري وإزاي.' },
     { id: 'behavior', title: 'الذكاء والسلوك', desc: 'قد إيه المحرك يبقى جريء في إجاباته ولا يفضل متحفّظ.' },
+    { id: 'editions', title: 'الإصدارات', desc: 'المجاني وبرو وماكس: كل إصدار بيفهم كام حالة، وحدود الاستخدام بتاعته.' },
     { id: 'safety', title: 'قدرات متقدمة', desc: 'الحماية، وشكل التخزين، وتجربة النسخة الجديدة. أسهل طريقة تتحكم فيهم من قسم «قدرات المحرك».' }
 ]);
 
@@ -96,6 +101,16 @@ export const SETTINGS = Object.freeze([
         effect: 'sie-integration/sie-shadow: runs the vNext pipeline beside the live turn and records the comparison in the trace'
     },
     // ── التشغيل ────────────────────────────────────────────────────
+    {
+        key: 'retrieval_scoped_diagnosis', group: 'safety', type: 'boolean', default: true,
+        title: 'يفحص الحالات القريبة بس',
+        desc: 'في كل رسالة المحرك بيحسب الحالات اللي بتشارك الرسالة كلمة على الأقل، بدل ما يمر على كل الحالات. '
+            + 'النتيجة نفس النتيجة بالظبط — ده متثبت باختبار — بس أسرع كل ما عدد الحالات يزيد.',
+        warn: 'المحرك بيمر على كل الحالات في كل رسالة — نفس الردود بس أبطأ، وخصوصًا في برو وماكس.',
+        // Equivalence: sie/retrieval/tests/equivalence.test.mjs (scoring) and
+        // bench/edition-equivalence.mjs (whole decisions, per edition).
+        effect: 'sie-chat-bridge: processTurn scope callback (editions/edition-turn.js scopeFor)'
+    },
     {
         key: 'engine_enabled', group: 'operation', type: 'boolean', default: true,
         title: 'المحرك الذكي شغّال',
@@ -441,8 +456,102 @@ export const SETTINGS = Object.freeze([
             { value: 'knowledge_and_inference', label: 'يستنتج كمان',     desc: 'يجمع أدلة من رسايل مختلفة ويوصل لحالة محدش ذكرها صريح. ده المعتاد.' }
         ],
         effect: 'diagnostic-engine: cross-turn evidence accumulation'
-    }
+    },
+
+    // ── الإصدارات ──────────────────────────────────────────────────
+    ...editionSettings()
 ]);
+
+/**
+ * إعدادات الإصدارات: الإصدار الافتراضي، وسبع حدود لكل إصدار.
+ *
+ * Generated from sie/editions/editions.js so the console, the validator and
+ * the resolver cannot disagree about a range: min/max here ARE the hard
+ * limits there. Defaults are the edition defaults, and for Free they are
+ * today's behaviour exactly (every core scenario, the 8,000-character bound
+ * normalize() always applied, no edition-level caps).
+ *
+ * Two knobs use 0 as "no value of its own" (`zeroMeans`): the per-edition
+ * rate limit (0 = the global rate-limit settings apply) and the monthly cap
+ * (0 = no edition cap; the customer's own quota still applies).
+ */
+function editionSettings() {
+    const NAMES = { free: 'المجاني', pro: 'برو', max: 'ماكس' };
+    const out = [{
+        key: 'default_edition', group: 'editions', type: 'enum', default: 'free',
+        title: 'الإصدار الافتراضي للعملاء',
+        desc: 'الإصدار اللي بياخده أي عميل مالوش إصدار متحدد له بالاسم من «مركز المراجعة».',
+        options: EDITION_IDS.map((id) => ({
+            value: id,
+            label: NAMES[id],
+            desc: { free: 'الحالات الأساسية. ده سلوك المحرك النهارده بالظبط.',
+                pro: 'الأساسية + حالات الدعم المتخصصة.',
+                max: 'كل الحالات: الأساسية + الدعم المتخصص + الحالات العامة.' }[id]
+        })),
+        effect: 'editions.resolveCustomerEdition: fallback when the access row names no edition'
+    }];
+
+    const knobs = [
+        { knob: 'maxScenarios', step: 10,
+            title: 'أقصى عدد حالات',
+            desc: 'كام حالة الإصدار ده يقدر يفهمها. لو الرقم أقل من الحالات الموجودة، الحالات الأحدث في الترتيب بتتشال الأول. الإصدار الأعلى عمره ما بياخد أقل من اللي تحته.',
+            effect: 'edition-catalog.forProfile: truncates the assembled catalog' },
+        { knob: 'maxMessageChars', step: 100,
+            title: 'أقصى طول للرسالة (حرف)',
+            desc: 'أي رسالة أطول من كده بيتقرا أولها بس. الرسايل العادية أقل من ٣٠٠ حرف.',
+            effect: 'normalizer: maxInputChars (clamped to 8000)' },
+        { knob: 'retrievalMaxCandidates', step: 5,
+            title: 'عدد الحالات المرشحة في كل رسالة',
+            desc: 'أقصى عدد حالات بيتقارن في الرسالة الواحدة بعد الفرز السريع. الحالات اللي المحادثة ماشية فيها بتفضل محسوبة دايمًا.',
+            effect: 'candidate-scope: retrieval limit (top K by exact confidence)' },
+        { knob: 'maxEvidenceTokensPerTurn', step: 4,
+            title: 'أقصى عدد إشارات في الرسالة',
+            desc: 'حد أمان: رسالة مليانة كلمات مختلفة مابتقدرش تخلي المحرك يشتغل أكتر من كده. الرسايل الحقيقية بعيدة جدًا عن الحد.',
+            effect: 'edition-turn.capEvidenceTokens: before the trust boundary' },
+        { knob: 'rateLimitPerMinute', step: 10, zeroMeans: 'صفر = يمشي على حد الطلبات العام',
+            title: 'حد الطلبات في الدقيقة',
+            desc: 'حد مختلف لعملاء الإصدار ده. صفر معناه إنه يمشي على الحد العام من قسم «التشغيل». الحد المتحدد لعميل بعينه بيغلب الاتنين.',
+            effect: 'sie_rate_limit_hit() (migration 0009): customer override > edition > global' },
+        { knob: 'rateLimitBurst', step: 5,
+            title: 'الدفعة المفاجئة المسموحة',
+            desc: 'كام طلب زيادة مسموح فوق الحد لو العميل كان ساكت. بيشتغل بس لو «حد الطلبات في الدقيقة» للإصدار مش صفر.',
+            effect: 'sie_rate_limit_hit() (migration 0009): bucket capacity when the edition sets a rate' },
+        { knob: 'monthlyMessages', step: 100, zeroMeans: 'صفر = من غير حد شهري للإصدار',
+            title: 'أقصى رسايل في الشهر',
+            desc: 'حد شهري لكل عميل في الإصدار ده. صفر معناه مفيش حد من الإصدار — رصيد العميل نفسه بيفضل شغّال زي ما هو.',
+            effect: 'sie_consume_message() (migration 0009): per-edition monthly cap' }
+    ];
+    const HARD = {
+        maxScenarios: (id) => ({ min: HARD_LIMITS.minScenarios, max: EDITION_SCENARIO_CEILINGS[id] }),
+        maxMessageChars: () => HARD_LIMITS.maxMessageChars,
+        retrievalMaxCandidates: () => HARD_LIMITS.retrievalMaxCandidates,
+        maxEvidenceTokensPerTurn: () => HARD_LIMITS.maxEvidenceTokensPerTurn,
+        rateLimitPerMinute: () => HARD_LIMITS.rateLimitPerMinute,
+        rateLimitBurst: () => HARD_LIMITS.rateLimitBurst,
+        monthlyMessages: () => HARD_LIMITS.monthlyMessages
+    };
+    const DEFAULT_WHEN_NULL = { rateLimitPerMinute: 0, rateLimitBurst: 20 };
+
+    for (const id of EDITION_IDS) {
+        for (const k of knobs) {
+            const { min, max } = HARD[k.knob](id);
+            const d = EDITION_DEFAULTS[id][k.knob];
+            // A `zeroMeans` knob's range starts at 0 (its meaning); a real
+            // value must still clear the hard floor (`minNonZero`).
+            out.push({
+                key: editionSettingKey(id, k.knob), group: 'editions', type: 'number',
+                default: d === null ? DEFAULT_WHEN_NULL[k.knob] : d,
+                min: k.zeroMeans ? 0 : min, max, step: k.step,
+                ...(k.zeroMeans ? { zeroMeans: k.zeroMeans, ...(min > 1 ? { minNonZero: min } : {}) } : {}),
+                edition: id, knob: k.knob,
+                title: `${k.title} — ${NAMES[id]}`,
+                desc: k.desc,
+                effect: k.effect
+            });
+        }
+    }
+    return out;
+}
 
 /** خريطة سريعة بالمفتاح. */
 export const SETTINGS_BY_KEY = Object.freeze(
@@ -515,6 +624,11 @@ export function validateSetting(key, value) {
     if (def.type === 'number') {
         const n = typeof value === 'number' ? value : Number(value);
         if (!Number.isFinite(n)) return { ok: false, error: `«${def.title}» لازم يكون رقم.` };
+        // `zeroMeans`: 0 is a meaning ("inherit" / "no cap"), not a small
+        // value — so a small non-zero value is held to the real floor.
+        if (def.minNonZero && n > 0 && n < def.minNonZero) {
+            return { ok: false, error: `«${def.title}» لازم يكون صفر (${def.zeroMeans.replace(/^صفر = /, '')}) أو من ${def.minNonZero} لـ${def.max}.` };
+        }
         if (n < def.min || n > def.max) {
             return { ok: false, error: `«${def.title}» لازم يكون بين ${def.min} و${def.max}.` };
         }

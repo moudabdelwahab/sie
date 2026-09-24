@@ -66,7 +66,8 @@
  * database blip narrows the catalog to the reviewed one rather than
  * breaking the turn — and the reason is visible instead of inferred.
  */
-import { validateCatalog } from './scenario-types.js';
+import { validateCatalog, scenarioTokens } from './scenario-types.js';
+import { lintAnswerText } from '../editions/pack-guard.js';
 import { scenarioCatalogProvider } from './scenario-catalog.local.js';
 
 /**
@@ -195,7 +196,7 @@ function providerOver(scenarios, warnings) {
         async getEvidenceVocabulary() {
             const tokens = new Set();
             for (const scenario of scenarios) {
-                for (const entry of scenario.evidenceSignature) tokens.add(entry.token);
+                for (const token of scenarioTokens(scenario)) tokens.add(token);
             }
             return Array.from(tokens);
         },
@@ -269,7 +270,20 @@ export async function resolveScenarioCatalog({
         };
     }
 
-    const { valid: overlayValid, invalid: overlayInvalid } = validateCatalog(rawOverlay);
+    const { valid: shapeValid, invalid: overlayInvalid } = validateCatalog(rawOverlay);
+    // The same content rules a pack answer obeys (editions/pack-guard.js):
+    // a published row overrides a shipped scenario by id — a Pro one too —
+    // and speaks in the brand's voice, so it gets no looser a check than the
+    // shipped content. No link or markup outside the allow-list, no request
+    // for a credential, no internal identifier. The rows production
+    // published on 2026-09-24 raise nothing under it (they fail the schema
+    // for other reasons; scenario-catalog-resolver.test pins both facts).
+    const overlayValid = [];
+    for (const scenario of shapeValid) {
+        const reasons = ['ar', 'en'].flatMap((l) => lintAnswerText(scenario.resolution?.text?.[l] ?? '').map((why) => `answer.${l}: ${why}`));
+        if (reasons.length) overlayInvalid.push({ scenario, errors: reasons });
+        else overlayValid.push(scenario);
+    }
     const overlayWarnings = overlayInvalid.map(
         ({ scenario, errors }) =>
             `Skipped invalid published scenario (id: ${scenario?.id ?? 'unknown'}): ${errors.join('; ')}`

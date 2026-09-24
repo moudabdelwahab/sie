@@ -206,8 +206,12 @@ test('robustness: identical input on identical state is deterministic, 20 times 
         const first = await runTurn({ text, catalog: CATALOG, variant: 'vnext', providers });
         for (let i = 0; i < 20; i++) {
             const again = await runTurn({ text, catalog: CATALOG, variant: 'vnext', providers });
-            assert.equal(again.decision.action, first.decision.action, `"${text}" is not deterministic`);
-            assert.equal(again.decision.scenarioId, first.decision.scenarioId, `"${text}" picked a different scenario`);
+            // Not every input reaches a decision — "كلمني عن منصة مدعوم" is
+            // small talk since the 2026-09 audit — so the KIND is compared
+            // too, and a missing decision must stay missing.
+            assert.equal(again.interpretation.kind, first.interpretation.kind, `"${text}" changed kind`);
+            assert.equal(again.decision?.action, first.decision?.action, `"${text}" is not deterministic`);
+            assert.equal(again.decision?.scenarioId, first.decision?.scenarioId, `"${text}" picked a different scenario`);
         }
     }
 });

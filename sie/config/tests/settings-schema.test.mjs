@@ -229,15 +229,53 @@ test('كل إعداد بيتقرا في كود المحرك فعلاً', async (
         // to wait out. A setting read there is every bit as live as one
         // read in the bridge, so the scan has to look there too or it
         // reports a real branch as dead.
-        '../../../sie-integration/migrations/0008_add_api_rate_limiting.sql'
+        '../../../sie-integration/migrations/0008_add_api_rate_limiting.sql',
+        // resolveCustomerEdition reads default_edition.
+        '../../editions/editions.js'
     ];
     const sources = await Promise.all(
         roots.map((rel) => readFile(fileURLToPath(new URL(rel, import.meta.url)), 'utf8'))
     );
     const haystack = sources.join('\n');
 
-    const unused = SETTINGS.map((s) => s.key).filter((key) => !haystack.includes(key));
+    // Per-edition knobs are read by a computed key (editionSettingKey), so a
+    // substring scan cannot see them; the next test proves them by behaviour.
+    const unused = SETTINGS.filter((s) => !s.edition).map((s) => s.key).filter((key) => !haystack.includes(key));
     assert.deepEqual(unused, [], `الإعدادات دي معروضة في اللوحة بس محدش بيقراها: ${unused.join('، ')}`);
+});
+
+test('كل حد من حدود الإصدارات بيغيّر حاجة فعلاً', async () => {
+    // Two links, both required: (1) the stored key moves the resolved
+    // profile field, and (2) something that runs on a turn consumes that
+    // field — the bridge/catalog in JavaScript, or the database function
+    // for the limits enforced there.
+    const { resolveEditionProfile } = await import('../../editions/editions.js');
+    const read = (rel) => readFile(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
+    const js = (await read('../../../sie-integration/sie-chat-bridge.js')) + (await read('../../editions/edition-catalog.js'));
+    const sql = await read('../../../sie-integration/migrations/0009_sie_editions.sql');
+    const DB_KNOBS = { rateLimitPerMinute: '_rate_limit_per_minute', rateLimitBurst: '_rate_limit_burst', monthlyMessages: '_monthly_messages' };
+
+    const editionDefs = SETTINGS.filter((s) => s.edition);
+    assert.equal(editionDefs.length, 21, 'سبع حدود × تلات إصدارات');
+    for (const def of editionDefs) {
+        const base = resolveEditionProfile(def.edition, {});
+        // A value inside the range and different from the default; the rate
+        // needs a rate set for the burst to mean anything.
+        const probe = def.default === def.max ? def.max - def.step : Math.min(def.default + def.step, def.max);
+        const extra = def.knob === 'rateLimitBurst' ? { [def.key.replace('rate_limit_burst', 'rate_limit_per_minute')]: 100 } : {};
+        const baseWith = resolveEditionProfile(def.edition, extra);
+        const moved = resolveEditionProfile(def.edition, { ...extra, [def.key]: probe });
+        assert.notDeepEqual(moved[def.knob], (def.knob === 'rateLimitBurst' ? baseWith : base)[def.knob],
+            `«${def.key}» مابيغيّرش الإصدار`);
+
+        if (DB_KNOBS[def.knob]) {
+            assert.ok(sql.includes(DB_KNOBS[def.knob]), `«${def.key}» مش مقروء في قاعدة البيانات`);
+        } else if (def.knob === 'maxScenarios') {
+            assert.match(js, /profile\.maxScenarios/, 'حد الحالات مش مستخدم في تجميع الكتالوج');
+        } else {
+            assert.ok(js.includes(`editionProfile.${def.knob}`), `«${def.key}» مش مستخدم في الجسر`);
+        }
+    }
 });
 
 // ── اللغة: كل كلام بيتعرض للمسؤول عربي ─────────────────────────

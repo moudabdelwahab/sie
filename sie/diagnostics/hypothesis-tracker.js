@@ -32,6 +32,8 @@
  * including hypotheses that were considered and ruled out.
  */
 
+import { scenarioSignatures } from '../scenarios/scenario-types.js';
+
 export const ACTIVATION_THRESHOLD = 0.15;
 export const REJECTION_THRESHOLD = 0.05;
 
@@ -42,12 +44,26 @@ export const REJECTION_THRESHOLD = 0.05;
  * @returns {{ confidence: number, supportingEvidenceTokens: string[], missingEvidenceTokens: string[] }}
  */
 export function computeScenarioConfidence(scenario, tokenPresences) {
+    // The best of the scenario's signatures — see scenarioSignatures(). A
+    // scenario with no alternatives takes exactly the path it always took.
+    let best = null;
+    for (const signature of scenarioSignatures(scenario)) {
+        const scored = scoreSignature(signature, tokenPresences);
+        // Strictly greater: on a tie the EARLIER signature (the primary) wins,
+        // so supporting/missing tokens stay those of the primary whenever the
+        // alternative adds nothing.
+        if (!best || scored.confidence > best.confidence) best = scored;
+    }
+    return best || { confidence: 0, supportingEvidenceTokens: [], missingEvidenceTokens: [] };
+}
+
+function scoreSignature(signature, tokenPresences) {
     let weightedSum = 0;
     let totalWeight = 0;
     const supportingEvidenceTokens = [];
     const missingEvidenceTokens = [];
 
-    for (const { token, weight } of scenario.evidenceSignature) {
+    for (const { token, weight } of signature) {
         const presence = tokenPresences.get(token) || 0;
         weightedSum += presence * weight;
         totalWeight += weight;
