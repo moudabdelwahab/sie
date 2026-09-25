@@ -68,7 +68,12 @@ import { json } from '../_shared/http.ts';
 // 63937a1 (editions: Free/Pro/Max) measured 2026-09-24 the same way, fresh
 // process per run, CPU = import + first turn: Free 115-189 ms, Pro 138-183 ms,
 // Max 143-210 ms (cba70f3: 104-191 ms); a long mixed first message 134-149 ms.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@63937a1219df3b21e50ba937b1a77a22c0a38409/sie-integration/sie-runtime.js';
+//
+// d9b777f (Pro answers for the SIE-only chat) measured 2026-09-25 side by
+// side with 63937a1 on the same machine, 4 fresh processes per edition:
+// Free 157-173 / Pro 180-212 / Max 195-207 ms (63937a1: 159-192 / 186-223 /
+// 198-249 ms). Only pack answer text changed; retrieval signals did not.
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@d9b777f31c4b2816e933f4ecd7340333524e2f6d/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;
