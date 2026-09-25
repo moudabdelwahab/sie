@@ -1,15 +1,23 @@
 /**
  * Pro · أوضاع الشات بوت، بيانات الشركة بعد الاشتراك، حالات الاشتراك، ونافذة التنبيه.
  *
- * Facts (Mad3oom, read 2026-09-24):
- *  - assets/js/chatbot-mode-service.js / chatbot-mode-selector.js: four modes —
- *    تقليدي (ready replies and quick menus, no AI call), نموذج ذكاء اصطناعي
- *    (you pick a provider and model), تلقائي (the platform picks the best
- *    available model per message), and SIE. The advanced three are for
- *    subscribers only ("للمشتركين فقط"). When SIE stops being available
- *    (quota used, access expired, disabled) the widget switches the customer
- *    to the traditional mode automatically and keeps that choice. If a
- *    provider has no discovered models the admin-configured default is used.
+ * Facts (Mad3oom, read 2026-09-25 — the chat composer / SIE plans change):
+ *  - SIE is the only reply engine. The traditional mode (ready replies and
+ *    quick menus) was removed, and the AI-model / automatic modes were taken
+ *    out of the UI (there was no engine behind them). chatbot-engine.js and
+ *    chatbot-mode-service.js are gone; profiles.chatbot_mode only accepts
+ *    'sie' for new values (migration 054).
+ *  - Every account has SIE Free (migration 0011 here: backfill + provisioning
+ *    on sign-up). Plans are المجاني / برو / ماكس; each has a monthly message
+ *    limit that resets at the start of the month.
+ *  - The «SIE» button next to the message box shows the plan, used /
+ *    remaining / total, the percentage and when it resets
+ *    (sie_my_entitlement). The customer can move down (Max→Pro, Max→Free,
+ *    Pro→Free) from the same menu (sie_customer_downgrade); moving up is done
+ *    by the platform team.
+ *  - When SIE can't answer (limit reached, access expired or disabled) no
+ *    other bot answers: the chat shows the reason and the message stays for
+ *    the support team.
  *  - assets/js/company/company-onboarding.js: a plan that requires a company
  *    asks for company name, commercial-register number and its expiry date
  *    ("saved with the company data for future verification"), company e-mail
@@ -55,26 +63,26 @@ export default {
         S('chatbot_modes_compare', 'chat/bot_mode/options_compare', 'inquiry',
             'الفرق بين أوضاع الشات بوت', 'The difference between chatbot modes',
             'atom_mode:330 entity_chatbot:335 intent_compare:335',
-            `من «وضع الشات بوت» تختار البوت يرد عليك إزاي:\n• تقليدي: ردود جاهزة وقوائم اختيار سريعة، من غير ذكاء اصطناعي.\n• نموذج ذكاء اصطناعي: تختار المزوّد والموديل بنفسك.\n• تلقائي: المنصة بتختار أنسب موديل متاح مع كل رسالة.\n• محرك الدعم الذكي (SIE): بيفهم المحادثة ويشخّص المشكلة ويقرر يرد ولا يفتح تذكرة.\n\nالتلات الأخيرين للمشتركين بس. لو مش متأكد، «تلقائي» أسهل اختيار.`,
-            `From "Chatbot mode" you choose how the bot answers you:\n• Traditional: ready replies and quick menus, no AI.\n• AI model: you pick the provider and model yourself.\n• Automatic: the platform picks the best available model for each message.\n• Smart support engine (SIE): understands the conversation, diagnoses the issue and decides whether to answer or open a ticket.\n\nThe last three are for subscribers only. If unsure, "Automatic" is the easiest choice.`,
+            `الشات دلوقتي بيرد بوضع واحد: محرك الدعم الذكي (SIE) — بيفهم المحادثة ويشخّص المشكلة ويقرر يرد ولا يفتح تذكرة. الأوضاع القديمة (التقليدي، نموذج ذكاء اصطناعي، تلقائي) اتشالت.\n\nالفرق بقى في الخطة: المجاني، برو، ماكس — كل خطة ليها حد رسائل شهري، والأعلى بتغطي مواضيع أكتر. زرار «SIE» جنب مربع الكتابة بيوريك خطتك واستخدامك وإمتى بيتجدد، ومنه تقدر تنزل لخطة أقل. الترقية بتتم من فريق المنصة.`,
+            `The chat now answers in one mode: the smart support engine (SIE) — it understands the conversation, diagnoses the issue and decides whether to answer or open a ticket. The old modes (traditional, AI model, automatic) were removed.\n\nThe difference is now the plan: Free, Pro, Max — each has a monthly message limit, and the higher ones cover more topics. The "SIE" button next to the message box shows your plan, your usage and when it resets, and lets you move to a lower plan. Upgrades are done by the platform team.`,
             { alt: ['atom_mode:330 entity_chatbot:335 intent_how_to:167 entity_ai_model:167'] }),
         S('chatbot_advanced_modes_locked', 'chat/bot_mode/subscribers_only', 'inquiry',
             'أوضاع الشات بوت مقفولة عندي', 'Chatbot modes are locked for me',
             'entity_subscribers_only:516 entity_chatbot:344 atom_mode:139',
-            `الأوضاع المتقدمة (نموذج ذكاء اصطناعي، تلقائي، SIE) متاحة للمشتركين بس — على الباقة المجانية بيفضل الوضع التقليدي.\n\nتقدر تشترك من صفحة الاشتراكات، والأوضاع بتفتح بعد تفعيل الاشتراك. لو مشترك فعلًا وشايفها مقفولة، سجّل خروج ودخول تاني، ولو فضلت قولّي.`,
-            `The advanced modes (AI model, Automatic, SIE) are for subscribers only — on the free plan the traditional mode stays.\n\nYou can subscribe from the subscriptions page; the modes unlock once the subscription is active. If you're already subscribed and still see them locked, sign out and in again, and tell me if it persists.`,
+            `مفيش أوضاع مقفولة دلوقتي: كل الحسابات عليها محرك الدعم الذكي (SIE) بالخطة المجانية على الأقل، والأوضاع القديمة اتشالت. لو لسه شايف «للمشتركين فقط»، حدّث الصفحة — دي نسخة قديمة في المتصفح.\n\nلو زرار «SIE» جنب مربع الكتابة عليه علامة حمرا، يبقى وصلت حد رسائلك أو الوصول موقوف — السبب مكتوب في القائمة، ورسائلك بتوصل لفريق الدعم. الترقية لبرو أو ماكس بتتم من فريق المنصة.`,
+            `Nothing is locked any more: every account has the smart support engine (SIE) on at least the Free plan, and the old modes were removed. If you still see "subscribers only", refresh the page — that's an old copy in the browser.\n\nIf the "SIE" button next to the message box shows a red mark, you've reached your message limit or access is paused — the reason is written in the menu, and your messages still reach the support team. Upgrading to Pro or Max is done by the platform team.`,
             { alt: ['atom_mode:139 entity_chatbot:430 symptom_account_locked:430'] }),
         S('chatbot_switched_to_traditional', 'chat/bot_mode/auto_fallback_traditional', 'technical',
             'البوت رجع للوضع التقليدي لوحده', 'The bot switched back to traditional mode by itself',
             'entity_traditional_mode:645 atom_by_itself:139 entity_chatbot:215',
-            `ده بيحصل لما محرك الدعم الذكي (SIE) مابقاش متاح لحسابك: خلصت حصة رسائله، أو انتهت صلاحيته، أو اتلغى تفعيله. المنصة بتحوّلك للوضع التقليدي تلقائيًا عشان البوت مايقفش عن الرد، وبتحفظ الاختيار ده.\n\nتقدر تختار وضع تاني من «وضع الشات بوت»، ولتجديد SIE تواصل مع الدعم.`,
-            `This happens when the smart support engine (SIE) is no longer available to your account: its message quota ran out, its access expired, or it was deactivated. The platform switches you to traditional mode automatically so the bot keeps replying, and saves that choice.\n\nYou can pick another mode from "Chatbot mode"; to renew SIE, contact support.`,
+            `الوضع التقليدي اتشال، والشات مابقاش بيحوّلك لبوت تاني. لو محرك الدعم الذكي (SIE) مش متاح لحسابك — وصلت حد الرسائل الشهري، أو انتهت الصلاحية، أو اتوقف — هتلاقي في المحادثة رسالة بالسبب، ورسالتك بتوصل لفريق الدعم يرد عليك.\n\nالحد الشهري بيتجدد أول الشهر، وموعد التجدد ظاهر في زرار «SIE» جنب مربع الكتابة. لو السبب مش واضح، قولّي وأفتح تذكرة.`,
+            `The traditional mode was removed, and the chat no longer hands you to another bot. If the smart support engine (SIE) isn't available to your account — the monthly message limit is reached, access expired, or it was paused — the chat shows a message with the reason, and your message reaches the support team, who reply to you.\n\nThe monthly limit resets at the start of the month, and the reset time is shown on the "SIE" button next to the message box. If the reason isn't clear, tell me and I'll open a ticket.`,
             { alt: ['entity_traditional_mode:720 atom_change:139 atom_by_itself:139'] }),
         S('chatbot_model_list_empty', 'chat/bot_mode/no_models', 'technical',
             'مفيش موديلات أختار منها', 'No models to choose from',
             'entity_ai_model:3 symptom_not_visible:2 entity_chatbot:1',
-            `في وضع «نموذج ذكاء اصطناعي»:\n• لو المزوّد مفعّل بس مفيش موديلات ظاهرة له، مش مشكلة — بيتستخدم الموديل الافتراضي اللي الإدارة ضابطاه تلقائيًا.\n• لو مكتوب «لا يوجد مزوّدات متاحة حاليًا»، اختار «تلقائي» أو «تقليدي» لحد ما يتضافوا.\n\nولو ظهرت رسالة «تعذّر تحميل الموديلات»، حدّث الصفحة وجرّب تاني.`,
-            `In "AI model" mode:\n• If the provider is enabled but no models are listed, that's fine — the default model configured by the admins is used automatically.\n• If it says "no providers available right now", choose "Automatic" or "Traditional" until some are added.\n\nIf "couldn't load models" appears, refresh the page and try again.`,
+            `اختيار المزوّد والموديل اتشال من إعدادات الشات: الشات بيرد بمحرك الدعم الذكي (SIE) مباشرة، ومش محتاج تختار موديل.\n\nلو لسه شايف قائمة موديلات أو «وضع الشات بوت» القديم، حدّث الصفحة — دي نسخة قديمة في المتصفح. ولو فضلت ظاهرة، قولّي.`,
+            `Choosing a provider and model was removed from the chat settings: the chat answers with the smart support engine (SIE) directly, and there's no model to pick.\n\nIf you still see a model list or the old "Chatbot mode" picker, refresh the page — that's an old copy in the browser. If it stays, tell me.`,
             { alt: ['entity_ai_model:533 symptom_disappeared:290 entity_chatbot:178'] }),
         S('company_onboarding_details_required', 'account/company_onboarding/details_required', 'other',
             'بعد الاشتراك بيطلب بيانات الشركة والسجل التجاري', 'After subscribing it asks for company details and the commercial register',
