@@ -110,6 +110,21 @@ export const MUTATIONS = [
       file: 'sie-integration/migrations/0010_sie_editions_owner_only.sql',
       find: "    return v_raw is null or v_raw = 'true'::jsonb;",
       replace: '    return true;',
+      sql: true },
+    { id: 'M17', what: 'the self-service guard lets a customer raise their own plan',
+      file: 'sie-integration/migrations/0011_sie_self_service.sql',
+      find: "       and public.sie_edition_rank(new.edition) < public.sie_edition_rank(public.sie_effective_edition(old.edition)) then",
+      replace: "       and true then",
+      sql: true },
+    { id: 'M18', what: 'the downgrade RPC accepts an upgrade',
+      file: 'sie-integration/migrations/0011_sie_self_service.sql',
+      find: "    if public.sie_edition_rank(p_target) >= public.sie_edition_rank(v_current) then",
+      replace: "    if false then",
+      sql: true },
+    { id: 'M19', what: 'the entitlement reports the assigned plan, not the effective one',
+      file: 'sie-integration/migrations/0011_sie_self_service.sql',
+      find: "    v_edition := public.sie_effective_edition(v_row.edition);\n    v_cap",
+      replace: "    v_edition := coalesce(v_row.edition, 'max');\n    v_cap",
       sql: true }
 ];
 
