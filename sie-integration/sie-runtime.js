@@ -122,6 +122,10 @@ export const SIE_RUNTIME_VERSION = '2.3.0';
  *   SIE reads and writes ONLY its own `botState.sie` namespace, so the
  *   traditional engine's keys survive untouched when a conversation
  *   moves between engines mid-session.
+ * @param {import('@supabase/supabase-js').SupabaseClient} [params.writer] - the
+ *   client that writes the bot's turn (persist_bot_turn / ticket RPC). The
+ *   website passes a server client: since Mad3oom migration 062 the customer's
+ *   own role cannot write a bot message. Defaults to `supabase`.
  * @returns {Promise<{
  *   reply: string,
  *   options: Array<{label: string, value: string}>,
@@ -132,10 +136,10 @@ export const SIE_RUNTIME_VERSION = '2.3.0';
  *   quota exhausted, or an internal failure. The caller should fall back
  *   to the traditional engine. Nothing was written in that case.
  */
-export async function getSieReply({ text, supabase, sessionId, userId, botState }) {
+export async function getSieReply({ text, supabase, sessionId, userId, botState, writer }) {
     if (!text || !supabase || !sessionId || !userId) return null;
     try {
-        return await runSieTurn({ text, supabase, sessionId, userId, botState });
+        return await runSieTurn({ text, supabase, sessionId, userId, botState, writer });
     } catch (err) {
         // runSieTurn already catches its own failures; this is the
         // last line of defence so a genuinely unexpected throw (an

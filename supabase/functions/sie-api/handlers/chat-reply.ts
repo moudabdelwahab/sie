@@ -35,6 +35,27 @@
  * makes the customer pay for someone else's mistake.
  *
  * ------------------------------------------------------------
+ * NEITHER IS THE BODY'S botState (Mad3oom Phase 3)
+ *
+ * The conversation's state is read from chat_sessions.bot_state, under the
+ * caller's own RLS, in the same query that proves the session is theirs.
+ * The body's `botState` is ignored: it came from the browser, and the
+ * engine used to persist whatever it was handed — so a customer could
+ * rewrite their own diagnostic history, pending ticket confirmations
+ * included. Migration 062 closes the direct route (a customer cannot
+ * update bot_state); this closes the route through the engine.
+ *
+ * ------------------------------------------------------------
+ * WHO WRITES THE BOT'S TURN (Mad3oom Phase 3)
+ *
+ * The engine meters, reads and traces as the caller, but the turn itself
+ * (persist_bot_turn / the ticket RPC) is written by the server's client
+ * (buildTurnWriterClient). Migration 062 revokes those two RPCs from the
+ * customer's role, so a bot message can only come from here or from the
+ * Telegram channel — never from a customer calling the RPC with their own
+ * token and any text they like.
+ *
+ * ------------------------------------------------------------
  * WHY THE RESPONSE SAYS alreadyPersisted
  *
  * The engine writes the bot turn itself — the message, the new
@@ -50,6 +71,7 @@
  */
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 import { json } from '../_shared/http.ts';
+import { buildTurnWriterClient } from '../_shared/supabase-client.ts';
 
 // Pinned to a COMMIT, never a branch: a branch would mean every push to
 // the SIE repo silently swaps the engine underneath a running function.
@@ -78,16 +100,30 @@ import { json } from '../_shared/http.ts';
 // side with d9b777f, fresh process per run, CPU = import + first turn through
 // getSieReply: 123-146 ms (d9b777f: 111-165 ms). Adds one advisory read of
 // chat_sessions.is_manual_mode per turn (I/O, not CPU).
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@39b31a6fd7edeff139d2a66d20c10a78bcafd168/sie-integration/sie-runtime.js';
+//
+// ddd62a9 (Phase 3: the turn is written by a server client) measured 2026-09-29
+// beside 39b31a6: 135-179 ms (130-142 ms). Only which client makes two RPCs changed.
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@ddd62a90b3d2c04e4cc993a614668cad3637cce8/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;
     sessionId?: string;
     userId?: string;
+    /** Accepted for compatibility with older clients and ignored — see the header. */
     botState?: unknown;
 }
 
-export async function handleChatReply(supabase: SupabaseClient, req: Request, cors: HeadersInit): Promise<Response> {
+export interface ChatReplyDeps {
+    /** Builds the client that writes the bot's turn. Injected by tests. */
+    buildWriter?: () => SupabaseClient;
+}
+
+export async function handleChatReply(
+    supabase: SupabaseClient,
+    req: Request,
+    cors: HeadersInit,
+    { buildWriter = buildTurnWriterClient }: ChatReplyDeps = {}
+): Promise<Response> {
     let body: ChatReplyBody;
     try {
         body = await req.json();
@@ -114,10 +150,11 @@ export async function handleChatReply(supabase: SupabaseClient, req: Request, co
 
     // Ownership before spending. The row is invisible under RLS to
     // anyone but its owner, so "not found" and "not yours" are the same
-    // answer here — and that is the right amount to tell a caller.
+    // answer here — and that is the right amount to tell a caller. The
+    // same read gives the conversation's real state (see the header).
     const { data: session, error: sessionError } = await supabase
         .from('chat_sessions')
-        .select('id')
+        .select('id, bot_state')
         .eq('id', sessionId)
         .maybeSingle();
 
@@ -129,12 +166,15 @@ export async function handleChatReply(supabase: SupabaseClient, req: Request, co
         return json({ error: 'not_found', message: 'session not found' }, 404, cors);
     }
 
+    const storedBotState = session.bot_state && typeof session.bot_state === 'object' ? session.bot_state : {};
+
     const result = await getSieReply({
         text,
         supabase,
         sessionId,
         userId,
-        botState: body.botState ?? {}
+        botState: storedBotState,
+        writer: buildWriter()
     });
 
     // null covers three different things — the engine is switched off in
@@ -150,7 +190,7 @@ export async function handleChatReply(supabase: SupabaseClient, req: Request, co
         {
             reply: result.reply,
             options: Array.isArray(result.options) ? result.options : [],
-            botState: result.botState ?? body.botState ?? {},
+            botState: result.botState ?? storedBotState,
             alreadyPersisted: result.alreadyPersisted === true,
             ticketNumber: result.ticketNumber ?? null
         },

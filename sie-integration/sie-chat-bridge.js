@@ -709,10 +709,13 @@ async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botS
  * @param {string} params.userId
  * @param {Object} params.botState - the session's full bot_state blob (may contain
  *   the traditional engine's own keys too — this function only reads/writes botState.sie)
+ * @param {import('@supabase/supabase-js').SupabaseClient} [params.writer] - writes the
+ *   bot's turn (persist_bot_turn / ticket RPC); see createRealSupabasePort. Defaults to
+ *   `supabase`.
  * @returns {Promise<{reply: string, options: Array, alreadyPersisted: true, ticketNumber: string|null, botState: Object} | null>}
  *   null means "not handled by SIE" — caller should fall back to the traditional engine.
  */
-export async function runSieTurn({ text, supabase, sessionId, userId, botState }) {
+export async function runSieTurn({ text, supabase, sessionId, userId, botState, writer }) {
     if (!text || !supabase || !sessionId || !userId) return null;
 
     // 1. Entitlement gate — the one place a SIE turn is authorized and metered.
@@ -738,7 +741,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
         return null;
     }
 
-    const port = createRealSupabasePort(supabase);
+    const port = createRealSupabasePort(supabase, { writer });
     const turnStartedAt = Date.now();
 
     // Which edition, and therefore which catalog, vocabulary and limits.
