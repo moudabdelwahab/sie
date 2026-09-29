@@ -25,16 +25,27 @@ import { createSupabasePort } from './supabase-port.js';
 
 /**
  * @param {import('@supabase/supabase-js').SupabaseClient} supabaseClient
+ * @param {Object} [options]
+ * @param {import('@supabase/supabase-js').SupabaseClient} [options.writer]
+ *   The client that writes the bot's turn (persist_bot_turn and the ticket
+ *   RPC). Mad3oom Phase 3 (migration 062) takes those two RPCs away from the
+ *   customer's own role: a bot message must come from the server, not from
+ *   anyone holding the customer's token. So the website caller (sie-api)
+ *   passes a server client here; everything else — traces, metering, reads —
+ *   stays on `supabaseClient`. Omitted, it is `supabaseClient` (the Telegram
+ *   channel already runs on a server client).
  * @returns {import('./supabase-port.js').SupabasePort}
  */
-export function createRealSupabasePort(supabaseClient) {
+export function createRealSupabasePort(supabaseClient, { writer } = {}) {
+    const turnWriter = writer || supabaseClient;
+
     async function persistBotTurn({ sessionId, turn, messageText, botState }) {
         // persist_bot_turn actually `returns jsonb` live (echoing
         // message_id/created_at/session_id/turn), not `void` as this
         // repo's own migration file claims -- harmless here since this
         // wrapper only inspects `error`, but worth knowing if you ever
         // want the returned message id.
-        const { error } = await supabaseClient.rpc('persist_bot_turn', {
+        const { error } = await turnWriter.rpc('persist_bot_turn', {
             p_session_id: sessionId,
             p_turn: turn,
             p_message_text: messageText,
@@ -44,7 +55,7 @@ export function createRealSupabasePort(supabaseClient) {
     }
 
     async function createTicketWithMessageAndSessionUpdate({ sessionId, turn, messageText, botState, ticket }) {
-        const { data, error } = await supabaseClient.rpc('create_ticket_with_message_and_session_update', {
+        const { data, error } = await turnWriter.rpc('create_ticket_with_message_and_session_update', {
             p_session_id: sessionId,
             p_turn: turn,
             p_message_text: messageText,
