@@ -49,7 +49,7 @@ export const SESSION_IDLE_HOURS = 24;
  * @param {Object} params.supabase - service-role client
  * @param {Object} [params.logger]
  * @param {number} [params.idleHours]
- * @returns {{getOrCreate: Function, saveState: Function}}
+ * @returns {{getOrCreate: Function, saveState: Function, isHumanHandoff: Function}}
  */
 export function createSessionStore({ supabase, logger = null, idleHours = SESSION_IDLE_HOURS }) {
     return {
@@ -85,7 +85,30 @@ export function createSessionStore({ supabase, logger = null, idleHours = SESSIO
             }
 
             logger?.info('opened a new session', { channel, session: data.id });
-            return { sessionId: data.id, botState: data.bot_state ?? null };
+            return { sessionId: data.id, botState: data.bot_state ?? null, humanHandoff: false };
+        },
+
+        /**
+         * Is this conversation with a human right now (chat_sessions.is_manual_mode)?
+         *
+         * A fresh read, used after a turn that produced nothing: the takeover
+         * may have landed while the engine was computing. A failed read
+         * answers false — the database (059) still refuses any bot reply.
+         *
+         * @param {string} sessionId
+         * @returns {Promise<boolean>}
+         */
+        async isHumanHandoff(sessionId) {
+            const { data, error } = await supabase
+                .from('chat_sessions')
+                .select('is_manual_mode')
+                .eq('id', sessionId)
+                .maybeSingle();
+            if (error) {
+                logger?.warn('could not read the handoff state', { session: sessionId, error: error.message });
+                return false;
+            }
+            return data?.is_manual_mode === true;
         },
 
         /**
@@ -130,7 +153,7 @@ async function findLiveSession({ supabase, userId, channel, channelChatId, idleH
 
     const { data, error } = await supabase
         .from('chat_sessions')
-        .select('id, bot_state, updated_at')
+        .select('id, bot_state, updated_at, is_manual_mode')
         .eq('user_id', userId)
         .eq('guest_id', channelSessionTag(channel, channelChatId))
         .eq('status', 'active')
@@ -147,5 +170,5 @@ async function findLiveSession({ supabase, userId, channel, channelChatId, idleH
     }
 
     if (!data || data.length === 0) return null;
-    return { sessionId: data[0].id, botState: data[0].bot_state ?? null };
+    return { sessionId: data[0].id, botState: data[0].bot_state ?? null, humanHandoff: data[0].is_manual_mode === true };
 }

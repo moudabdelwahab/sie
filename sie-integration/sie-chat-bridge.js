@@ -46,6 +46,7 @@ import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
 import { evidenceFromQuestionAnswer } from '../sie/diagnostics/question-answer.js';
 import { toSparseState } from '../sie/diagnostics/sparse-state.js';
 import { runShadowComparison } from './sie-shadow.js';
+import { isHumanHandoffActive, requestHumanHandoff } from './sie-handoff.js';
 import { resolveCustomerEdition, resolveEditionProfile } from '../sie/editions/editions.js';
 import { editionCatalogs } from '../sie/editions/edition-catalog.local.js';
 import { providerForAssembly } from '../sie/editions/edition-catalog.js';
@@ -533,7 +534,12 @@ async function resolvePendingTicketConfirmation({ text, supabase, sessionId, bot
             console.error('SIE action-layer write failed (ticket confirmation decline):', actionResult);
             return null;
         }
-        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
+        // An escalation stays an escalation without the ticket: the reply is
+        // persisted, now the conversation goes to a human.
+        const handoff = pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN
+            ? await requestHumanHandoff(supabase, { sessionId, reason: 'escalation_ticket_declined' })
+            : { handedOff: false };
+        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState, humanHandoff: handoff.handedOff };
     }
 
     // intent === 'yes' -> ننفذ القرار الأصلي اللي كان معلّق (بتاع فتح التذكرة فعليًا).
@@ -549,12 +555,16 @@ async function resolvePendingTicketConfirmation({ text, supabase, sessionId, bot
         console.error('SIE action-layer write failed (ticket confirmation accept):', actionResult);
         return null;
     }
+    const handoff = pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN
+        ? await requestHumanHandoff(supabase, { sessionId, reason: 'escalation_ticket_opened' })
+        : { handedOff: false };
     return {
         reply: pending.rendered.text,
         options: pending.rendered.options || [],
         alreadyPersisted: true,
         ticketNumber: actionResult.ticketNumber ?? null,
-        botState: nextBotState
+        botState: nextBotState,
+        humanHandoff: handoff.handedOff
     };
 }
 
@@ -712,6 +722,13 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
     const settings = await getSieSettings(supabase);
     if (!settings.engine_enabled) {
         console.info('SIE turn skipped: المحرك متوقف من الإعدادات');
+        return null;
+    }
+
+    // A conversation a human owns gets no SIE turn — and costs the customer
+    // no quota. Advisory: the database (059) refuses the reply regardless.
+    if (await isHumanHandoffActive(supabase, sessionId)) {
+        console.info('SIE turn skipped: المحادثة مع فريق الدعم');
         return null;
     }
 
@@ -1181,6 +1198,14 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             }
         }
 
+        // The engine escalated and its message is persisted: the conversation
+        // is now a human's. After the write, never before — 059 would refuse
+        // the escalation message itself otherwise.
+        let humanHandoff = false;
+        if (finalDecision.action === ACTIONS.ESCALATE_TO_HUMAN && !duplicateTicket) {
+            humanHandoff = (await requestHumanHandoff(supabase, { sessionId, reason: 'escalated_by_engine' })).handedOff;
+        }
+
         // 9. Observability (Module 9a) — best-effort, never blocks the reply.
         // بتسجّل القرار الحقيقي اللي اتاخد (حتى لو CREATE_TICKET لسه مستني
         // تأكيد العميل)، عشان الـ trace يفضل يعكس تشخيص المحرك الفعلي.
@@ -1230,6 +1255,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState }
             options: replyOptions,
             alreadyPersisted: true,
             ticketNumber: actionResult.ticketNumber ?? null,
+            humanHandoff,
             // الحالة اللي اتكتبت فعلاً — لو الدور ده وقف عند تأكيد التذكرة،
             // دي بتبقى النسخة اللي جواها pendingTicketConfirmation، مش
             // nextBotState الأصلية.

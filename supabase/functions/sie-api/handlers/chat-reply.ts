@@ -73,7 +73,12 @@ import { json } from '../_shared/http.ts';
 // side with 63937a1 on the same machine, 4 fresh processes per edition:
 // Free 157-173 / Pro 180-212 / Max 195-207 ms (63937a1: 159-192 / 186-223 /
 // 198-249 ms). Only pack answer text changed; retrieval signals did not.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@d9b777f31c4b2816e933f4ecd7340333524e2f6d/sie-integration/sie-runtime.js';
+//
+// 39b31a6 (human handoff, Mad3oom migration 059) measured 2026-09-29 side by
+// side with d9b777f, fresh process per run, CPU = import + first turn through
+// getSieReply: 123-146 ms (d9b777f: 111-165 ms). Adds one advisory read of
+// chat_sessions.is_manual_mode per turn (I/O, not CPU).
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@39b31a6fd7edeff139d2a66d20c10a78bcafd168/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;
