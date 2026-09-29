@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "https://esm.sh/@supabase/supabase-js@2.45.4": "./shims/supabase-js.ts",
+    "https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@ddd62a90b3d2c04e4cc993a614668cad3637cce8/sie-integration/sie-runtime.js": "../../../../../sie-integration/sie-runtime.js"
+  }
+}
