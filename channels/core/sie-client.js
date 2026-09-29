@@ -76,6 +76,12 @@ export function createInProcessSieClient({ supabase, sessions, getSieReply, logg
                 channelChatId: message.channelChatId
             });
 
+            // A human owns this conversation: no SIE turn, no quota, no reply.
+            if (session.humanHandoff) {
+                logger?.info('conversation is with a human — SIE not called', { channel: message.channel, session: session.sessionId });
+                return { handoff: true };
+            }
+
             const runTurn = getSieReply ?? (await loadRuntime());
 
             const result = await runTurn({
@@ -86,7 +92,16 @@ export function createInProcessSieClient({ supabase, sessions, getSieReply, logg
                 botState: session.botState
             });
 
-            if (!result) return null;
+            if (!result) {
+                // The takeover may have landed while the engine was computing;
+                // then the database refused the reply (059) and the right
+                // answer is silence, not a "try again" notice from the bot.
+                if (sessions.isHumanHandoff && await sessions.isHumanHandoff(session.sessionId)) {
+                    logger?.info('conversation went to a human during the turn — staying silent', { channel: message.channel, session: session.sessionId });
+                    return { handoff: true };
+                }
+                return null;
+            }
 
             // The engine hands back the full bot_state blob; persisting it is
             // the channel's job because the engine's Action Layer only wrote

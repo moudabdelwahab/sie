@@ -219,6 +219,14 @@ async function handleOneMessage({ adapter, message, deps, log }) {
         return { outcome: 'sie_error' };
     }
 
+    // A human owns the conversation (Mad3oom 059). The bot says nothing at
+    // all — not the reply, not a fallback notice. The staff reply is the
+    // only voice in the conversation now.
+    if (reply?.handoff) {
+        log.info('conversation is with a human — staying silent', context);
+        return { outcome: 'human_handoff' };
+    }
+
     // null means SIE declined the turn — not entitled, quota spent, or an
     // internal fallback. On the website Mad3oom falls back to its own bot;
     // on a messaging channel there is no second engine to fall back to, so
