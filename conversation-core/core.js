@@ -109,11 +109,19 @@ export function createConversationCore({ store }) {
             return Object.freeze({ ...r, claimed: r?.claimed === true });
         },
 
-        async recordDelivery(messageId, deliveryState, { providerMessageId = null, error = null } = {}) {
+        /**
+         * `sent` / `failed` are the outcome of one claimed attempt and must carry
+         * the `attempt` claimDelivery returned: a sender whose lease ran out must
+         * not overwrite the attempt that replaced it. `delivered` / `read` come
+         * from the provider for the message and need no attempt.
+         */
+        async recordDelivery(messageId, deliveryState, { providerMessageId = null, error = null, attempt = null } = {}) {
             requireField(nonEmpty(messageId), 'messageId مطلوب');
             requireField(DELIVERY_STATES.includes(deliveryState) && !['pending', 'sending'].includes(deliveryState),
                 `حالة إرسال مش مسموح تتسجل: ${deliveryState}`);
-            const r = await store.recordDelivery(messageId, deliveryState, providerMessageId, error);
+            requireField(!['sent', 'failed'].includes(deliveryState) || (Number.isInteger(attempt) && attempt > 0),
+                `${deliveryState} محتاجة attempt من claimDelivery`);
+            const r = await store.recordDelivery(messageId, deliveryState, providerMessageId, error, attempt);
             return Object.freeze({ ...r, updated: r?.updated === true });
         }
     });

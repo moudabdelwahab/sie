@@ -53,10 +53,10 @@ export function createSupabaseConversationStore({ client }) {
             p_handoff_reason: r.handoffReason
         }),
         claimDelivery: (messageId) => call(client, 'conv_claim_delivery', { p_message_id: messageId }),
-        recordDelivery: (messageId, state, providerMessageId = null, error = null) =>
+        recordDelivery: (messageId, state, providerMessageId = null, error = null, attempt = null) =>
             call(client, 'conv_record_delivery', {
                 p_message_id: messageId, p_state: state,
-                p_provider_message_id: providerMessageId, p_error: error
+                p_provider_message_id: providerMessageId, p_error: error, p_attempt: attempt
             })
     };
 }

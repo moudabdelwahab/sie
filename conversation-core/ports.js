@@ -32,7 +32,7 @@
  * @property {(req: IngestRequest) => Promise<Object>} ingest
  * @property {(req: CommitRequest) => Promise<Object>} commitTurn
  * @property {(messageId: string) => Promise<Object>} claimDelivery
- * @property {(messageId: string, state: string, providerMessageId?: string|null, error?: string|null) => Promise<Object>} recordDelivery
+ * @property {(messageId: string, state: string, providerMessageId?: string|null, error?: string|null, attempt?: number|null) => Promise<Object>} recordDelivery
  */
 
 const STORE_METHODS = ['ingest', 'commitTurn', 'claimDelivery', 'recordDelivery'];

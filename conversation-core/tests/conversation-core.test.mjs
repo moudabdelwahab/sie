@@ -251,7 +251,11 @@ test('delivery: claimed=false means do not send; only terminal states are record
     const core = createConversationCore({ store: fakeStore() });
     assert.equal((await core.claimDelivery('m1')).claimed, true);
     assert.equal((await core.claimDelivery('m1')).claimed, false);
-    assert.equal((await core.recordDelivery('m1', 'sent', { providerMessageId: 'p' })).updated, true);
+    assert.equal((await core.recordDelivery('m1', 'sent', { providerMessageId: 'p', attempt: 1 })).updated, true);
+    assert.equal((await core.recordDelivery('m1', 'delivered')).updated, true);
+    // an attempt outcome without the claimed attempt cannot fence a late report
+    await assert.rejects(core.recordDelivery('m1', 'sent'), MessageValidationError);
+    await assert.rejects(core.recordDelivery('m1', 'failed', { attempt: 0 }), MessageValidationError);
     await assert.rejects(core.recordDelivery('m1', 'sending'), MessageValidationError);
     await assert.rejects(core.recordDelivery('m1', 'bogus'), MessageValidationError);
 });
@@ -269,15 +273,16 @@ test('store-supabase calls the 064 functions with their exact parameter names', 
     await store.ingest({ channel: 'telegram', userId: 'u', externalThreadId: '5', externalId: 'e', text: 't', parts: [], metadata: {}, channelIdentityId: null, idleAfterMinutes: 1440 });
     await store.commitTurn({ conversationId: 'c', expectedVersion: 1, turnKey: 'k', text: 't', parts: [], state: null, agentId: 'sie', deliveryRequired: true, ticket: null, handoffReason: null });
     await store.claimDelivery('m');
-    await store.recordDelivery('m', 'sent', 'p', null);
+    await store.recordDelivery('m', 'sent', 'p', null, 2);
     // migrations/064_conversation_core.sql in Mad3oom — the signatures, in order.
     assert.deepEqual(calls.map(([fn, a]) => [fn, Object.keys(a)]), [
         ['conv_ingest_message', ['p_channel', 'p_user_id', 'p_external_thread_id', 'p_external_id', 'p_text', 'p_parts', 'p_metadata', 'p_channel_identity_id', 'p_idle_after']],
         ['conv_commit_turn', ['p_conversation_id', 'p_expected_version', 'p_turn_key', 'p_reply_text', 'p_reply_parts', 'p_state', 'p_agent_id', 'p_delivery_required', 'p_ticket', 'p_handoff_reason']],
         ['conv_claim_delivery', ['p_message_id']],
-        ['conv_record_delivery', ['p_message_id', 'p_state', 'p_provider_message_id', 'p_error']]
+        ['conv_record_delivery', ['p_message_id', 'p_state', 'p_provider_message_id', 'p_error', 'p_attempt']]
     ]);
     assert.equal(calls[0][1].p_idle_after, '1440 minutes');
+    assert.equal(calls[3][1].p_attempt, 2);
 });
 
 test('store-supabase surfaces database errors instead of swallowing them', async () => {
