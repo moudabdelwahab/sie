@@ -330,3 +330,19 @@ test('حقل «التأثير» إنجليزي عن قصد — وده مايوص
         assert.ok(def.effect, `«${def.key}» مالوش تأثير معلن`);
     }
 });
+
+test('Conversation Core flags in sie_settings are skipped quietly, never merged into engine settings', async () => {
+    const { NON_ENGINE_SETTING_KEYS, mergeStoredSettings: merge, SIE_DEFAULT_SETTINGS: defaults } = await import('../settings-schema.js');
+    const { CORE_FLAG_KEYS } = await import('../../../conversation-core/flags.js');
+    assert.deepEqual([...NON_ENGINE_SETTING_KEYS].sort(), Object.values(CORE_FLAG_KEYS).sort());
+    const warn = console.warn;
+    const warned = [];
+    console.warn = (...a) => warned.push(a);
+    try {
+        const merged = merge(Object.values(CORE_FLAG_KEYS).map((key) => ({ key, value: true })));
+        assert.deepEqual(merged, { ...defaults });
+    } finally {
+        console.warn = warn;
+    }
+    assert.deepEqual(warned, []);
+});

@@ -657,6 +657,14 @@ export function validateSetting(key, value) {
 }
 
 /**
+ * Rows in sie_settings that are not engine settings: the Conversation Core
+ * migration flags (conversation-core/flags.js, written by Mad3oom 064). The
+ * engine neither reads nor warns about them — they are not "unknown", they
+ * belong to another layer. Kept in step by sie/config/tests.
+ */
+export const NON_ENGINE_SETTING_KEYS = new Set(['core_ingest_website', 'core_ingest_telegram', 'agent_runtime_enabled']);
+
+/**
  * Merges stored rows over the defaults, dropping anything unknown or
  * invalid.
  *
@@ -670,6 +678,7 @@ export function validateSetting(key, value) {
 export function mergeStoredSettings(rows) {
     const merged = { ...SIE_DEFAULT_SETTINGS };
     for (const row of rows || []) {
+        if (NON_ENGINE_SETTING_KEYS.has(row.key)) continue;
         const result = validateSetting(row.key, row.value);
         if (result.ok) {
             merged[row.key] = result.value;
