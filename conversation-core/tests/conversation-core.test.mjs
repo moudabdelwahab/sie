@@ -88,6 +88,24 @@ test('provider structures are refused, not translated, inside Core', () => {
     for (const p of vendorShapes) assert.throws(() => validatePart(p), MessageValidationError, JSON.stringify(p));
 });
 
+test('optional display fields are typed: a provider object in caption, name, prompt or label is refused', () => {
+    const wa = { messaging_product: 'whatsapp' };
+    for (const p of [
+        { type: 'media', kind: 'image', ref: 'x', caption: wa },
+        { type: 'media', kind: 'file', ref: 'x', name: wa },
+        { type: 'media', kind: 'audio', ref: 'x', durationMs: '12' },
+        { type: 'location', latitude: 1, longitude: 2, address: wa },
+        { type: 'choices', prompt: wa, options: [{ value: 'a', label: 'A' }] },
+        { type: 'choice_reply', value: 'a', label: wa },
+        { type: 'template', name: 't', language: wa },
+        { type: 'template', name: 't', params: [wa] },
+        { type: 'event', name: 'e', data: [] }
+    ]) {
+        assert.throws(() => validatePart(p), MessageValidationError, JSON.stringify(p));
+    }
+    assert.equal(partsToText(validateParts([{ type: 'media', kind: 'image', ref: 'x', caption: 'صورة' }])), 'صورة');
+});
+
 test('invalid parts are refused with a reason', () => {
     for (const p of [null, [], 'text', { type: 'text' }, { type: 'text', text: 5 }, { type: 'media', kind: 'exe', ref: 'x' },
         { type: 'location', latitude: 200, longitude: 0 }, { type: 'choices', options: [] }, { type: 'event', name: 'x', data: [] }]) {

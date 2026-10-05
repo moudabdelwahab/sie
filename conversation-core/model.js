@@ -20,15 +20,27 @@ export const CHANNELS = Object.freeze(['website', 'telegram']);
 
 export const DELIVERY_STATES = Object.freeze(['pending', 'sending', 'sent', 'delivered', 'read', 'failed']);
 
+/**
+ * Optional keys carry their type: an optional field is still part of the
+ * canonical shape, so a provider object in `caption` is refused the same way
+ * an unknown key is.
+ */
 const PART_SHAPES = Object.freeze({
-    text: { required: ['text'], optional: [] },
-    media: { required: ['kind', 'ref'], optional: ['mime', 'name', 'size', 'caption', 'durationMs'] },
-    location: { required: ['latitude', 'longitude'], optional: ['name', 'address'] },
-    choices: { required: ['options'], optional: ['prompt'] },
-    choice_reply: { required: ['value'], optional: ['label'] },
-    template: { required: ['name'], optional: ['language', 'params'] },
-    event: { required: ['name'], optional: ['data'] }
+    text: { required: ['text'], optional: {} },
+    media: { required: ['kind', 'ref'], optional: { mime: 'string', name: 'string', size: 'number', caption: 'string', durationMs: 'number' } },
+    location: { required: ['latitude', 'longitude'], optional: { name: 'string', address: 'string' } },
+    choices: { required: ['options'], optional: { prompt: 'string' } },
+    choice_reply: { required: ['value'], optional: { label: 'string' } },
+    template: { required: ['name'], optional: { language: 'string', params: 'array' } },
+    event: { required: ['name'], optional: { data: 'object' } }
 });
+
+const OPTIONAL_TYPE = {
+    string: (v) => typeof v === 'string',
+    number: (v) => Number.isFinite(v) && v >= 0,
+    array: (v) => Array.isArray(v),
+    object: (v) => isPlainObject(v)
+};
 
 export const PART_TYPES = Object.freeze(Object.keys(PART_SHAPES));
 
@@ -55,9 +67,13 @@ export function validatePart(part) {
     if (!isPlainObject(part)) throw new MessageValidationError('part لازم يكون كائن');
     const shape = PART_SHAPES[part.type];
     if (!shape) throw new MessageValidationError(`نوع part غير معروف: ${String(part.type)}`);
-    const allowed = new Set(['type', ...shape.required, ...shape.optional]);
+    const allowed = new Set(['type', ...shape.required, ...Object.keys(shape.optional)]);
     for (const key of Object.keys(part)) {
         if (!allowed.has(key)) throw new MessageValidationError(`مفتاح مش قياسي في part ${part.type}: ${key}`);
+        const type = shape.optional[key];
+        if (type && part[key] !== undefined && !OPTIONAL_TYPE[type](part[key])) {
+            throw new MessageValidationError(`part ${part.type}.${key} لازم يكون ${type}`);
+        }
     }
     for (const key of shape.required) {
         if (part[key] === undefined || part[key] === null) {
@@ -96,11 +112,12 @@ export function validatePart(part) {
             break;
         case 'template':
             if (typeof part.name !== 'string' || part.name === '') throw new MessageValidationError('template.name لازم يكون نص');
-            if (part.params !== undefined && !Array.isArray(part.params)) throw new MessageValidationError('template.params مصفوفة');
+            if (part.params !== undefined && !part.params.every((x) => typeof x === 'string' || Number.isFinite(x))) {
+                throw new MessageValidationError('template.params نصوص أو أرقام بس');
+            }
             break;
         case 'event':
             if (typeof part.name !== 'string' || part.name === '') throw new MessageValidationError('event.name لازم يكون نص');
-            if (part.data !== undefined && !isPlainObject(part.data)) throw new MessageValidationError('event.data كائن');
             break;
     }
     return Object.freeze(structuredClone(part));
