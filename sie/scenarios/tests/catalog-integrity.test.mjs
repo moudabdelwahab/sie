@@ -175,8 +175,9 @@ test('the small-talk short-circuit does not swallow any new conversational patte
     // here: a technical phrase is never short-circuited, but a chatty one
     // can be, and then its scenario can never run.
     //
-    // 49 of these overlaps predate this catalog and are deliberate rather
-    // than broken: small talk answers the BARE phrase ("شكرا على صبرك" on
+    // 42 of these overlaps predate this catalog and are deliberate rather
+    // than broken (49 until WP3: whole-word matching removed 7 that were only
+    // substring collisions, e.g. «عاش» inside «العاشرة»): small talk answers the BARE phrase ("شكرا على صبرك" on
     // its own) with a canned reply, while the scenario still fires when the
     // same words appear inside a longer message. Freezing them as a
     // baseline keeps that layering intact while making it impossible to add

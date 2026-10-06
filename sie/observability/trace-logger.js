@@ -26,6 +26,7 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.2;
  * @param {number} params.turn
  * @param {string} params.rawText
  * @param {Array<{canonical: string}>} params.normalizedTokens - Module 1's normalize().normalizedTokens
+ * @param {Object|null} [params.language] - signalsTrace(): what Layer 1 read (truncation) and the signals it reported
  * @param {import('../diagnostics/evidence-types.js').DiagnosticState} params.diagnosticState
  * @param {import('../ranking/ranking-engine.js').RankingResult} params.ranking
  * @param {import('../decision/decision-types.js').Decision} params.decision
@@ -33,7 +34,7 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.2;
  * @param {string} [params.timestamp]
  * @returns {import('./trace-types.js').TraceEvent}
  */
-export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null, shadow = null, engine = null, route = null, layers = null, intendedText = null }) {
+export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null, shadow = null, engine = null, route = null, layers = null, intendedText = null, language = null }) {
     const hypothesesSnapshot = (diagnosticState?.hypotheses || [])
         .filter((h) => h.status !== 'unconsidered')
         .map((h) => ({ scenarioId: h.scenarioId, confidence: h.confidence, status: h.status }));
@@ -54,6 +55,10 @@ export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, di
         // editions, so existing traces keep their shape.
         engine,
         normalizedTokenCanonicals: (normalizedTokens || []).map((t) => t.canonical).filter(Boolean),
+        // Layer 1's reading (WP3): whether the message was truncated, how
+        // long it was, and the context-free signals the turn was routed on.
+        // Absent from callers that predate it, so old traces keep their shape.
+        ...(language ? { language } : {}),
         hypothesesSnapshot,
         rankingSnapshot: {
             topScenarioId: ranking?.topHypothesis?.hypothesis?.scenarioId ?? null,

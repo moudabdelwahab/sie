@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { detectMemoryIntent, extractFacts, MEMORY_REPLIES } from '../memory-intent.js';
+import { detectMemoryIntent, extractFacts } from '../memory-intent.js';
+// The memory replies moved to Dialogue in WP3 (Layer 1 detects, Dialogue speaks).
+import { MEMORY_REPLIES } from '../../dialogue/templates/conversational.js';
 
 test('بيفصل الاسم عن الدور في نفس الجملة', () => {
     // الجملة اللي العميل كتبها فعلاً. قبل الإصلاح كانت بتتاخد كلها كاسم

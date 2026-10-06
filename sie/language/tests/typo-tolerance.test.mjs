@@ -47,3 +47,12 @@ test('findBestFuzzyMatch: returns null when nothing is close enough', () => {
     const result = findBestFuzzyMatch('مشكله', ['تذكره', 'اشتراك', 'دخول']);
     assert.equal(result, null);
 });
+
+test('[G-L1-9] transpositionDistance counts a swapped pair as one edit, and is otherwise Levenshtein', async () => {
+    const { transpositionDistance, levenshtein: lev } = await import('../typo-tolerance.js');
+    assert.equal(transpositionDistance('بطاقه', 'باطقه'), 1);
+    assert.equal(lev('بطاقه', 'باطقه'), 2);
+    assert.equal(transpositionDistance('', 'abc'), 3);
+    assert.equal(transpositionDistance('abc', 'abc'), 0);
+    for (const [a, b] of [['kitten', 'sitting'], ['واتساب', 'واتسب'], ['flaw', 'lawn']]) assert.equal(transpositionDistance(a, b), lev(a, b), `${a}/${b}`);
+});

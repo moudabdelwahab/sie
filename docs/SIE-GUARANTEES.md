@@ -16,8 +16,10 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 - `[pending:ID]`: the test pins today's *violation* of a guarantee that is not yet enforced. It is a red structural test.
 - Golden conversations (`sie-integration/tests/golden/*.json`) list ids in `guarantees`. A red run pins the defect; a green run is evidence.
 
-**Status at the end of WP2:**
-- P0-14 (observability) and P0-15 (shadow comparison) are **closed by engine fixes**.
+**Status at the end of WP3:**
+- P0-14 (observability) and P0-15 (shadow comparison) are **closed by engine fixes** (WP2).
+- P0-2 (Arabic word boundaries) is **closed by an engine fix** (WP3).
+- P0-1, P0-3, P0-4, P0-7, P0-9 and P0-17 had their Layer-1 (detection) part fixed in WP3; their routing part is open and pinned by a red regression for WP4.
 - Every other P0 is open, and each is pinned by a red regression, except P0-16, which is the test infrastructure itself.
 - P0-5 and P0-15 are additionally **mitigated by configuration** in production (past-conversation import and the shadow run are off since 2026-10-06). That mitigation is not a fix for P0-5.
 
@@ -25,14 +27,15 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 
 | ID | Layer | Guarantee | Status | WP | Evidence |
 |---|---|---|---|---|---|
-| G-L1-1 | L1 | Lexicon phrases match only on whole Unicode word boundaries or token sequences; no phrase matches inside a longer word. | pending | WP3 | |
-| G-L1-2 | L1 | Tokens in a negation scope are marked; a negated positive signal is never reported as positive. | pending | WP3 | |
-| G-L1-3 | L1 | `diagnosticContent` is true whenever an evidence-bearing token exists; small talk covers the whole message only when none does. | pending | WP3 | |
-| G-L1-4 | L1 | Every option value emitted by Dialogue classifies to its intended polarity. | pending | WP3 | |
-| G-L1-5 | L1 | Plain yes/no words (لا، لأ، اه، آه، أيوه، نعم، yes, no) classify correctly; content without a leading yes/no has no polarity. | pending | WP3 | |
-| G-L1-6 | L1 | No consumer classifies raw text; truncation is visible to every consumer. | pending | WP3 | |
-| G-L1-7 | L1 | On the curated real-problem corpus, no message produces whole-message small talk, a human request, an escalating emotion, a positive resolution or an explicit memory capture. | pending | WP3 | |
-| G-L1-8 | L1 | Normalization is deterministic and total. | pending | WP3 | |
+| G-L1-1 | L1 | Lexicon phrases match only on whole Unicode word boundaries or token sequences; no phrase matches inside a longer word. | enforced | WP3 | tagged |
+| G-L1-2 | L1 | Tokens in a negation scope are marked; a negated positive signal is never reported as positive. | enforced | WP3 | tagged |
+| G-L1-3 | L1 | `diagnosticContent` is true whenever an evidence-bearing token exists; small talk covers the whole message only when none does. | enforced | WP3 | tagged |
+| G-L1-4 | L1 | Every option value emitted by Dialogue classifies to its intended polarity. | enforced | WP3 | tagged |
+| G-L1-5 | L1 | Plain yes/no words (لا، لأ، اه، آه، أيوه، نعم، yes, no) classify correctly; content without a leading yes/no has no polarity. | enforced | WP3 | tagged |
+| G-L1-6 | L1 | No consumer classifies raw text; truncation is visible to every consumer. | pending | WP4 | Partial since WP3 (tagged tests): the bridge routes and the vNext interpretation read Layer-1 signals only, the bridge holds no text classifier, and truncation is in the signals and the trace. Not yet: Trust CP1 still reads the received text (owner decision recorded in the WP3 report). |
+| G-L1-7 | L1 | On the curated real-problem corpus, no message produces whole-message small talk, a human request, an escalating emotion, a positive resolution or an explicit memory capture. | enforced | WP3 | tagged |
+| G-L1-8 | L1 | Normalization is deterministic and total. | enforced | WP3 | tagged |
+| G-L1-9 | L1 | Typo tolerance (setting `language_typo_tolerance`, off by default) corrects only words nothing else resolved, only towards problem-describing canonicals, never a known conversational or glossary word; it measurably recovers misspellings, and its evidence weighs below an exact or Arabic match. | enforced | WP3 | tagged |
 | G-L2-1 | L2 | No conversational scenario reaches diagnosis or ranking. | pending | WP5 | |
 | G-L2-2 | L2 | Every auto-resolving scenario reaches the configured `answer_confidence` from its own phrasings, under every settings profile. | pending | WP5 | |
 | G-L2-3 | L2 | A scenario needing account data declares a knowledge source L7 can ground, or live tokens L3 can receive. | pending | WP5 | |
@@ -95,15 +98,15 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 
 | P0 | Issue | Required categories | Status | WP | Red regression |
 |---|---|---|---|---|---|
-| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | open | WP3, WP4 | REG-D2-yes-with-content-is-not-a-decline, REG-D3-restated-problem-at-prompt |
-| P0-2 | Arabic word-boundary problems | U, LI, E2E, PS, ADV | open | WP3 | REG-D1-plain-no, REG-D1-plain-yes, REG-F1-install-is-not-anger |
-| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | open | WP3, WP4 | REG-C-not-resolved-is-not-closed, REG-C2-negated-resolution-no-satisfaction-ack |
-| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | open | WP3, WP4 | REG-F1-install-is-not-anger, REG-F2-sincere-praise-is-not-sarcasm, REG-F2b-polite-closing-is-not-anger |
+| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-D2 green; routing remains for WP4) | WP3, WP4 | REG-D3-restated-problem-at-prompt |
+| P0-2 | Arabic word-boundary problems | U, LI, E2E, PS, ADV | closed (WP3) | WP3 | REG-D1-plain-no, REG-D1-plain-yes, REG-F1-install-is-not-anger (all green) |
+| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-C and REG-C2 green; the closing rule remains for WP4) | WP3, WP4 | REG-C3-resolved-plus-new-problem-is-diagnosed |
+| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | open (word boundaries and negation fixed in WP3: REG-F1 green; the context rule remains for WP4) | WP3, WP4 | REG-F2-sincere-praise-is-not-sarcasm, REG-F2b-polite-closing-is-not-anger |
 | P0-5 | Cross-conversation contamination | U, LI, E2E, MT, MS, PS, ADV | open (mitigated by configuration 2026-10-06) | WP5 | REG-B-closing-remark-does-not-cross-chats, REG-B2-status-question-does-not-cross-chats |
 | P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-E-no-phantom-ticket |
-| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-D1-plain-no, REG-D1-plain-yes, REG-D1-unclear-reask-is-bounded, REG-D2-yes-with-content-is-not-a-decline, REG-D3-restated-problem-at-prompt, REG-E-no-phantom-ticket |
+| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | open (reply classification fixed in WP3: REG-D1-plain-no, REG-D1-plain-yes and REG-D2 green) | WP4 | REG-D1-unclear-reask-is-bounded, REG-D3-restated-problem-at-prompt, REG-E-no-phantom-ticket |
 | P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | open | WP4 | REG-G-pending-prompt-expires |
-| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | open | WP4, WP5 | REG-C-not-resolved-is-not-closed |
+| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | open (the negated-resolution case is fixed in WP3: REG-C green) | WP4, WP5 | REG-C3-resolved-plus-new-problem-is-diagnosed |
 | P0-10 | Knowledge not using live data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-11 | Ticket status cannot read real data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-12 | Evidence only increases | U, LI, E2E, MT, PS, ADV | open | WP5 | REG-12-denial-lowers-belief |
@@ -111,6 +114,6 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | P0-14 | Incorrect or incomplete observability | U, LI, E2E, MT, MS, PS | closed (WP2) | WP2 | REG-K3-every-paid-turn-is-traced, REG-K3b-every-paid-turn-is-traced-across-chats, REG-K1-trace-records-what-was-sent (all green) |
 | P0-15 | Shadow comparison cannot agree | U, LI, E2E, PS | closed (WP2); the shadow stays disabled in production by configuration until re-enabled | WP2 | REG-K2-shadow-can-agree (green) |
 | P0-16 | Production settings not covered by integration tests | LI, E2E, MT, MS, PS, ADV | open (foundation in WP1) | WP1–WP9 | — (T-1, T-4) |
-| P0-17 | Untested conversation controller in `sie-chat-bridge.js` | U, LI, E2E, MT, MS, PS | open | WP4 | REG-F3-greeting-with-problem-is-diagnosed, REG-F4-role-and-problem-is-diagnosed, structure.test.mjs |
+| P0-17 | Untested conversation controller in `sie-chat-bridge.js` | U, LI, E2E, MT, MS, PS | open (REG-F3 and REG-F4 green since WP3) | WP4 | structure.test.mjs |
 
 Categories: U unit · LI layer integration · E2E full `runSieTurn` · MT multi-turn · MS multi-session · PS production settings · ADV adversarial. A P0 is `closed` only when every required category has passing tests. For the golden-backed categories (E2E, MT, MS, PS, ADV), the meta-test checks this mechanically.

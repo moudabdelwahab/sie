@@ -25,25 +25,28 @@
  * wrong. Memory is written only when the customer asks for it, or when
  * they state a fact in one of a few unambiguous forms.
  */
-import { neutralizeUserText } from './text-safety.js';
-import { foldForMatch } from './emotion-detector.js';
+import { analyzeMessage, findPhrase, phraseWords, CLAUSE_WORDS, isProblemToken } from './lexicon-match.js';
 
 /** «افتكر» / «احفظ» — طلب صريح بالحفظ. */
-const SAVE_TRIGGERS = [
+export const SAVE_TRIGGERS = [
     'احفظ ده', 'احفظ دي', 'احفظها', 'احفظ المعلومه', 'احفظ في ذاكرتك',
     'خليها في ذاكرتك', 'حطها في ذاكرتك', 'سجل ده', 'سجل عندك',
-    'افتكر ده', 'افتكر كده', 'افتكرني', 'خليك فاكر', 'متنساش',
+    'افتكر ده', 'افتكر كده', 'خليك فاكر',
+    // Not a bare «متنساش»: «متنساش ترد عليا» ("don't forget to answer me")
+    // is a request about the conversation, not something to remember. Nor a
+    // bare «افتكرني»: «افتكرني بكلمة السر» is "remind me of my password".
+    'متنساش ده', 'متنساش دي', 'متنساش كده', 'متنساش ان',
     'خزن ده', 'اوعي تنسي'
 ];
 
 /** «انت فاكر إيه عني؟» */
-const RECALL_TRIGGERS = [
+export const RECALL_TRIGGERS = [
     'فاكر ايه عني', 'انت فاكر ايه', 'ايه اللي فاكره عني', 'ايه اللي تعرفه عني',
     'تعرف ايه عني', 'ايه اللي في ذاكرتك', 'اعرض ذاكرتك', 'فاكرني'
 ];
 
 /** «انسي اللي فات» */
-const FORGET_TRIGGERS = [
+export const FORGET_TRIGGERS = [
     'انسي اللي قلته', 'انسي كل حاجه', 'امسح ذاكرتك', 'امسح اللي فاكره',
     'انسي المعلومات دي', 'شيل اللي حفظته'
 ];
@@ -90,13 +93,7 @@ export function extractFacts(text) {
     if (selfIntro) {
         // «انا احمد وشركتي اسمها تك» — the name ends where the company starts.
         const rest = tidy(selfIntro[1].split(/\s+و\s*شركتي/)[0]);
-        const markerIndex = ROLE_MARKERS
-            .map((marker) => ({ marker, at: rest.indexOf(marker) }))
-            .filter((m) => m.at > 0)
-            .sort((a, b) => a.at - b.at)[0];
-
-        const namePart = markerIndex ? tidy(rest.slice(0, markerIndex.at)) : rest;
-        const rolePart = markerIndex ? tidy(rest.slice(markerIndex.at)) : '';
+        const { namePart, rolePart } = splitNameAndRole(rest);
 
         if (!found.some((f) => f.key === 'name') && isPlausibleName(namePart)) {
             found.push({ key: 'name', value: namePart });
@@ -125,56 +122,126 @@ function tidy(value) {
 }
 
 /**
+ * «سامي حسن صاحب منصة مدعوم» → name + role, split at a role marker
+ * found as a WHOLE word (G-L1-1). The marker used to be found with
+ * `indexOf`, so «المدير» matched «مدير» two letters in, the name became «ال»
+ * and the role «مدير ومش قادر اضيف موظف». «المدير» is now the role itself,
+ * and the role ends at the next clause («و…», «بس», «لكن»).
+ */
+function splitNameAndRole(rest) {
+    const words = rest.split(/\s+/).filter(Boolean);
+    const at = words.findIndex((_, i) => roleMarkerAt(words, i));
+    if (at < 0) return { namePart: rest, rolePart: '' };
+    let end = at + 1;
+    while (end < words.length && end - at < 6 && !startsClause(words[end])) end += 1;
+    return { namePart: words.slice(0, at).join(' '), rolePart: words.slice(at, end).join(' ') };
+}
+
+function roleMarkerAt(words, i) {
+    const w = foldWord(words[i]);
+    if (w === 'من' && /^شرك[هة]$/.test(foldWord(words[i + 1]))) return true;
+    return ROLE_WORDS.has(w) || (w.startsWith('ال') && ROLE_WORDS.has(w.slice(2)));
+}
+
+const ROLE_WORDS = new Set(ROLE_MARKERS.filter((m) => !/\s/.test(m)).map(foldWord));
+
+function startsClause(word) {
+    return CLAUSE_WORDS.has(word) || (word.length > 1 && (word.startsWith('و') || word.startsWith('ف')));
+}
+
+/**
  * @typedef {Object} MemoryIntent
  * @property {'save'|'recall'|'forget'} kind
  * @property {Array<{key: string, value: string}>} facts - for 'save'
  * @property {string} raw
+ * @property {boolean} explicit   the customer ASKED (a save/recall/forget
+ *   phrase), and the message is about their memory, not a problem
+ * @property {boolean} standalone the message is nothing but the request or
+ *   the self-introduction — no clause, no problem left over
  */
+
+/** Each trigger list split into words once. */
+const TRIGGER_WORDS = new Map();
+const splitTriggers = (triggers) => {
+    if (!TRIGGER_WORDS.has(triggers)) TRIGGER_WORDS.set(triggers, triggers.map(phraseWords));
+    return TRIGGER_WORDS.get(triggers);
+};
+
+/** A trigger phrase in the message, as whole words, not negated. */
+const hasTrigger = (analysis, triggers) => splitTriggers(triggers).some((t) => findPhrase(analysis, t).some((hit) => !hit.negated));
 
 /**
  * @param {string} rawText
  * @param {string} [previousText] - the message before this one, so a bare
  *   "احفظ ده" can refer to what was just said
+ * @param {Object} [options]
+ * @param {Array} [options.tokens] - normalize()'s tokens. A token that says
+ *   something is WRONG or asks for something to be DONE (symptom_, intent_,
+ *   http_), for a word the request or introduction does not itself explain,
+ *   makes the message a problem report: «سجل عندك ان الدفع اتخصم مرتين» is
+ *   the problem, not a memory instruction, so it is reported as non-explicit
+ *   and non-standalone and reaches diagnosis (G-L1-7). A merely NAMED thing
+ *   is content to remember — «احفظ ان رقم الواتساب بتاعي …» — and an edition's
+ *   vocabulary naming a word in an introduction («اسمي» is entity_my_name in
+ *   Pro) must not turn the introduction into a problem.
+ * @param {boolean} [options.diagnosticContent] - used when no tokens are given
  * @returns {MemoryIntent|null}
  */
-export function detectMemoryIntent(rawText, previousText = '') {
+export function detectMemoryIntent(rawText, previousText = '', { tokens = null, diagnosticContent = false } = {}) {
     const text = String(rawText || '').trim();
     if (!text) return null;
-    const folded = foldForMatch(text);
+    const a = analyzeMessage(text);
+    const carriesProblem = (explained) => (Array.isArray(tokens)
+        ? tokens.some((t) => isProblemToken(t) && phraseWords(t.raw || '').some((w) => !explained.has(w)))
+        : diagnosticContent);
+    const triggerWords = (triggers) => new Set(splitTriggers(triggers).filter((t) => findPhrase(a, t).length).flat().concat(REQUEST_WORDS));
+    const asked = (kind, facts, triggers) => {
+        const problem = carriesProblem(new Set([...triggerWords(triggers), ...facts.flatMap((f) => phraseWords(f.value))]));
+        return { kind, facts: problem ? [] : facts, raw: text, explicit: !problem, standalone: !problem };
+    };
 
-    if (FORGET_TRIGGERS.some((t) => folded.includes(foldForMatch(t)))) {
-        return { kind: 'forget', facts: [], raw: text };
-    }
-    if (RECALL_TRIGGERS.some((t) => folded.includes(foldForMatch(t)))) {
-        return { kind: 'recall', facts: [], raw: text };
-    }
+    if (hasTrigger(a, FORGET_TRIGGERS)) return asked('forget', [], FORGET_TRIGGERS);
+    if (hasTrigger(a, RECALL_TRIGGERS)) return asked('recall', [], RECALL_TRIGGERS);
 
-    const asked = SAVE_TRIGGERS.some((t) => folded.includes(foldForMatch(t)));
-    if (!asked) {
+    if (!hasTrigger(a, SAVE_TRIGGERS)) {
         // Not asked to save, but the customer may still have stated a fact
         // outright. Those are worth keeping — a name given once should not
-        // have to be given again.
+        // have to be given again — but only a message that is NOTHING BUT the
+        // introduction is about memory. «انا المدير ومش قادر اضيف موظف» is a
+        // problem from a manager.
         const facts = extractFacts(text);
-        return facts.length > 0 ? { kind: 'save', facts, raw: text } : null;
+        if (facts.length === 0) return null;
+        const explained = new Set([...INTRO_WORDS, ...facts.flatMap((f) => phraseWords(f.value))]);
+        return { kind: 'save', facts, raw: text, explicit: false, standalone: !carriesProblem(explained) && onlyIntroduces(a, facts) };
     }
+    if (carriesProblem(triggerWords(SAVE_TRIGGERS))) return asked('save', [], SAVE_TRIGGERS);
 
     // "احفظ ده" on its own points at the previous message; with content in
     // the same message, that content is what to save.
     const facts = extractFacts(text);
-    if (facts.length > 0) return { kind: 'save', facts, raw: text };
+    if (facts.length > 0) return asked('save', facts, SAVE_TRIGGERS);
 
     const fromPrevious = extractFacts(previousText);
-    if (fromPrevious.length > 0) return { kind: 'save', facts: fromPrevious, raw: text };
+    if (fromPrevious.length > 0) return { kind: 'save', facts: fromPrevious, raw: text, explicit: true, standalone: true };
 
     // Asked to remember something we could not parse into a field. Store it
     // verbatim rather than refusing — a note the customer wrote themselves
     // is more useful than nothing, and an agent can read it.
     const note = String(previousText || '').trim();
-    return {
-        kind: 'save',
-        facts: note ? [{ key: 'note', value: note.slice(0, 500) }] : [],
-        raw: text
-    };
+    return { kind: 'save', facts: note ? [{ key: 'note', value: note.slice(0, 500) }] : [], raw: text, explicit: true, standalone: true };
+}
+
+/** Words a memory request carries besides its trigger: «احفظ ده في ذاكرتك». Folded. */
+const REQUEST_WORDS = ['ده', 'دي', 'في', 'عندك', 'ان', 'اني', 'كده', 'لو', 'سمحت'];
+
+/** Words an introduction is built from, besides the facts themselves. Folded. */
+const INTRO_WORDS = new Set(['انا', 'اسمي', 'شركتي', 'وشركتي', 'اسمها', 'و', 'يا', 'من', 'شركه']);
+
+/** Every word of the message is a greeting, an introduction word, or part of a fact. */
+function onlyIntroduces(analysis, facts) {
+    const factWords = new Set(facts.flatMap((f) => phraseWords(f.value)));
+    const greetings = new Set([...GREETING_WORDS].flatMap((w) => phraseWords(w)));
+    return analysis.words.every((w) => INTRO_WORDS.has(w) || greetings.has(w) || factWords.has(w));
 }
 
 /**
@@ -232,27 +299,3 @@ function isPlausibleName(value) {
     return !NOT_A_NAME.some((w) => first === foldWord(w) || (w.length >= 4 && first.startsWith(foldWord(w))));
 }
 
-/**
- * ردود الذاكرة بالعربي.
- *
- * EVERY fact value goes through `neutralizeUserText` before it reaches a
- * reply, and it happens HERE rather than at the call site so that no future
- * caller can forget. These two templates are the only places in the engine
- * where customer-authored text is rendered into a message the engine sends as
- * itself, and replies leave through Telegram with `parse_mode: 'Markdown'`
- * and no escaping on the path. Without this, a stored note reading
- * `[اضغط هنا](https://…)` came back as a live hyperlink in the brand's voice.
- *
- * See sie/language/text-safety.js for the mechanism and
- * sie/trust/egress-guard.js for why this is a trust-boundary crossing.
- */
-const quote = (facts) => facts.map((f) => `• ${neutralizeUserText(f?.value)}`).join('\n');
-
-export const MEMORY_REPLIES = Object.freeze({
-    saved: (facts) => `تمام، حفظتها 📝\n${quote(facts)}\n\nهفضل فاكرها في أي محادثة جاية.`,
-    nothingToSave: 'قولّي الحاجة اللي عايزني أفتكرها بالظبط وأنا أحفظها.',
-    recalled: (facts) => (facts.length === 0
-        ? 'لسه مش فاكر أي حاجة عنك. لو حابب، قولّي معلومة وأنا أحفظها.'
-        : `اللي فاكره عنك:\n${quote(facts)}`),
-    forgotten: 'تمام، مسحت كل اللي كنت فاكره عنك.'
-});

@@ -84,7 +84,9 @@ export function createRealSupabasePort(supabaseClient, { writer } = {}) {
             turn,
             normalized_tokens: {
                 rawText: traceEvent?.rawText ?? null,
-                canonicals: traceEvent?.normalizedTokenCanonicals ?? []
+                canonicals: traceEvent?.normalizedTokenCanonicals ?? [],
+                // Layer 1's reading (WP3), in the same jsonb: no schema change.
+                ...(traceEvent?.language ? { language: traceEvent.language } : {})
             },
             hypotheses: traceEvent?.hypothesesSnapshot ?? [],
             // trust / shadow / engine ride in the ranking column: they were

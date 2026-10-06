@@ -23,6 +23,8 @@
  * @property {string} rawText - the customer's raw message this turn (empty string for a silent turn)
  * @property {string[]} normalizedTokenCanonicals - the canonical tokens Module 1 produced, for
  *   replay/debugging without needing the full NormalizedToken objects
+ * @property {Object} [language] - Layer 1's reading (WP3): {truncated, receivedChars, diagnosticContent,
+ *   smallTalk, emotion, resolution, memory, replyPolarity} — signalsTrace() in sie/language/signals.js
  * @property {HypothesisSnapshot[]} hypothesesSnapshot - Module 3's active/rejected hypotheses
  *   after this turn (a compact projection, not the full DiagnosticState)
  * @property {RankingSnapshot} rankingSnapshot - Module 4's summary for this turn

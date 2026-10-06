@@ -7,9 +7,10 @@
  * tests prove what a turn does; these prove where the code that does it
  * lives, which no behavioural test can see.
  *
- * Today they are RED by design: the measured violations are pinned, exactly
- * like a red golden run. WP4 (bridge emptied) and WP9 (dialogue
- * consolidation) flip them; adding a new violation in the meantime fails.
+ * The bridge measurement is RED by design: the measured violations are
+ * pinned, exactly like a red golden run. WP4 (bridge emptied) and WP9
+ * (dialogue consolidation) flip it; adding a new violation in the meantime
+ * fails. The Language-module measurement went green in WP3.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -60,13 +61,21 @@ test('[pending:G-BR-1][pending:G-L6-1] RED: the bridge still holds customer text
     // in the same change. A higher number means a new violation: not allowed.
     // successReturns counts every non-null `return` from runSieTurn onward,
     // nested helpers included — a stable measurement, not a semantic one.
-    const PINNED = { customerText: 14, regexClassifiers: 19, successReturns: 7 };
+    // WP1: { customerText: 14, regexClassifiers: 19, successReturns: 7 }.
+    // WP3: the confirmation classifier moved into Layer 1 (reply-polarity.js)
+    // and the ticket-confirmation texts into Dialogue (templates/conversational.js).
+    const PINNED = { customerText: 9, regexClassifiers: 0, successReturns: 7 };
     assert.deepEqual(v, PINNED, `bridge violations changed: ${JSON.stringify(v)} (pinned ${JSON.stringify(PINNED)})`);
-    assert.ok(v.customerText > 0 && v.regexClassifiers > 0 && v.successReturns > 1, 'still red: when the bridge reaches 0 text, 0 classifiers and 1 success return, replace this test with the green G-BR-1 assertion');
+    const done = v.customerText === 0 && v.regexClassifiers === 0 && v.successReturns === 1;
+    assert.ok(!done, 'still red: when the bridge reaches 0 text, 0 classifiers and 1 success return, replace this test with the green G-BR-1 assertion');
 });
 
-test('[pending:G-L6-1] RED: Language modules still export customer replies (pinned until WP9)', () => {
-    assert.deepEqual(languageReplyExports(), ['SMALL_TALK_REPLIES', 'MEMORY_REPLIES', 'EMOTION_ACKNOWLEDGEMENT']);
+test('[G-L1-6] the bridge holds no text classifier: every Arabic pattern lives in Layer 1', () => {
+    assert.equal(bridgeViolations().regexClassifiers, 0);
+});
+
+test('Language modules export no customer replies: they moved to Dialogue (templates/conversational.js) in WP3', () => {
+    assert.deepEqual(languageReplyExports(), []);
 });
 
 test('the structural measurement is not vacuous: it detects a planted violation', () => {

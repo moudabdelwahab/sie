@@ -8,13 +8,13 @@
  * on already-normalized tokens (post dialect/Arabizi normalization),
  * rather than on raw text, so it's comparing cleaner input than before.
  *
- * This module is a general-purpose utility. The main normalization
- * pipeline (normalizer.js) does not force fuzzy-correction on every
- * token by itself — that would risk silently "correcting" a token into
- * the wrong word with no reference vocabulary to check against yet.
- * Instead, findBestFuzzyMatch() is exposed for the Diagnostic Engine's
- * evidence-extractor (a later module) to use once it has a concrete
- * vocabulary (scenario evidence signatures) to match tokens against.
+ * Since WP3 the normalizer uses it (transpositionDistance) to correct a
+ * misspelled problem word to the glossary word it was meant to be — only
+ * with the setting «language_typo_tolerance» on, only for words nothing
+ * else resolved, and only towards a problem-describing canonical. The
+ * guards, and the measurements that justify them, are documented next to
+ * applyTypoTolerance in normalizer.js and tested in
+ * tests/typo-integration.test.mjs (G-L1-9).
  */
 
 /**
@@ -39,6 +39,33 @@ export function levenshtein(a, b) {
         prev = cur;
     }
     return prev[b.length];
+}
+
+/**
+ * Edit distance where swapping two adjacent letters costs one edit, not two
+ * (optimal string alignment). «الباطقه» for «البطاقه» is one slip of the
+ * finger, and Levenshtein counted it as two — enough to miss it on a
+ * five-letter stem. Used by the normalizer's typo tolerance (WP3).
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+export function transpositionDistance(a, b) {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...new Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+            if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+                d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+            }
+        }
+    }
+    return d[a.length][b.length];
 }
 
 /**

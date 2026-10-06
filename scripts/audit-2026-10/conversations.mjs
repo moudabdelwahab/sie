@@ -234,7 +234,13 @@ await finding('K3', 'Short-circuit turns write no trace (coverage)', async () =>
 // Findings fixed in the engine, by the work package that fixed them. A fixed
 // finding must NOT reproduce; every other finding still must. Either kind of
 // surprise exits non-zero.
-const FIXED = Object.freeze({ K1: 'WP2', K2: 'WP2', K3: 'WP2' });
+const FIXED = Object.freeze({
+    K1: 'WP2', K2: 'WP2', K3: 'WP2',
+    C: 'WP3', C2: 'WP3', D1: 'WP3', D2: 'WP3', F1: 'WP3', F3: 'WP3', F4: 'WP3',
+    // The decline is gone; the restated problem is still not diagnosed at
+    // the prompt (REG-D3 stays red for WP4).
+    D3: 'WP3, decline part only'
+});
 
 const pad = (s, n) => String(s).padEnd(n);
 console.log(`\n${pad('id', 4)} ${pad('status', 14)} finding`);

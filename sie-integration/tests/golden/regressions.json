@@ -41,9 +41,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-D3-restated-problem-at-prompt",
@@ -87,9 +88,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.reviewsTotal"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.reviewsTotal"] }
-      ]
+        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] }
+      ],
+      "partlyFixedIn": "WP3: the restated problem is no longer read as a decline (no review is queued). Still red for WP4: at the pending ticket question the bridge re-asks instead of diagnosing it."
     },
     {
       "id": "REG-D1-plain-no",
@@ -132,9 +134,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-D1-plain-yes",
@@ -172,9 +175,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketsTotal"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.ticketsTotal"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-D1-unclear-reask-is-bounded",
@@ -254,9 +258,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.stateHas"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.stateHas"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-C2-negated-resolution-no-satisfaction-ack",
@@ -292,8 +297,53 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP3"
+    },
+    {
+      "id": "REG-C3-resolved-plus-new-problem-is-diagnosed",
+      "finding": "C",
+      "p0": [
+        3,
+        9
+      ],
+      "guarantees": [
+        "G-L5-4"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"That worked, but I have another problem with payment\" after an answer is diagnosed, not closed",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "تمام اشتغلت، بس عندي مشكلة تانية في الدفع",
+              "expect": {
+                "replyIsNot": "CLOSED_GLAD",
+                "hypothesesNonEmpty": true,
+                "stateHas": "sie.diagnosticState"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] }
+      ],
+      "note": "Added in WP3. Layer 1 reads this correctly: resolution=resolved AND diagnosticContent=true (entity_payment, symptom_generic_problem). The route ignores the second signal and closes the conversation, wiping its state. Closing rules move to Decision in WP4 (G-L5-4); that change flips this run."
     },
     {
       "id": "REG-F1-install-is-not-anger",
@@ -328,9 +378,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-F2-sincere-praise-is-not-sarcasm",
@@ -991,9 +1042,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-F4-role-and-problem-is-diagnosed",
@@ -1031,8 +1083,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.factsExclude", "a#1.hypothesesNonEmpty"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP3"
     },
     {
       "id": "REG-I-detail-after-answer-is-not-failure",

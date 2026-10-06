@@ -23,11 +23,13 @@
  * itself never writes an error message to chat_messages.
  */
 import { normalize } from '../sie/language/normalizer.js';
-import { detectSmallTalk, SMALL_TALK_REPLIES } from '../sie/language/small-talk.js';
-import { detectEmotion, acknowledgementFor, shouldEscalateForEmotion, detectResolutionSignal } from '../sie/language/emotion-detector.js';
+import { analyzeSignals, signalsTrace } from '../sie/language/signals.js';
+import { shouldEscalateForEmotion } from '../sie/language/emotion-detector.js';
+import {
+    SMALL_TALK_REPLIES, MEMORY_REPLIES, acknowledgementFor, TICKET_CONFIRM_TEXT, TICKET_CONFIRM_OPTIONS
+} from '../sie/dialogue/templates/conversational.js';
 import { activationThresholdForLevel } from '../sie/ranking/ranking-engine.js';
 import { recallCustomerName, findOpenTicket, recallPreviousSession, rememberFacts, recallFacts, forgetFacts } from './sie-customer-memory.js';
-import { detectMemoryIntent, MEMORY_REPLIES } from '../sie/language/memory-intent.js';
 import { queueForHumanReview, REVIEW_QUEUED_TEXT, REVIEW_QUEUE_FAILED_TEXT } from './sie-review-queue.js';
 import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
 import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
@@ -341,22 +343,6 @@ function recallPreviousState(prevSie, settings, nowMs = Date.now()) {
     return prevSie;
 }
 
-const TICKET_CONFIRM_TEXT = {
-    ar: 'تحب أفتحلك تذكرة دعم عشان فريقنا يتابع معاك؟ [[icon:ticket]]',
-    en: 'Would you like me to open a support ticket so our team can follow up with you? [[icon:ticket]]'
-};
-
-const TICKET_CONFIRM_OPTIONS = {
-    ar: [
-        { label: '[[icon:check]] أيوه، افتحلي تذكرة', value: 'أيوه افتحلي تذكرة' },
-        { label: '[[icon:cancel]] لأ، مش دلوقتي', value: 'لأ مش دلوقتي' }
-    ],
-    en: [
-        { label: '[[icon:check]] Yes, open a ticket', value: 'yes open a ticket' },
-        { label: '[[icon:cancel]] No, not now', value: 'no not now' }
-    ]
-};
-
 const TICKET_DISABLED_TEXT = {
     ar: 'المشكلة دي محتاجة حد من فريق الدعم يشوفها، بس فتح التذاكر متوقف حاليًا من الإعدادات. '
         + 'تقدر تتواصل مع الفريق مباشرة وهما هيتابعوا معاك [[icon:note]]',
@@ -407,21 +393,14 @@ const TICKET_DECLINE_TEXT = {
     en: "No problem, I won't open a ticket right now. Let me know if you need anything else [[icon:smile]]"
 };
 
-const NEGATIVE_REPLY_PATTERNS = [/مش/, /^لا\b/, /لأ/, /رفض/, /الغاء/, /إلغاء/, /كنسل/, /\bno\b/i, /^n$/i, /cancel/i];
-const AFFIRMATIVE_REPLY_PATTERNS = [/أيوه/, /ايوه/, /أيوة/, /ايوة/, /نعم/, /تمام/, /^اه\b/, /آه/, /موافق/, /أوك/, /اوك/, /okay/i, /^ok$/i, /^y$/i, /\byes\b/i, /صح/];
-
 /**
- * تصنيف بسيط (نعم/لا/مش واضح) لرد العميل على سؤال تأكيد فتح التذكرة.
- * بنتأكد من "لأ" الأول عشان عبارات زي "مش عايز تذكرة" ماتتحسبش بالغلط
- * "أيوه" لمجرد ما فيها كلمة تانية قريبة، ثم لو ولا حاجة اتطابقت نرجّع
- * "unclear" ونعيد نفس السؤال بدل ما نفترض حاجة غلط.
+ * The customer's answer to the pending ticket question, as Layer 1 read it
+ * (signals.replyPolarity, sie/language/reply-polarity.js). The bridge used
+ * to classify the raw text here with its own regexes, which read «لا» and
+ * «اه» as unclear and «أيوه عندي مشكلة» as a no (audit D1, D2).
  */
-function classifyTicketConfirmationReply(text) {
-    const normalized = String(text || '').trim().toLowerCase();
-    if (!normalized) return 'unclear';
-    if (NEGATIVE_REPLY_PATTERNS.some((p) => p.test(normalized))) return 'no';
-    if (AFFIRMATIVE_REPLY_PATTERNS.some((p) => p.test(normalized))) return 'yes';
-    return 'unclear';
+function confirmationAnswer(polarity) {
+    return polarity === 'yes' || polarity === 'no' ? polarity : 'unclear';
 }
 
 /**
@@ -480,10 +459,10 @@ async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessio
  * فبنقصّر الطريق ومنعديش على باقي البايبلاين (Language/Diagnostics/
  * Ranking/Decision/Knowledge/Dialogue) خالص في الدور ده.
  */
-async function resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port, rec }) {
+async function resolvePendingTicketConfirmation({ polarity, supabase, sessionId, botState, prevSie, port, rec }) {
     const pending = prevSie.pendingTicketConfirmation;
     const lang = pending.language === 'en' ? 'en' : 'ar';
-    const intent = classifyTicketConfirmationReply(text);
+    const intent = confirmationAnswer(polarity);
     if (rec) {
         rec.turn = pending.decision?.turn ?? null;
         rec.responseLanguage = lang;
@@ -731,7 +710,7 @@ const L6_BYPASSED = 'reply text is a constant outside Dialogue on this route (mo
 function createTurnRecord() {
     return {
         route: null, layers: {}, intent: null, intendedText: null, effects: [], error: null,
-        turn: null, normalizedTokens: null, responseLanguage: null, trustEnvelope: null,
+        turn: null, normalizedTokens: null, language: null, responseLanguage: null, trustEnvelope: null,
         diagnosticState: null, ranking: null, shadow: null, engine: null
     };
 }
@@ -809,6 +788,8 @@ async function writeTurnTrace({ rec, result, sessionId, port, settings, rawText,
         turn: rec.turn ?? 0,
         rawText,
         normalizedTokens: rec.normalizedTokens || [],
+        // What Layer 1 read and reported (WP3): truncation, the signals.
+        language: rec.language,
         diagnosticState: rec.diagnosticState,
         ranking: rec.ranking,
         decision: rec.intent || { action: null, route: rec.route },
@@ -894,12 +875,39 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
     try {
         let prevSie = recallPreviousState(botState?.sie || null, settings, now());
 
+        // 1. Language (Module 1) — FIRST, on every route. Everything below
+        // that classifies the message reads Layer 1's signals, computed once
+        // from the text normalize() actually kept (G-L1-6). Nothing past the
+        // input cap is classified, and the trace says when that happened.
+        const language = await normalize(text, {
+            previousLanguage: prevSie?.language || 'ar',
+            // The edition's vocabulary layers (none for Free) and its message
+            // cap (never above the hard 8,000 normalize() enforces anyway).
+            glossaryLayers: editionAssembly.glossaryLayers,
+            maxInputChars: editionProfile.maxMessageChars,
+            // «يفهم الكلمات المكتوبة غلط» — off unless switched on.
+            typoTolerance: settings.language_typo_tolerance === true
+        });
+        const { normalizedTokens, responseLanguage } = language;
+        const signals = analyzeSignals({
+            text: language.rawText,
+            tokens: normalizedTokens,
+            previousText: prevSie?.lastCustomerText || '',
+            emotionDetection: Boolean(settings.emotion_detection),
+            enabledEmotions: enabledEmotions(settings),
+            truncated: language.truncated,
+            receivedChars: language.receivedChars
+        });
+        rec.normalizedTokens = normalizedTokens;
+        rec.language = signalsTrace(signals);
+        mark(rec, 'L1', 'ran');
+
         // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
         // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
         if (prevSie?.pendingTicketConfirmation) {
             rec.route = 'pending_confirmation';
             mark(rec, 'L6', 'bypassed', L6_BYPASSED);
-            return (turnResult = await resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port, rec }));
+            return (turnResult = await resolvePendingTicketConfirmation({ polarity: signals.replyPolarity, supabase, sessionId, botState, prevSie, port, rec }));
         }
 
         // «يستفيد من المحادثات القديمة». بيتسأل مرة واحدة بس، أول رسالة في
@@ -919,17 +927,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // customer's tone calls for acknowledging before answering.
         let emotionPrefix = '';
 
-        // 2. Language (Module 1)
-        const { normalizedTokens, responseLanguage } = await normalize(text, {
-            previousLanguage: prevSie?.language || 'ar',
-            // The edition's vocabulary layers (none for Free) and its message
-            // cap (never above the hard 8,000 normalize() enforces anyway).
-            glossaryLayers: editionAssembly.glossaryLayers,
-            maxInputChars: editionProfile.maxMessageChars
-        });
-        rec.normalizedTokens = normalizedTokens;
         rec.responseLanguage = responseLanguage;
-        mark(rec, 'L1', 'ran');
 
         // 2.5. كلام عادي (تحية / شكر / اعتذار / سؤال هوية أو عن المنصة / طلب
         // موظف بشري / انزعاج من البوت)؟ (sie/language/small-talk.js) مش دليل
@@ -941,16 +939,12 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // Detection always runs. «يرد على التحيات» is about pleasantries, so
         // it must not silently disable "عايز أكلم موظف" — an explicit request
         // for a person is honoured whatever the settings say.
-        const smallTalk = detectSmallTalk(text);
-        const wantsHuman = smallTalk?.type === 'human_request';
+        const { smallTalk, emotion } = signals;
+        const wantsHuman = Boolean(signals.humanRequest);
 
         // 2.6. الذكاء العاطفي (sie/language/emotion-detector.js). مش زي
         // small talk: بيشتغل على أي رسالة مهما كان طولها، وبيرافق المشكلة
         // الحقيقية بدل ما ياخد مكانها.
-        const emotion = settings.emotion_detection
-            ? detectEmotion(text, { enabled: enabledEmotions(settings) })
-            : null;
-
         // الغضب والسخرية بيروحوا لموظف. الإحباط القديم (اللي كان من
         // small talk) بقى جزء من نفس القراءة دي.
         const emotionEscalates = shouldEscalateForEmotion(emotion) && settings.ticket_on_anger;
@@ -995,7 +989,10 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         );
         rec.trustEnvelope = trustEnvelope;
 
-        const memoryIntent = detectMemoryIntent(text, prevSie?.lastCustomerText || '');
+        // Only a message that IS about memory takes this route: an explicit
+        // «احفظ ده» / «انت فاكر ايه عني», or an introduction standing alone.
+        // «انا المدير ومش قادر اضيف موظف» introduces a problem, not a name.
+        const memoryIntent = signals.memory && (signals.memory.explicit || signals.memory.standalone) ? signals.memory : null;
         if (memoryIntent) {
             rec.route = 'memory';
             rec.intent = { action: ACTIONS.WAIT_FOR_USER, route: 'memory', memory: memoryIntent.kind, scenarioId: null, turn: prevSie?.turnCount || 0 };
@@ -1007,7 +1004,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             if (handled) return (turnResult = handled);
         }
 
-        const resolutionSignal = detectResolutionSignal(text);
+        const resolutionSignal = signals.resolution;
         const alreadyAnswered = (prevSie?.decisionState?.answeredScenarioIds || []).length > 0;
         if (resolutionSignal === 'resolved' && alreadyAnswered) {
             rec.route = 'resolution_close';
@@ -1029,7 +1026,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // الرسايل اللي كلها كلام عادي (تحية، شكر، سؤال هوية) بتترد
         // مباشرة من غير تشخيص. لو النبرة كانت شكر أو رضا، ده نفس المعنى:
         // مفيش مشكلة نشخّصها.
-        const isPleasantry = smallTalk && smallTalk.type !== 'frustration' && smallTalk.type !== 'human_request';
+        //
+        // Only when the pleasantry IS the message (G-L1-3): «اهلا الواتساب
+        // واقف» is a greeting and an outage, and the outage is diagnosed.
+        const isPleasantry = smallTalk && smallTalk.coversWholeMessage
+            && smallTalk.type !== 'frustration' && smallTalk.type !== 'human_request';
         if (isPleasantry && settings.reply_to_greetings) {
             // «يفتكر اسم العميل» و«يفتكر آخر مشكلة» — الاتنين بيظهروا في
             // الترحيب بس، مش في كل رد، عشان مايبقاش تكرار مزعج.
