@@ -6,9 +6,9 @@
 // settings snapshot in harness.mjs and checks the defect's observable symptom.
 //
 // These are AUDIT reproductions, not regression tests: a case reports
-// REPRODUCED while the defect exists. Once a defect is fixed its case should
-// report "not reproduced" and be turned into a regression test that asserts
-// the correct behaviour instead.
+// REPRODUCED while the defect exists. The regression tests live in
+// sie-integration/tests/golden/regressions.json. When a work package fixes a
+// finding, record it in FIXED below.
 //
 //   node scripts/audit-2026-10/conversations.mjs            summary table
 //   node scripts/audit-2026-10/conversations.mjs --verbose  plus full per-turn traces
@@ -26,6 +26,10 @@ async function finding(id, title, fn) {
 const log = (title, rows) => { if (VERBOSE) show(title, rows); };
 const quiet = async (fn) => { const w = console.warn, i = console.info; console.warn = () => {}; console.info = () => {}; try { return await fn(); } finally { console.warn = w; console.info = i; } };
 const lastTrace = (r) => r.traced;
+// "The turn never reached diagnosis." Before WP2 such turns wrote no trace at
+// all; since WP2 every paid turn is traced and carries its route, so the
+// symptom is the route, not the absence of a trace.
+const shortCircuited = (r) => !r.traced || (r.traced.ranking?.route && r.traced.ranking.route !== 'diagnostic');
 const rule = (r) => (r.traced?.decision?.evaluatedRules || []).find((x) => x.matched)?.rule;
 
 await quiet(async () => {
@@ -53,7 +57,7 @@ await finding('B', 'Cross-chat contamination: a closing remark in chat 1 becomes
     // (مش inside مشكلة). Chat 3: the very first message is offered the same ticket.
     const b2 = b[1].traced?.decision, c1 = c[0].traced?.decision;
     const ok = b2?.action === 'CREATE_TICKET' && b2?.scenarioId === 'convo_goodbye_nothing_else'
-        && b[1].reply.includes(CONFIRM) && !b[2].traced && w.reviews.length >= 1
+        && b[1].reply.includes(CONFIRM) && shortCircuited(b[2]) && w.reviews.length >= 1
         && c1?.action === 'CREATE_TICKET' && c1?.scenarioId === 'convo_goodbye_nothing_else' && c[0].reply.includes(CONFIRM);
     const all = [...a, ...b, ...c]; const traced = all.filter((x) => x.traced).length;
     return { reproduced: ok, detail: `chat-2 turn 2: ${b2?.action}/${b2?.scenarioId}; chat-2 turn 3 consumed as decline (reviews ${w.reviews.length}); chat-3 turn 1: ${c1?.action}/${c1?.scenarioId}; traced ${traced}/${all.length} paid turns; tickets created ${w.ticketsCreated.length}` };
@@ -74,7 +78,7 @@ await finding('C', '"Tried the steps but it didn\'t work" after an answer -> "gl
     const w = makeWorld();
     const r = await converse(w, 'c', ['ازاي استخدم الـ API بتاعكم', 'جربت الخطوات بس ما اشتغلش', 'طب اعمل ايه']);
     log('Trace C', r);
-    return { reproduced: r[0].traced?.decision?.action === 'ANSWER' && r[1].reply.includes('مبسوط') && !r[1].traced && !r[1].sie?.diagnosticState,
+    return { reproduced: r[0].traced?.decision?.action === 'ANSWER' && r[1].reply.includes('مبسوط') && shortCircuited(r[1]) && !r[1].sie?.diagnosticState,
         detail: `turn 2 reply: "${r[1].reply.split('\n')[0]}"; state after: ${r[1].sie?.diagnosticState ? 'kept' : 'wiped'}` };
 });
 
@@ -128,7 +132,7 @@ await finding('F1', '"How do I install WhatsApp" -> anger -> immediate human esc
     const w = makeWorld();
     const r = await converse(w, 'f1', ['ازاي انصب الواتساب بزنس']);
     log('Trace F1', r);
-    return { reproduced: r[0].reply.includes('هوصلك بفريق الدعم') && !r[0].traced, detail: `reply "${r[0].reply.slice(0, 50)}…"` };
+    return { reproduced: r[0].reply.includes('هوصلك بفريق الدعم') && shortCircuited(r[0]), detail: `reply "${r[0].reply.slice(0, 50)}…"` };
 });
 
 await finding('F2', 'Sincere praise -> sarcasm -> escalation', async () => {
@@ -142,14 +146,14 @@ await finding('F3', 'Greeting + real problem -> greeting reply, problem discarde
     const w = makeWorld();
     const r = await converse(w, 'f3', ['اهلا الواتساب واقف']);
     log('Trace F3', r);
-    return { reproduced: !r[0].traced && r[0].reply.includes('أهلاً'), detail: `reply "${r[0].reply.split('\n').pop().slice(0, 50)}…"` };
+    return { reproduced: shortCircuited(r[0]) && r[0].reply.includes('أهلاً'), detail: `reply "${r[0].reply.split('\n').pop().slice(0, 50)}…"` };
 });
 
 await finding('F4', '"I\'m the manager and can\'t add an employee" -> saved as name "ال", never diagnosed', async () => {
     const w = makeWorld();
     const r = await converse(w, 'f4', ['انا المدير ومش قادر اضيف موظف']);
     log('Trace F4', r);
-    return { reproduced: r[0].reply.includes('حفظتها') && !r[0].traced, detail: `stored facts: ${JSON.stringify(w.facts)}` };
+    return { reproduced: r[0].reply.includes('حفظتها') && shortCircuited(r[0]), detail: `stored facts: ${JSON.stringify(w.facts)}` };
 });
 
 // ---- Pending prompt expiry
@@ -227,9 +231,21 @@ await finding('K3', 'Short-circuit turns write no trace (coverage)', async () =>
 
 });
 
+// Findings fixed in the engine, by the work package that fixed them. A fixed
+// finding must NOT reproduce; every other finding still must. Either kind of
+// surprise exits non-zero.
+const FIXED = Object.freeze({ K1: 'WP2', K2: 'WP2', K3: 'WP2' });
+
 const pad = (s, n) => String(s).padEnd(n);
-console.log(`\n${pad('id', 4)} ${pad('reproduced', 11)} finding`);
-for (const f of results) console.log(`${pad(f.id, 4)} ${pad(f.reproduced ? 'REPRODUCED' : 'not reproduced', 11)} ${f.title}\n${' '.repeat(17)}${f.detail}`);
-const missing = results.filter((f) => !f.reproduced);
-console.log(`\n${results.length - missing.length}/${results.length} findings reproduced with synthetic conversations.`);
-process.exitCode = missing.length ? 1 : 0;
+console.log(`\n${pad('id', 4)} ${pad('status', 14)} finding`);
+for (const f of results) {
+    const status = f.reproduced ? 'REPRODUCED' : (FIXED[f.id] ? `fixed (${FIXED[f.id]})` : 'not reproduced');
+    console.log(`${pad(f.id, 4)} ${pad(status, 14)} ${f.title}\n${' '.repeat(20)}${f.detail}`);
+}
+const reappeared = results.filter((f) => f.reproduced && FIXED[f.id]);
+const vanished = results.filter((f) => !f.reproduced && !FIXED[f.id]);
+const open = results.filter((f) => f.reproduced).length;
+console.log(`\n${open}/${results.length} findings still reproduce; ${Object.keys(FIXED).length} fixed (${Object.keys(FIXED).join(', ')}).`);
+if (reappeared.length) console.log(`REGRESSION: fixed finding(s) reproduce again: ${reappeared.map((f) => f.id).join(', ')}`);
+if (vanished.length) console.log(`UNEXPECTED: finding(s) no longer reproduce but are not recorded as fixed: ${vanished.map((f) => f.id).join(', ')}`);
+process.exitCode = reappeared.length || vanished.length ? 1 : 0;

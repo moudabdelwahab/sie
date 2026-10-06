@@ -41,11 +41,12 @@ import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js'
 import { buildTraceEvent } from '../sie/observability/trace-logger.js';
 import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
 import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
-import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace } from '../sie/trust/trust-boundary.js';
+import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace, traceProjection } from '../sie/trust/trust-boundary.js';
 import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
 import { evidenceFromQuestionAnswer } from '../sie/diagnostics/question-answer.js';
 import { toSparseState } from '../sie/diagnostics/sparse-state.js';
 import { runShadowComparison } from './sie-shadow.js';
+import { TURN_KINDS } from '../sie/pipeline/interpretation.js';
 import { isHumanHandoffActive, requestHumanHandoff } from './sie-handoff.js';
 import { resolveCustomerEdition, resolveEditionProfile } from '../sie/editions/editions.js';
 import { editionCatalogs } from '../sie/editions/edition-catalog.local.js';
@@ -241,12 +242,13 @@ async function closeConversation({ responseLanguage, sessionId, botState, port }
  * Returns null when there is nothing to do, so the caller falls through to
  * the normal pipeline rather than swallowing the turn.
  */
-async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage, trustEnvelope }) {
+async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage, trustEnvelope, rec }) {
     const lang = responseLanguage === 'en' ? 'en' : 'ar';
     let replyText;
 
     if (intent.kind === 'forget') {
-        await forgetFacts(supabase, userId);
+        const forgot = await forgetFacts(supabase, userId);
+        rec?.effects.push({ type: 'forget_facts', ok: forgot?.success !== false });
         replyText = MEMORY_REPLIES.forgotten;
     } else if (intent.kind === 'recall') {
         const facts = await recallFacts(supabase, userId);
@@ -269,6 +271,7 @@ async function handleMemoryIntent({ intent, supabase, userId, sessionId, botStat
             console.warn('[sie] fact writes refused:', rejected.map((r) => `${r.key} (${r.reason})`).join(', '));
         }
         const { saved } = admitted.length > 0 ? await rememberFacts(supabase, userId, admitted) : { saved: 0 };
+        if (admitted.length > 0) rec?.effects.push({ type: 'write_facts', ok: saved > 0, count: saved });
         // A failed write must not be reported as a success — the customer
         // would rely on a fact the engine does not actually hold. A REFUSED
         // write is the same promise: report only what was actually stored.
@@ -477,10 +480,17 @@ async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessio
  * فبنقصّر الطريق ومنعديش على باقي البايبلاين (Language/Diagnostics/
  * Ranking/Decision/Knowledge/Dialogue) خالص في الدور ده.
  */
-async function resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port }) {
+async function resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port, rec }) {
     const pending = prevSie.pendingTicketConfirmation;
     const lang = pending.language === 'en' ? 'en' : 'ar';
     const intent = classifyTicketConfirmationReply(text);
+    if (rec) {
+        rec.turn = pending.decision?.turn ?? null;
+        rec.responseLanguage = lang;
+        rec.intent = intent === 'yes'
+            ? { ...pending.decision, route: 'pending_confirmation', answer: 'yes' }
+            : { action: ACTIONS.WAIT_FOR_USER, route: 'pending_confirmation', answer: intent, pendingAction: pending.decision?.action ?? null, scenarioId: pending.decision?.scenarioId ?? null };
+    }
 
     if (intent === 'unclear') {
         // نعيد نفس سؤال التأكيد من غير ما نغيّر أي حالة - لسه مستنيين رد واضح.
@@ -517,6 +527,7 @@ async function resolvePendingTicketConfirmation({ text, supabase, sessionId, bot
             scenarioId: pending.decision.scenarioId ?? null,
             note: pending.decision.explanation ?? ''
         });
+        rec?.effects.push({ type: 'queue_review', ok: queued === true });
 
         // Only promise the follow-up if a row actually exists to honour it.
         const rendered = {
@@ -540,6 +551,7 @@ async function resolvePendingTicketConfirmation({ text, supabase, sessionId, bot
         const handoff = pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN
             ? await requestHumanHandoff(supabase, { sessionId, reason: 'escalation_ticket_declined' })
             : { handedOff: false };
+        if (pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN) rec?.effects.push({ type: 'request_handoff', ok: handoff.handedOff === true });
         return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState, humanHandoff: handoff.handedOff };
     }
 
@@ -559,6 +571,7 @@ async function resolvePendingTicketConfirmation({ text, supabase, sessionId, bot
     const handoff = pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN
         ? await requestHumanHandoff(supabase, { sessionId, reason: 'escalation_ticket_opened' })
         : { handedOff: false };
+    if (pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN) rec?.effects.push({ type: 'request_handoff', ok: handoff.handedOff === true });
     return {
         reply: pending.rendered.text,
         options: pending.rendered.options || [],
@@ -700,6 +713,125 @@ async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botS
     return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
 }
 
+// ===================================================================
+// The turn record (WP2 — truthful observability)
+// ===================================================================
+//
+// Every paid turn writes exactly one trace, whichever route it takes, and the
+// trace separates what the engine DECIDED (intent) from what actually
+// HAPPENED (executed effects) and what the customer was actually SENT.
+// Routes fill the record as they go; one writer turns it into the trace row
+// in runSieTurn's `finally`, so no early return can skip it.
+
+const LAYERS = Object.freeze(['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']);
+
+/** Why Dialogue (L6) did not produce a short-circuit route's text. */
+const L6_BYPASSED = 'reply text is a constant outside Dialogue on this route (moves to L6 in WP9)';
+
+function createTurnRecord() {
+    return {
+        route: null, layers: {}, intent: null, intendedText: null, effects: [], error: null,
+        turn: null, normalizedTokens: null, responseLanguage: null, trustEnvelope: null,
+        diagnosticState: null, ranking: null, shadow: null, engine: null
+    };
+}
+
+/** Records one layer's status on this turn. */
+function mark(rec, layer, status, reason = null) {
+    rec.layers[layer] = reason ? { status, reason } : { status };
+}
+
+/**
+ * The Action layer's port, observed: every turn write it makes is recorded as
+ * an executed effect with its real result, whichever helper made it.
+ */
+function recordingPort(port, rec) {
+    const observe = (type, fn) => async (args) => {
+        try {
+            const result = await fn(args);
+            rec.effects.push({
+                type,
+                ok: result?.success === true,
+                ...(type === 'create_ticket' ? { ticketNumber: result?.ticketNumber ?? null } : {}),
+                ...(result?.error ? { error: String(result.error) } : {})
+            });
+            return result;
+        } catch (err) {
+            rec.effects.push({ type, ok: false, error: String(err?.message || err) });
+            throw err;
+        }
+    };
+    return {
+        ...port,
+        persistBotTurn: observe('persist_reply', port.persistBotTurn),
+        createTicketWithMessageAndSessionUpdate: observe('create_ticket', port.createTicketWithMessageAndSessionUpdate)
+    };
+}
+
+/** Every layer's status; a layer the route never reached says so. */
+function layerStatuses(rec) {
+    return LAYERS.map((layer) => {
+        if (layer === 'L9') return { layer, status: 'ran' };
+        if (layer === 'L8') {
+            const wrote = rec.effects.some((e) => e.type === 'persist_reply' || e.type === 'create_ticket');
+            return wrote ? { layer, status: 'ran' } : { layer, status: 'skipped', reason: 'no turn write was attempted' };
+        }
+        const m = rec.layers[layer];
+        if (m) return { layer, ...m };
+        return { layer, status: 'skipped', reason: `route "${rec.route ?? 'none'}" ends before this layer` };
+    });
+}
+
+/**
+ * Writes the turn's one trace. Returns whether it was written.
+ *
+ * The trust field: with the boundary enabled, every trace carries the verdict
+ * — "trusted" included — or says the route ended before the checkpoint ran.
+ */
+async function writeTurnTrace({ rec, result, sessionId, port, settings, rawText, timestamp, processingTimeMs }) {
+    const trustOn = trustConfig(settings).enabled;
+    const trust = !trustOn
+        ? null
+        : rec.trustEnvelope
+            ? (trustTrace(rec.trustEnvelope) ?? { enforced: traceProjection(rec.trustEnvelope), observed: null })
+            : { status: 'not_evaluated', reason: `route "${rec.route ?? 'none'}" exits before the trust checkpoint (CP1)` };
+
+    const writes = rec.effects.filter((e) => e.type === 'persist_reply' || e.type === 'create_ticket');
+    const outcome = {
+        committed: writes.length > 0 && writes[writes.length - 1].ok === true,
+        delivered: Boolean(result?.reply),
+        effects: rec.effects,
+        ...(rec.error ? { error: rec.error } : {})
+    };
+
+    const traceEvent = buildTraceEvent({
+        sessionId,
+        turn: rec.turn ?? 0,
+        rawText,
+        normalizedTokens: rec.normalizedTokens || [],
+        diagnosticState: rec.diagnosticState,
+        ranking: rec.ranking,
+        decision: rec.intent || { action: null, route: rec.route },
+        // What was SENT. null when nothing reached the customer.
+        responseText: result?.reply ?? null,
+        intendedText: rec.intendedText,
+        timestamp,
+        trust,
+        shadow: rec.shadow,
+        engine: rec.engine,
+        route: rec.route,
+        layers: layerStatuses(rec)
+    });
+    const written = await logTraceEvent({
+        sessionId, turn: rec.turn ?? 0, traceEvent, port,
+        responseLanguage: rec.responseLanguage,
+        processingTimeMs,
+        actionResult: outcome,
+        renderedOptions: result?.options ?? []
+    });
+    return written?.success === true;
+}
+
 /**
  * Runs one full SIE turn. Called only by sie-runtime.js.
  *
@@ -746,8 +878,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         return null;
     }
 
-    const port = createRealSupabasePort(supabase, { writer });
+    // From here the turn is paid for, so it is traced whatever happens.
+    const rec = createTurnRecord();
+    const port = recordingPort(createRealSupabasePort(supabase, { writer }), rec);
     const turnStartedAt = Date.now();
+    let turnResult = null;
 
     // Which edition, and therefore which catalog, vocabulary and limits.
     // Resolved once per turn, before anything reads the text. A missing
@@ -762,7 +897,9 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
         // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
         if (prevSie?.pendingTicketConfirmation) {
-            return await resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port });
+            rec.route = 'pending_confirmation';
+            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
+            return (turnResult = await resolvePendingTicketConfirmation({ text, supabase, sessionId, botState, prevSie, port, rec }));
         }
 
         // «يستفيد من المحادثات القديمة». بيتسأل مرة واحدة بس، أول رسالة في
@@ -777,6 +914,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         }
 
         const turn = (prevSie?.turnCount || 0) + 1;
+        rec.turn = turn;
         // Prepended to whatever the pipeline decides this turn, when the
         // customer's tone calls for acknowledging before answering.
         let emotionPrefix = '';
@@ -789,6 +927,9 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             glossaryLayers: editionAssembly.glossaryLayers,
             maxInputChars: editionProfile.maxMessageChars
         });
+        rec.normalizedTokens = normalizedTokens;
+        rec.responseLanguage = responseLanguage;
+        mark(rec, 'L1', 'ran');
 
         // 2.5. كلام عادي (تحية / شكر / اعتذار / سؤال هوية أو عن المنصة / طلب
         // موظف بشري / انزعاج من البوت)؟ (sie/language/small-talk.js) مش دليل
@@ -817,8 +958,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
 
         if (wantsHuman || emotionEscalates || legacyFrustration) {
             const reason = wantsHuman ? 'human_request' : 'frustration';
+            rec.route = 'escalation';
+            rec.intent = { action: ACTIONS.ESCALATE_TO_HUMAN, route: 'escalation', reason, scenarioId: null, turn, explanation: ESCALATION_EXPLANATION[reason] };
+            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
             const result = await escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port });
-            if (result) return result;
+            if (result) return (turnResult = result);
             return null;
         }
 
@@ -849,21 +993,28 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             { rawText: text, evidence: extractTextEvidence(normalizedTokens, turn) },
             trustConfig(settings)
         );
+        rec.trustEnvelope = trustEnvelope;
 
         const memoryIntent = detectMemoryIntent(text, prevSie?.lastCustomerText || '');
         if (memoryIntent) {
+            rec.route = 'memory';
+            rec.intent = { action: ACTIONS.WAIT_FOR_USER, route: 'memory', memory: memoryIntent.kind, scenarioId: null, turn: prevSie?.turnCount || 0 };
+            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
             const handled = await handleMemoryIntent({
                 intent: memoryIntent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage,
-                trustEnvelope
+                trustEnvelope, rec
             });
-            if (handled) return handled;
+            if (handled) return (turnResult = handled);
         }
 
         const resolutionSignal = detectResolutionSignal(text);
         const alreadyAnswered = (prevSie?.decisionState?.answeredScenarioIds || []).length > 0;
         if (resolutionSignal === 'resolved' && alreadyAnswered) {
+            rec.route = 'resolution_close';
+            rec.intent = { action: ACTIONS.COMPLETE, route: 'resolution_close', customerSignal: resolutionSignal, scenarioId: prevSie?.decisionState?.lastScenarioId ?? null, turn: 0 };
+            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
             const closed = await closeConversation({ responseLanguage, sessionId, botState, port });
-            if (closed) return closed;
+            if (closed) return (turnResult = closed);
             return null;
         }
 
@@ -885,8 +1036,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             const personal = smallTalk.type === 'greeting'
                 ? await buildGreetingPersonalisation({ supabase, userId, prevSie, settings, responseLanguage })
                 : '';
+            rec.route = 'small_talk';
+            rec.intent = { action: ACTIONS.WAIT_FOR_USER, route: 'small_talk', smallTalk: smallTalk.type, scenarioId: null, turn: prevSie?.turnCount || 0 };
+            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
             const result = await respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port, prefix: personal });
-            if (result) return result;
+            if (result) return (turnResult = result);
             // لو الكتابة فشلت، منكملش على البايبلاين التشخيصي بنفس normalizedTokens
             // القديمة دي — نرجع null عادي زي أي فشل تاني، والـ caller هيقع للمحرك التقليدي.
             return null;
@@ -896,8 +1050,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // Which catalog answers the customer — resolved once and used by
         // BOTH processTurn and rankDiagnosticState below, so the two can
         // never disagree about what the candidates are.
+        rec.route = 'diagnostic';
+        rec.intent = null;
         const { provider: scenarioProvider, resolution: catalogResolution } =
             await resolveTurnScenarioProvider(supabase, settings, providerForAssembly(editionAssembly));
+        mark(rec, 'L2', 'ran');
 
         // The one catalog outcome worth a line in the logs: the operator
         // asked for their published rows and did not get them. Silence
@@ -955,6 +1112,8 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // accumulator's own append-only log rather than re-deriving extraction.
         const newEvidenceAddedThisTurn = (diagnosticState.accumulator?.entries || [])
             .filter((e) => e.turn === turn).length;
+        rec.diagnosticState = diagnosticState;
+        mark(rec, 'L3', 'ran');
 
         // 4. Ranking (Module 4)
         // «مستوى التشخيص» بيتحوّل هنا لرقم واحد: قد إيه الاحتمال لازم
@@ -966,6 +1125,8 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             scenarioProvider,
             { activationThreshold }
         );
+        rec.ranking = ranking;
+        mark(rec, 'L4', 'ran');
 
         // 5. Decision (Module 5)
         const decideWith = (r) => decide({
@@ -1007,6 +1168,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         if (editionFloor) {
             console.info(`[sie] edition floor (${editionProfile.edition}): ${editionFloor.from} → ${editionFloor.to} (stand-off with ${editionFloor.scenarioId})`);
         }
+        mark(rec, 'L5', 'ran');
 
         // 6. Knowledge (Module 7) — additive, passes through unchanged unless
         //    the decision is an ANSWER with a knowledgeSource.
@@ -1048,6 +1210,9 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             console.warn(`[sie] trust boundary withheld ${authorizedDecision.trustDowngradedFrom}: ${trustEnvelope.rationale}`);
         }
         const finalDecision = authorizedDecision;
+        // Knowledge ran above (composeAnswerDecision + the article rescue).
+        mark(rec, 'L7', 'ran');
+        rec.intent = finalDecision;
 
         // 7. Dialogue (Module 6) — presentation choices are attached here, not
         //    decided in Module 5: whether to name the likely cause and whether
@@ -1067,6 +1232,11 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
 
         const renderedDecision = renderDecision(decisionForRender, responseLanguage);
         const rendered = { ...renderedDecision, text: withEmotion(renderedDecision.text) };
+        mark(rec, 'L6', 'ran');
+        // What Dialogue rendered for the decision. When the bridge sends
+        // something else (ticket question, duplicate notice, tickets off),
+        // the trace keeps both.
+        rec.intendedText = rendered.text;
 
         // 8. Action (Module 8) — the sole writer. Persists the bot's message +
         //    session state (+ ticket, if this turn created one) in one transaction.
@@ -1100,8 +1270,14 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             const shadow = await runShadowComparison({
                 text,
                 catalog: await scenarioProvider.getAllScenarios(),
-                liveResult: { interpretation: null, decision: finalDecision, ranking },
-                shadowPrevious: prevSie?.shadowState || null
+                // The shadow runs only on this route, so the live engine's
+                // reading of the turn is, truthfully, "diagnostic". Passing
+                // null made `kind` differ on every record (audit finding K2).
+                liveResult: { interpretation: { kind: TURN_KINDS.DIAGNOSTIC }, decision: finalDecision, ranking },
+                shadowPrevious: prevSie?.shadowState || null,
+                // The same settings the live decision used, so a difference
+                // is a difference in engines, not in thresholds.
+                settings
             });
             shadowRecord = shadow.record;
             shadowState = shadow.shadowState;
@@ -1213,53 +1389,22 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         let humanHandoff = false;
         if (finalDecision.action === ACTIONS.ESCALATE_TO_HUMAN && !duplicateTicket) {
             humanHandoff = (await requestHumanHandoff(supabase, { sessionId, reason: 'escalated_by_engine' })).handedOff;
+            rec.effects.push({ type: 'request_handoff', ok: humanHandoff === true });
         }
 
-        // 9. Observability (Module 9a) — best-effort, never blocks the reply.
-        // بتسجّل القرار الحقيقي اللي اتاخد (حتى لو CREATE_TICKET لسه مستني
-        // تأكيد العميل)، عشان الـ trace يفضل يعكس تشخيص المحرك الفعلي.
-        try {
-            const traceEvent = buildTraceEvent({
-                sessionId,
-                turn,
-                rawText: text,
-                normalizedTokens,
-                diagnosticState,
-                ranking,
-                decision: finalDecision,
-                responseText: rendered.text,
-                timestamp: decisionWithKnowledge.timestamp,
-                // In observe-only mode this carries the verdict that WOULD have
-                // applied, which is what makes the shadow comparison a diff of
-                // two fields on one row instead of a join across two tables.
-                trust: trustTrace(trustEnvelope),
-                // null unless the shadow ran. This is the field an offline
-                // analysis of production agreement reads.
-                shadow: shadowRecord,
-                // Which edition answered and how much of its catalog this turn
-                // actually scored. `degradedFrom` is set only when a pack
-                // failed to load and the turn fell back to Free.
-                engine: {
-                    edition: editionProfile.edition,
-                    degradedFrom: editionDegradedFrom,
-                    // Set when the Free floor replaced an ambiguity ticket (edition-turn.freeFloor).
-                    floor: editionFloor,
-                    catalogSize: editionAssembly.scenarios.length,
-                    scope: scopeStats || null
-                }
-            });
-            await logTraceEvent({
-                sessionId, turn, traceEvent, port,
-                responseLanguage,
-                processingTimeMs: Date.now() - turnStartedAt,
-                actionResult,
-                renderedOptions: replyOptions
-            });
-        } catch (traceErr) {
-            console.warn('SIE trace logging failed (non-fatal):', traceErr?.message || traceErr);
-        }
+        // 9. Observability (Module 9a): the trace itself is written in the
+        //    `finally` below, for this route and every other one.
+        rec.shadow = shadowRecord;
+        rec.engine = {
+            edition: editionProfile.edition,
+            degradedFrom: editionDegradedFrom,
+            // Set when the Free floor replaced an ambiguity ticket (edition-turn.freeFloor).
+            floor: editionFloor,
+            catalogSize: editionAssembly.scenarios.length,
+            scope: scopeStats || null
+        };
 
-        return {
+        return (turnResult = {
             reply: replyText,
             options: replyOptions,
             alreadyPersisted: true,
@@ -1269,9 +1414,33 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             // دي بتبقى النسخة اللي جواها pendingTicketConfirmation، مش
             // nextBotState الأصلية.
             botState: persistedBotState
-        };
+        });
     } catch (err) {
         console.error('SIE pipeline error:', err?.message || err);
+        rec.error = String(err?.message || err);
         return null; // caller falls back to the traditional engine
+    } finally {
+        // Every paid turn — answered, short-circuited, failed or thrown —
+        // writes one trace. A failed write is surfaced, never silent, and
+        // never costs the customer the reply.
+        let written = false;
+        let threw = false;
+        try {
+            written = await writeTurnTrace({
+                rec,
+                result: turnResult,
+                sessionId,
+                port,
+                settings,
+                rawText: text,
+                timestamp: rec.intent?.timestamp ?? new Date(now()).toISOString(),
+                processingTimeMs: Date.now() - turnStartedAt
+            });
+        } catch (traceErr) {
+            threw = true;
+            console.error(`[sie] trace write failed for session ${sessionId}, route ${rec.route ?? 'none'}:`, traceErr?.message || traceErr);
+        }
+        if (!written && !threw) console.error(`[sie] trace write failed for session ${sessionId}, route ${rec.route ?? 'none'}`);
+        if (turnResult) turnResult.traceWritten = written;
     }
 }

@@ -804,8 +804,92 @@
         "tracesEqualQuota": true
       },
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["final.tracesEqualQuota"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["final.tracesEqualQuota"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" }
+      ],
+      "fixedIn": "WP2"
+    },
+    {
+      "id": "REG-K3b-every-paid-turn-is-traced-across-chats",
+      "finding": "K3",
+      "p0": [
+        14
+      ],
+      "guarantees": [
+        "G-L9-1",
+        "G-L9-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "MS",
+        "PS"
+      ],
+      "fixedIn": "WP2",
+      "title": "Across two chats of one customer, every paid turn on every route writes exactly one trace that records what was sent",
+      "chats": [
+        {
+          "chat": "first",
+          "turns": [
+            {
+              "say": "صباح الخير",
+              "expect": {
+                "traced": true,
+                "traceMatchesReply": true
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "traced": true,
+                "traceMatchesReply": true
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "traced": true,
+                "traceMatchesReply": true
+              }
+            }
+          ]
+        },
+        {
+          "chat": "second",
+          "advanceMinutesBefore": 20,
+          "turns": [
+            {
+              "say": "انا اسمي سامي",
+              "expect": {
+                "traced": true,
+                "traceMatchesReply": true
+              }
+            },
+            {
+              "say": "عايز اتكلم مع موظف",
+              "expect": {
+                "traced": true,
+                "traceMatchesReply": true
+              }
+            },
+            {
+              "say": "لأ مش دلوقتي",
+              "expect": {
+                "traced": true,
+                "traceMatchesReply": true
+              }
+            }
+          ]
+        }
+      ],
+      "final": {
+        "tracesEqualQuota": true
+      },
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ]
     },
     {
@@ -842,8 +926,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.traceMatchesReply"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP2"
     },
     {
       "id": "REG-K2-shadow-can-agree",
@@ -873,8 +958,9 @@
         }
       ],
       "runs": [
-        { "profile": "production-audit-2026-10", "status": "red", "failingNow": ["a#1.shadowAgreed"] }
-      ]
+        { "profile": "production-audit-2026-10", "status": "green" }
+      ],
+      "fixedIn": "WP2"
     },
     {
       "id": "REG-F3-greeting-with-problem-is-diagnosed",

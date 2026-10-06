@@ -80,13 +80,15 @@ export const DEFAULT_START = Date.parse('2026-01-01T09:00:00Z');
  * @param {Array} [options.facts] rows sie_customer_memory starts with
  * @param {number} [options.startAt] epoch ms of the world clock
  * @param {string} [options.customerName='Sami'] synthetic profile first name
+ * @param {string[]} [options.failRpcs] RPC names that return a database error (failure injection)
+ * @param {boolean} [options.failTraceInsert] trace inserts return a database error
  */
-export function makeWorld({ profile = 'defaults', settings = null, edition = 'free', openTickets = [], facts = [], startAt = DEFAULT_START, customerName = 'Sami' } = {}) {
+export function makeWorld({ profile = 'defaults', settings = null, edition = 'free', openTickets = [], facts = [], startAt = DEFAULT_START, customerName = 'Sami', failRpcs = [], failTraceInsert = false } = {}) {
     const resolved = settings || loadSettingsProfile(profile);
     const world = {
         profile, settings: resolved, edition,
         sessions: {}, facts: [...facts], openTickets: [...openTickets],
-        traces: [], ticketsCreated: [], reviews: [], handoffs: [], persisted: [], quota: 0, log: [],
+        traces: [], failedTraceInserts: 0, consoleErrors: [], ticketsCreated: [], reviews: [], handoffs: [], persisted: [], quota: 0, log: [],
         now: startAt,
         advance(minutes) { world.now += minutes * 60000; }
     };
@@ -96,6 +98,9 @@ export function makeWorld({ profile = 'defaults', settings = null, edition = 'fr
         from(table) {
             let op = 'select'; let payload = null; const filters = [];
             const result = () => {
+                if (table === 'chat_engine_trace_events' && op === 'insert') {
+                    return failTraceInsert ? { data: null, error: { message: 'injected trace insert failure' } } : { data: null, error: null };
+                }
                 if (table === 'sie_settings') return { data: Object.entries(resolved).map(([key, value]) => ({ key, value })), error: null };
                 if (table === 'chat_sessions') {
                     const neq = filters.find((f) => f[0] === 'neq')?.[2];
@@ -120,7 +125,12 @@ export function makeWorld({ profile = 'defaults', settings = null, edition = 'fr
                 eq(...a) { filters.push(['eq', ...a]); return chain; },
                 neq(...a) { filters.push(['neq', ...a]); return chain; },
                 gte(...a) { filters.push(['gte', ...a]); return chain; }, in() { return chain; }, order() { return chain; }, limit() { return chain; },
-                insert(p) { op = 'insert'; payload = p; if (table === 'chat_engine_trace_events') world.traces.push(p); world.log.push({ kind: 'insert', table }); return chain; },
+                insert(p) {
+                    op = 'insert'; payload = p;
+                    if (table === 'chat_engine_trace_events') { if (failTraceInsert) world.failedTraceInserts++; else world.traces.push(p); }
+                    world.log.push({ kind: 'insert', table });
+                    return chain;
+                },
                 upsert(p) { op = 'upsert'; payload = p; world.log.push({ kind: 'upsert', table }); return chain; },
                 update(p) { op = 'update'; payload = p; return chain; },
                 delete() { op = 'delete'; return chain; },
@@ -139,11 +149,17 @@ export function makeWorld({ profile = 'defaults', settings = null, edition = 'fr
         },
         async rpc(fn, params) {
             world.log.push({ kind: 'rpc', fn });
+            if (failRpcs.includes(fn)) return { data: null, error: { message: `injected ${fn} failure` } };
             if (fn === 'sie_consume_message') { world.quota++; return { data: [{ allowed: true, reason: null, remaining: 99, edition }], error: null }; }
             if (fn === 'persist_bot_turn') { world.persisted.push(params); return { data: null, error: null }; }
             if (fn === 'create_ticket_with_message_and_session_update') { world.ticketsCreated.push(params); return { data: [{ ticket_number: 1000 + world.ticketsCreated.length }], error: null }; }
             if (fn === 'queue_conversation_for_review') { world.reviews.push(params); return { data: [{ id: `review-${world.reviews.length}` }], error: null }; }
-            if (fn === 'sie_request_human') { world.handoffs.push(params); return { data: true, error: null }; }
+            if (fn === 'sie_request_human') {
+                world.handoffs.push(params);
+                // As in production: the chat is now a human's, and SIE stops answering it.
+                if (world.sessions[params?.p_session]) world.sessions[params.p_session].manual = true;
+                return { data: true, error: null };
+            }
             return { data: null, error: null };
         }
     };
@@ -170,7 +186,8 @@ export async function converse(world, chatId, messages, { userId = 'user-1' } = 
         const msg = typeof raw === 'string' ? { say: raw } : raw;
         if (msg.advanceMinutes) world.advance(msg.advanceMinutes);
         const before = { traces: world.traces.length, quota: world.quota, tickets: world.ticketsCreated.length, reviews: world.reviews.length, handoffs: world.handoffs.length };
-        console.warn = () => {}; console.info = () => {}; console.error = () => {};
+        console.warn = () => {}; console.info = () => {};
+        console.error = (...args) => { world.consoleErrors.push(args.map(String).join(' ')); };
         let result;
         try {
             result = await getSieReply({
@@ -190,6 +207,7 @@ export async function converse(world, chatId, messages, { userId = 'user-1' } = 
         out.push({
             chatId, say: msg.say,
             reply: result?.reply ?? null,
+            traceWritten: result?.traceWritten,
             options: result?.options ?? [],
             trace,
             handled: Boolean(result),

@@ -33,7 +33,7 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.2;
  * @param {string} [params.timestamp]
  * @returns {import('./trace-types.js').TraceEvent}
  */
-export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null, shadow = null, engine = null }) {
+export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, diagnosticState, ranking, decision, responseText, timestamp, trust = null, shadow = null, engine = null, route = null, layers = null, intendedText = null }) {
     const hypothesesSnapshot = (diagnosticState?.hypotheses || [])
         .filter((h) => h.status !== 'unconsidered')
         .map((h) => ({ scenarioId: h.scenarioId, confidence: h.confidence, status: h.status }));
@@ -61,7 +61,15 @@ export function buildTraceEvent({ sessionId, turn, rawText, normalizedTokens, di
             isAmbiguous: Boolean(ranking?.isAmbiguous)
         },
         decision,
-        responseText: responseText ?? '',
+        // The text actually sent. An explicit null means nothing reached the
+        // customer (a failed turn); undefined keeps the old '' default.
+        responseText: responseText === null ? null : (responseText ?? ''),
+        // What the decision rendered, kept only when it differs from what was
+        // sent (e.g. a ticket decision answered with a confirmation question).
+        ...(intendedText && intendedText !== responseText ? { intendedText } : {}),
+        // Which route the turn took and what each of the nine layers did on it.
+        ...(route ? { route } : {}),
+        ...(Array.isArray(layers) ? { layers } : {}),
         timestamp: timestamp ?? new Date().toISOString()
     };
 }

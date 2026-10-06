@@ -51,3 +51,12 @@ test('checkTraceEventShape: flags a missing timestamp', () => {
     const problems = checkTraceEventShape(validTrace({ timestamp: '' }));
     assert.ok(problems.some((p) => p.includes('timestamp')));
 });
+
+test('[G-L8-6] checkTraceEventShape: a trace of a turn where nothing was sent (responseText null) is valid', () => {
+    const trace = {
+        sessionId: 's', turn: 1, rawText: 'x', normalizedTokenCanonicals: [], hypothesesSnapshot: [],
+        rankingSnapshot: {}, decision: {}, responseText: null, timestamp: '2026-01-01T00:00:00.000Z'
+    };
+    assert.deepEqual(checkTraceEventShape(trace), []);
+    assert.ok(checkTraceEventShape({ ...trace, responseText: 42 }).length > 0, 'a non-string, non-null text is still rejected');
+});

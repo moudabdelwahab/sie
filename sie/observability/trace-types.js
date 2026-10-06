@@ -47,7 +47,7 @@ export function checkTraceEventShape(trace) {
     if (!Array.isArray(trace.hypothesesSnapshot)) problems.push('hypothesesSnapshot must be an array');
     if (!trace.rankingSnapshot || typeof trace.rankingSnapshot !== 'object') problems.push('rankingSnapshot must be an object');
     if (!trace.decision || typeof trace.decision !== 'object') problems.push('decision must be an object');
-    if (typeof trace.responseText !== 'string') problems.push('responseText must be a string');
+    if (typeof trace.responseText !== 'string' && trace.responseText !== null) problems.push('responseText must be a string, or null when nothing was sent');
     if (typeof trace.timestamp !== 'string' || trace.timestamp.trim() === '') problems.push('timestamp must be a non-empty string');
     return problems;
 }

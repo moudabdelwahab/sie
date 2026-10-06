@@ -16,7 +16,10 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 - `[pending:ID]`: the test pins today's *violation* of a guarantee that is not yet enforced. It is a red structural test.
 - Golden conversations (`sie-integration/tests/golden/*.json`) list ids in `guarantees`. A red run pins the defect; a green run is evidence.
 
-**Status at the end of WP1:** the test foundation is in place. No P0 is closed. Every P0 has a pinned red regression (a test that fails today, for its declared reason), except P0-16, which is the test infrastructure itself.
+**Status at the end of WP2:**
+- P0-14 (observability) and P0-15 (shadow comparison) are **closed by engine fixes**.
+- Every other P0 is open, and each is pinned by a red regression, except P0-16, which is the test infrastructure itself.
+- P0-5 and P0-15 are additionally **mitigated by configuration** in production (past-conversation import and the shadow run are off since 2026-10-06). That mitigation is not a fix for P0-5.
 
 ## Guarantees
 
@@ -73,15 +76,15 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | G-L8-3 | L8 | Quota is charged only for a committed reply. | pending | WP8 | |
 | G-L8-4 | L8 | No component other than Action writes `bot_state`. | pending | WP8 | |
 | G-L8-5 | L8 | The executed effect equals the decided effect. | pending | WP4 | |
-| G-L8-6 | L8 | A failed commit is returned and traced, never swallowed. | pending | WP2 | |
-| G-L9-1 | L9 | Every paid turn has exactly one trace, on every route. | pending | WP2 | |
-| G-L9-2 | L9 | The trace's sent text equals the reply delivered. | pending | WP2 | |
-| G-L9-3 | L9 | Intent and executed outcome are separate trace fields. | pending | WP2 | |
-| G-L9-4 | L9 | With the boundary enabled, every trace carries a trust verdict. | pending | WP2 | |
-| G-L9-5 | L9 | Identical live and shadow decisions compare as agreed. | pending | WP2 | |
+| G-L8-6 | L8 | A failed commit is returned and traced, never swallowed. | enforced | WP2 | tagged |
+| G-L9-1 | L9 | Every paid turn has exactly one trace, on every route. | enforced | WP2 | tagged |
+| G-L9-2 | L9 | The trace's sent text equals the reply delivered. | enforced | WP2 | tagged |
+| G-L9-3 | L9 | Intent and executed outcome are separate trace fields; the trace records the route and each layer's status. | enforced | WP2 | tagged |
+| G-L9-4 | L9 | With the boundary enabled, every trace carries the trust verdict (`trusted` included), or `not_evaluated` with the reason when the route ends before CP1. WP4 routes every turn through CP1. | enforced | WP2 | tagged |
+| G-L9-5 | L9 | Identical live and shadow decisions compare as agreed; real divergences are still reported. | enforced | WP2 | tagged |
 | G-L9-6 | L9 | The learning queue includes escalations, declines, withheld actions, re-contact after close and low-specificity tickets. | pending | WP8 | |
 | G-L9-7 | L9 | Publishing requires a passing validation run or a recorded override (DB-enforced). | pending | WP8 | |
-| G-L9-8 | L9 | Trace write failures are surfaced. | pending | WP2 | |
+| G-L9-8 | L9 | Trace write failures are surfaced. | enforced | WP2 | tagged |
 | G-BR-1 | orchestrator | The bridge calls the nine layers in order, has one success return path, holds no customer text, no classifier and no state mutation. | pending | WP4 | |
 | T-1 | tests | Settings profiles are valid, and the current production configuration (including the 2026-10-06 mitigations) is a tested profile. | enforced | WP1 | tagged |
 | T-2 | tests | The turn's clock is injectable and is what time-based decisions use; without it, real time applies. | enforced | WP1 | tagged |
@@ -105,8 +108,8 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | P0-11 | Ticket status cannot read real data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-12 | Evidence only increases | U, LI, E2E, MT, PS, ADV | open | WP5 | REG-12-denial-lowers-belief |
 | P0-13 | Attachments never reach the engine | U, LI, E2E, MT, PS, ADV | open | WP7 | REG-13-attachment-reaches-engine |
-| P0-14 | Incorrect or incomplete observability | U, LI, E2E, MT, MS, PS | open | WP2, WP8 | REG-K3-every-paid-turn-is-traced, REG-K1-trace-records-what-was-sent |
-| P0-15 | Shadow comparison cannot agree | U, LI, E2E, PS | open (shadow disabled in production 2026-10-06) | WP2 | REG-K2-shadow-can-agree |
+| P0-14 | Incorrect or incomplete observability | U, LI, E2E, MT, MS, PS | closed (WP2) | WP2 | REG-K3-every-paid-turn-is-traced, REG-K3b-every-paid-turn-is-traced-across-chats, REG-K1-trace-records-what-was-sent (all green) |
+| P0-15 | Shadow comparison cannot agree | U, LI, E2E, PS | closed (WP2); the shadow stays disabled in production by configuration until re-enabled | WP2 | REG-K2-shadow-can-agree (green) |
 | P0-16 | Production settings not covered by integration tests | LI, E2E, MT, MS, PS, ADV | open (foundation in WP1) | WP1–WP9 | — (T-1, T-4) |
 | P0-17 | Untested conversation controller in `sie-chat-bridge.js` | U, LI, E2E, MT, MS, PS | open | WP4 | REG-F3-greeting-with-problem-is-diagnosed, REG-F4-role-and-problem-is-diagnosed, structure.test.mjs |
 
