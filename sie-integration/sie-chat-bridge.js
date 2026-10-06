@@ -317,15 +317,16 @@ const EMOTION_SETTING_KEYS = [
  *
  * @param {Object|null} prevSie
  * @param {Object} settings
+ * @param {number} [nowMs] - the turn's clock reading; defaults to real time
  * @returns {Object|null}
  */
-function recallPreviousState(prevSie, settings) {
+function recallPreviousState(prevSie, settings, nowMs = Date.now()) {
     if (!prevSie) return null;
     if (settings.memory_keep_context === false) return null;
 
     const minutes = typeof settings.memory_context_minutes === 'number' ? settings.memory_context_minutes : null;
     if (minutes && prevSie.lastTurnAt) {
-        const ageMinutes = (Date.now() - new Date(prevSie.lastTurnAt).getTime()) / 60000;
+        const ageMinutes = (nowMs - new Date(prevSie.lastTurnAt).getTime()) / 60000;
         if (Number.isFinite(ageMinutes) && ageMinutes > minutes) {
             // «يفتكر آخر مشكلة» يفضل شغّال حتى بعد ما السياق يتنسى: دي
             // معلومة واحدة بنسأل عنها، مش دليل تشخيصي بنبني عليه.
@@ -712,11 +713,15 @@ async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botS
  * @param {import('@supabase/supabase-js').SupabaseClient} [params.writer] - writes the
  *   bot's turn (persist_bot_turn / ticket RPC); see createRealSupabasePort. Defaults to
  *   `supabase`.
+ * @param {() => number} [params.clock] - epoch milliseconds for this turn's time-based
+ *   decisions (context expiry, lastTurnAt, decision timestamps). Defaults to real time;
+ *   injected by tests so expiry is testable without waiting.
  * @returns {Promise<{reply: string, options: Array, alreadyPersisted: true, ticketNumber: string|null, botState: Object} | null>}
  *   null means "not handled by SIE" — caller should fall back to the traditional engine.
  */
-export async function runSieTurn({ text, supabase, sessionId, userId, botState, writer }) {
+export async function runSieTurn({ text, supabase, sessionId, userId, botState, writer, clock }) {
     if (!text || !supabase || !sessionId || !userId) return null;
+    const now = typeof clock === 'function' ? () => clock() : () => Date.now();
 
     // 1. Entitlement gate — the one place a SIE turn is authorized and metered.
     // 0. Settings. Read before anything is spent or written, so turning the
@@ -752,7 +757,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         await resolveTurnEdition(entitlement, settings);
 
     try {
-        let prevSie = recallPreviousState(botState?.sie || null, settings);
+        let prevSie = recallPreviousState(botState?.sie || null, settings, now());
 
         // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
         // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
@@ -764,7 +769,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         // محادثة جديدة — بعد كده السياق الحالي هو الأصح.
         if (settings.memory_use_past_conversations && !prevSie?.diagnosticState) {
             const recalled = await recallPreviousSession(
-                supabase, userId, sessionId, settings.memory_context_minutes || 1440
+                supabase, userId, sessionId, settings.memory_context_minutes || 1440, now()
             );
             if (recalled) {
                 prevSie = { ...(prevSie || {}), diagnosticState: recalled.diagnosticState, lastScenarioLabel: recalled.lastScenarioLabel };
@@ -985,7 +990,8 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
             },
             // المحرك مايقدرش يستنتج دي من الأدلة: «تم الحل» و«لسه مش شغال»
             // الاتنين بيدّوا توكنز وبيسيبوا الثقة زي ما هي.
-            customerSignal: resolutionSignal
+            customerSignal: resolutionSignal,
+            clock: () => new Date(now()).toISOString()
         });
         // «أرضية Free»: تعادل عمله سيناريو من حزمة الإصدار مايتحوّلش لتذكرة
         // لو Free كان هيسأل سؤال — see edition-turn.freeFloor. Inert on Free.
@@ -1114,7 +1120,7 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
                 language: responseLanguage,
                 turnCount: turn,
                 // بيخلّي «مدة الاحتفاظ بالسياق» تعرف السياق ده قديم قد إيه.
-                lastTurnAt: new Date().toISOString(),
+                lastTurnAt: new Date(now()).toISOString(),
                 // «يفتكر آخر مشكلة» — بيفضل موجود حتى بعد ما السياق ينتهي.
                 lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null,
                 // بيخلّي «احفظ ده» في الرسالة الجاية يعرف «ده» دي إيه.

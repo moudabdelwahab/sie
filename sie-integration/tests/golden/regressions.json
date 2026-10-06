@@ -1,0 +1,1046 @@
+{
+  "description": "Regression conversations for the audit findings (docs/AUDIT-SIE-9-LAYERS-2026-10.md). Each states the CORRECT behaviour. A run is red while its defect exists and must fail exactly on the expectations in failingNow; the work package that fixes the defect flips it to green. All conversations are synthetic.",
+  "conversations": [
+    {
+      "id": "REG-D2-yes-with-content-is-not-a-decline",
+      "finding": "D2",
+      "p0": [
+        1,
+        7
+      ],
+      "guarantees": [
+        "G-L1-1",
+        "G-L1-5",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"Yes, I have a problem with payment\" at the ticket question is not a decline",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "أيوه عندي مشكلة في الدفع",
+              "expect": {
+                "replyIsNot": "DECLINED_REVIEW",
+                "reviewsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] }
+      ]
+    },
+    {
+      "id": "REG-D3-restated-problem-at-prompt",
+      "finding": "D3",
+      "p0": [
+        1,
+        7
+      ],
+      "guarantees": [
+        "G-L1-3",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "Restating the problem at the ticket question is diagnosed, not taken as a decline",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل"
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل",
+              "expect": {
+                "reviewsTotal": 0,
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.reviewsTotal"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.reviewsTotal"] }
+      ]
+    },
+    {
+      "id": "REG-D1-plain-no",
+      "finding": "D1",
+      "p0": [
+        2,
+        7
+      ],
+      "guarantees": [
+        "G-L1-1",
+        "G-L1-5",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "A plain Arabic \"no\" (لا) at the ticket question declines it",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "لا",
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "reviewsTotal": 1,
+                "ticketsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.reviewsTotal"] }
+      ]
+    },
+    {
+      "id": "REG-D1-plain-yes",
+      "finding": "D1",
+      "p0": [
+        2,
+        7
+      ],
+      "guarantees": [
+        "G-L1-1",
+        "G-L1-5",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "A plain Egyptian \"yes\" (اه) at the ticket question opens exactly one ticket",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف"
+            },
+            {
+              "say": "اه",
+              "expect": {
+                "ticketsTotal": 1
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketsTotal"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.ticketsTotal"] }
+      ]
+    },
+    {
+      "id": "REG-D1-unclear-reask-is-bounded",
+      "finding": "D1",
+      "p0": [
+        7
+      ],
+      "guarantees": [
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "An unclear answer re-asks at most once; the conversation is not held at the ticket question",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف"
+            },
+            {
+              "say": "متشكر"
+            },
+            {
+              "say": "متشكر",
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-C-not-resolved-is-not-closed",
+      "finding": "C",
+      "p0": [
+        3,
+        9
+      ],
+      "guarantees": [
+        "G-L1-2",
+        "G-L5-4",
+        "G-L3-4"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"I tried the steps but it didn't work\" after an answer does not close the conversation or wipe its state",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "جربت الخطوات بس ما اشتغلش",
+              "expect": {
+                "replyIsNot": "CLOSED_GLAD",
+                "stateHas": "sie.diagnosticState"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.stateHas"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.replyIsNot", "a#2.stateHas"] }
+      ]
+    },
+    {
+      "id": "REG-C2-negated-resolution-no-satisfaction-ack",
+      "finding": "C2",
+      "p0": [
+        3
+      ],
+      "guarantees": [
+        "G-L1-2",
+        "G-L6-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "A negated \"it worked\" is never acknowledged as satisfaction",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش بقدر ابعت رسايل للجروبات"
+            },
+            {
+              "say": "جربت الحل بس ما اشتغلش",
+              "expect": {
+                "replyIsNot": "SATISFACTION_ACK"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-F1-install-is-not-anger",
+      "finding": "F1",
+      "p0": [
+        2,
+        4
+      ],
+      "guarantees": [
+        "G-L1-1",
+        "G-L1-7",
+        "G-L5-11"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"How do I install WhatsApp Business\" is a how-to, not anger: no escalation, it is diagnosed",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي انصب الواتساب بزنس",
+              "expect": {
+                "replyIsNot": "ESCALATION",
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-F2-sincere-praise-is-not-sarcasm",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L1-7",
+        "G-L5-11"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "Sincere praise with no complaint context does not escalate to a human",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "انا مبسوط جدا بصراحة",
+              "expect": {
+                "replyIsNot": "ESCALATION",
+                "handoffsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-F2b-polite-closing-is-not-anger",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L1-7",
+        "G-L5-11"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"That's enough, thanks\" is a polite closing, not anger",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "خلاص كفاية كده شكرا",
+              "expect": {
+                "replyIsNot": "ESCALATION"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-B-closing-remark-does-not-cross-chats",
+      "finding": "B",
+      "p0": [
+        5
+      ],
+      "guarantees": [
+        "G-L3-1"
+      ],
+      "categories": [
+        "E2E",
+        "MS",
+        "PS",
+        "ADV"
+      ],
+      "title": "A closing remark in one chat does not become a hypothesis in the customer's next chat",
+      "chats": [
+        {
+          "chat": "first",
+          "turns": [
+            {
+              "say": "لا مفيش حاجة تانية"
+            }
+          ]
+        },
+        {
+          "chat": "second",
+          "advanceMinutesBefore": 30,
+          "turns": [
+            {
+              "say": "مين صاحب المنصة",
+              "expect": {
+                "hypothesesExclude": [
+                  "convo_goodbye_nothing_else"
+                ],
+                "actionNot": "CREATE_TICKET"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "red", "failingNow": ["second#1.hypothesesExclude"] }
+      ]
+    },
+    {
+      "id": "REG-B2-status-question-does-not-cross-chats",
+      "finding": "B2",
+      "p0": [
+        5
+      ],
+      "guarantees": [
+        "G-L3-1",
+        "G-L4-1"
+      ],
+      "categories": [
+        "E2E",
+        "MS",
+        "PS"
+      ],
+      "title": "A ticket-status question in one chat does not tie with a subscription-status question in the next",
+      "chats": [
+        {
+          "chat": "first",
+          "turns": [
+            {
+              "say": "ايه حالة التذكرة بتاعتي؟"
+            }
+          ]
+        },
+        {
+          "chat": "second",
+          "advanceMinutesBefore": 1,
+          "turns": [
+            {
+              "say": "ايه حالة الاشتراك بتاعي؟",
+              "expect": {
+                "hypothesisMax": {
+                  "ticket_status_inquiry": 0.9
+                },
+                "actionNot": "CREATE_TICKET"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "red", "failingNow": ["second#1.actionNot", "second#1.hypothesisMax"] }
+      ]
+    },
+    {
+      "id": "REG-B-conversational-scenario-is-not-a-problem",
+      "finding": "B",
+      "p0": [],
+      "guarantees": [
+        "G-L2-1",
+        "G-L4-1"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "\"No, nothing else\" is never diagnosed as a problem and never offered a ticket",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مفيش مشكلة، بس عندي سؤال عام عن المنصة"
+            },
+            {
+              "say": "لا مفيش حاجة تانية",
+              "expect": {
+                "hypothesesExclude": [
+                  "convo_goodbye_nothing_else"
+                ],
+                "replyIsNot": "TICKET_CONFIRM"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesExclude", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesExclude", "a#2.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-E-no-phantom-ticket",
+      "finding": "E",
+      "p0": [
+        6,
+        7
+      ],
+      "guarantees": [
+        "G-L5-1",
+        "G-L8-5",
+        "G-L6-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "Declining a ticket, then accepting one later, creates exactly one ticket and never claims a ticket that does not exist",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "لأ مش دلوقتي",
+              "expect": {
+                "reviewsTotal": 1,
+                "ticketsTotal": 0
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIsNot": "TICKET_STILL_OPEN"
+              }
+            },
+            {
+              "say": "أيوه افتحلي تذكرة",
+              "expect": {
+                "ticketsTotal": 1,
+                "replyIsNot": "TICKET_STILL_OPEN"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#5.replyIsNot", "a#5.ticketsTotal"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#5.replyIsNot", "a#5.ticketsTotal"] }
+      ]
+    },
+    {
+      "id": "REG-G-pending-prompt-expires",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2",
+        "G-L8-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A ticket question left unanswered expires; the next day's greeting is a greeting",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف",
+              "expect": {
+                "stateHas": "sie.lastTurnAt"
+              }
+            },
+            {
+              "say": "صباح الخير",
+              "advanceMinutes": 1440,
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "stateLacks": "sie.pendingTicketConfirmation"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.stateHas", "a#2.replyIsNot", "a#2.stateLacks"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.stateHas", "a#2.replyIsNot", "a#2.stateLacks"] }
+      ]
+    },
+    {
+      "id": "REG-H-ticket-status-from-real-data",
+      "finding": "H",
+      "p0": [
+        10,
+        11
+      ],
+      "guarantees": [
+        "G-L7-1",
+        "G-L7-2",
+        "G-L7-6",
+        "G-L5-7"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "title": "A customer with an open ticket who asks for its status is told about that ticket",
+      "world": {
+        "openTickets": [
+          {
+            "ticket_number": 77,
+            "title": "synthetic",
+            "status": "open",
+            "category": "login"
+          }
+        ]
+      },
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ايه حالة التذكرة بتاعتي؟",
+              "expect": {
+                "replyIncludes": "77",
+                "replyIsNot": "DATA_UNAVAILABLE"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIncludes", "a#1.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.replyIncludes", "a#1.replyIsNot"] }
+      ]
+    },
+    {
+      "id": "REG-12-denial-lowers-belief",
+      "finding": "B",
+      "p0": [
+        12
+      ],
+      "guarantees": [
+        "G-L3-2",
+        "G-L3-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "When the customer says the problem is not WhatsApp, WhatsApp is no longer the leading hypothesis",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل"
+            },
+            {
+              "say": "لا المشكلة مش في الواتساب، المشكلة في الايميل",
+              "expect": {
+                "topScenarioNotPrefix": "whatsapp_"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.topScenarioNotPrefix"] }
+      ]
+    },
+    {
+      "id": "REG-13-attachment-reaches-engine",
+      "finding": "E",
+      "p0": [
+        13
+      ],
+      "guarantees": [
+        "G-L5-9"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A screenshot sent after the engine asked for one reaches the engine as evidence (metadata only)",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "action": "ASK_FOR_SCREENSHOT"
+              }
+            },
+            {
+              "say": "اهو السكرين",
+              "attachments": [
+                {
+                  "kind": "image",
+                  "mime": "image/png",
+                  "name": "screen.png"
+                }
+              ],
+              "expect": {
+                "tokensInclude": [
+                  "attachment_image"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.tokensInclude"] }
+      ]
+    },
+    {
+      "id": "REG-K3-every-paid-turn-is-traced",
+      "finding": "K3",
+      "p0": [
+        14
+      ],
+      "guarantees": [
+        "G-L9-1"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "Every paid turn writes exactly one trace, on every route",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "صباح الخير"
+            },
+            {
+              "say": "انت بوت"
+            },
+            {
+              "say": "عايز اتكلم مع موظف"
+            },
+            {
+              "say": "لأ مش دلوقتي"
+            },
+            {
+              "say": "مش بقدر ابعت رسايل للجروبات"
+            }
+          ]
+        }
+      ],
+      "final": {
+        "tracesEqualQuota": true
+      },
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["final.tracesEqualQuota"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["final.tracesEqualQuota"] }
+      ]
+    },
+    {
+      "id": "REG-K1-trace-records-what-was-sent",
+      "finding": "K1",
+      "p0": [
+        14
+      ],
+      "guarantees": [
+        "G-L9-2",
+        "G-L9-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "The trace records the reply actually sent, not the decision's intended text",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM",
+                "traceMatchesReply": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.traceMatchesReply"] }
+      ]
+    },
+    {
+      "id": "REG-K2-shadow-can-agree",
+      "finding": "K2",
+      "p0": [
+        15
+      ],
+      "guarantees": [
+        "G-L9-5"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "title": "When the shadow decides exactly what the live engine decided, the comparison says they agree",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "بكام الاشتراك؟ عايز اعرف الاسعار",
+              "expect": {
+                "shadowAgreed": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production-audit-2026-10", "status": "red", "failingNow": ["a#1.shadowAgreed"] }
+      ]
+    },
+    {
+      "id": "REG-F3-greeting-with-problem-is-diagnosed",
+      "finding": "F3",
+      "p0": [
+        17
+      ],
+      "guarantees": [
+        "G-L1-3"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"Hi, WhatsApp is down\" is diagnosed, not answered as a greeting",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "اهلا الواتساب واقف",
+              "expect": {
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
+      ]
+    },
+    {
+      "id": "REG-F4-role-and-problem-is-diagnosed",
+      "finding": "F4",
+      "p0": [
+        17
+      ],
+      "guarantees": [
+        "G-L1-3",
+        "G-L1-7"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "\"I'm the manager and can't add an employee\" is diagnosed and does not store a fragment as the customer's name",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "انا المدير ومش قادر اضيف موظف",
+              "expect": {
+                "hypothesesNonEmpty": true,
+                "factsExclude": [
+                  {
+                    "key": "name",
+                    "value": "ال"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.factsExclude", "a#1.hypothesesNonEmpty"] }
+      ]
+    },
+    {
+      "id": "REG-I-detail-after-answer-is-not-failure",
+      "finding": "I",
+      "p0": [],
+      "guarantees": [
+        "G-L5-6"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "Adding a detail after an answer is not, by itself, read as \"the solution failed\"",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "رسايل الجروبات مش بتتبعت",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "في جروب العملاء",
+              "expect": {
+                "actionNot": "CREATE_TICKET"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot"] }
+      ]
+    },
+    {
+      "id": "REG-I2-no-rule-is-dead-by-construction",
+      "finding": "I2",
+      "p0": [],
+      "guarantees": [
+        "G-L5-12"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "title": "No decision rule is unreachable by construction (R6C at Infinity)",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "بكام الاشتراك؟ عايز اعرف الاسعار",
+              "expect": {
+                "ruleDetailExcludes": "maxSimultaneousResolvable=Infinity"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.ruleDetailExcludes"] }
+      ]
+    },
+    {
+      "id": "REG-J-multi-problem-message-keeps-its-evidence",
+      "finding": "J",
+      "p0": [],
+      "guarantees": [],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "A genuine customer listing several real problems at once is diagnosed, not quarantined to zero evidence (trust boundary, outside the nine layers; plan priority P2)",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "السلام عليكم، عندي مشكلة من امبارح الواتساب مش بيبعت رسايل للعملاء والاشتراك مدفوع والفاتورة اتخصمت وكمان الموظفين مش قادرين يدخلوا الحساب والداشبورد مش بيحمل والتذاكر مش بتتفتح والرسايل بتتأخر والـ API بيرجع 429 والويبهوك مش بيوصل",
+              "expect": {
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
+      ]
+    }
+  ]
+}

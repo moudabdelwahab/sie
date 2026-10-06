@@ -1,0 +1,113 @@
+# SIE — Guarantee Registry
+
+The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with their current status. This file is **checked by CI** (`sie-integration/tests/guarantees.test.mjs`). It fails when:
+
+- a test references an id that is not registered here;
+- an `enforced` guarantee has no passing evidence. Evidence is one of:
+  - a test whose title carries `[ID]`;
+  - a **green** golden run that lists the id;
+  - an existing test file named in the Evidence column;
+- a `pending` guarantee names no work package;
+- a P0 marked `closed` lacks a green golden run in every test category it requires;
+- a P0's red regression (column *Red regression*) does not exist, or is not red/green as its status says.
+
+**Tag conventions.**
+- `[ID]` in a test title: the test proves the guarantee when it passes.
+- `[pending:ID]`: the test pins today's *violation* of a guarantee that is not yet enforced. It is a red structural test.
+- Golden conversations (`sie-integration/tests/golden/*.json`) list ids in `guarantees`. A red run pins the defect; a green run is evidence.
+
+**Status at the end of WP1:** the test foundation is in place. No P0 is closed. Every P0 has a pinned red regression (a test that fails today, for its declared reason), except P0-16, which is the test infrastructure itself.
+
+## Guarantees
+
+| ID | Layer | Guarantee | Status | WP | Evidence |
+|---|---|---|---|---|---|
+| G-L1-1 | L1 | Lexicon phrases match only on whole Unicode word boundaries or token sequences; no phrase matches inside a longer word. | pending | WP3 | |
+| G-L1-2 | L1 | Tokens in a negation scope are marked; a negated positive signal is never reported as positive. | pending | WP3 | |
+| G-L1-3 | L1 | `diagnosticContent` is true whenever an evidence-bearing token exists; small talk covers the whole message only when none does. | pending | WP3 | |
+| G-L1-4 | L1 | Every option value emitted by Dialogue classifies to its intended polarity. | pending | WP3 | |
+| G-L1-5 | L1 | Plain yes/no words (لا، لأ، اه، آه، أيوه، نعم، yes, no) classify correctly; content without a leading yes/no has no polarity. | pending | WP3 | |
+| G-L1-6 | L1 | No consumer classifies raw text; truncation is visible to every consumer. | pending | WP3 | |
+| G-L1-7 | L1 | On the curated real-problem corpus, no message produces whole-message small talk, a human request, an escalating emotion, a positive resolution or an explicit memory capture. | pending | WP3 | |
+| G-L1-8 | L1 | Normalization is deterministic and total. | pending | WP3 | |
+| G-L2-1 | L2 | No conversational scenario reaches diagnosis or ranking. | pending | WP5 | |
+| G-L2-2 | L2 | Every auto-resolving scenario reaches the configured `answer_confidence` from its own phrasings, under every settings profile. | pending | WP5 | |
+| G-L2-3 | L2 | A scenario needing account data declares a knowledge source L7 can ground, or live tokens L3 can receive. | pending | WP5 | |
+| G-L2-4 | L2 | The published overlay never shrinks the catalog. | enforced | — | `sie/scenarios/tests/scenario-catalog-resolver.test.mjs` |
+| G-L2-5 | L2 | The overlay never contains an unvalidated version. | pending | WP8 | |
+| G-L3-1 | L3 | Evidence from one conversation never contributes to belief in another without the customer's confirmation. | pending | WP5 | |
+| G-L3-2 | L3 | A "no" to a question or to VERIFY, or an explicit denial, emits contradicting evidence that lowers confidence. | pending | WP5 | |
+| G-L3-3 | L3 | A hypothesis driven below the rejection threshold becomes `rejected` and is excluded downstream. | pending | WP5 | |
+| G-L3-4 | L3 | Episodes expire by `lastEvidenceAt`; closing is explicit and leaves an audit record; a new episode starts empty. | pending | WP5 | |
+| G-L3-5 | L3 | Evidence ages within an episode; one conversational token cannot pin a hypothesis forever. | pending | WP5 | |
+| G-L3-6 | L3 | Diagnosis stays deterministic; retrieval is exact; sparse state is equivalent. | enforced | — | `sie/retrieval/tests/equivalence.test.mjs`, `sie/diagnostics/tests/sparse-state.test.mjs` |
+| G-L4-1 | L4 | Rejected or conversational hypotheses are never candidates. | pending | WP5 | |
+| G-L4-2 | L4 | Ambiguity requires both rivals above a data-derived confidence floor. | pending | WP5 | |
+| G-L4-3 | L4 | Alternatives list only candidates at or above activation. | pending | WP5 | |
+| G-L4-4 | L4 | Ordering is deterministic. | enforced | — | `sie/ranking/tests/ranking-engine.test.mjs` |
+| G-L5-1 | L5 | Ticket state records only committed facts: `created` only alongside a `create_ticket` effect; proposals, declines and withheld tickets are distinct states. | pending | WP4 | |
+| G-L5-2 | L5 | Every pending prompt has `expiresAt`; an expired prompt never interprets a message. | pending | WP4 | |
+| G-L5-3 | L5 | yes → exactly one ticket; no → declined + review; content → processed as evidence; unclear → at most one re-ask. | pending | WP4 | |
+| G-L5-4 | L5 | `COMPLETE` + episode close only for an un-negated "resolved" after an `ANSWER`; "unresolved" goes to the R6B path. | pending | WP4 | |
+| G-L5-5 | L5 | No ticket on ambiguity before one clarifying attempt, and never below the L4 floor. | pending | WP5 | |
+| G-L5-6 | L5 | New evidence after an `ANSWER` is not by itself failure. | pending | WP4 | |
+| G-L5-7 | L5 | A knowledge-backed `ANSWER` requires L7 status `verified`. | pending | WP6 | |
+| G-L5-8 | L5 | Never emits an effect the trust envelope forbids; withheld state recorded. | pending | WP4 | |
+| G-L5-9 | L5 | An evidence request is closed by an attachment or a skip; the ticket references the attachment. | pending | WP7 | |
+| G-L5-10 | L5 | Every route is an evaluated rule. | pending | WP4 | |
+| G-L5-11 | L5 | An explicit human request escalates; anger and sarcasm escalate only with intensity and context. | pending | WP4 | |
+| G-L5-12 | L5 | No decision rule is unreachable by construction. R6C is kept only if it shows measurable value (owner decision #5); otherwise it is removed. | pending | WP4 | |
+| G-L6-1 | L6 | Every customer-visible string originates in Dialogue templates. | pending | WP9 | |
+| G-L6-2 | L6 | Template claims are supported by the decision and state (`ticket_exists` ⇒ a ticket exists). | pending | WP9 | |
+| G-L6-3 | L6 | The acknowledgement never contradicts the decision. | pending | WP9 | |
+| G-L6-4 | L6 | Rendering never throws. | enforced | — | `sie/dialogue/tests/dialogue-renderer.test.mjs` |
+| G-L6-5 | L6 | Clarifying questions vary by attempt and reference what is understood. | pending | WP9 | |
+| G-L7-1 | L7 | `verified` only when the source answered with non-empty data. | pending | WP6 | |
+| G-L7-2 | L7 | `unsupported` is distinct from `error`; only `error` may say "try later". | pending | WP6 | |
+| G-L7-3 | L7 | Published DB knowledge is served; knowledge settings change behaviour. | pending | WP6 | |
+| G-L7-4 | L7 | Live reads run under the caller's RLS; no cross-customer data. | pending | WP6 | |
+| G-L7-5 | L7 | Every source is time-bounded; a timeout is `error`. | pending | WP6 | |
+| G-L7-6 | L7 | Ticket and subscription status answer from real rows. | pending | WP6 | |
+| G-L8-1 | L8 | One turn = one commit = one outcome record. | enforced | — | `sie/action/tests/action-layer.test.mjs`, `sie-integration/tests/sie-turn-writer.test.mjs` |
+| G-L8-2 | L8 | Every state write is stamped by the writer on every route. | pending | WP4 | |
+| G-L8-3 | L8 | Quota is charged only for a committed reply. | pending | WP8 | |
+| G-L8-4 | L8 | No component other than Action writes `bot_state`. | pending | WP8 | |
+| G-L8-5 | L8 | The executed effect equals the decided effect. | pending | WP4 | |
+| G-L8-6 | L8 | A failed commit is returned and traced, never swallowed. | pending | WP2 | |
+| G-L9-1 | L9 | Every paid turn has exactly one trace, on every route. | pending | WP2 | |
+| G-L9-2 | L9 | The trace's sent text equals the reply delivered. | pending | WP2 | |
+| G-L9-3 | L9 | Intent and executed outcome are separate trace fields. | pending | WP2 | |
+| G-L9-4 | L9 | With the boundary enabled, every trace carries a trust verdict. | pending | WP2 | |
+| G-L9-5 | L9 | Identical live and shadow decisions compare as agreed. | pending | WP2 | |
+| G-L9-6 | L9 | The learning queue includes escalations, declines, withheld actions, re-contact after close and low-specificity tickets. | pending | WP8 | |
+| G-L9-7 | L9 | Publishing requires a passing validation run or a recorded override (DB-enforced). | pending | WP8 | |
+| G-L9-8 | L9 | Trace write failures are surfaced. | pending | WP2 | |
+| G-BR-1 | orchestrator | The bridge calls the nine layers in order, has one success return path, holds no customer text, no classifier and no state mutation. | pending | WP4 | |
+| T-1 | tests | Settings profiles are valid, and the current production configuration (including the 2026-10-06 mitigations) is a tested profile. | enforced | WP1 | tagged |
+| T-2 | tests | The turn's clock is injectable and is what time-based decisions use; without it, real time applies. | enforced | WP1 | tagged |
+| T-3 | tests | A red regression fails today for exactly its declared reason; a fixed defect cannot stay red; a green run cannot fail. | enforced | WP1 | tagged |
+| T-4 | tests | Every golden conversation runs under a production settings profile. | enforced | WP1 | tagged |
+
+## P0 issues
+
+| P0 | Issue | Required categories | Status | WP | Red regression |
+|---|---|---|---|---|---|
+| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | open | WP3, WP4 | REG-D2-yes-with-content-is-not-a-decline, REG-D3-restated-problem-at-prompt |
+| P0-2 | Arabic word-boundary problems | U, LI, E2E, PS, ADV | open | WP3 | REG-D1-plain-no, REG-D1-plain-yes, REG-F1-install-is-not-anger |
+| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | open | WP3, WP4 | REG-C-not-resolved-is-not-closed, REG-C2-negated-resolution-no-satisfaction-ack |
+| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | open | WP3, WP4 | REG-F1-install-is-not-anger, REG-F2-sincere-praise-is-not-sarcasm, REG-F2b-polite-closing-is-not-anger |
+| P0-5 | Cross-conversation contamination | U, LI, E2E, MT, MS, PS, ADV | open (mitigated by configuration 2026-10-06) | WP5 | REG-B-closing-remark-does-not-cross-chats, REG-B2-status-question-does-not-cross-chats |
+| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-E-no-phantom-ticket |
+| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-D1-plain-no, REG-D1-plain-yes, REG-D1-unclear-reask-is-bounded, REG-D2-yes-with-content-is-not-a-decline, REG-D3-restated-problem-at-prompt, REG-E-no-phantom-ticket |
+| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | open | WP4 | REG-G-pending-prompt-expires |
+| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | open | WP4, WP5 | REG-C-not-resolved-is-not-closed |
+| P0-10 | Knowledge not using live data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
+| P0-11 | Ticket status cannot read real data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
+| P0-12 | Evidence only increases | U, LI, E2E, MT, PS, ADV | open | WP5 | REG-12-denial-lowers-belief |
+| P0-13 | Attachments never reach the engine | U, LI, E2E, MT, PS, ADV | open | WP7 | REG-13-attachment-reaches-engine |
+| P0-14 | Incorrect or incomplete observability | U, LI, E2E, MT, MS, PS | open | WP2, WP8 | REG-K3-every-paid-turn-is-traced, REG-K1-trace-records-what-was-sent |
+| P0-15 | Shadow comparison cannot agree | U, LI, E2E, PS | open (shadow disabled in production 2026-10-06) | WP2 | REG-K2-shadow-can-agree |
+| P0-16 | Production settings not covered by integration tests | LI, E2E, MT, MS, PS, ADV | open (foundation in WP1) | WP1–WP9 | — (T-1, T-4) |
+| P0-17 | Untested conversation controller in `sie-chat-bridge.js` | U, LI, E2E, MT, MS, PS | open | WP4 | REG-F3-greeting-with-problem-is-diagnosed, REG-F4-role-and-problem-is-diagnosed, structure.test.mjs |
+
+Categories: U unit · LI layer integration · E2E full `runSieTurn` · MT multi-turn · MS multi-session · PS production settings · ADV adversarial. A P0 is `closed` only when every required category has passing tests. For the golden-backed categories (E2E, MT, MS, PS, ADV), the meta-test checks this mechanically.

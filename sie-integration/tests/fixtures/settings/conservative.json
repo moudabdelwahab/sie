@@ -1,0 +1,5 @@
+{
+  "description": "Code defaults + the console behaviour profile \"conservative\" (BEHAVIOR_PROFILES). The plan calls this the strict profile.",
+  "behaviorProfile": "conservative",
+  "overrides": {}
+}

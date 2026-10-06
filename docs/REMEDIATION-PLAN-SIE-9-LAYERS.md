@@ -1,6 +1,6 @@
 # SIE — Remediation Plan for the Existing Nine Layers
 
-**Status:** PROPOSED. Awaiting explicit approval. No implementation has started.
+**Status:** APPROVED 2026-10-06 with the recommendations below (§8). Work proceeds one work package at a time; each needs explicit approval. WP1 done; WP2 not started.
 **Basis:** `docs/AUDIT-SIE-9-LAYERS-2026-10.md` (commit `18d602b`). Finding ids (`A`, `B`, `B2`, `C`, … `K3`) refer to the 21 reproductions in `scripts/audit-2026-10/conversations.mjs`, all of which reproduce today.
 **Scope rule:** no Layer 10, no Layer 11, no new architectural layer. The goal is to make the existing nine layers correct and connected as one system. Trust and Retrieval stay as they are today: cross-cutting helpers, not new stages.
 
@@ -573,3 +573,19 @@ WP2 comes before the behavioural fixes on purpose: without complete, truthful tr
 6. **Attachments scope:** metadata only (presence, type, name; no content analysis) is recommended for this phase.
 7. **Cross-repo work:** approve the Mad3oom DB changes in §6 (metering, ticket attachments, RLS verification). Without them, WP7 and WP8 can only be partially completed.
 8. **Behaviour-change rollout:** each behavioural WP ships behind a settings flag (default: current behaviour) with the golden suite run in both states, then is enabled in production after its traces look right (recommended). The alternative is to ship directly.
+
+---
+
+## 8. Owner decisions (approved 2026-10-06)
+
+| # | Decision | Applied in |
+|---|---|---|
+| 1 | `memory_use_past_conversations` disabled in production now. | Done 2026-10-06 12:32 UTC (`sie_settings`), recorded in `sie-integration/tests/fixtures/settings/production.json` |
+| 2 | `shadow_run_enabled` disabled in production now. | Done 2026-10-06 12:32 UTC, same fixture |
+| 3 | The 205 conversational scenarios are tagged and excluded from diagnostic matching, **not deleted**. | WP5 |
+| 4 | Explicit decision actions only where they improve correctness; the vocabulary stays minimal and intentional. | WP4 |
+| 5 | R6C: measure first whether it has value; if not, remove it rather than keep a dead rule (G-L5-12). | WP4 |
+| 6 | `typo-tolerance.js` is **kept** and integrated into glossary/normalization, with tests proving it is useful and safe. | WP3 |
+| 7 | Attachments: metadata only (presence, type, filename); no content analysis. | WP7 |
+| 8 | Mad3oom database changes approved where the plan requires them: truthful quota charging, ticket/attachment handling, customer-scoped live reads. | WP6–WP8 |
+| 9 | Behavioural changes ship behind feature/settings flags wherever practical. | WP2–WP9 |
