@@ -50,6 +50,7 @@ import { decide } from '../decision/decision-engine.js';
 import { openTurn, admitEvidence, admitAction, trustTrace } from '../trust/trust-boundary.js';
 import { migrateState, updateSparseState, expandHypotheses, isSparseState } from '../diagnostics/sparse-state.js';
 import { interpretTurn, interpretationTrace, TURN_KINDS } from './interpretation.js';
+import { analyzeSignals } from '../language/signals.js';
 import { scopeCandidates } from './candidate-scope.js';
 import { evidenceFromQuestionAnswer } from '../diagnostics/question-answer.js';
 import { capEvidenceTokens, freeFloor } from '../editions/edition-turn.js';
@@ -113,13 +114,24 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     const normalized = await normalize(text, {
         previousLanguage: previous?.language || 'ar',
         ...providers,
-        ...(edition ? { glossaryLayers: edition.glossaryLayers || [], maxInputChars: edition.profile.maxMessageChars } : {})
+        ...(edition ? { glossaryLayers: edition.glossaryLayers || [], maxInputChars: edition.profile.maxMessageChars } : {}),
+        typoTolerance: settings.language_typo_tolerance === true
     });
     timings.language = now() - t;
 
     // ── Interpretation ─────────────────────────────────────────
     t = now();
-    const interpretation = interpretTurn({ text, previous, settings });
+    // Layer 1's signals, from the text normalize() kept — the same reading
+    // the bridge routes on (G-L1-6).
+    const signals = analyzeSignals({
+        text: normalized.rawText,
+        tokens: normalized.normalizedTokens,
+        previousText: previous?.lastCustomerText || '',
+        emotionDetection: settings.emotion_detection !== false,
+        truncated: normalized.truncated,
+        receivedChars: normalized.receivedChars
+    });
+    const interpretation = interpretTurn({ signals, previous, settings });
     timings.interpretation = now() - t;
 
     // Non-diagnostic turns stop here. They are still classified and still

@@ -1,0 +1,144 @@
+{
+  "description": "Baseline behaviour that is correct today and must be preserved by every work package. All conversations are synthetic.",
+  "conversations": [
+    {
+      "id": "BASE-01-pricing-from-static-knowledge",
+      "title": "A pricing question is answered from verified static knowledge",
+      "guarantees": [],
+      "categories": ["E2E", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [
+          { "say": "بكام الاشتراك؟ عايز اعرف الاسعار",
+            "expect": { "action": "ANSWER", "scenarioId": "pricing_inquiry", "knowledgeSource": "pricing", "ticketsTotal": 0 } }
+        ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" },
+        { "profile": "conservative", "status": "green" },
+        { "profile": "bold", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-02-greeting",
+      "title": "A greeting on its own gets a greeting and costs exactly one message",
+      "guarantees": [],
+      "categories": ["E2E", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [
+          { "say": "صباح الخير", "expect": { "handled": true, "replyIs": "GREETING", "ticketsTotal": 0, "reviewsTotal": 0 } }
+        ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" },
+        { "profile": "conservative", "status": "green" },
+        { "profile": "bold", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-03-human-request-accepted",
+      "title": "An explicit request for a person, then the confirmation button: one ticket and one hand-off",
+      "guarantees": [],
+      "categories": ["E2E", "MT", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [
+          { "say": "عايز اتكلم مع موظف", "expect": { "replyIs": ["ESCALATION", "TICKET_CONFIRM"], "ticketsTotal": 0, "handoffsTotal": 0 } },
+          { "say": "أيوه افتحلي تذكرة", "expect": { "ticketsTotal": 1, "handoffsTotal": 1, "reviewsTotal": 0 } }
+        ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" },
+        { "profile": "conservative", "status": "green" },
+        { "profile": "bold", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-04-human-request-declined-button",
+      "title": "An explicit request for a person, then the decline button: no ticket, a review and a hand-off",
+      "guarantees": [],
+      "categories": ["E2E", "MT", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [
+          { "say": "عايز اتكلم مع موظف", "expect": { "replyIs": "TICKET_CONFIRM" } },
+          { "say": "لأ مش دلوقتي", "expect": { "replyIs": "DECLINED_REVIEW", "ticketsTotal": 0, "reviewsTotal": 1, "handoffsTotal": 1 } }
+        ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" },
+        { "profile": "conservative", "status": "green" },
+        { "profile": "bold", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-05-context-expiry-follows-the-clock",
+      "title": "Diagnostic context expires by the turn's clock: after the window a greeting asks about the last issue, inside it does not",
+      "guarantees": ["T-2"],
+      "categories": ["E2E", "MT", "PS"],
+      "chats": [
+        { "chat": "expired", "turns": [
+          { "say": "مش قادر ادخل على حسابي", "expect": { "stateHas": "sie.lastTurnAt" } },
+          { "say": "صباح الخير", "advanceMinutes": 300, "expect": { "replyIs": ["GREETING", "LAST_ISSUE"] } }
+        ] },
+        { "chat": "fresh", "advanceMinutesBefore": 1, "turns": [
+          { "say": "مش قادر ادخل على حسابي" },
+          { "say": "صباح الخير", "advanceMinutes": 10, "expect": { "replyIs": "GREETING", "replyIsNot": "LAST_ISSUE" } }
+        ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-06-pipeline-ticket-confirmed",
+      "title": "A confident problem without a stored fix: evidence request, ticket question, then one ticket on yes",
+      "guarantees": [],
+      "categories": ["E2E", "MT", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [
+          { "say": "مش قادر ادخل على حسابي", "expect": { "action": "ASK_FOR_SCREENSHOT", "scenarioId": "login_cannot_access" } },
+          { "say": "مش قادر ادخل على حسابي", "expect": { "action": "CREATE_TICKET", "replyIs": "TICKET_CONFIRM", "ticketsTotal": 0 } },
+          { "say": "أيوه افتحلي تذكرة", "expect": { "ticketsTotal": 1, "reviewsTotal": 0 } }
+        ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" },
+        { "profile": "production-audit-2026-10", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-07-shadow-follows-its-setting",
+      "title": "The shadow run executes only where shadow_run_enabled is on (off in production since 2026-10-06)",
+      "guarantees": ["T-1"],
+      "categories": ["E2E", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [ { "say": "بكام الاشتراك؟ عايز اعرف الاسعار", "expect": { "shadowPresent": false } } ] }
+      ],
+      "runs": [
+        { "profile": "defaults", "status": "green" },
+        { "profile": "production", "status": "green" }
+      ]
+    },
+    {
+      "id": "BASE-08-shadow-runs-when-enabled",
+      "title": "With shadow_run_enabled on (the audited configuration), the shadow record is written",
+      "guarantees": ["T-1"],
+      "categories": ["E2E", "PS"],
+      "chats": [
+        { "chat": "a", "turns": [ { "say": "بكام الاشتراك؟ عايز اعرف الاسعار", "expect": { "shadowPresent": true } } ] }
+      ],
+      "runs": [
+        { "profile": "production-audit-2026-10", "status": "green" }
+      ]
+    }
+  ]
+}

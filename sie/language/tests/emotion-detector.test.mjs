@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     detectEmotion,
-    acknowledgementFor,
     shouldEscalateForEmotion,
-    EMOTION_ACKNOWLEDGEMENT,
     ESCALATING_EMOTIONS
 } from '../emotion-detector.js';
+// The acknowledgement texts moved to Dialogue in WP3 (Layer 1 detects, Dialogue speaks).
+import { acknowledgementFor, EMOTION_ACKNOWLEDGEMENT } from '../../dialogue/templates/conversational.js';
 
 // ── الحالات الست ────────────────────────────────────────────────────
 

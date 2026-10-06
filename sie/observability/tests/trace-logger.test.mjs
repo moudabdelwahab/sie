@@ -170,3 +170,37 @@ test('filterLearningQueue: keeps only flagged entries, each with its reason atta
 test('filterLearningQueue: a non-array input degrades to an empty queue rather than throwing', () => {
     assert.deepEqual(filterLearningQueue(null), []);
 });
+
+// ── WP2: the trace records route, layer status, and sent vs intended text ──
+
+const minimalTraceArgs = () => ({
+    sessionId: 's', turn: 1, rawText: 'x', normalizedTokens: [], diagnosticState: null,
+    ranking: null, decision: { action: 'WAIT_FOR_USER' }, timestamp: '2026-01-01T00:00:00.000Z'
+});
+
+test('[G-L9-2] buildTraceEvent: an explicit null responseText (nothing sent) stays null', () => {
+    const ev = buildTraceEvent({ ...minimalTraceArgs(), responseText: null });
+    assert.equal(ev.responseText, null);
+});
+
+test('[G-L9-2] buildTraceEvent: an omitted responseText keeps the old empty-string default', () => {
+    const ev = buildTraceEvent({ ...minimalTraceArgs() });
+    assert.equal(ev.responseText, '');
+});
+
+test('[G-L9-3] buildTraceEvent: the intended text is kept only when it differs from what was sent', () => {
+    const differs = buildTraceEvent({ ...minimalTraceArgs(), responseText: 'sent', intendedText: 'decided' });
+    assert.equal(differs.intendedText, 'decided');
+    const same = buildTraceEvent({ ...minimalTraceArgs(), responseText: 'sent', intendedText: 'sent' });
+    assert.equal('intendedText' in same, false);
+});
+
+test('[G-L9-3] buildTraceEvent: route and layer statuses are carried when given, absent otherwise', () => {
+    const layers = [{ layer: 'L1', status: 'ran' }];
+    const ev = buildTraceEvent({ ...minimalTraceArgs(), responseText: 'r', route: 'small_talk', layers });
+    assert.equal(ev.route, 'small_talk');
+    assert.deepEqual(ev.layers, layers);
+    const old = buildTraceEvent({ ...minimalTraceArgs(), responseText: 'r' });
+    assert.equal('route' in old, false);
+    assert.equal('layers' in old, false);
+});

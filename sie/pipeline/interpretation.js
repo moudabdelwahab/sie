@@ -59,9 +59,8 @@
  * describing a specific problem — and the old code treated frustration as a
  * small-talk TYPE, which meant an angry problem report lost its problem.
  */
-import { detectSmallTalk } from '../language/small-talk.js';
-import { detectEmotion, shouldEscalateForEmotion, detectResolutionSignal } from '../language/emotion-detector.js';
-import { detectMemoryIntent } from '../language/memory-intent.js';
+import { shouldEscalateForEmotion } from '../language/emotion-detector.js';
+import { analyzeSignals } from '../language/signals.js';
 
 /** The kinds a turn can be. Exhaustive and mutually exclusive. */
 export const TURN_KINDS = Object.freeze({
@@ -86,22 +85,28 @@ export const TURN_KINDS = Object.freeze({
 
 /**
  * @param {Object} params
- * @param {string} params.text                   the raw message
+ * @param {Object} [params.signals]              Layer 1's signals (sie/language/signals.js) —
+ *                                               what the pipeline passes; interpretation never
+ *                                               classifies text itself (G-L1-6)
+ * @param {string} [params.text]                 only when no signals are given (direct callers):
+ *                                               read through analyzeSignals with no tokens
  * @param {Object} [params.previous]             previous SIE state
  * @param {Object} [params.settings]             engine settings
  * @param {string[]} [params.enabledEmotions]
  * @returns {Interpretation}
  */
-export function interpretTurn({ text, previous = null, settings = {}, enabledEmotions = undefined } = {}) {
-    const raw = typeof text === 'string' ? text : '';
-
-    const emotion = settings.emotion_detection === false
-        ? null
-        : detectEmotion(raw, enabledEmotions ? { enabled: enabledEmotions } : undefined);
-
-    const smallTalk = detectSmallTalk(raw);
-    const resolutionSignal = detectResolutionSignal(raw);
-    const memoryIntent = detectMemoryIntent(raw, previous?.lastCustomerText || '');
+export function interpretTurn({ signals = null, text, previous = null, settings = {}, enabledEmotions = undefined } = {}) {
+    const read = signals || analyzeSignals({
+        text: typeof text === 'string' ? text : '',
+        previousText: previous?.lastCustomerText || '',
+        emotionDetection: settings.emotion_detection !== false,
+        enabledEmotions
+    });
+    const { emotion, smallTalk } = read;
+    const resolutionSignal = read.resolution;
+    // Only a message that IS about memory: an explicit request, or an
+    // introduction standing alone (the same rule as the bridge).
+    const memoryIntent = read.memory && (read.memory.explicit || read.memory.standalone) ? read.memory : null;
 
     const base = { emotion, smallTalk, memoryIntent, resolutionSignal, escalatesToHuman: false };
 
@@ -113,7 +118,7 @@ export function interpretTurn({ text, previous = null, settings = {}, enabledEmo
     // 2. Escalation. `wantsHuman` is honoured whatever the settings say —
     //    «يرد على التحيات» is about pleasantries and must not silently
     //    disable an explicit request for a person.
-    const wantsHuman = smallTalk?.type === 'human_request';
+    const wantsHuman = Boolean(read.humanRequest);
     const angerEscalates = shouldEscalateForEmotion(emotion) && settings.ticket_on_anger !== false;
     const legacyFrustration = smallTalk?.type === 'frustration' && settings.ticket_on_anger !== false;
     if (wantsHuman || angerEscalates || legacyFrustration) {
@@ -137,8 +142,8 @@ export function interpretTurn({ text, previous = null, settings = {}, enabledEmo
         return { ...base, kind: TURN_KINDS.RESOLUTION, reason: 'resolution signal after an answer' };
     }
 
-    // 5. Pleasantries.
-    if (smallTalk) {
+    // 5. Pleasantries — only when the pleasantry is the whole message.
+    if (smallTalk?.coversWholeMessage) {
         return { ...base, kind: TURN_KINDS.SMALL_TALK, reason: `small_talk:${smallTalk.type}` };
     }
 

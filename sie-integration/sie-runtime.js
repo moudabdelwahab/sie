@@ -80,7 +80,7 @@ import { parseContentDocument as _parseContentDocument, topTwoShare as _topTwoSh
  * Mad3oom never needs to read this; it exists so a support engineer
  * looking at a console log can tell which runtime a tab is running.
  */
-export const SIE_RUNTIME_VERSION = '2.3.0';
+export const SIE_RUNTIME_VERSION = '2.4.0';
 
 // ===================================================================
 // Chat
@@ -126,6 +126,8 @@ export const SIE_RUNTIME_VERSION = '2.3.0';
  *   client that writes the bot's turn (persist_bot_turn / ticket RPC). The
  *   website passes a server client: since Mad3oom migration 062 the customer's
  *   own role cannot write a bot message. Defaults to `supabase`.
+ * @param {() => number} [params.clock] - epoch milliseconds for the turn's
+ *   time-based decisions. Optional; real time when absent. Tests inject it.
  * @returns {Promise<{
  *   reply: string,
  *   options: Array<{label: string, value: string}>,
@@ -136,10 +138,10 @@ export const SIE_RUNTIME_VERSION = '2.3.0';
  *   quota exhausted, or an internal failure. The caller should fall back
  *   to the traditional engine. Nothing was written in that case.
  */
-export async function getSieReply({ text, supabase, sessionId, userId, botState, writer }) {
+export async function getSieReply({ text, supabase, sessionId, userId, botState, writer, clock }) {
     if (!text || !supabase || !sessionId || !userId) return null;
     try {
-        return await runSieTurn({ text, supabase, sessionId, userId, botState, writer });
+        return await runSieTurn({ text, supabase, sessionId, userId, botState, writer, clock });
     } catch (err) {
         // runSieTurn already catches its own failures; this is the
         // last line of defence so a genuinely unexpected throw (an

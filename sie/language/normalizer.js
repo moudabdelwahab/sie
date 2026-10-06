@@ -27,6 +27,9 @@ import { normalizeArabicToken } from './dialect-normalizer.js';
 import { decideResponseLanguage } from './response-language-policy.js';
 import { technicalGlossaryProvider } from './technical-glossary.local.js';
 import { arabiziMapProvider } from './arabizi-map.local.js';
+import { transpositionDistance } from './typo-tolerance.js';
+import { conversationalWords } from './conversational-lexicon.js';
+import { foldForMatch } from './lexicon-match.js';
 
 /**
  * The hard bound on how much text one message may put through this pipeline.
@@ -716,6 +719,99 @@ function applyGlossaryLayers(tokens, layers, baseEntries) {
     return out;
 }
 
+// ------------------------------------------------------------
+// Typo tolerance — the setting «language_typo_tolerance» (WP3).
+// ------------------------------------------------------------
+
+/**
+ * Corrects a misspelled problem word to the glossary word it was meant to be.
+ *
+ * Owner decision 2026-10-06: keep typo-tolerance.js and integrate it, with
+ * tests proving it is useful and safe (sie/language/tests/typo-integration
+ * .test.mjs, G-L1-9). It runs only when the setting is on, and only on what
+ * nothing else could resolve. Every guard below exists because a wrong
+ * correction is worse than none: it invents evidence the customer never gave.
+ *
+ *   - Only a token the whole pipeline left unresolved (an Arabic word with
+ *     no glossary canonical), never one that resolved — base or edition.
+ *   - Compared without the article: «السلام» and «السبام» share «ال», which
+ *     says nothing about whether they are the same word. The stem must have
+ *     four letters or more — shorter stems are one edit away from too many
+ *     others — and the edit budget follows the stem's length.
+ *   - Not a word the glossary knows, even inside a phrase, and not a word
+ *     Layer 1's conversational lexicon knows (conversational-lexicon.js): a
+ *     known word is not a misspelling.
+ *   - Only towards a PROBLEM-describing canonical (entity_, symptom_, …). A
+ *     conversational word is never "corrected" into a social_ or trigger_
+ *     token, which could change how the turn is routed.
+ *   - At most one edit (a swapped pair counts as one), two for a stem of
+ *     seven letters or more.
+ *   - Same first letter of the stem. Arabic misspellings keep the start of
+ *     the word, and this alone removes most accidental neighbours.
+ *   - A unique best: two glossary words at the same distance with different
+ *     meanings is a guess, and a guess is dropped.
+ *   - source 'typo', which evidence-extractor weighs at 0.75 — below an
+ *     exact (1.0) or an Arabic (0.8) match, level with Arabizi, and at the
+ *     floor the editions' stand-off rule requires of every weight.
+ */
+const TYPO_MIN_STEM = 4;
+const TYPO_TARGET = /^(entity|symptom|intent|http|qualifier|atom)_/;
+const stemOf = (word) => (word.startsWith('ال') && word.length > 2 ? word.slice(2) : word);
+
+function typoIndexOf(derived) {
+    if (derived.typoIndex) return derived.typoIndex;
+    const byLength = new Map();
+    for (const [word, canonical] of derived.wordIndex) {
+        const stem = stemOf(word);
+        if (!TYPO_TARGET.test(canonical) || stem.length < TYPO_MIN_STEM - 2) continue;
+        const list = byLength.get(stem.length) || [];
+        list.push({ stem, canonical });
+        byLength.set(stem.length, list);
+    }
+    derived.typoIndex = byLength;
+    return byLength;
+}
+
+function isKnownWord(word, derived) {
+    const known = conversationalWords();
+    const folded = foldForMatch(word);
+    return derived.vocabulary.has(word) || known.has(folded) || known.has(stemOf(folded))
+        || derived.vocabulary.has(stemOf(word)) || derived.vocabulary.has(`ال${word}`);
+}
+
+function correctTypo(word, derived) {
+    const stem = stemOf(word);
+    if (stem.length < TYPO_MIN_STEM || isKnownWord(word, derived)) return null;
+    const index = typoIndexOf(derived);
+    let best = null;
+    let bestDistance = Infinity;
+    let ambiguous = false;
+    for (let len = stem.length - 2; len <= stem.length + 2; len++) {
+        for (const candidate of index.get(len) || []) {
+            if (candidate.stem[0] !== stem[0]) continue;
+            const distance = transpositionDistance(stem, candidate.stem);
+            if (distance > (candidate.stem.length >= 7 ? 2 : 1)) continue;
+            if (distance < bestDistance) {
+                best = candidate;
+                bestDistance = distance;
+                ambiguous = false;
+            } else if (distance === bestDistance && candidate.canonical !== best.canonical) {
+                ambiguous = true;
+            }
+        }
+    }
+    return best && !ambiguous ? best.canonical : null;
+}
+
+/** @returns {Array} the tokens, with unresolved Arabic words corrected where a guard-passing match exists */
+function applyTypoTolerance(tokens, derived) {
+    return tokens.map((token) => {
+        if (token.source !== 'arabic' || !/[؀-ۿ]/.test(token.canonical)) return token;
+        const canonical = correctTypo(token.canonical, derived);
+        return canonical ? { canonical, source: 'typo', raw: token.raw } : token;
+    });
+}
+
 /**
  * Normalizes one customer message end-to-end.
  *
@@ -725,6 +821,7 @@ function applyGlossaryLayers(tokens, layers, baseEntries) {
  * @param {{getEntries: Function}} [options.glossaryProvider] - defaults to local-JSON provider
  * @param {{getMap: Function}} [options.arabiziProvider] - defaults to local-JSON provider
  * @param {number} [options.maxInputChars] - lower the input bound (never raises it past MAX_INPUT_CHARS)
+ * @param {boolean} [options.typoTolerance=false] - correct a misspelled problem word; see applyTypoTolerance.
  * @param {Array<Array>} [options.glossaryLayers] - edition vocabulary; see applyGlossaryLayers.
  *        Must be a STABLE array (same identity across calls): derived indexes are cached on it.
  * @returns {Promise<{
@@ -739,7 +836,8 @@ export async function normalize(text, options = {}) {
         glossaryProvider = technicalGlossaryProvider,
         arabiziProvider = arabiziMapProvider,
         maxInputChars = MAX_INPUT_CHARS,
-        glossaryLayers = null
+        glossaryLayers = null,
+        typoTolerance = false
     } = options;
 
     // COERCED, not assumed. `text` arrives from a channel webhook's JSON, and
@@ -874,14 +972,19 @@ export async function normalize(text, options = {}) {
     });
 
     const baseTokens = foldNormalizedPhrases(normalizedTokens, normalizedPhraseIndex, maxPhraseWords, normalizedVocabulary);
+    // Edition vocabulary is applied AFTER the base pipeline has finished,
+    // to base-unresolved tokens only — see applyGlossaryLayers.
+    const layeredTokens = Array.isArray(glossaryLayers) && glossaryLayers.length
+        ? applyGlossaryLayers(baseTokens, glossaryLayers, glossaryEntries)
+        : baseTokens;
 
     return {
         rawText,
-        // Edition vocabulary is applied AFTER the base pipeline has finished,
-        // to base-unresolved tokens only — see applyGlossaryLayers.
-        normalizedTokens: Array.isArray(glossaryLayers) && glossaryLayers.length
-            ? applyGlossaryLayers(baseTokens, glossaryLayers, glossaryEntries)
-            : baseTokens,
+        // Typo correction is the LAST step, so an exact match — base or
+        // edition — always wins over a guess.
+        normalizedTokens: typoTolerance === true
+            ? applyTypoTolerance(layeredTokens, deriveGlossary(glossaryEntries))
+            : layeredTokens,
         responseLanguage,
         // Additive: existing callers ignore it, and a caller that cares (the
         // trust layer's size sensor, the trace) can see that the text it is

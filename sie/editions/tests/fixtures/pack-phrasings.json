@@ -290,6 +290,10 @@
       "يعني ايه مجتمع مدعوم"
     ],
     [
+      "account_community_about",
+      "مجتمع مدعوم ده ايه"
+    ],
+    [
       "account_roadmap_meaning",
       "خارطة الطريق والحالات اللي فيها معناها ايه"
     ],
@@ -802,17 +806,13 @@
       "الوضع الليلي بيرجع فاتح لوحده كل ما افتح"
     ]
   ],
-  "known_limits": [
-    {
-      "pack": "pro",
-      "expect": "account_community_about",
-      "text": "مجتمع مدعوم ده ايه",
-      "actualKind": "small_talk",
-      "why": "Base small-talk reads the suffix «مدعوم ده ايه» as a platform question and answers with the platform introduction before diagnosis runs. Left as is: changing small-talk would change Free, which has no community scenario to fall back to. Other phrasings of the same question reach the scenario."
-    }
-  ],
-  "note_heldout": "pro_heldout: one independent paraphrase for each of the 51 pack phrasings that share >= 75% of their words with the scenario's own label (34 were identical). Written to AVOID the label's wording. Held out: the pack is never tuned against them; the landing rate is measured and pinned as a floor (pack-phrasings.test.mjs), never forced to 100%. @no-legitimate-corpus",
+  "known_limits": [],
+  "note_heldout": "pro_heldout: one independent paraphrase for each of the pack phrasings that share >= 75% of their words with the scenario's own label (51 at first, 34 of them identical; 52 since WP3 moved «مجتمع مدعوم ده ايه» back from known_limits). Written to AVOID the label's wording. Held out: the pack is never tuned against them; the landing rate is measured and pinned as a floor (pack-phrasings.test.mjs), never forced to 100%. @no-legitimate-corpus",
   "pro_heldout": [
+    [
+      "account_community_about",
+      "فيه منتدى او جروب للعملاء اللي بيستخدموا المنصة نتكلم فيه مع بعض؟"
+    ],
     [
       "ticket_reply_did_not_change_status",
       "بعت رد للدعم بس التذكرة لسه زي ما هي مااتحركتش"

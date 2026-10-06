@@ -103,7 +103,18 @@ import { buildTurnWriterClient } from '../_shared/supabase-client.ts';
 //
 // ddd62a9 (Phase 3: the turn is written by a server client) measured 2026-09-29
 // beside 39b31a6: 135-179 ms (130-142 ms). Only which client makes two RPCs changed.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@ddd62a90b3d2c04e4cc993a614668cad3637cce8/sie-integration/sie-runtime.js';
+//
+// 77210d9 (WP2: one trace per paid turn, intent vs outcome) measured 2026-10-06 beside
+// ddd62a9, fresh process per run, 4 runs each, CPU = import + first turn:
+// Free 153-168 ms / Max 173-217 ms (ddd62a9: 139-277 / 170-288 ms). Short-circuit
+// routes now await one extra trace insert (I/O, not CPU).
+//
+// d2bff13 (WP3: Layer-1 language primitives) measured 2026-10-06 beside 77210d9,
+// fresh process per run, 5 runs each, CPU = import + first turn through the
+// test runtime (harness overhead included): Free 183-216 ms / Max 213-238 ms
+// (77210d9 on the same harness: 177-188 / 206-227 ms). Signals add ~0.1 ms per
+// message on average, ~4 ms for an 8,000-character message.
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@d2bff133d478117a5d71532f99ed4f9044e5f261/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;

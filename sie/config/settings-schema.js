@@ -249,6 +249,13 @@ export const SETTINGS = Object.freeze([
         effect: 'diagnostic-engine + ranking-engine: activation threshold'
     },
     {
+        key: 'language_typo_tolerance', group: 'diagnosis', type: 'boolean', default: false,
+        title: 'يفهم الكلمات المكتوبة غلط',
+        desc: 'لو العميل كتب كلمة فنية بحرف ناقص أو زيادة زي «الوتساب»، المحرك يفهمها على إنها «الواتساب». '
+            + 'بيصحح الكلمات اللي ملهاش معنى عنده بس، ووزنها في التشخيص أقل من الكلمة المكتوبة صح.',
+        effect: 'normalizer: typoTolerance (applyTypoTolerance), evidence weight typo=0.75'
+    },
+    {
         key: 'auto_request_more_info', group: 'diagnosis', type: 'boolean', default: true,
         title: 'يطلب معلومات إضافية لوحده',
         desc: 'يطلب صورة أو رقم أو تفاصيل لما يحتاجها عشان يقدر يشخّص صح.',

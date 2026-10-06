@@ -84,7 +84,9 @@ export function createRealSupabasePort(supabaseClient, { writer } = {}) {
             turn,
             normalized_tokens: {
                 rawText: traceEvent?.rawText ?? null,
-                canonicals: traceEvent?.normalizedTokenCanonicals ?? []
+                canonicals: traceEvent?.normalizedTokenCanonicals ?? [],
+                // Layer 1's reading (WP3), in the same jsonb: no schema change.
+                ...(traceEvent?.language ? { language: traceEvent.language } : {})
             },
             hypotheses: traceEvent?.hypothesesSnapshot ?? [],
             // trust / shadow / engine ride in the ranking column: they were
@@ -96,11 +98,20 @@ export function createRealSupabasePort(supabaseClient, { writer } = {}) {
                 ...(traceEvent?.rankingSnapshot ?? {}),
                 ...(traceEvent?.trust ? { trust: traceEvent.trust } : {}),
                 ...(traceEvent?.shadow ? { shadow: traceEvent.shadow } : {}),
-                ...(traceEvent?.engine ? { engine: traceEvent.engine } : {})
+                ...(traceEvent?.engine ? { engine: traceEvent.engine } : {}),
+                // Which route the turn took and each layer's status on it (WP2).
+                ...(traceEvent?.route ? { route: traceEvent.route } : {}),
+                ...(traceEvent?.layers ? { layers: traceEvent.layers } : {})
             },
             decision: traceEvent?.decision ?? {},
             knowledge_data: traceEvent?.decision?.knowledgeData ?? null,
-            rendered: { responseText: traceEvent?.responseText ?? '', options: renderedOptions ?? [] },
+            // responseText is what was SENT (null when nothing was); the
+            // decision's own text is kept as intendedText when it differs.
+            rendered: {
+                responseText: traceEvent?.responseText === null ? null : (traceEvent?.responseText ?? ''),
+                options: renderedOptions ?? [],
+                ...(traceEvent?.intendedText ? { intendedText: traceEvent.intendedText } : {})
+            },
             action_result: actionResult,
             response_language: responseLanguage,
             processing_time_ms: processingTimeMs

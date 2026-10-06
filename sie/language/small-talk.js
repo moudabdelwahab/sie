@@ -51,16 +51,23 @@
  *    those phrasings tend to run a few words longer. A message over
  *    its category's cap is left completely untouched for the normal
  *    pipeline — this module never discards real diagnostic evidence.
- *  - Matching is plain substring inclusion (not regex): every entry is
- *    literal Arabic text, so this stays trivial to keep extending with
- *    more real phrases without needing to know regex syntax. Elongated
- *    spellings ("مرحبااا") still match their base phrase ("مرحبا")
- *    since it's a prefix of the elongated form.
- *  - Never inspects normalizedTokens or evidence — this runs before
- *    any of that, purely on the customer's raw text.
+ *  - Matching is whole words (sie/language/lexicon-match.js, WP3): the
+ *    entries stay literal Arabic text, but a phrase only matches as whole
+ *    words, never inside a longer one («هلا» is not in «الاستهلاك»), and a
+ *    negated phrase does not count («مش عايز اتكلم مع موظف» is not a
+ *    request for one). Stretched spellings («مرحبااا») are folded first.
+ *  - `coversWholeMessage` says whether the pleasantry IS the message.
+ *    It is false when the message carries diagnostic content (a glossary
+ *    token that describes a problem), and false when any word is left
+ *    over that neither a small-talk phrase nor a filler word explains:
+ *    «اهلا الواتساب واقف» is a greeting AND an outage, and the outage must
+ *    reach diagnosis. Only a whole-message pleasantry may be answered
+ *    instead of diagnosed (G-L1-3).
  */
 
-const CATEGORIES = [
+import { analyzeMessage, findPhrase, phraseWords } from './lexicon-match.js';
+
+export const SMALL_TALK_CATEGORIES = [
     {
         type: 'human_request',
         maxWords: 8,
@@ -203,62 +210,55 @@ const CATEGORIES = [
     }
 ];
 
+/** Words that carry no content of their own inside a pleasantry. Folded. */
+export const FILLER_WORDS = Object.freeze(new Set([
+    'يا', 'و', 'انا', 'انت', 'انتي', 'انتوا', 'حضرتك', 'بجد', 'اوي', 'قوي', 'جدا', 'خالص', 'كده', 'ده', 'دي',
+    'والله', 'لو', 'سمحت', 'سمحتي', 'بس', 'ياريت', 'الله', 'عليك', 'عليكم', 'ليك', 'ليكي', 'لك', 'يعني', 'طيب',
+    'اه', 'ايوه', 'تمام', 'ماشي', 'اوك', 'اوكي', 'كمان', 'برضه', 'هنا', 'please', 'pls', 'hi', 'hello', 'ok', 'thanks', 'thank', 'you'
+]));
+
+const PHRASE_WORDS = SMALL_TALK_CATEGORIES.map((category) => ({
+    type: category.type,
+    maxWords: category.maxWords,
+    phrases: category.phrases.map((phrase) => ({ phrase, words: phraseWords(phrase) }))
+}));
+
+/** Every word is inside some small-talk phrase, is a filler word, or is addressed («يا باشا»). */
+function coversEveryWord(analysis) {
+    const covered = new Array(analysis.words.length).fill(false);
+    for (const category of PHRASE_WORDS) {
+        for (const { words } of category.phrases) {
+            for (const hit of findPhrase(analysis, words)) {
+                if (hit.negated) continue;
+                for (let i = hit.start; i < hit.end; i++) covered[i] = true;
+            }
+        }
+    }
+    return analysis.words.every((w, i) => covered[i] || FILLER_WORDS.has(w) || analysis.words[i - 1] === 'يا');
+}
+
 /**
- * @param {string} rawText - the customer's raw message, before normalization
- * @returns {{ type: 'human_request'|'frustration'|'identity'|'platform_info'|'greeting'|'farewell'|'apology'|'wellbeing'|'compliment' } | null}
+ * @param {string} rawText - the text Layer 1 read (normalize()'s rawText)
+ * @param {Object} [options]
+ * @param {boolean} [options.diagnosticContent] - whether the message carries a problem token
+ * @param {Object} [options.analysis] - analyzeMessage(rawText), when the caller already has it
+ * @returns {{ type: 'human_request'|'frustration'|'identity'|'platform_info'|'greeting'|'farewell'|'apology'|'wellbeing'|'compliment', matched: string, coversWholeMessage: boolean } | null}
  */
-export function detectSmallTalk(rawText) {
-    const text = String(rawText || '').trim();
-    if (!text) return null;
+export function detectSmallTalk(rawText, { diagnosticContent = false, analysis = null } = {}) {
+    const a = analysis || analyzeMessage(rawText);
+    const wordCount = a.words.length;
+    if (wordCount === 0) return null;
 
-    const wordCount = text.split(/\s+/).filter(Boolean).length;
-
-    for (const category of CATEGORIES) {
+    for (const category of PHRASE_WORDS) {
         if (wordCount > category.maxWords) continue;
-        if (category.phrases.some((phrase) => text.includes(phrase))) return { type: category.type };
+        const match = category.phrases.find(({ words }) => findPhrase(a, words).some((hit) => !hit.negated));
+        if (!match) continue;
+        return {
+            type: category.type,
+            matched: match.phrase,
+            coversWholeMessage: !diagnosticContent && coversEveryWord(a)
+        };
     }
     return null;
 }
 
-/**
- * Bilingual canned replies for each detected small-talk type. Kept here
- * (not in sie/dialogue/templates/) since these never go through
- * renderDecision()/a Decision object at all — sie-chat-bridge.js uses
- * them directly in its short-circuit, the same way it already does for
- * TICKET_CONFIRM_TEXT/TICKET_DECLINE_TEXT.
- *
- * human_request and frustration have no entries here: sie-chat-bridge.js
- * routes both into a real ESCALATE_TO_HUMAN Decision (not a plain
- * WAIT_FOR_USER reply), with their own text kept next to that flow in
- * sie-chat-bridge.js instead of duplicated here.
- */
-export const SMALL_TALK_REPLIES = {
-    identity: {
-        ar: 'أنا المساعد الآلي بتاع مدعوم، وهساعدك تحل أي مشكلة تقنية أو استفسار عن حسابك. وضّحلي المشكلة اللي حضرتك واجهتها ونكمل [[icon:smile]]',
-        en: "I'm Mad3oom's automated support assistant, and I can help with technical issues or questions about your account. What's going on? [[icon:smile]]"
-    },
-    platform_info: {
-        ar: 'مدعوم منصة بتساعد الشركات تدير خدمة العملاء والواتساب بتاعها في مكان واحد، وأنا المساعد الآلي بتاعها بجاوب على استفساراتك التقنية. عندك مشكلة معينة تحب أساعدك فيها؟ [[icon:smile]]',
-        en: "Mad3oom is a platform that helps businesses manage their customer support and WhatsApp in one place, and I'm its automated assistant for technical questions. Is there a specific issue I can help you with? [[icon:smile]]"
-    },
-    greeting: {
-        ar: 'أهلاً بيك! أنا هنا عشان أساعدك في أي مشكلة تقنية أو استفسار عن مدعوم — قولّي التفاصيل وهساعدك [[icon:smile]]',
-        en: "Hi there! I'm here to help with any technical issue or question about Mad3oom — tell me what's going on and I'll help [[icon:smile]]"
-    },
-    farewell: {
-        ar: 'العفو! لو احتجت أي حاجة تانية أنا موجود في أي وقت [[icon:smile]]',
-        en: "You're welcome! I'm here anytime you need anything else [[icon:smile]]"
-    },
-    apology: {
-        ar: 'معلش، مفيش داعي تعتذر! أنا هنا عشان أساعدك — كمل معايا [[icon:smile]]',
-        en: "No worries at all, no need to apologize! I'm here to help — go ahead [[icon:smile]]"
-    },
-    wellbeing: {
-        ar: 'تمام الحمد لله، شكرًا لسؤالك! تحب أساعدك في مشكلة معينة؟ [[icon:smile]]',
-        en: "I'm doing well, thanks for asking! Is there something I can help you with? [[icon:smile]]"
-    },
-    compliment: {
-        ar: 'شكرًا ليك! سعيد إني قدرت أساعدك. محتاج حاجة تانية؟ [[icon:smile]]',
-        en: "Thank you! Glad I could help. Anything else you need? [[icon:smile]]"
-    }
-};

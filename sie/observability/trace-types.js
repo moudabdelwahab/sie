@@ -23,6 +23,8 @@
  * @property {string} rawText - the customer's raw message this turn (empty string for a silent turn)
  * @property {string[]} normalizedTokenCanonicals - the canonical tokens Module 1 produced, for
  *   replay/debugging without needing the full NormalizedToken objects
+ * @property {Object} [language] - Layer 1's reading (WP3): {truncated, receivedChars, diagnosticContent,
+ *   smallTalk, emotion, resolution, memory, replyPolarity} — signalsTrace() in sie/language/signals.js
  * @property {HypothesisSnapshot[]} hypothesesSnapshot - Module 3's active/rejected hypotheses
  *   after this turn (a compact projection, not the full DiagnosticState)
  * @property {RankingSnapshot} rankingSnapshot - Module 4's summary for this turn
@@ -47,7 +49,7 @@ export function checkTraceEventShape(trace) {
     if (!Array.isArray(trace.hypothesesSnapshot)) problems.push('hypothesesSnapshot must be an array');
     if (!trace.rankingSnapshot || typeof trace.rankingSnapshot !== 'object') problems.push('rankingSnapshot must be an object');
     if (!trace.decision || typeof trace.decision !== 'object') problems.push('decision must be an object');
-    if (typeof trace.responseText !== 'string') problems.push('responseText must be a string');
+    if (typeof trace.responseText !== 'string' && trace.responseText !== null) problems.push('responseText must be a string, or null when nothing was sent');
     if (typeof trace.timestamp !== 'string' || trace.timestamp.trim() === '') problems.push('timestamp must be a non-empty string');
     return problems;
 }

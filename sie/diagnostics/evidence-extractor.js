@@ -20,12 +20,21 @@
  *    Arabic words can be polysemous, so slightly less than glossary)
  *  - arabizi (transliteration-resolved): 0.75  (adds a small amount of
  *    uncertainty from the transliteration step itself)
+ *  - typo (a misspelling the normalizer corrected, only with the setting
+ *    language_typo_tolerance on): 0.75  (a guess, however well guarded —
+ *    the floor every evidence weight must respect, see editions/stand-off.js)
  */
 
 export const BASE_WEIGHT_BY_SOURCE = {
     glossary: 1.0,
     arabic: 0.8,
-    arabizi: 0.75
+    arabizi: 0.75,
+    // A word the normalizer corrected from a misspelling (setting
+    // «language_typo_tolerance», off by default). Below an exact or an
+    // Arabic match, and no lower than 0.75: the editions' stand-off rule
+    // relies on every evidence weight being ≥ OBSERVED_PRESENCE_MIN (0.75,
+    // sie/editions/stand-off.js), so a lower weight would make it under-check.
+    typo: 0.75
 };
 
 const EVIDENCE_BEARING_SOURCES = new Set(Object.keys(BASE_WEIGHT_BY_SOURCE));

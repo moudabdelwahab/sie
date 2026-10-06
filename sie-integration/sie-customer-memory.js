@@ -107,12 +107,13 @@ export async function findOpenTicket(supabase, userId, category) {
  * @param {string} userId
  * @param {string} currentSessionId
  * @param {number} withinMinutes - anything older is treated as a different problem
+ * @param {number} [nowMs] - the turn's clock reading; defaults to real time
  * @returns {Promise<Object|null>}
  */
-export async function recallPreviousSession(supabase, userId, currentSessionId, withinMinutes = 1440) {
+export async function recallPreviousSession(supabase, userId, currentSessionId, withinMinutes = 1440, nowMs = Date.now()) {
     if (!userId) return null;
     try {
-        const since = new Date(Date.now() - withinMinutes * 60000).toISOString();
+        const since = new Date(nowMs - withinMinutes * 60000).toISOString();
         const { data, error } = await supabase
             .from('chat_sessions')
             .select('id, bot_state, updated_at')

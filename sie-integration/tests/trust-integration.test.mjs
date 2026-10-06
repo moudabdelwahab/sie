@@ -239,8 +239,11 @@ test('bridge: every checkpoint is wired, and CP1 precedes the memory path', asyn
     }
 
     // CP1 must run before the memory path, which can write durable state and
-    // return without ever reaching diagnosis.
-    assert.ok(source.indexOf('openTurn(') < source.indexOf('detectMemoryIntent('),
+    // return without ever reaching diagnosis. (Since WP3 the memory intent is
+    // detected by Layer 1 with every other signal; the path that WRITES is
+    // the handleMemoryIntent call.)
+    assert.ok(source.indexOf('await handleMemoryIntent(') > 0, 'the memory path call site exists');
+    assert.ok(source.indexOf('openTurn(') < source.indexOf('await handleMemoryIntent('),
         'CP1 must be classified before the memory path can write anything');
 
     // CP3b must run after the article rescue, which can change the action. An

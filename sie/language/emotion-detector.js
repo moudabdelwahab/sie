@@ -45,12 +45,18 @@
  * ------------------------------------------------------------
  * MATCHING
  *
- * Substring matching on the RAW text, same as small-talk.js, for the
- * same reason: these are conversational phrases whose meaning survives
- * clitics and typos poorly, and normalizing first would strip the very
- * markers ("!!!", repeated letters) that carry the tone. Egyptian
- * Arabic first, MSA where it is what people actually type.
+ * Whole words on the folded text (sie/language/lexicon-match.js, WP3), never
+ * substrings: «نصب» (fraud) is not in «انصب» (install), which the audit
+ * found routing "how do I install WhatsApp Business" to a human as anger.
+ * A phrase inside a negation scope does not count («مش مستعجل», «ما
+ * اشتغلش»), and a positive phrase (thanks, satisfaction) in a question or a
+ * condition is not asserted («لما اشتغل على الموبايل بيقفل»). Tone markers
+ * ("!!!", stretched letters) are still read off the text itself, because
+ * they ARE the tone. Egyptian Arabic first, MSA where it is what people
+ * actually type.
  */
+
+import { analyzeMessage, findPhrase, phraseWords } from './lexicon-match.js';
 
 /**
  * @typedef {'anger'|'frustration'|'urgency'|'sarcasm'|'thanks'|'satisfaction'} Emotion
@@ -69,7 +75,7 @@
  * كتب بحروف مكررة (زي "خلااااص")، لأن دي إشارات نبرة حقيقية في الكتابة
  * العربية اليومية.
  */
-const CATEGORIES = [
+export const EMOTION_CATEGORIES = [
     {
         emotion: 'sarcasm',
         negative: true,
@@ -116,7 +122,7 @@ const CATEGORIES = [
             'كل مرة نفس المشكلة', 'كل شوية نفس المشكلة', 'تاني نفس المشكلة',
             'نفس المشكلة من اسبوع', 'من اسبوع وانا بحاول', 'من كام يوم وانا بحاول',
             'مفيش فايدة', 'ملهاش حل', 'مش لاقي حل', 'تعبت خلاص',
-            'زهقت', 'زهقان', 'قرفت', 'مليت', 'يأست', 'استسلمت',
+            'زهقت', 'زهقان', 'زهقانة', 'قرفت', 'مليت', 'يأست', 'استسلمت',
             'محدش بيرد عليا', 'محدش رد عليا', 'مبعتلكم كذا مرة',
             'بعتلكم كذا مرة', 'كلمتكم كذا مرة', 'جربت كل حاجة',
             'عملت كل اللي قلتوه', 'عملت كل الخطوات وبرضه',
@@ -198,6 +204,14 @@ export function foldForMatch(text) {
         .trim();
 }
 
+/** Each lexicon's phrases split into words once, not on every message. */
+const SPLIT = new WeakMap();
+function wordsOf(category) {
+    let words = SPLIT.get(category);
+    if (!words) { words = category.phrases.map(phraseWords); SPLIT.set(category, words); }
+    return words;
+}
+
 /** علامات نبرة في الكتابة نفسها، بتزوّد شدة الحالة. */
 function toneBoost(text) {
     let boost = 0;
@@ -214,19 +228,22 @@ function toneBoost(text) {
  *   لو مااتبعتش، كل الحالات شغّالة.
  * @returns {EmotionSignal|null}
  */
-export function detectEmotion(rawText, { enabled } = {}) {
+export function detectEmotion(rawText, { enabled, analysis = null } = {}) {
     const text = String(rawText || '').trim();
     if (!text) return null;
 
     const allowed = enabled ? (enabled instanceof Set ? enabled : new Set(enabled)) : null;
     const boost = toneBoost(text);
-    // Tone markers are read off the RAW text (they are punctuation), but
-    // phrase matching happens on the folded form.
-    const folded = foldForMatch(text);
+    // Tone markers are read off the text (they are punctuation), but phrase
+    // matching happens on whole folded words.
+    const a = analysis || analyzeMessage(text);
 
-    for (const category of CATEGORIES) {
+    for (const category of EMOTION_CATEGORIES) {
         if (allowed && !allowed.has(category.emotion)) continue;
-        const matched = category.phrases.find((phrase) => folded.includes(foldForMatch(phrase)));
+        // A negated phrase is not that emotion («مش مستعجل»). A positive one
+        // must also be asserted: a thank-you in a question is not a thank-you.
+        const counts = (hit) => !hit.negated && (category.negative || hit.asserted);
+        const matched = category.phrases.find((phrase, i) => findPhrase(a, wordsOf(category)[i]).some(counts));
         if (!matched) continue;
         return {
             emotion: category.emotion,
@@ -236,52 +253,6 @@ export function detectEmotion(rawText, { enabled } = {}) {
         };
     }
     return null;
-}
-
-/**
- * جملة الاعتراف بحالة العميل. بتتحط قدّام رد المحرك العادي، مش بدله —
- * عشان العميل يحس إن حد سمعه من غير ما يضيع الحل.
- *
- * Deliberately NOT a full reply and NOT a question. A question here
- * would cost the customer a turn to answer something that adds no
- * diagnostic information, and the pipeline is about to ask its own.
- */
-export const EMOTION_ACKNOWLEDGEMENT = Object.freeze({
-    anger: {
-        ar: 'أنا آسف بجد على اللي حصل، وده مش المستوى اللي المفروض تلاقيه. خليني أشوفلك حل حالًا.',
-        en: "I'm genuinely sorry about this — it isn't the standard you should be getting. Let me sort it out right now."
-    },
-    frustration: {
-        ar: 'معلش والله، وأنا حاسس إن الموضوع طوّل معاك. خليني أحاول أساعدك بجد المرة دي.',
-        en: "I'm sorry this has dragged on. Let me actually get it sorted for you this time."
-    },
-    urgency: {
-        ar: 'تمام، فاهم إن الموضوع مستعجل — هختصر على طول.',
-        en: "Understood, this is urgent — I'll get straight to it."
-    },
-    sarcasm: {
-        ar: 'واضح إن التجربة كانت مضايقة، وده حقك تمامًا. خليني أعوّضك بحل سريع.',
-        en: "I can tell this has been a bad experience, and that's fair. Let me make it right quickly."
-    },
-    thanks: {
-        ar: 'العفو، ده واجبي.',
-        en: "You're very welcome."
-    },
-    satisfaction: {
-        ar: 'تمام، مبسوط إنها ظبطت معاك.',
-        en: 'Great — glad that sorted it.'
-    }
-});
-
-/**
- * @param {Emotion} emotion
- * @param {'ar'|'en'} [language]
- * @returns {string|null}
- */
-export function acknowledgementFor(emotion, language = 'ar') {
-    const entry = EMOTION_ACKNOWLEDGEMENT[emotion];
-    if (!entry) return null;
-    return entry[language === 'en' ? 'en' : 'ar'];
 }
 
 /**
@@ -300,35 +271,55 @@ export function acknowledgementFor(emotion, language = 'ar') {
  * normal reasoning rather than acting on a guess about how the customer
  * feels.
  */
-const RESOLVED_PHRASES = [
-    'تم الحل', 'اتحلت', 'المشكلة اتحلت', 'خلاص اتحلت', 'حلت', 'تمت',
+export const RESOLVED_PHRASES = [
+    // «تمت» alone is NOT here: «تمت عملية الدفع بس الاشتراك مش ظاهر» says the
+    // payment went through, not that the problem is solved.
+    'تم الحل', 'اتحلت', 'المشكلة اتحلت', 'خلاص اتحلت', 'حلت',
     'تم، شكرا', 'تم شكرا', 'تمام شكرا', 'شكرا تم', 'تمام كده',
     'اشتغلت', 'اشتغل', 'ضبطت', 'ظبطت', 'تظبطت', 'بقى شغال', 'شغال دلوقتي',
-    'الحمد لله اشتغلت', 'الحمد لله ضبطت', 'ماشي كده', 'كده تمام', 'كده مظبوط'
+    'الحمد لله اشتغلت', 'الحمد لله ضبطت', 'ماشي كده', 'كده تمام', 'كده مظبوط',
+    // English, so the English «did that solve it?» buttons round-trip (G-L1-4).
+    'resolved', 'solved', 'fixed', 'it works', 'it worked', 'works now', 'working now'
 ];
 
-const UNRESOLVED_PHRASES = [
+export const UNRESOLVED_PHRASES = [
     'المشكلة لسه موجودة', 'لسه عندي نفس المشكلة', 'لسه نفس المشكلة',
     'لسه المشكلة موجودة', 'لسه مش شغال', 'برضه مش شغال', 'مازالت المشكلة',
     'لسه مش ظابط', 'لسه مش ضابط', 'الحل مانفعش', 'مانفعش', 'ماظبطش',
-    'جربت ومانفعش', 'عملت كده ومانفعش'
+    'جربت ومانفعش', 'عملت كده ومانفعش',
+    'still having the issue', 'still having the same issue', 'still not working', 'not working',
+    'still broken', 'didnt work', 'doesnt work', 'not fixed', 'not resolved'
 ];
+
+const RESOLVED_WORDS = RESOLVED_PHRASES.map(phraseWords);
+const UNRESOLVED_WORDS = UNRESOLVED_PHRASES.map(phraseWords);
 
 /**
  * @param {string} rawText
  * @returns {'resolved'|'unresolved'|null}
  */
-export function detectResolutionSignal(rawText) {
+export function detectResolutionSignal(rawText, { analysis = null } = {}) {
     const text = String(rawText || '').trim();
     if (!text) return null;
+    const a = analysis || analyzeMessage(text);
 
-    // Unresolved is checked FIRST because "لسه عندي نفس المشكلة" and
-    // "الحل مانفعش" both contain words that also appear in resolved
-    // phrases. The customer saying it is still broken must always win.
-    const folded = foldForMatch(text);
-    if (UNRESOLVED_PHRASES.some((phrase) => folded.includes(foldForMatch(phrase)))) return 'unresolved';
-    if (RESOLVED_PHRASES.some((phrase) => folded.includes(foldForMatch(phrase)))) return 'resolved';
-    return null;
+    // Unresolved is checked FIRST: the customer saying it is still broken
+    // must always win over anything else in the same message.
+    if (UNRESOLVED_WORDS.some((words) => findPhrase(a, words).length > 0)) return 'unresolved';
+
+    // Every "it worked" that is asserted (not asked, not conditional). The
+    // LAST one decides: «ما اشتغلش الأول بس دلوقتي اشتغل» ends solved, «اشتغل
+    // يوم وبعدين ما اشتغلش» ends broken. A negated "it worked" is a
+    // statement that it did not (G-L1-2).
+    let last = null;
+    for (const words of RESOLVED_WORDS) {
+        for (const hit of findPhrase(a, words)) {
+            if (!hit.asserted) continue;
+            if (!last || hit.start > last.start) last = hit;
+        }
+    }
+    if (!last) return null;
+    return last.negated ? 'unresolved' : 'resolved';
 }
 
 /** الحالات اللي المفروض توصّل العميل لموظف بشري على طول. */

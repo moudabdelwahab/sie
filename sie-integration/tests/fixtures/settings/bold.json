@@ -1,0 +1,5 @@
+{
+  "description": "Code defaults + the console behaviour profile \"bold\" (BEHAVIOR_PROFILES). The plan calls this the permissive profile.",
+  "behaviorProfile": "bold",
+  "overrides": {}
+}
