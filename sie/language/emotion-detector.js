@@ -274,7 +274,7 @@ export function detectEmotion(rawText, { enabled, analysis = null } = {}) {
 export const RESOLVED_PHRASES = [
     // «تمت» alone is NOT here: «تمت عملية الدفع بس الاشتراك مش ظاهر» says the
     // payment went through, not that the problem is solved.
-    'تم الحل', 'اتحلت', 'المشكلة اتحلت', 'خلاص اتحلت', 'حلت',
+    'تم الحل', 'اتحلت', 'اتحل', 'المشكلة اتحلت', 'خلاص اتحلت', 'حلت',
     'تم، شكرا', 'تم شكرا', 'تمام شكرا', 'شكرا تم', 'تمام كده',
     'اشتغلت', 'اشتغل', 'ضبطت', 'ظبطت', 'تظبطت', 'بقى شغال', 'شغال دلوقتي',
     'الحمد لله اشتغلت', 'الحمد لله ضبطت', 'ماشي كده', 'كده تمام', 'كده مظبوط',
@@ -320,6 +320,33 @@ export function detectResolutionSignal(rawText, { analysis = null } = {}) {
     }
     if (!last) return null;
     return last.negated ? 'unresolved' : 'resolved';
+}
+
+/**
+ * Threats — legal action, a complaint to an authority, public exposure,
+ * cancelling or demanding a refund. A subset of the anger phrases, read as
+ * its own signal because Decision treats it differently (owner decision D3,
+ * WP4): a threat escalates on its own, plain anger only with context.
+ */
+export const THREAT_PHRASES = Object.freeze([
+    'هبلغ عنكم', 'هرفع عليكم قضية', 'هشتكيكم', 'هشتكي عليكم',
+    'هوديكم المحكمة', 'حماية المستهلك', 'هفضحكم',
+    'هلغي الاشتراك', 'عايز الغي الاشتراك حالا', 'هسيب المنصة',
+    'عايز فلوسي', 'رجعولي فلوسي', 'عايز استرجع فلوسي'
+]);
+const THREAT_WORDS = THREAT_PHRASES.map(phraseWords);
+
+/**
+ * A threat that is not negated («مش هشتكيكم») and not asked. A condition
+ * does not disarm it: «لو ما اتحلتش هشتكيكم» is still a threat.
+ * @returns {{matched: string}|null}
+ */
+export function detectThreat(rawText, { analysis = null } = {}) {
+    const text = String(rawText || '').trim();
+    if (!text) return null;
+    const a = analysis || analyzeMessage(text);
+    const i = THREAT_WORDS.findIndex((words) => findPhrase(a, words).some((hit) => !hit.negated && !hit.question));
+    return i === -1 ? null : { matched: THREAT_PHRASES[i] };
 }
 
 /** الحالات اللي المفروض توصّل العميل لموظف بشري على طول. */

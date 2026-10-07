@@ -112,3 +112,13 @@ test('[G-L1-2] "I do NOT want a person" is not a request for a person', () => {
     assert.equal(detectSmallTalk('لا مش عايز موظف')?.type ?? null, null);
     assert.equal(detectSmallTalk('عايز اتكلم مع موظف')?.type, 'human_request', 'control: the un-negated request still is one');
 });
+
+test('[G-L1-2] «اتحل» (masculine) is a resolution, and its negations are not (WP4, audit C6)', () => {
+    for (const t of ['اتحل', 'الموضوع اتحل', 'الموضوع الاولاني اتحل خلاص', 'عندي مشكلة في الدفع، والموضوع الاولاني اتحل خلاص']) {
+        assert.equal(detectResolutionSignal(t), 'resolved', t);
+    }
+    for (const t of ['ما اتحلش', 'متحلش', 'لسه ما اتحلش', 'الموضوع ما اتحلش', 'اتحل؟', 'لو اتحل هقولك']) {
+        assert.notEqual(detectResolutionSignal(t), 'resolved', t);
+    }
+    for (const t of ['ما اتحلش', 'الموضوع ما اتحلش']) assert.equal(detectResolutionSignal(t), 'unresolved', t);
+});

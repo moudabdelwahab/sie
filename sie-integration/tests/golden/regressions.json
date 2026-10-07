@@ -1314,8 +1314,8 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix"] }
+        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot"] }
       ],
       "addedIn": "WP4"
     },
@@ -1579,8 +1579,8 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.replyIsNot", "a#3.reviewsTotal"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.replyIsNot", "a#3.reviewsTotal"] }
+        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] }
       ],
       "addedIn": "WP4"
     },

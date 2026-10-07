@@ -13,7 +13,11 @@
  *
  * Rules (G-L1-5):
  *   1. A message that STARTS with a yes or no word has that polarity. A
- *      negator first («مش موافق», «لا مش عايز») is a no.
+ *      negator first («مش موافق», «لا مش عايز») is a no — but a bare
+ *      negator («مش», «not») that negates the PROBLEM rather than the
+ *      question («مش قادر ادخل على حسابي») is not: with diagnostic content,
+ *      it is a no only when it negates wanting, needing or timing («مش عايز
+ *      تذكرة», «مش دلوقتي»). Audit D3 (WP4).
  *   2. A message that carries diagnostic content and does not start with one
  *      has no polarity: «الواتساب مش بيبعت رسايل» answers nothing — it
  *      restates the problem.
@@ -38,6 +42,16 @@ export const NO_WORDS = Object.freeze(new Set([
 /** «مش عارف» / «مش فاهم» / «مش متأكد» is not a no — it is not an answer at all. */
 const NOT_AN_ANSWER_AFTER_MASH = new Set(['عارف', 'عارفه', 'فاهم', 'فاهمه', 'متاكد', 'متاكده']);
 
+/** Folded. What a bare negator must negate to answer a yes/no question. */
+const ANSWER_AFTER_NEGATOR = new Set([
+    'عايز', 'عايزه', 'عاوز', 'عاوزه', 'محتاج', 'محتاجه', 'حابب', 'حابه', 'موافق', 'موافقه',
+    'دلوقتي', 'دلوقت', 'الوقتي', 'لازم', 'ضروري', 'مهم', 'مستعجل', 'تمام', 'كده',
+    'now', 'needed', 'necessary', 'interested', 'want', 'wanted', 'really', 'sure', 'yet'
+]);
+
+/** Bare negators — unlike «لا»/«no», they also negate statements. */
+const BARE_NEGATORS = new Set(['مش', 'not']);
+
 const MAX_SHORT_ANSWER_WORDS = 4;
 
 function polarityAt(words, i) {
@@ -58,6 +72,8 @@ function polarityAt(words, i) {
 export function replyPolarity(text, { diagnosticContent = false, analysis = null } = {}) {
     const { words } = analysis || analyzeMessage(text);
     if (words.length === 0) return null;
+
+    if (diagnosticContent && BARE_NEGATORS.has(words[0]) && !ANSWER_AFTER_NEGATOR.has(words[1])) return null;
 
     const first = polarityAt(words, 0);
     if (first === 'none') return null;

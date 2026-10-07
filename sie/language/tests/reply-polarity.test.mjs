@@ -73,3 +73,18 @@ test('[G-L1-4] every "did that solve it?" button reads as the resolution it offe
         assert.equal(detectResolutionSignal(options[1].value), 'unresolved', `"${options[1].value}"`);
     }
 });
+
+test('[G-L1-5] a leading negator that negates the problem, not the question, is not a no (WP4, audit D3)', () => {
+    // «مش قادر ادخل على حسابي» typed at the ticket question restates the
+    // problem; reading it as a decline closed the ticket offer on the
+    // customer's own complaint.
+    const RESTATED = ['مش قادر ادخل على حسابي', 'مش شغال الواتساب', 'مش بيبعت رسايل', 'not able to log in', 'مش عارف ادخل الداشبورد'];
+    const wrong = RESTATED.filter((t) => replyPolarity(t, { diagnosticContent: true }) !== null);
+    assert.deepEqual(wrong, []);
+});
+
+test('[G-L1-5] a leading negator on wanting or needing is still a no, even when the message names the ticket', () => {
+    const DECLINES = ['مش عايز تذكرة', 'مش محتاج تذكرة', 'مش عايز افتح تذكرة دلوقتي', 'مش دلوقتي', 'مش موافق', 'مش حابب', 'not now', 'not needed'];
+    const wrong = DECLINES.filter((t) => replyPolarity(t, { diagnosticContent: true }) !== 'no' || replyPolarity(t) !== 'no');
+    assert.deepEqual(wrong, []);
+});

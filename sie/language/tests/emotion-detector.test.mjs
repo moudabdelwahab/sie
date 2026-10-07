@@ -219,3 +219,15 @@ test('foldForMatch: بيوحّد التشكيل والهمزات والترقي�
 test('detectEmotion: التشكيل مابيمنعش قراءة النبرة', () => {
     assert.equal(detectEmotion('شكرًا جدًا')?.emotion, 'thanks');
 });
+
+test('[G-L5-11] a threat is its own signal: asserted or conditional, never negated or asked (WP4, owner decision D3)', async () => {
+    const { detectThreat, THREAT_PHRASES, EMOTION_CATEGORIES } = await import('../emotion-detector.js');
+    const anger = EMOTION_CATEGORIES.find((c) => c.emotion === 'anger').phrases;
+    assert.deepEqual(THREAT_PHRASES.filter((p) => !anger.includes(p)), [], 'every threat is also anger, so the kill switch restores the old behaviour exactly');
+    for (const t of ['هرفع عليكم قضية', 'الواتساب مش بيبعت رسايل وهرفع عليكم قضية', 'لو فضل كده هشتكيكم', 'لو ما اتحلتش، هشتكيكم', 'رجعولي فلوسي', 'عايز فلوسي حالا']) {
+        assert.ok(detectThreat(t), t);
+    }
+    for (const t of ['مش هشتكيكم متقلقش', 'انا متعصب جدا', 'الواتساب مش بيبعت رسايل', 'هرفع عليكم قضية؟', 'صباح الخير']) {
+        assert.equal(detectThreat(t), null, t);
+    }
+});

@@ -15,6 +15,9 @@
  *                      and whether it IS the whole message
  *   humanRequest       {explicit: true} when the customer asks for a person
  *   emotion            {emotion, intensity, matched, negative} (not negated)
+ *   threat             {matched} — legal action, refund, cancellation, public
+ *                      exposure (not negated, not asked); null when emotion
+ *                      detection or the anger emotion is off
  *   resolution         'resolved' | 'unresolved' | null (negation-aware)
  *   memory             {kind, facts, explicit, standalone} | null
  *   replyPolarity      'yes' | 'no' | null — for a pending yes/no prompt
@@ -22,7 +25,7 @@
  */
 import { analyzeMessage, hasDiagnosticContent } from './lexicon-match.js';
 import { detectSmallTalk } from './small-talk.js';
-import { detectEmotion, detectResolutionSignal } from './emotion-detector.js';
+import { detectEmotion, detectResolutionSignal, detectThreat } from './emotion-detector.js';
 import { detectMemoryIntent } from './memory-intent.js';
 import { replyPolarity } from './reply-polarity.js';
 
@@ -41,11 +44,13 @@ export function analyzeSignals({ text, tokens = [], previousText = '', enabledEm
     const analysis = analyzeMessage(raw);
     const diagnosticContent = hasDiagnosticContent(tokens);
     const smallTalk = detectSmallTalk(raw, { diagnosticContent, analysis });
+    const angerEnabled = !enabledEmotions || [...enabledEmotions].includes('anger');
     return {
         diagnosticContent,
         smallTalk,
         humanRequest: smallTalk?.type === 'human_request' ? { explicit: true } : null,
         emotion: emotionDetection ? detectEmotion(raw, { enabled: enabledEmotions, analysis }) : null,
+        threat: emotionDetection && angerEnabled ? detectThreat(raw, { analysis }) : null,
         resolution: detectResolutionSignal(raw, { analysis }),
         memory: detectMemoryIntent(raw, typeof previousText === 'string' ? previousText : '', { tokens: Array.isArray(tokens) ? tokens : [], diagnosticContent }),
         replyPolarity: replyPolarity(raw, { diagnosticContent, analysis }),
@@ -63,6 +68,7 @@ export function signalsTrace(signals) {
         diagnosticContent: signals.diagnosticContent,
         smallTalk: signals.smallTalk ? { type: signals.smallTalk.type, coversWholeMessage: signals.smallTalk.coversWholeMessage } : null,
         emotion: signals.emotion?.emotion ?? null,
+        threat: Boolean(signals.threat),
         resolution: signals.resolution,
         memory: signals.memory ? { kind: signals.memory.kind, explicit: signals.memory.explicit, standalone: signals.memory.standalone } : null,
         replyPolarity: signals.replyPolarity
