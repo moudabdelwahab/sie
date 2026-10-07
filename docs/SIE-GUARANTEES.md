@@ -63,6 +63,8 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | G-L5-10 | L5 | Every route is an evaluated rule. | pending | WP4 | |
 | G-L5-11 | L5 | An explicit human request escalates; anger and sarcasm escalate only with intensity and context. | pending | WP4 | |
 | G-L5-12 | L5 | No decision rule is unreachable by construction. R6C is kept only if it shows measurable value (owner decision #5); otherwise it is removed. | pending | WP4 | |
+| G-L5-13 | L5 | An escalation or a superseding answer never discards the message's problem: diagnosis runs on the turn, and the ticket draft carries the leading scenario and trail. | pending | WP4 | |
+| G-L5-14 | L5 | Multi-problem continuity: when one problem is closed and another active problem supported by this conversation's evidence remains, the conversation continues with it instead of closing; a second problem in one message is kept. | pending | WP4 | |
 | G-L6-1 | L6 | Every customer-visible string originates in Dialogue templates. | pending | WP9 | |
 | G-L6-2 | L6 | Template claims are supported by the decision and state (`ticket_exists` ⇒ a ticket exists). | pending | WP9 | |
 | G-L6-3 | L6 | The acknowledgement never contradicts the decision. | pending | WP9 | |
@@ -98,15 +100,15 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 
 | P0 | Issue | Required categories | Status | WP | Red regression |
 |---|---|---|---|---|---|
-| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-D2 green; routing remains for WP4) | WP3, WP4 | REG-D3-restated-problem-at-prompt |
+| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-D2 green; routing remains for WP4) | WP3, WP4 | REG-D3-restated-problem-at-prompt, REG-D4-new-problem-at-ticket-question-is-diagnosed, REG-D4b-new-problem-at-escalation-question-is-diagnosed, REG-D5-restated-negated-problem-is-not-a-decline |
 | P0-2 | Arabic word-boundary problems | U, LI, E2E, PS, ADV | closed (WP3) | WP3 | REG-D1-plain-no, REG-D1-plain-yes, REG-F1-install-is-not-anger (all green) |
-| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-C and REG-C2 green; the closing rule remains for WP4) | WP3, WP4 | REG-C3-resolved-plus-new-problem-is-diagnosed |
-| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | open (word boundaries and negation fixed in WP3: REG-F1 green; the context rule remains for WP4) | WP3, WP4 | REG-F2-sincere-praise-is-not-sarcasm, REG-F2b-polite-closing-is-not-anger |
+| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-C and REG-C2 green; the closing rule remains for WP4) | WP3, WP4 | REG-C3-resolved-plus-new-problem-is-diagnosed, REG-C4-resolved-then-new-problem-is-diagnosed, REG-C5-one-of-two-problems-resolved-keeps-the-other, REG-C6-new-problem-then-resolution-in-one-message |
+| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | open (word boundaries and negation fixed in WP3: REG-F1 green; the context rule remains for WP4) | WP3, WP4 | REG-F2-sincere-praise-is-not-sarcasm, REG-F2b-polite-closing-is-not-anger, REG-F5-anger-with-a-problem-is-diagnosed, REG-F6-sarcasm-without-context-is-not-escalated, REG-F7a-human-request-keeps-the-problem, REG-F7b-threat-escalates-and-keeps-the-problem, REG-F8-repeated-anger-escalates, REG-F9-kill-switch-restores-lexicon-escalation |
 | P0-5 | Cross-conversation contamination | U, LI, E2E, MT, MS, PS, ADV | open (mitigated by configuration 2026-10-06) | WP5 | REG-B-closing-remark-does-not-cross-chats, REG-B2-status-question-does-not-cross-chats |
-| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-E-no-phantom-ticket |
-| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | open (reply classification fixed in WP3: REG-D1-plain-no, REG-D1-plain-yes and REG-D2 green) | WP4 | REG-D1-unclear-reask-is-bounded, REG-D3-restated-problem-at-prompt, REG-E-no-phantom-ticket |
-| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | open | WP4 | REG-G-pending-prompt-expires |
-| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | open (the negated-resolution case is fixed in WP3: REG-C green) | WP4, WP5 | REG-C3-resolved-plus-new-problem-is-diagnosed |
+| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-E-no-phantom-ticket, REG-E2-new-problem-after-decline-is-not-the-declined-ticket, REG-E3-created-ticket-is-not-proposed-again, REG-L5-1a-proposed-ticket-is-proposed, REG-L5-1b-withheld-ticket-is-withheld, REG-L5-1c-unavailable-ticket-is-unavailable, REG-L5-1d-open-account-ticket-is-existing |
+| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | open (reply classification fixed in WP3: REG-D1-plain-no, REG-D1-plain-yes and REG-D2 green) | WP4 | REG-D1-unclear-reask-is-bounded, REG-D3-restated-problem-at-prompt, REG-D4-new-problem-at-ticket-question-is-diagnosed, REG-D4b-new-problem-at-escalation-question-is-diagnosed, REG-D5-restated-negated-problem-is-not-a-decline, REG-E-no-phantom-ticket, REG-E2-new-problem-after-decline-is-not-the-declined-ticket |
+| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | open | WP4 | REG-G-pending-prompt-expires, REG-G2-expired-question-does-not-hijack-a-new-problem, REG-G2b-expired-diagnostic-question-does-not-hijack-a-new-problem, REG-G5-late-unrelated-message-is-not-captured |
+| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | open (the negated-resolution case is fixed in WP3: REG-C green) | WP4, WP5 | REG-C3-resolved-plus-new-problem-is-diagnosed, REG-C4-resolved-then-new-problem-is-diagnosed, REG-C5-one-of-two-problems-resolved-keeps-the-other, REG-C6-new-problem-then-resolution-in-one-message |
 | P0-10 | Knowledge not using live data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-11 | Ticket status cannot read real data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-12 | Evidence only increases | U, LI, E2E, MT, PS, ADV | open | WP5 | REG-12-denial-lowers-belief |

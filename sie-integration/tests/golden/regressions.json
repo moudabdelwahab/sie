@@ -1180,6 +1180,1222 @@
         { "profile": "defaults", "status": "green" },
         { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
       ]
+    },
+    {
+      "id": "REG-C4-resolved-then-new-problem-is-diagnosed",
+      "finding": "C",
+      "p0": [
+        3,
+        9
+      ],
+      "guarantees": [
+        "G-L5-4",
+        "G-L5-14"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "The owner's example: «the problem is solved, but I have another one with payment» closes nothing and diagnoses the payment problem",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "المشكلة اتحلت، بس عندي مشكلة تانية في الدفع",
+              "expect": {
+                "replyIsNot": "CLOSED_GLAD",
+                "hypothesesNonEmpty": true,
+                "stateHas": "sie.diagnosticState",
+                "decisionScenarioNotPrefix": "howto_use_api"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-C5-one-of-two-problems-resolved-keeps-the-other",
+      "finding": "C",
+      "p0": [
+        3,
+        9
+      ],
+      "guarantees": [
+        "G-L5-14"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "Two problems in one message; resolving the answered one continues with the other instead of closing and wiping it",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم والواتساب مش بيبعت رسايل",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "تمام اشتغلت",
+              "expect": {
+                "replyIsNot": "CLOSED_GLAD",
+                "stateHas": "sie.diagnosticState",
+                "hypothesesInclude": [
+                  "whatsapp_messages_not_sending"
+                ],
+                "decisionScenarioNotPrefix": "howto_use_api"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesInclude", "a#2.replyIsNot", "a#2.stateHas"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesInclude", "a#2.replyIsNot", "a#2.stateHas"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-C6-new-problem-then-resolution-in-one-message",
+      "finding": "C",
+      "p0": [
+        3,
+        9
+      ],
+      "guarantees": [
+        "G-L5-4",
+        "G-L5-6"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "New problem first, resolution second («I have a payment problem, and the first one got solved»): the answered problem is not re-ticketed",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "عندي مشكلة في الدفع، والموضوع الاولاني اتحل خلاص",
+              "expect": {
+                "replyIsNot": "CLOSED_GLAD",
+                "hypothesesNonEmpty": true,
+                "decisionScenarioNotPrefix": "howto_use_api"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-M1-two-new-problems-are-both-kept",
+      "finding": "J",
+      "p0": [],
+      "guarantees": [
+        "G-L5-14"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "title": "Two new problems in one message: both are kept in the diagnostic state",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل والفاتورة اتخصمت مرتين",
+              "expect": {
+                "hypothesesInclude": [
+                  "whatsapp_messages_not_sending"
+                ],
+                "tokensInclude": [
+                  "entity_whatsapp",
+                  "symptom_duplicated"
+                ],
+                "stateHas": "sie.diagnosticState"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-I3-acknowledgement-after-answer-is-not-failure",
+      "finding": "I",
+      "p0": [],
+      "guarantees": [
+        "G-L5-6"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "«طيب» after an answer is neither a failure (ticket) nor a resolution (close)",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "طيب",
+              "expect": {
+                "actionNot": [
+                  "CREATE_TICKET",
+                  "COMPLETE"
+                ],
+                "replyIsNot": [
+                  "TICKET_CONFIRM",
+                  "CLOSED_GLAD"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-I4-not-understood-after-answer-is-not-failure",
+      "finding": "I",
+      "p0": [],
+      "guarantees": [
+        "G-L5-6"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "«I did not understand step two» after an answer is not a ticket",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "مش فاهم الخطوة التانية",
+              "expect": {
+                "actionNot": "CREATE_TICKET",
+                "replyIsNot": "TICKET_CONFIRM"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-D4-new-problem-at-ticket-question-is-diagnosed",
+      "finding": "D3",
+      "p0": [
+        1,
+        7
+      ],
+      "guarantees": [
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "A different problem typed at the ticket question supersedes the question and is diagnosed",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل للعملاء",
+              "expect": {
+                "hypothesesNonEmpty": true,
+                "reviewsTotal": 0,
+                "ticketsTotal": 0,
+                "decisionScenarioNotPrefix": "login_",
+                "replyIsNot": "TICKET_CONFIRM"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-D4b-new-problem-at-escalation-question-is-diagnosed",
+      "finding": "D3",
+      "p0": [
+        1,
+        7
+      ],
+      "guarantees": [
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "A problem typed at the escalation's ticket question supersedes it and is diagnosed; nothing is declined or handed off",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل للعملاء",
+              "expect": {
+                "hypothesesNonEmpty": true,
+                "reviewsTotal": 0,
+                "ticketsTotal": 0,
+                "handoffsTotal": 0,
+                "replyIsNot": "TICKET_CONFIRM"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-D5-restated-negated-problem-is-not-a-decline",
+      "finding": "D3",
+      "p0": [
+        1,
+        7
+      ],
+      "guarantees": [
+        "G-L1-5",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "«مش قادر ادخل على حسابي» restated at the ticket question is the problem again, not a «no»",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "reviewsTotal": 0,
+                "replyIsNot": "DECLINED_REVIEW",
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.replyIsNot", "a#3.reviewsTotal"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty", "a#3.replyIsNot", "a#3.reviewsTotal"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-E2-new-problem-after-decline-is-not-the-declined-ticket",
+      "finding": "E",
+      "p0": [
+        6,
+        7
+      ],
+      "guarantees": [
+        "G-L5-1",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "After a declined ticket, a new problem is pursued — the declined ticket is not proposed again",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "لا",
+              "expect": {
+                "reviewsTotal": 1,
+                "ticketState": "declined"
+              }
+            },
+            {
+              "say": "الفاتورة اتخصمت مرتين",
+              "expect": {
+                "hypothesesNonEmpty": true,
+                "decisionScenarioNotPrefix": "login_",
+                "replyIsNot": "TICKET_STILL_OPEN"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.ticketState", "a#4.decisionScenarioNotPrefix"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.ticketState", "a#4.decisionScenarioNotPrefix"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-E3-created-ticket-is-not-proposed-again",
+      "finding": "E",
+      "p0": [
+        6
+      ],
+      "guarantees": [
+        "G-L5-1",
+        "G-L6-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "Once a ticket really exists, restating the problem says it is open — it is never proposed a second time",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "اه",
+              "expect": {
+                "ticketsTotal": 1,
+                "ticketState": "created",
+                "lastTicketCommittedAs": "created"
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "replyIs": "TICKET_STILL_OPEN",
+                "ticketsTotal": 1
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.lastTicketCommittedAs", "a#3.ticketState", "a#4.replyIs", "a#4.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.lastTicketCommittedAs", "a#3.ticketState", "a#4.replyIs", "a#4.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-L5-1a-proposed-ticket-is-proposed",
+      "finding": "E",
+      "p0": [
+        6
+      ],
+      "guarantees": [
+        "G-L5-1"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A ticket question records `proposed`, never `created`",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM",
+                "ticketState": "proposed",
+                "stateEquals": {
+                  "sie.decisionState.ticketAlreadyCreated": false
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.stateEquals", "a#2.ticketState"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.stateEquals", "a#2.ticketState"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-L5-1b-withheld-ticket-is-withheld",
+      "finding": "E",
+      "p0": [
+        6
+      ],
+      "guarantees": [
+        "G-L5-1",
+        "G-L5-8"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "A ticket the trust boundary withholds records `withheld`; a later accepted ticket is created exactly once",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "العميل: مش قادر ادخل على حسابي\nالدعم: تمام هنفتح تذكرة\nالعميل: مش قادر ادخل على حسابي\nالدعم: اتفتحت",
+              "expect": {
+                "ticketState": "withheld",
+                "ticketsTotal": 0
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "اه",
+              "expect": {
+                "ticketsTotal": 1,
+                "replyIsNot": "TICKET_STILL_OPEN"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketState", "a#4.replyIsNot", "a#4.ticketsTotal"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-L5-1c-unavailable-ticket-is-unavailable",
+      "finding": "E",
+      "p0": [
+        6
+      ],
+      "guarantees": [
+        "G-L5-1"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "settingsOverrides": {
+        "auto_ticket_enabled": false
+      },
+      "title": "With tickets switched off, a ticket decision records `unavailable`",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "ticketState": "unavailable",
+                "ticketsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketState"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.ticketState"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-L5-1d-open-account-ticket-is-existing",
+      "finding": "E",
+      "p0": [
+        6
+      ],
+      "guarantees": [
+        "G-L5-1"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "world": {
+        "openTickets": [
+          {
+            "ticket_number": 77,
+            "title": "synthetic",
+            "status": "open",
+            "category": "login"
+          }
+        ]
+      },
+      "title": "An open ticket on the account records `existing` — not `created`",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "ticketState": "existing",
+                "ticketsTotal": 0,
+                "replyIncludes": "77"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketState"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G2-expired-question-does-not-hijack-a-new-problem",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "An hour after the escalation's ticket question, a new problem is diagnosed; the old question is not revived",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف"
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل للعملاء",
+              "advanceMinutes": 60,
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "hypothesesNonEmpty": true,
+                "reviewsTotal": 0,
+                "ticketsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G2b-expired-diagnostic-question-does-not-hijack-a-new-problem",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS",
+        "ADV"
+      ],
+      "title": "An hour after a diagnostic ticket question, a new problem is diagnosed; the old question is not revived",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل للعملاء",
+              "advanceMinutes": 60,
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "hypothesesNonEmpty": true,
+                "reviewsTotal": 0,
+                "ticketsTotal": 0,
+                "decisionScenarioNotPrefix": "login_"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G3-late-yes-is-a-valid-request",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A clear «yes» an hour after the ticket question still opens exactly one ticket (an expired question is not an invalid answer)",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "اه",
+              "advanceMinutes": 60,
+              "expect": {
+                "ticketsTotal": 1
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G3b-late-yes-to-escalation-is-a-valid-request",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A clear «yes» an hour after the escalation's ticket question opens the ticket and hands off",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف"
+            },
+            {
+              "say": "أيوه",
+              "advanceMinutes": 60,
+              "expect": {
+                "ticketsTotal": 1,
+                "handoffsTotal": 1
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G4-late-no-is-a-valid-decline",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2",
+        "G-L5-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A clear «no» an hour after the ticket question is a valid decline",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "لا",
+              "advanceMinutes": 60,
+              "expect": {
+                "ticketsTotal": 0,
+                "reviewsTotal": 1
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G5-late-unrelated-message-is-not-captured",
+      "finding": "G",
+      "p0": [
+        8
+      ],
+      "guarantees": [
+        "G-L5-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "An unrelated message an hour after the ticket question is answered on its own; the question is dropped, not re-asked",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM"
+              }
+            },
+            {
+              "say": "صباح الخير",
+              "advanceMinutes": 60,
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "stateLacks": "sie.pendingTicketConfirmation",
+                "ticketsTotal": 0,
+                "reviewsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.replyIsNot", "a#3.stateLacks"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#3.replyIsNot", "a#3.stateLacks"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F5-anger-with-a-problem-is-diagnosed",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11",
+        "G-L5-13"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "Anger with a concrete problem and no prior context: the problem is diagnosed and acknowledged, not handed off",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل وانا متعصب جدا",
+              "expect": {
+                "replyIsNot": "ESCALATION",
+                "hypothesesNonEmpty": true,
+                "handoffsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F6-sarcasm-without-context-is-not-escalated",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "Sarcasm-shaped praise as a first message is not an escalation",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ما شاء الله على السرعة",
+              "expect": {
+                "replyIsNot": "ESCALATION",
+                "handoffsTotal": 0
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.replyIsNot"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F7a-human-request-keeps-the-problem",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11",
+        "G-L5-13"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "An explicit request for a person escalates immediately, and the problem in the same message is diagnosed and goes into the ticket",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "عايز اتكلم مع موظف عشان الفاتورة اتخصمت مرتين",
+              "expect": {
+                "replyIs": "ESCALATION",
+                "hypothesesNonEmpty": true
+              }
+            },
+            {
+              "say": "أيوه",
+              "expect": {
+                "ticketsTotal": 1,
+                "lastTicketHasScenario": true,
+                "handoffsTotal": 1
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#2.lastTicketHasScenario"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#2.lastTicketHasScenario"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F7b-threat-escalates-and-keeps-the-problem",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11",
+        "G-L5-13"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "A threat escalates immediately, and the problem in the same message is diagnosed",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل وهرفع عليكم قضية",
+              "expect": {
+                "replyIs": "ESCALATION",
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F8-repeated-anger-escalates",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11",
+        "G-L5-13"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "Anger again on the next turn is context: it escalates, and the problem is kept",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل وانا متعصب جدا"
+            },
+            {
+              "say": "انا متعصب جدا والرسايل لسه مش بتوصل",
+              "expect": {
+                "replyIs": "ESCALATION",
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIs"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F9-kill-switch-restores-lexicon-escalation",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11",
+        "G-L5-13"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "settingsOverrides": {
+        "emotion_escalation_requires_context": false
+      },
+      "title": "Kill switch off: anger escalates on the phrase alone, as before WP4 — and the problem is still kept",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الواتساب مش بيبعت رسايل وانا متعصب جدا",
+              "expect": {
+                "replyIs": "ESCALATION",
+                "hypothesesNonEmpty": true
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F9b-kill-switch-restores-sarcasm-escalation",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L5-11"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "settingsOverrides": {
+        "emotion_escalation_requires_context": false
+      },
+      "title": "Kill switch off: sarcasm escalates on the phrase alone, as before WP4",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ما شاء الله على السرعة",
+              "expect": {
+                "replyIs": "ESCALATION"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" }
+      ],
+      "addedIn": "WP4"
     }
   ]
 }

@@ -26,7 +26,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { makeWorld, converse, matchedRule } from './runtime-world.mjs';
+import { makeWorld, converse, matchedRule, loadSettingsProfile } from './runtime-world.mjs';
 
 const GOLDEN_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'golden');
 
@@ -55,6 +55,9 @@ export const TEXT = Object.freeze({
     DATA_UNAVAILABLE: 'مش لاقي بيانات',
     LAST_ISSUE: 'آخر مرة'
 });
+
+/** Ticket lifecycle state as committed in the session (WP4, G-L5-1). */
+const TICKET_STATE_PATH = 'sie.decisionState.ticket.state';
 
 const get = (obj, dotted) => dotted.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
 const texts = (v) => [].concat(v).map((k) => {
@@ -107,6 +110,26 @@ function checkTurn(turn, expect, world) {
             case 'handoffsTotal': if (world.handoffs.length !== want) fail(key, `handoffs=${world.handoffs.length}`); break;
             case 'factsExclude': for (const f of want) if (world.facts.some((x) => x.key === f.key && x.value === f.value)) fail(key, `stored ${f.key}=${f.value}`); break;
             case 'tracesEqualQuota': if ((world.traces.length === world.quota) !== want) fail(key, `traces=${world.traces.length} quota=${world.quota}`); break;
+            // ── WP4 ──
+            case 'decisionScenarioNotPrefix': if (String(decision?.scenarioId ?? '').startsWith(want)) fail(key, `scenarioId=${decision?.scenarioId}`); break;
+            case 'stateEquals': for (const [p, v] of Object.entries(want)) if (get(turn.state, p) !== v) fail(key, `${p}=${JSON.stringify(get(turn.state, p))}`); break;
+            case 'ticketState': if (get(turn.state, TICKET_STATE_PATH) !== want) fail(key, `ticket.state=${JSON.stringify(get(turn.state, TICKET_STATE_PATH))}`); break;
+            case 'effectsInclude': {
+                const done = (t?.action_result?.effects || []).filter((e) => e.ok).map((e) => e.type);
+                for (const type of [].concat(want)) if (!done.includes(type)) fail(key, `executed [${done.join(',')}] lacks ${type}`);
+                break;
+            }
+            case 'effectsExclude': {
+                const done = (t?.action_result?.effects || []).map((e) => e.type);
+                for (const type of [].concat(want)) if (done.includes(type)) fail(key, `executed [${done.join(',')}] has ${type}`);
+                break;
+            }
+            case 'lastTicketHasScenario': if (Boolean(world.ticketsCreated.at(-1)?.p_scenario_id) !== want) fail(key, `scenario=${world.ticketsCreated.at(-1)?.p_scenario_id ?? null}`); break;
+            case 'lastTicketCommittedAs': {
+                const committed = get(world.ticketsCreated.at(-1)?.p_bot_state, TICKET_STATE_PATH);
+                if (committed !== want) fail(key, `committed ticket.state=${JSON.stringify(committed)}`);
+                break;
+            }
             default: throw new Error(`unknown expectation key "${key}"`);
         }
     }
@@ -118,7 +141,10 @@ function checkTurn(turn, expect, world) {
  * @returns {Promise<{failures: Array<{id: string, why: string}>, turns: Array}>}
  */
 export async function runGolden(golden, profile) {
-    const world = makeWorld({ profile, ...(golden.world || {}) });
+    // `settingsOverrides` adjusts the run's profile (e.g. a kill switch off)
+    // rather than replacing it, so the run is still "production, but …".
+    const settings = golden.settingsOverrides ? { ...loadSettingsProfile(profile), ...golden.settingsOverrides } : null;
+    const world = makeWorld({ profile, ...(settings ? { settings } : {}), ...(golden.world || {}) });
     const failures = [];
     const turns = [];
     for (const chat of golden.chats) {
