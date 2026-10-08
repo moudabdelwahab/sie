@@ -2622,6 +2622,184 @@
       "addedIn": "WP4",
       "note": "Found in WP4's production-profile verification (probe P7).",
       "fixedIn": "WP4"
+    },
+    {
+      "id": "REG-R1-first-turn-ambiguity-is-not-a-ticket",
+      "finding": "R1",
+      "p0": [],
+      "guarantees": [
+        "G-L5-5",
+        "G-L4-2"
+      ],
+      "categories": [
+        "E2E",
+        "PS"
+      ],
+      "title": "An ambiguous first message is clarified, not ticketed: no ticket on ambiguity before one clarifying attempt",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "الفاتورة اتخصمت مرتين",
+              "expect": {
+                "actionNot": [
+                  "CREATE_TICKET",
+                  "ESCALATE_TO_HUMAN"
+                ],
+                "replyIsNot": "TICKET_CONFIRM"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#1.actionNot", "a#1.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#1.actionNot", "a#1.replyIsNot"] }
+      ],
+      "addedIn": "WP5"
+    },
+    {
+      "id": "REG-B4-nothing-else-is-a-farewell",
+      "finding": "B",
+      "p0": [
+        5
+      ],
+      "guarantees": [
+        "G-L2-1",
+        "G-L1-3"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "«لا مفيش حاجة تانية» after a question is a closing remark: answered as one, never diagnosed or ticketed",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مفيش مشكلة، بس عندي سؤال عام عن المنصة"
+            },
+            {
+              "say": "لا مفيش حاجة تانية",
+              "expect": {
+                "replyIsNot": "TICKET_CONFIRM",
+                "actionNot": [
+                  "CREATE_TICKET",
+                  "ASK_CLARIFYING_QUESTION"
+                ],
+                "hypothesesExclude": [
+                  "convo_goodbye_nothing_else"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot", "a#2.hypothesesExclude", "a#2.replyIsNot"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.actionNot", "a#2.hypothesesExclude", "a#2.replyIsNot"] }
+      ],
+      "addedIn": "WP5"
+    },
+    {
+      "id": "REG-12c-episode-expires-by-last-evidence",
+      "finding": "B",
+      "p0": [
+        5,
+        12
+      ],
+      "guarantees": [
+        "G-L3-4"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "A problem whose last evidence is older than the context window does not colour a new problem, even when small talk kept the chat alive",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "صباح الخير",
+              "advanceMinutes": 200
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل للعملاء",
+              "advanceMinutes": 200,
+              "expect": {
+                "hypothesesExclude": [
+                  "login_cannot_access"
+                ],
+                "stateEquals": {
+                  "sie.diagnosticState.closedEpisodes.0.closeReason": "expired"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesExclude", "a#3.stateEquals"] }
+      ],
+      "addedIn": "WP5"
+    },
+    {
+      "id": "REG-12d-closing-keeps-an-episode-summary",
+      "finding": "C",
+      "p0": [
+        12
+      ],
+      "guarantees": [
+        "G-L3-4"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "title": "\"That worked\" closes the episode explicitly: the next problem starts from an empty episode and the closed one is summarised, not silently wiped",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "ازاي استخدم الـ API بتاعكم",
+              "expect": {
+                "action": "ANSWER"
+              }
+            },
+            {
+              "say": "تم الحل",
+              "expect": {
+                "stateEquals": {
+                  "sie.diagnosticState.closedEpisodes.0.closeReason": "resolved_by_customer"
+                }
+              }
+            },
+            {
+              "say": "الواتساب مش بيبعت رسايل للعملاء",
+              "expect": {
+                "hypothesesExclude": [
+                  "howto_use_api"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "red", "failingNow": ["a#2.stateEquals"] },
+        { "profile": "defaults", "status": "red", "failingNow": ["a#2.stateEquals"] }
+      ],
+      "addedIn": "WP5"
     }
   ]
 }
