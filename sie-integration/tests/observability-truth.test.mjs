@@ -20,7 +20,7 @@ import assert from 'node:assert/strict';
 
 import { makeWorld, converse } from './helpers/runtime-world.mjs';
 
-/** One conversation that walks every route the bridge has (production settings). */
+/** One conversation that walks every route (production settings). */
 const EVERY_ROUTE = [
     'صباح الخير',                              // small talk
     'انا اسمي سامي',                           // memory (save)
@@ -80,7 +80,7 @@ test('[G-L9-3] effects outside the turn commit are recorded too: review queue an
     assert.deepEqual(types, ['queue_review:true', 'persist_reply:true', 'request_handoff:true']);
 });
 
-test('[G-L9-3] each trace says which layers ran, and which a short-circuit skipped', async () => {
+test('[G-L9-3] each trace says which layers ran, and which a route skipped', async () => {
     const world = makeWorld({ profile: 'production' });
     const [greet, problem] = await converse(world, 'a', ['صباح الخير', 'مش قادر ادخل على حسابي']);
     const status = (t) => Object.fromEntries(t.trace.ranking.layers.map((l) => [l.layer, l.status]));
@@ -88,8 +88,13 @@ test('[G-L9-3] each trace says which layers ran, and which a short-circuit skipp
     assert.deepEqual(status(problem), { L1: 'ran', L2: 'ran', L3: 'ran', L4: 'ran', L5: 'ran', L6: 'ran', L7: 'ran', L8: 'ran', L9: 'ran' });
     const g = status(greet);
     assert.equal(g.L1, 'ran');
-    for (const l of ['L2', 'L3', 'L4', 'L5', 'L7']) assert.equal(g[l], 'skipped', `${l} on a greeting`);
-    assert.equal(g.L6, 'bypassed', 'the greeting text does not come from Dialogue (WP9 moves it there)');
+    // WP4: a greeting is not diagnosed, but it IS decided (Layer 5's social
+    // rule) and worded by Dialogue (Layer 6). Before WP4 the bridge answered
+    // it directly: L5 "skipped", L6 "bypassed".
+    for (const l of ['L2', 'L3', 'L4']) assert.equal(g[l], 'skipped', `${l} on a greeting`);
+    assert.equal(g.L5, 'ran', 'the route is a Layer-5 decision');
+    assert.equal(g.L6, 'ran', 'the greeting text comes from Dialogue');
+    assert.equal(g.L7, 'ran', 'the customer\'s name is a Layer-7 read (memory_remember_name)');
     assert.equal(g.L8, 'ran');
     for (const l of greet.trace.ranking.layers.filter((x) => x.status !== 'ran')) assert.ok(l.reason, `${l.layer} ${l.status} without a reason`);
 });
@@ -100,11 +105,16 @@ test('[G-L9-4] with the trust boundary on, a clean diagnostic turn records "trus
     assert.equal(t.trace.ranking.trust?.enforced?.level, 'trusted');
 });
 
-test('[G-L9-4] a route that exits before the trust checkpoint says so, rather than recording nothing', async () => {
+test('[G-L9-4] every route passes the trust checkpoint and records its verdict — the escalation and the ticket answer included', async () => {
+    // Before WP4 the escalation and pending-answer routes returned before CP1
+    // and were traced "not_evaluated". WP4 runs CP1 on every turn.
     const world = makeWorld({ profile: 'production' });
-    const [t] = await converse(world, 'a', ['عايز اتكلم مع موظف']);
-    assert.equal(t.trace.ranking.trust?.status, 'not_evaluated');
-    assert.match(t.trace.ranking.trust.reason, /escalation/);
+    const turns = await converse(world, 'a', ['صباح الخير', 'عايز اتكلم مع موظف', 'لأ مش دلوقتي']);
+    for (const t of turns) {
+        const trust = t.trace.ranking.trust;
+        assert.ok(trust && trust.status !== 'not_evaluated', `"${t.say}" (${t.trace.ranking.route}) has no trust verdict`);
+        assert.ok((trust.enforced ?? trust.observed)?.level, `"${t.say}": the verdict carries a level`);
+    }
 });
 
 test('[G-L9-4] with the trust boundary off, the trace carries no trust field', async () => {

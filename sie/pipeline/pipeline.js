@@ -46,14 +46,15 @@ import { extractTextEvidence } from '../diagnostics/evidence-extractor.js';
 import { mergeEvidence, getAllTokenPresences } from '../diagnostics/evidence-accumulator.js';
 import { updateHypotheses } from '../diagnostics/hypothesis-tracker.js';
 import { rankHypotheses, activationThresholdForLevel } from '../ranking/ranking-engine.js';
-import { decide } from '../decision/decision-engine.js';
+import { focusFor, decideTurn } from '../decision/conversation-rules.js';
+import { transitionTicket, withTicket } from '../decision/ticket-lifecycle.js';
 import { openTurn, admitEvidence, admitAction, trustTrace } from '../trust/trust-boundary.js';
 import { migrateState, updateSparseState, expandHypotheses, isSparseState } from '../diagnostics/sparse-state.js';
 import { interpretTurn, interpretationTrace, TURN_KINDS } from './interpretation.js';
 import { analyzeSignals } from '../language/signals.js';
 import { scopeCandidates } from './candidate-scope.js';
 import { evidenceFromQuestionAnswer } from '../diagnostics/question-answer.js';
-import { capEvidenceTokens, freeFloor } from '../editions/edition-turn.js';
+import { capEvidenceTokens } from '../editions/edition-turn.js';
 
 export { TURN_KINDS };
 
@@ -215,29 +216,43 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     // and the decision engine has to be able to tell that from a catalog that
     // failed to load. See R4_EMPTY_SCOPE.
     const rankOptions = { ...rankingOptions, activationThreshold, catalogSize: catalog.length };
-    const ranking = rankHypotheses(hypotheses, scope.scenarios, rankOptions);
+    let ranking = rankHypotheses(hypotheses, scope.scenarios, rankOptions);
+    // Layer 5 focuses the ranking on the problem the customer is talking
+    // about now — the same rule the live orchestrator applies.
+    const focus = focusFor({
+        plan: interpretation.plan, prev: previous, ranking, signals,
+        turnTokens: normalized.normalizedTokens.map((tok) => tok.canonical)
+    });
+    if (focus.excludeIds.length) {
+        rankOptions.excludeIds = focus.excludeIds;
+        ranking = rankHypotheses(hypotheses, scope.scenarios, rankOptions);
+    }
     timings.ranking = now() - t;
 
     // ── Decision ───────────────────────────────────────────────
     t = now();
     const newEvidenceAddedThisTurn = (accumulator.entries || []).filter((e) => e.turn === turn).length;
-    const decideWith = (r) => decide({
-        ranking: r, turn,
-        previousDecisionState: previous?.decisionState,
-        newEvidenceAddedThisTurn,
-        policy: buildPolicy(settings, activationThreshold),
-        customerSignal: interpretation.resolutionSignal
-    });
-    // The Free floor (edition-turn.freeFloor): a stand-off a pack created is
-    // never escalated past what Free would do. Inert for Free.
-    const { decision, decisionState, floored } = freeFloor({
-        ...decideWith(ranking), ranking, hypotheses, scenarios: scope.scenarios,
-        packIds: edition?.packIds, genericTokens: edition?.genericTokens, rankOptions, decideWith
+    // Layer 5's decideTurn: decide() and the Free floor (a stand-off a pack
+    // created is never escalated past what Free would do; inert for Free).
+    const { decision, decisionState, floored } = decideTurn({
+        plan: interpretation.plan, prev: previous, ranking, hypotheses, newEvidenceAddedThisTurn,
+        decisionPolicy: buildPolicy(settings, activationThreshold), signals,
+        floor: { scenarios: scope.scenarios, packIds: edition?.packIds, genericTokens: edition?.genericTokens, rankOptions },
+        movedOnFrom: focus.excludeIds
     });
     timings.decision = now() - t;
 
     // ── Trust CP3b ─────────────────────────────────────────────
     const { decision: authorized, downgraded } = admitAction(decision, trustEnvelope);
+
+    // The pipeline stops before Action, so it models the commit: the state it
+    // returns is the one the Action layer would persist for a ticket decision
+    // executed without a confirmation question — the ticket is on file. (The
+    // live engine records `created` only in the ticket's own transaction.)
+    const draft = authorized?.ticketDraft;
+    const committedDecisionState = draft && decisionState
+        ? withTicket(decisionState, transitionTicket(decisionState.ticket, 'commit', { scenarioId: draft.scenarioId ?? null, category: draft.category ?? null }))
+        : decisionState;
 
     // ── State ──────────────────────────────────────────────────
     t = now();
@@ -251,7 +266,7 @@ export async function runTurn({ text, catalog, previous = null, settings = {}, v
     return {
         variant: cfg.name, turn, interpretation, trustEnvelope,
         responseLanguage: normalized.responseLanguage,
-        ranking, decision: authorized, actionDowngraded: downgraded, editionFloor: floored, decisionState,
+        ranking, decision: authorized, actionDowngraded: downgraded, editionFloor: floored, decisionState: committedDecisionState,
         diagnosticState,
         evidenceAdmitted: admitted.length, evidenceDropped: dropped, evidenceCapped: capped.dropped,
         questionAnswer: answered ? { scenarioId: answered.scenarioId, questionId: answered.questionId, option: answered.optionValue } : null,

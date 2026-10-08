@@ -33,10 +33,20 @@ function renderAlternatives(decision) {
 }
 
 export const ar = {
-    WAIT_FOR_USER: () => ({
-        text: 'تمام، قولي طلبك أو المشكلة اللي حابب تتكلم عنها وهساعدك فورًا [[icon:smile]]',
-        options: []
-    }),
+    WAIT_FOR_USER: (decision) => (decision?.followUp === 'check_resolution'
+        // WP4 (G-L5-6): after an answer, a detail or an acknowledgement is not
+        // "the solution failed" — ask whether it worked.
+        ? {
+            text: 'تمام. جرّبت الخطوات اللي فاتت؟ لو المشكلة لسه موجودة قولّي وأنا أكمّل معاك، ولو اتحلت قولّي برضه [[icon:smile]]',
+            options: [
+                { label: '[[icon:check]] تم، شكرًا', value: 'تم الحل' },
+                { label: '[[icon:note]] لسه عندي نفس المشكلة', value: 'المشكلة لسه موجودة' }
+            ]
+        }
+        : {
+            text: 'تمام، قولي طلبك أو المشكلة اللي حابب تتكلم عنها وهساعدك فورًا [[icon:smile]]',
+            options: []
+        }),
 
     ANSWER: (decision) => {
         const isInformational = Boolean(decision.resolution?.knowledgeSource);

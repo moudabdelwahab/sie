@@ -146,3 +146,95 @@ export const TICKET_CONFIRM_OPTIONS = Object.freeze({
         Object.freeze({ label: '[[icon:cancel]] No, not now', value: 'no not now' })
     ])
 });
+
+// ===================================================================
+// Moved from sie-chat-bridge.js and sie-review-queue.js in WP4: every reply
+// a conversational route sends is worded here (Layer 6). Texts unchanged
+// unless marked NEW.
+// ===================================================================
+
+/** The follow-up promise for a declined ticket — must match what the team can honour. */
+export const HUMAN_FOLLOWUP_HOURS = 24;
+
+/**
+ * ما بنقوله للعميل لما نسجّل المحادثة بدل ما نفتح تذكرة. No ticket number:
+ * there is none.
+ */
+export const REVIEW_QUEUED_TEXT = Object.freeze({
+    ar: `تمام، مش هفتح تذكرة. بس سجّلت المحادثة دي لفريق الدعم عشان يشوفوها، `
+        + `وهيتواصلوا معاك خلال ${HUMAN_FOLLOWUP_HOURS} ساعة.`,
+    en: `Understood — no ticket. I have flagged this conversation for the support team, `
+        + `and they will get in touch within ${HUMAN_FOLLOWUP_HOURS} hours.`
+});
+
+/** The honest fallback when the review record could NOT be written: no promise. */
+export const REVIEW_QUEUE_FAILED_TEXT = Object.freeze({
+    ar: 'تمام، مش هفتح تذكرة. لو المشكلة فضلت، تواصل مع فريق الدعم من المنصة وهما هيساعدوك.',
+    en: 'Understood — no ticket. If the problem persists, contact the support team from the platform.'
+});
+
+/** The escalation sentence, in front of the ticket question. */
+export const ESCALATION_REPLY_TEXT = Object.freeze({
+    human_request: {
+        ar: 'تمام، هوصلك بفريق الدعم البشري دلوقتي وهيتواصلوا معاك في أقرب وقت [[icon:note]]',
+        en: "Sure thing, I'll connect you with our human support team right away — they'll be in touch shortly [[icon:note]]"
+    },
+    frustration: {
+        ar: 'أعتذر لو حسّيت إن الرد مش مفيد. هوصلك بفريق الدعم البشري دلوقتي عشان يقدروا يساعدوك بشكل مباشر [[icon:note]]',
+        en: "I'm sorry this hasn't been helpful. I'll connect you with our human support team right away so they can help you directly [[icon:note]]"
+    },
+    // NEW (WP4): a threat is its own escalation reason (owner decision D3).
+    threat: {
+        ar: 'فاهم إن الموضوع ضايقك جدًا، وده حقك. هوصلك بفريق الدعم البشري دلوقتي عشان يتابعوا معاك بشكل مباشر [[icon:note]]',
+        en: "I understand this has really upset you, and that's fair. I'll connect you with our human support team right away so they can follow up with you directly [[icon:note]]"
+    }
+});
+
+/** «تم الحل» and nothing else is open. */
+export const CONVERSATION_CLOSED_TEXT = Object.freeze({
+    ar: 'تمام، مبسوط إنها اتظبطت معاك 🙌\nلو احتجت أي حاجة تانية أنا موجود في أي وقت.',
+    en: "Great — glad that sorted it. I'm here whenever you need anything else."
+});
+
+/** NEW (WP4): one problem is solved and the conversation continues with another. */
+export const RESOLVED_CONTINUE_TEXT = Object.freeze({
+    ar: 'حلو إن دي اتحلت.',
+    en: 'Good to hear that one is sorted.'
+});
+
+/** Tickets are switched off: said plainly. */
+export const TICKET_DISABLED_TEXT = Object.freeze({
+    ar: 'المشكلة دي محتاجة حد من فريق الدعم يشوفها، بس فتح التذاكر متوقف حاليًا من الإعدادات. '
+        + 'تقدر تتواصل مع الفريق مباشرة وهما هيتابعوا معاك [[icon:note]]',
+    en: 'This needs a member of the support team, but ticket creation is currently switched off in settings. '
+        + 'Please contact the team directly and they will follow up with you [[icon:note]]'
+});
+
+/** The account already has an open ticket on this subject. */
+export const TICKET_EXISTING_TEXT = Object.freeze({
+    ar: (n) => `فيه تذكرة مفتوحة عندك في نفس الموضوع (رقم ${n}) والفريق شغّال عليها، فمش هفتح واحدة تانية عشان الموضوع مايتقسمش. أي تفاصيل تزوّدها هنا هتوصلهم على نفس التذكرة.`,
+    en: (n) => `You already have an open ticket about this (#${n}) and the team is on it — I'll add nothing new rather than split it across two tickets. Anything you add here reaches them on that ticket.`
+});
+
+/**
+ * NEW (WP4, G-L5-8): the trust boundary withheld the ticket on this turn.
+ * Says so plainly, without claiming a ticket and without blaming the customer.
+ */
+export const TICKET_WITHHELD_TEXT = Object.freeze({
+    ar: 'مقدرتش أفتح تذكرة من الرسالة دي. لو تحب أفتحلك تذكرة، اكتبلي المشكلة في جملة قصيرة وأنا أكمّل معاك [[icon:note]]',
+    en: "I couldn't open a ticket from that message. If you'd like one, describe the problem in a short sentence and I'll take it from there [[icon:note]]"
+});
+
+/** «يفتكر اسم العميل» و«يفتكر آخر مشكلة» — in the greeting only. */
+export function greetingPersonalisation({ name = null, lastIssue = null }, language = 'ar') {
+    const lang = language === 'en' ? 'en' : 'ar';
+    const parts = [];
+    if (name) parts.push(lang === 'en' ? `Hi ${neutralizeUserText(name)},` : `أهلاً يا ${neutralizeUserText(name)}،`);
+    const label = lastIssue ? (lastIssue[lang] || lastIssue.ar || null) : null;
+    if (label) {
+        parts.push(lang === 'en'
+            ? `last time we looked at "${label}" — did that get sorted?`
+            : `آخر مرة كنا بنشوف «${label}» — اتظبطت معاك؟`);
+    }
+    return parts.length ? `${parts.join(' ')}\n\n` : '';
+}

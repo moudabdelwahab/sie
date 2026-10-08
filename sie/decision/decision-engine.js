@@ -21,6 +21,7 @@
  * object alone, not just a single free-text explanation.
  */
 import { ACTIONS, createEmptyDecisionState } from './decision-types.js';
+import { normalizeTicket, isTicketOnFile } from './ticket-lifecycle.js';
 import { scenarioSignatures } from '../scenarios/scenario-types.js';
 import {
     EVIDENCE_REQUEST_ACTION_BY_CATEGORY,
@@ -31,6 +32,12 @@ import {
 const defaultClock = () => new Date().toISOString();
 
 /**
+ * Turns after an ANSWER that may add detail without a verdict before the
+ * answered scenario becomes a ticket (R6B, G-L5-6).
+ */
+export const ANSWER_FOLLOW_UPS = 2;
+
+/**
  * The trail is what turns a ticket from "customer says it's broken" into
  * "here is what the engine already ruled in and out", so an agent starts
  * where the engine stopped instead of re-asking everything.
@@ -38,7 +45,7 @@ const defaultClock = () => new Date().toISOString();
  * Omitting it (policy.includeTicketSummary off) is for deployments whose
  * agents would rather read the raw conversation.
  */
-function buildTicketDraft(ranking, policy) {
+export function buildTicketDraft(ranking, policy) {
     return {
         scenarioId: ranking.topHypothesis?.hypothesis.scenarioId ?? null,
         category: ranking.topHypothesis?.scenario?.category ?? 'other',
@@ -114,6 +121,10 @@ export function normalizeDecisionState(stored) {
     // `history` is not in the empty state's own shape in every version, and it
     // is spread unconditionally, so it is pinned separately.
     if (!Array.isArray(out.history)) out.history = Array.isArray(stored.history) ? stored.history : [];
+    // The ticket is a record of FACT (ticket-lifecycle.js). A legacy boolean
+    // is not trusted: it may have recorded a proposal or a decline.
+    out.ticket = normalizeTicket(stored.ticket, stored.ticketAlreadyCreated);
+    out.ticketAlreadyCreated = isTicketOnFile(out.ticket);
     return out;
 }
 
@@ -153,14 +164,15 @@ export function decide({ ranking, turn, previousDecisionState, newEvidenceAddedT
         decision = { ...decision, ticketDraft: null, alreadyTicketed: true };
     }
 
-    const decisionState = updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns);
+    const decisionState = recordDecision(prevState, decision, consecutiveNoNewEvidenceTurns);
 
-    return { decision, decisionState };
+    return { decision, decisionState, progress: { consecutiveNoNewEvidenceTurns } };
 }
 
 function finalize(action, opts, turn, evaluatedRules, clock) {
-    const { scenarioId = null, scenarioLabel = null, confidence = null, explanation, targetQuestion = null, resolution = null, ticketDraft = null, attemptNumber = null, hedged = false } = opts;
+    const { scenarioId = null, scenarioLabel = null, confidence = null, explanation, targetQuestion = null, resolution = null, ticketDraft = null, attemptNumber = null, hedged = false, followUp = null } = opts;
     return {
+        ...(followUp ? { followUp } : {}),
         action,
         scenarioId,
         scenarioLabel,
@@ -419,13 +431,21 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
     // answer sent four times, including in reply to "تم الحل" and to the
     // customer introducing themselves.
     //
-    // Repeating a solution is never the right move. If it worked, the
-    // customer has moved on; if it did not, saying it again louder does not
-    // help. So once a scenario has been answered:
+    // Repeating a solution is never the right move. Once a scenario has been
+    // answered:
     //
-    //   customer signalled it is resolved  -> COMPLETE, quietly
-    //   otherwise                          -> the answer did not land, so a
-    //                                         human takes it
+    //   customer says it is still broken    -> a human takes it (ticket)
+    //   customer says it is solved, or
+    //   nothing new was said                -> COMPLETE, quietly
+    //   anything else (a detail, «طيب»,
+    //   «مش فاهم الخطوة التانية»)            -> NOT failure (G-L5-6, audit
+    //                                          I/I3/I4): ask whether it
+    //                                          worked; after
+    //                                          ANSWER_FOLLOW_UPS such turns
+    //                                          without a verdict, a human.
+    //
+    // A message about a DIFFERENT problem never reaches here: Layer 5 ranks
+    // it with the answered scenario excluded (conversation-rules.js).
     const alreadyAnswered = prevState.answeredScenarioIds.includes(topHypothesis.hypothesis.scenarioId);
     evaluatedRules.push({
         rule: 'R6B_ALREADY_ANSWERED',
@@ -435,19 +455,41 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
             : 'The leading scenario has not been answered yet this session.'
     });
     if (alreadyAnswered) {
-        // "لسه عندي نفس المشكلة" is the one thing that overrides everything
-        // else here: the customer is telling us plainly that the stored
-        // answer failed, so no amount of accumulated confidence justifies
-        // treating the issue as closed.
-        const stillBroken = customerSignal === 'unresolved';
-        if (!stillBroken && (customerSignal === 'resolved' || prevState.resolvedByCustomer || noNewEvidence)) {
+        const answered = {
+            scenarioId: topHypothesis.hypothesis.scenarioId,
+            scenarioLabel: topHypothesis.scenario?.label ?? null,
+            confidence: topHypothesis.hypothesis.confidence
+        };
+        // "لسه عندي نفس المشكلة" overrides everything else here: the
+        // customer is telling us plainly that the stored answer failed.
+        if (customerSignal === 'unresolved') {
+            return finalize(
+                ACTIONS.CREATE_TICKET,
+                {
+                    ...answered,
+                    explanation: `"${answered.scenarioId}" was already answered and the customer says it is still not solved; a human takes over rather than repeating it.`,
+                    ticketDraft: buildTicketDraft(ranking, policy)
+                },
+                turn, evaluatedRules, clock
+            );
+        }
+        if (customerSignal === 'resolved' || prevState.resolvedByCustomer || noNewEvidence) {
             return finalize(
                 ACTIONS.COMPLETE,
                 {
-                    scenarioId: topHypothesis.hypothesis.scenarioId,
-                    scenarioLabel: topHypothesis.scenario?.label ?? null,
-                    confidence: topHypothesis.hypothesis.confidence,
-                    explanation: `"${topHypothesis.hypothesis.scenarioId}" was already answered and nothing new suggests it is still open; treating the issue as resolved.`
+                    ...answered,
+                    explanation: `"${answered.scenarioId}" was already answered and nothing new suggests it is still open; treating the issue as resolved.`
+                },
+                turn, evaluatedRules, clock
+            );
+        }
+        if (prevState.followUpsAfterAnswer < ANSWER_FOLLOW_UPS) {
+            return finalize(
+                ACTIONS.WAIT_FOR_USER,
+                {
+                    ...answered,
+                    followUp: 'check_resolution',
+                    explanation: `"${answered.scenarioId}" was already answered; the customer added something that is neither "solved" nor "still broken", so asking whether the answer worked (follow-up ${prevState.followUpsAfterAnswer + 1} of ${ANSWER_FOLLOW_UPS}) instead of treating it as a failure.`
                 },
                 turn, evaluatedRules, clock
             );
@@ -455,39 +497,19 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
         return finalize(
             ACTIONS.CREATE_TICKET,
             {
-                scenarioId: topHypothesis.hypothesis.scenarioId,
-                scenarioLabel: topHypothesis.scenario?.label ?? null,
-                confidence: topHypothesis.hypothesis.confidence,
-                explanation: `"${topHypothesis.hypothesis.scenarioId}" was already answered and the customer is still describing it; the stored solution did not resolve it, so a human takes over rather than repeating it.`,
+                ...answered,
+                explanation: `"${answered.scenarioId}" was already answered and ${ANSWER_FOLLOW_UPS} follow-ups brought no verdict; a human takes over rather than repeating it.`,
                 ticketDraft: buildTicketDraft(ranking, policy)
             },
             turn, evaluatedRules, clock
         );
     }
 
-    // R6C — the leader is ahead, but the evidence does not DISCRIMINATE.
-    //
-    // A high confidence and a discriminating observation are different things,
-    // and this engine's confidence cannot tell them apart: it is a coverage
-    // ratio, so one token can complete a thin signature. When many scenarios
-    // clear the resolution bar at once, the leader is being selected by how
-    // the catalog was written rather than by what the customer said, and
-    // answering automatically means answering a question nobody asked.
-    //
-    // Asking is the correct response, so this suppresses R7 and lets R8 do
-    // its job rather than routing to a supplementary-evidence request.
-    const resolvableCount = ranking.ranked.filter(
-        (h) => h.hypothesis.confidence >= policy.resolutionConfidenceThreshold
-    ).length;
-    const nonDiscriminating = resolvableCount > policy.maxSimultaneousResolvable;
-    evaluatedRules.push({
-        rule: 'R6C_NON_DISCRIMINATING_EVIDENCE',
-        matched: nonDiscriminating,
-        detail: `${resolvableCount} scenario(s) clear resolutionThreshold=${policy.resolutionConfidenceThreshold}; maxSimultaneousResolvable=${policy.maxSimultaneousResolvable}`
-    });
+    // R6C (non-discriminating evidence) was removed in WP4 (G-L5-12): its cap
+    // was Infinity, so it could never fire, and measured at every finite cap
+    // it suppressed more correct answers than wrong ones (docs/WP4-PLAN.md §4).
 
-    const rule7Matches =
-        !nonDiscriminating && topHypothesis.hypothesis.confidence >= policy.resolutionConfidenceThreshold;
+    const rule7Matches = topHypothesis.hypothesis.confidence >= policy.resolutionConfidenceThreshold;
     evaluatedRules.push({
         rule: 'R7_CONFIDENT_LEADER',
         matched: rule7Matches,
@@ -563,9 +585,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
     evaluatedRules.push({
         rule: 'R8_REFINE',
         matched: true,
-        detail: nonDiscriminating
-            ? `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} clears the resolution threshold, but ${resolvableCount} scenarios clear it together — the evidence does not discriminate.`
-            : `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} is active but below resolution threshold, and not ambiguous.`
+        detail: `topConfidence=${topHypothesis.hypothesis.confidence.toFixed(3)} is active but below resolution threshold, and not ambiguous.`
     });
     const ownUnasked = findUnaskedCandidateQuestion(candidateDiscriminatingQuestions, prevState.askedQuestionIds, topHypothesis.hypothesis.scenarioId);
     if (ownUnasked && prevState.questionsAskedCount < policy.maxClarifyingQuestions) {
@@ -575,9 +595,7 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
                 scenarioId: topHypothesis.hypothesis.scenarioId,
                 scenarioLabel: topHypothesis.scenario?.label ?? null,
                 confidence: topHypothesis.hypothesis.confidence,
-                explanation: nonDiscriminating
-                    ? `"${topHypothesis.hypothesis.scenarioId}" leads, but ${resolvableCount} scenarios clear the resolution threshold on the same evidence; asking a discriminating question instead of guessing between them.`
-                    : `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the resolution threshold (${policy.resolutionConfidenceThreshold}); asking a discriminating question to confirm it.`,
+                explanation: `"${topHypothesis.hypothesis.scenarioId}" confidence ${topHypothesis.hypothesis.confidence.toFixed(2)} is below the resolution threshold (${policy.resolutionConfidenceThreshold}); asking a discriminating question to confirm it.`,
                 targetQuestion: ownUnasked.question
             },
             turn, evaluatedRules, clock
@@ -672,7 +690,22 @@ function decideAction({ ranking, turn, prevState, noNewEvidence, consecutiveNoNe
     );
 }
 
-function updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns) {
+/**
+ * The decision state after `decision`. Exported so Layer 5's conversation
+ * rules can record the decision that was FINALLY taken (after the article
+ * rescue, the trust boundary, the ticket finalisation) rather than the one
+ * first proposed — the state must describe what happened (RC1, RC10).
+ *
+ * The ticket is not touched here: a decision is not a ticket. The ticket
+ * lifecycle (ticket-lifecycle.js) is advanced by Layer 5 and committed by
+ * the Action layer.
+ *
+ * @param {Object} previousDecisionState
+ * @param {Object} decision
+ * @param {number} consecutiveNoNewEvidenceTurns
+ */
+export function recordDecision(previousDecisionState, decision, consecutiveNoNewEvidenceTurns) {
+    const prevState = normalizeDecisionState(previousDecisionState);
     const askedQuestionIds =
         decision.action === ACTIONS.ASK_CLARIFYING_QUESTION && decision.targetQuestion
             ? [...prevState.askedQuestionIds, decision.targetQuestion.id]
@@ -683,9 +716,9 @@ function updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns)
 
     const isEvidenceRequestAction = [ACTIONS.ASK_FOR_SCREENSHOT, ACTIONS.ASK_FOR_ATTACHMENT, ACTIONS.ASK_FOR_LOGS].includes(decision.action);
 
-    const ticketAlreadyCreated =
-        prevState.ticketAlreadyCreated ||
-        (decision.action === ACTIONS.CREATE_TICKET || decision.action === ACTIONS.ESCALATE_TO_HUMAN);
+    const followUpsAfterAnswer = decision.action === ACTIONS.ANSWER
+        ? 0
+        : prevState.followUpsAfterAnswer + (decision.followUp === 'check_resolution' ? 1 : 0);
 
     const answeredScenarioIds =
         decision.action === ACTIONS.ANSWER && decision.scenarioId
@@ -706,7 +739,11 @@ function updateDecisionState(prevState, decision, consecutiveNoNewEvidenceTurns)
             : null,
         answeredScenarioIds,
         resolvedByCustomer: prevState.resolvedByCustomer || decision.action === ACTIONS.COMPLETE,
-        ticketAlreadyCreated,
+        ticket: prevState.ticket,
+        ticketAlreadyCreated: isTicketOnFile(prevState.ticket),
+        declinedScenarioIds: prevState.declinedScenarioIds,
+        resolvedScenarioIds: prevState.resolvedScenarioIds,
+        followUpsAfterAnswer,
         history: [
             ...prevState.history,
             { turn: decision.turn, action: decision.action, scenarioId: decision.scenarioId, confidence: decision.confidence, explanation: decision.explanation }

@@ -31,36 +31,20 @@
  * to perform.
  *
  * ------------------------------------------------------------
- * THE ORDER, AND WHY IT IS THIS ORDER
+ * THE ORDER — owned by Layer 5 since WP4
  *
- * Made explicit because it is a real design decision, not an accident of
- * which check was written first:
+ * The routing rules (pending ticket question, escalation, memory, "that
+ * worked" after an answer, small talk, diagnosis — in that order) live in
+ * sie/decision/conversation-rules.js (planTurn), the one owner. This module
+ * maps that plan onto TURN_KINDS for the comparator; it holds no rule of its
+ * own, so the live engine and the shadow cannot route differently.
  *
- *   1. PENDING_CONFIRMATION — the engine asked a yes/no question last turn.
- *      Nothing else may interpret the answer, because "أيوه" means
- *      whatever the pending question made it mean.
- *   2. ESCALATION — an explicit request for a human, or anger. Honoured
- *      before anything tries to be clever, because a customer asking for a
- *      person has already told you the automated path failed.
- *   3. MEMORY — "احفظ ده" / "انت فاكر إيه عني" are instructions ABOUT the
- *      conversation. Running them through diagnosis produced unrelated
- *      answers, which is why the check exists.
- *   4. RESOLUTION — "تمام اتحلت" after the engine actually answered. Ends
- *      the conversation and clears diagnostic state.
- *   5. SMALL_TALK — greetings and identity questions. After memory and
- *      resolution because "شكرًا" is both a pleasantry and a resolution
- *      signal, and the resolution reading is the one that matters when the
- *      engine has just answered.
- *   6. DIAGNOSTIC — everything else. The default, deliberately: an
- *      unrecognised message is a problem report, not noise.
- *
- * Emotion is an ANNOTATION, not a kind. It rides along with whatever the
- * message turned out to be, because a customer can be angry and still be
- * describing a specific problem — and the old code treated frustration as a
- * small-talk TYPE, which meant an angry problem report lost its problem.
+ * Emotion is an ANNOTATION, not a kind: an angry customer describing a
+ * specific problem is diagnosed (G-L5-11, G-L5-13).
  */
-import { shouldEscalateForEmotion } from '../language/emotion-detector.js';
 import { analyzeSignals } from '../language/signals.js';
+import { planTurn, conversationPolicy, ROUTES } from '../decision/conversation-rules.js';
+import { SIE_DEFAULT_SETTINGS } from '../config/settings-schema.js';
 
 /** The kinds a turn can be. Exhaustive and mutually exclusive. */
 export const TURN_KINDS = Object.freeze({
@@ -72,6 +56,15 @@ export const TURN_KINDS = Object.freeze({
     DIAGNOSTIC: 'diagnostic'
 });
 
+const KIND_BY_ROUTE = Object.freeze({
+    [ROUTES.PENDING]: TURN_KINDS.PENDING_CONFIRMATION,
+    [ROUTES.ESCALATION]: TURN_KINDS.ESCALATION,
+    [ROUTES.MEMORY]: TURN_KINDS.MEMORY,
+    [ROUTES.RESOLUTION]: TURN_KINDS.RESOLUTION,
+    [ROUTES.SMALL_TALK]: TURN_KINDS.SMALL_TALK,
+    [ROUTES.DIAGNOSTIC]: TURN_KINDS.DIAGNOSTIC
+});
+
 /**
  * @typedef {Object} Interpretation
  * @property {string} kind              one of TURN_KINDS
@@ -81,74 +74,49 @@ export const TURN_KINDS = Object.freeze({
  * @property {Object|null} memoryIntent the memory reading, when kind is MEMORY
  * @property {string|null} resolutionSignal
  * @property {boolean} escalatesToHuman
+ * @property {Object} plan              Layer 5's plan (conversation-rules.js)
  */
 
 /**
+ * The kind of turn — decided by Layer 5's planTurn(), the SAME rules the
+ * live orchestrator runs (WP4). Before WP4 this function was a second copy of
+ * the bridge's routing; now it is a projection of the one owner.
+ *
  * @param {Object} params
- * @param {Object} [params.signals]              Layer 1's signals (sie/language/signals.js) —
- *                                               what the pipeline passes; interpretation never
- *                                               classifies text itself (G-L1-6)
- * @param {string} [params.text]                 only when no signals are given (direct callers):
- *                                               read through analyzeSignals with no tokens
- * @param {Object} [params.previous]             previous SIE state
- * @param {Object} [params.settings]             engine settings
+ * @param {Object} [params.signals]   Layer 1's signals (what the pipeline passes)
+ * @param {string} [params.text]      only when no signals are given (direct callers)
+ * @param {Object} [params.previous]  previous SIE state
+ * @param {Object} [params.settings]  engine settings
  * @param {string[]} [params.enabledEmotions]
+ * @param {number} [params.nowMs]     the turn's clock (prompt expiry)
  * @returns {Interpretation}
  */
-export function interpretTurn({ signals = null, text, previous = null, settings = {}, enabledEmotions = undefined } = {}) {
+export function interpretTurn({ signals = null, text, previous = null, settings = {}, enabledEmotions = undefined, nowMs = Date.now() } = {}) {
     const read = signals || analyzeSignals({
         text: typeof text === 'string' ? text : '',
         previousText: previous?.lastCustomerText || '',
         emotionDetection: settings.emotion_detection !== false,
         enabledEmotions
     });
-    const { emotion, smallTalk } = read;
-    const resolutionSignal = read.resolution;
-    // Only a message that IS about memory: an explicit request, or an
-    // introduction standing alone (the same rule as the bridge).
-    const memoryIntent = read.memory && (read.memory.explicit || read.memory.standalone) ? read.memory : null;
-
-    const base = { emotion, smallTalk, memoryIntent, resolutionSignal, escalatesToHuman: false };
-
-    // 1. A pending yes/no owns the turn.
-    if (previous?.pendingTicketConfirmation) {
-        return { ...base, kind: TURN_KINDS.PENDING_CONFIRMATION, reason: 'a ticket confirmation was pending' };
-    }
-
-    // 2. Escalation. `wantsHuman` is honoured whatever the settings say —
-    //    «يرد على التحيات» is about pleasantries and must not silently
-    //    disable an explicit request for a person.
-    const wantsHuman = Boolean(read.humanRequest);
-    const angerEscalates = shouldEscalateForEmotion(emotion) && settings.ticket_on_anger !== false;
-    const legacyFrustration = smallTalk?.type === 'frustration' && settings.ticket_on_anger !== false;
-    if (wantsHuman || angerEscalates || legacyFrustration) {
-        return {
-            ...base,
-            kind: TURN_KINDS.ESCALATION,
-            escalatesToHuman: true,
-            reason: wantsHuman ? 'human_request' : 'frustration'
-        };
-    }
-
-    // 3. Instructions about the conversation itself.
-    if (memoryIntent) {
-        return { ...base, kind: TURN_KINDS.MEMORY, reason: `memory:${memoryIntent.kind}` };
-    }
-
-    // 4. "That worked" — but only once the engine has actually answered
-    //    something. Before that, "تمام" is a pleasantry.
-    const alreadyAnswered = (previous?.decisionState?.answeredScenarioIds || []).length > 0;
-    if (resolutionSignal === 'resolved' && alreadyAnswered) {
-        return { ...base, kind: TURN_KINDS.RESOLUTION, reason: 'resolution signal after an answer' };
-    }
-
-    // 5. Pleasantries — only when the pleasantry is the whole message.
-    if (smallTalk?.coversWholeMessage) {
-        return { ...base, kind: TURN_KINDS.SMALL_TALK, reason: `small_talk:${smallTalk.type}` };
-    }
-
-    // 6. Default: a problem to diagnose.
-    return { ...base, kind: TURN_KINDS.DIAGNOSTIC, reason: null };
+    // The pipeline is called with partial settings; the engine's defaults
+    // apply where a setting is absent, as they do live.
+    const policy = conversationPolicy({ ...SIE_DEFAULT_SETTINGS, ...settings });
+    const plan = planTurn({ signals: read, prev: previous, policy, nowMs });
+    const reason = plan.escalation?.reason
+        ?? (plan.memory ? `memory:${plan.memory.kind}` : null)
+        ?? (plan.smallTalk ? `small_talk:${plan.smallTalk}` : null)
+        ?? (plan.prompt ? `ticket question: ${plan.prompt.answer}` : null)
+        ?? (plan.close ? `resolution signal after an answer (${plan.close.mode})` : null);
+    return {
+        kind: KIND_BY_ROUTE[plan.route],
+        reason,
+        emotion: read.emotion,
+        smallTalk: read.smallTalk,
+        memoryIntent: plan.memory,
+        resolutionSignal: read.resolution,
+        escalatesToHuman: plan.route === ROUTES.ESCALATION,
+        plan
+    };
 }
 
 /** The compact projection for a TraceEvent. */

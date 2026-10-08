@@ -22,10 +22,18 @@ function renderAlternatives(decision) {
 }
 
 export const en = {
-    WAIT_FOR_USER: () => ({
-        text: "Sure, go ahead and tell me what's going on and I'll help right away.",
-        options: []
-    }),
+    WAIT_FOR_USER: (decision) => (decision?.followUp === 'check_resolution'
+        ? {
+            text: "Got it. Did the steps above work? If the problem is still there, tell me and I'll keep going — and if it's solved, let me know too.",
+            options: [
+                { label: 'Yes, thanks', value: 'resolved' },
+                { label: "I'm still having the same issue", value: 'still having the issue' }
+            ]
+        }
+        : {
+            text: "Sure, go ahead and tell me what's going on and I'll help right away.",
+            options: []
+        }),
 
     ANSWER: (decision) => {
         const isInformational = Boolean(decision.resolution?.knowledgeSource);

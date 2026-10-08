@@ -7,10 +7,9 @@
  * tests prove what a turn does; these prove where the code that does it
  * lives, which no behavioural test can see.
  *
- * The bridge measurement is RED by design: the measured violations are
- * pinned, exactly like a red golden run. WP4 (bridge emptied) and WP9
- * (dialogue consolidation) flip it; adding a new violation in the meantime
- * fails. The Language-module measurement went green in WP3.
+ * The bridge measurement was RED by design from WP1 (pinned, like a red
+ * golden run) and went green in WP4, when the bridge was emptied to an
+ * orchestrator (G-BR-1). The Language-module measurement went green in WP3.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -55,19 +54,68 @@ export function languageReplyExports() {
     return found;
 }
 
-test('[pending:G-BR-1][pending:G-L6-1] RED: the bridge still holds customer text, classifiers and early returns (pinned until WP4/WP9)', () => {
-    const v = bridgeViolations();
-    // Pinned measurements at WP1. A lower number means progress: update the pin
-    // in the same change. A higher number means a new violation: not allowed.
-    // successReturns counts every non-null `return` from runSieTurn onward,
-    // nested helpers included — a stable measurement, not a semantic one.
-    // WP1: { customerText: 14, regexClassifiers: 19, successReturns: 7 }.
-    // WP3: the confirmation classifier moved into Layer 1 (reply-polarity.js)
-    // and the ticket-confirmation texts into Dialogue (templates/conversational.js).
-    const PINNED = { customerText: 9, regexClassifiers: 0, successReturns: 7 };
-    assert.deepEqual(v, PINNED, `bridge violations changed: ${JSON.stringify(v)} (pinned ${JSON.stringify(PINNED)})`);
-    const done = v.customerText === 0 && v.regexClassifiers === 0 && v.successReturns === 1;
-    assert.ok(!done, 'still red: when the bridge reaches 0 text, 0 classifiers and 1 success return, replace this test with the green G-BR-1 assertion');
+test('[G-BR-1] the bridge is an orchestrator: no customer text, no classifier, one success return, no state literal', () => {
+    // History of this measurement: WP1 { customerText: 14, regexClassifiers: 19,
+    // successReturns: 7 }; WP3 { 9, 0, 7 } (classifier to Layer 1, ticket
+    // prompt to Dialogue); WP4 { 0, 0, 1 } (routing to Layer 5, texts to
+    // Layer 6, effects to Layer 8).
+    assert.deepEqual(bridgeViolations(), { customerText: 0, regexClassifiers: 0, successReturns: 1 });
+    // No session state is composed here: Layer 5 builds it, Layer 8 stamps it.
+    const src = code('sie-integration/sie-chat-bridge.js');
+    assert.ok(!/\bsie\s*:\s*\{/.test(src), 'the bridge builds a bot_state.sie literal');
+    assert.ok(!/lastTurnAt|pendingTicketConfirmation|ticketAlreadyCreated/.test(src), 'the bridge reads or writes a state field');
+});
+
+test('[G-BR-1] Layer 5 is the single owner of every routing rule: the bridge\'s decision paths are gone', () => {
+    const src = code('sie-integration/sie-chat-bridge.js');
+    // The pre-WP4 bridge decision paths (audit §3, overrides 1–14).
+    const removed = [
+        'resolvePendingTicketConfirmation', 'beginTicketConfirmation', 'escalateImmediately', 'handleMemoryIntent',
+        'closeConversation', 'respondToSmallTalk', 'rescueWithArticle', 'recallPreviousState', 'confirmationAnswer',
+        'buildGreetingPersonalisation', 'shouldEscalateForEmotion', 'collectAlternatives', 'recordingPort'
+    ];
+    assert.deepEqual(removed.filter((name) => src.includes(name)), [], 'a removed bridge decision path is back');
+    // The bridge calls no decision, authorization, rendering or write primitive directly.
+    for (const call of ['decide(', 'admitAction(', 'admitFacts(', 'renderDecision(', 'executeDecision(', 'freeFloor(', 'requestHumanHandoff(supabase, { sessionId, reason: \'']) {
+        assert.ok(!src.includes(call), `the bridge calls ${call} itself`);
+    }
+    // The rules exist exactly once, in Layer 5.
+    const rules = code('sie/decision/conversation-rules.js');
+    for (const fn of ['export function planTurn', 'export function classifyPromptAnswer', 'export function escalationFor', 'export function focusFor', 'export function decideTurn', 'export function finalizeTurn', 'export function loadPreviousState']) {
+        assert.ok(rules.includes(fn), `${fn} is missing from Layer 5`);
+    }
+    // And the vNext interpretation projects them instead of holding a copy.
+    const interp = code('sie/pipeline/interpretation.js');
+    assert.ok(interp.includes('planTurn('), 'interpretation.js does not use Layer 5');
+    assert.ok(!/ticket_on_anger|answeredScenarioIds|coversWholeMessage|humanRequest/.test(interp), 'interpretation.js holds its own routing rule');
+});
+
+test('[G-BR-1] the bridge calls the layers in order', () => {
+    const src = code('sie-integration/sie-chat-bridge.js');
+    const body = src.slice(src.indexOf('export async function runSieTurn'));
+    const order = [
+        'tryConsumeSieMessage(',   // gates
+        'normalize(',              // L1
+        'analyzeSignals(',         // L1
+        'loadPreviousState(',      // L5 (context) — precedes L1 in the text; checked below
+        'openTurn(',               // CP1
+        'planTurn(',               // L5
+        'processTurn(',            // L3
+        'rankDiagnosticState(',    // L4
+        'focusFor(',               // L5 focus
+        'decideTurn(',             // L5
+        'composeAnswerDecision(',  // L7
+        'finalizeTurn(',           // L5
+        'runPreEffects(',          // L8
+        'renderTurn(',             // L6
+        'commitTurn(',             // L8
+        'runPostEffects(',         // L8
+        'writeTurnTrace('          // L9
+    ].filter((c) => c !== 'loadPreviousState(');
+    const at = order.map((c) => [c, body.indexOf(c)]);
+    for (const [c, i] of at) assert.ok(i > 0, `${c} is not called`);
+    for (let k = 1; k < at.length; k++) assert.ok(at[k - 1][1] < at[k][1], `${at[k - 1][0]} must come before ${at[k][0]}`);
+    assert.ok(body.indexOf('loadPreviousState(') < body.indexOf('planTurn('));
 });
 
 test('[G-L1-6] the bridge holds no text classifier: every Arabic pattern lives in Layer 1', () => {

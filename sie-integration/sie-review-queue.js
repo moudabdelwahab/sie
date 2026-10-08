@@ -56,7 +56,9 @@
  */
 
 /** الوعد اللي بنقوله للعميل — لازم يطابق اللي فريق الدعم بيقدر يلتزم بيه. */
-export const HUMAN_FOLLOWUP_HOURS = 24;
+import { HUMAN_FOLLOWUP_HOURS } from '../sie/dialogue/templates/conversational.js';
+
+export { HUMAN_FOLLOWUP_HOURS };
 
 /**
  * Records a conversation as needing human attention, without a ticket.
@@ -114,26 +116,7 @@ function buildNote({ turn, note }) {
     return parts.filter(Boolean).join(' ');
 }
 
-/**
- * ما بنقوله للعميل لما نسجّل المحادثة بدل ما نفتح تذكرة.
- *
- * Deliberately does not mention a ticket number, because there is none —
- * promising a reference the customer cannot look up is how "I contacted
- * support" becomes "support has no record of me".
- */
-export const REVIEW_QUEUED_TEXT = {
-    ar: `تمام، مش هفتح تذكرة. بس سجّلت المحادثة دي لفريق الدعم عشان يشوفوها، `
-        + `وهيتواصلوا معاك خلال ${HUMAN_FOLLOWUP_HOURS} ساعة.`,
-    en: `Understood — no ticket. I have flagged this conversation for the support team, `
-        + `and they will get in touch within ${HUMAN_FOLLOWUP_HOURS} hours.`
-};
-
-/**
- * The honest fallback when the record could NOT be written.
- *
- * Never promises the 24 hours, because nothing was queued to honour it.
- */
-export const REVIEW_QUEUE_FAILED_TEXT = {
-    ar: 'تمام، مش هفتح تذكرة. لو المشكلة فضلت، تواصل مع فريق الدعم من المنصة وهما هيساعدوك.',
-    en: 'Understood — no ticket. If the problem persists, contact the support team from the platform.'
-};
+// The customer-facing texts for a queued decline live in Dialogue
+// (sie/dialogue/templates/conversational.js) since WP4; re-exported here for
+// existing importers.
+export { REVIEW_QUEUED_TEXT, REVIEW_QUEUE_FAILED_TEXT } from '../sie/dialogue/templates/conversational.js';

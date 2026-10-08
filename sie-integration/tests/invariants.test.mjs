@@ -20,30 +20,18 @@
  *               (proposed, declined, withheld, unavailable, existing); and a
  *               ticket is never created by a turn that did not decide one.
  *
- * Violations that exist today are PINNED, exactly like a red golden run: the
- * test fails if the set changes in either direction. A fix shrinks the pin in
- * the same change; WP4 ends with every pin empty.
+ * At WP4.0 these were pinned as known violations (137 false ticket claims,
+ * 115 unstamped writes, 100 decided-vs-executed mismatches across the
+ * goldens). WP4 brought every list to zero, and they must stay there.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { loadGoldens, TEXT } from './helpers/golden-runner.mjs';
 import { makeWorld, converse, loadSettingsProfile } from './helpers/runtime-world.mjs';
 
 const TICKET_ACTIONS = new Set(['CREATE_TICKET', 'ESCALATE_TO_HUMAN']);
 const NOT_CREATED_STATES = new Set(['proposed', 'declined', 'withheld', 'unavailable', 'existing']);
-
-/**
- * Violations found today, by invariant, as `<golden>[<profile>] <chat>#<turn>`
- * (fixtures/invariant-violations.json). The file is only ever edited by hand,
- * or regenerated with INVARIANTS_WRITE_PIN=1 — and its diff is the record of
- * what a change fixed (or broke).
- */
-const PIN_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', 'invariant-violations.json');
-const PINNED = JSON.parse(fs.readFileSync(PIN_FILE, 'utf8')).violations;
 
 const get = (obj, dotted) => dotted.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
@@ -63,11 +51,15 @@ async function violations(golden, profile) {
             const ticketState = get(sie, 'decisionState.ticket.state');
 
             // INV-TICKET
-            const claimsCreated = sie?.decisionState?.ticketAlreadyCreated === true || ticketState === 'created';
+            // `ticketAlreadyCreated` is "a ticket is on file": one created in
+            // this chat, or the account's own open ticket (`existing`).
+            const anyTicket = ticketsHere > 0 || world.openTickets.length > 0;
+            const claimsOnFile = sie?.decisionState?.ticketAlreadyCreated === true;
             const claimsOpen = rec.reply?.includes(TEXT.TICKET_STILL_OPEN);
-            if ((claimsCreated && ticketsHere === 0) ||
+            if ((ticketState === 'created' && ticketsHere === 0) ||
                 (ticketState === 'existing' && world.openTickets.length === 0) ||
-                (claimsOpen && ticketsHere === 0 && world.openTickets.length === 0)) {
+                (claimsOnFile && !anyTicket) ||
+                (claimsOpen && !anyTicket)) {
                 found['INV-TICKET'].push(at);
             }
 
@@ -79,7 +71,11 @@ async function violations(golden, profile) {
 
             // INV-EFFECT
             const action = rec.trace?.decision?.action;
-            if (TICKET_ACTIONS.has(action) && rec.ticketsOpened === 0 && !NOT_CREATED_STATES.has(ticketState)) {
+            // A ticket decision for a session with a ticket on file is a
+            // reminder (alreadyTicketed, no draft): executing no ticket IS the
+            // decided effect — provided a ticket really is on file.
+            const reminder = rec.trace?.decision?.alreadyTicketed === true && (ticketState === 'created' || ticketState === 'existing');
+            if (TICKET_ACTIONS.has(action) && rec.ticketsOpened === 0 && !NOT_CREATED_STATES.has(ticketState) && !reminder) {
                 found['INV-EFFECT'].push(at);
             } else if (rec.ticketsOpened > 0 && rec.trace && !TICKET_ACTIONS.has(action) && action !== undefined) {
                 // A ticket created on a turn whose recorded decision was not a
@@ -100,23 +96,19 @@ const ready = (async () => {
         }
     }
     for (const k of Object.keys(all)) all[k].sort();
-    if (process.env.INVARIANTS_WRITE_PIN === '1') {
-        const doc = JSON.parse(fs.readFileSync(PIN_FILE, 'utf8'));
-        fs.writeFileSync(PIN_FILE, JSON.stringify({ ...doc, violations: all }, null, 2) + '\n');
-    }
 })();
 
-test('[pending:G-L5-1][pending:G-L6-2] INV-TICKET: a ticket is claimed only when one exists (pinned violations)', async () => {
+test('[G-L5-1][G-L6-2] INV-TICKET: a ticket is claimed only when one exists, on every turn of every golden', async () => {
     await ready;
-    assert.deepEqual(all['INV-TICKET'], PINNED['INV-TICKET']);
+    assert.deepEqual(all['INV-TICKET'], []);
 });
 
-test('[pending:G-L8-2] INV-STAMP: every persisted state carries this turn\'s lastTurnAt (pinned violations)', async () => {
+test('[G-L8-2] INV-STAMP: every persisted state carries this turn\'s lastTurnAt, on every route', async () => {
     await ready;
-    assert.deepEqual(all['INV-STAMP'], PINNED['INV-STAMP']);
+    assert.deepEqual(all['INV-STAMP'], []);
 });
 
-test('[pending:G-L8-5] INV-EFFECT: the executed effect equals the decided effect (pinned violations)', async () => {
+test('[G-L8-5] INV-EFFECT: the executed effect equals the decided effect, on every turn', async () => {
     await ready;
-    assert.deepEqual(all['INV-EFFECT'], PINNED['INV-EFFECT']);
+    assert.deepEqual(all['INV-EFFECT'], []);
 });

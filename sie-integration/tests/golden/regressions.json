@@ -88,10 +88,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "partlyFixedIn": "WP3: the restated problem is no longer read as a decline (no review is queued). Still red for WP4: at the pending ticket question the bridge re-asks instead of diagnosing it."
+      "partlyFixedIn": "WP3: the restated problem is no longer read as a decline (no review is queued). Still red for WP4: at the pending ticket question the bridge re-asks instead of diagnosing it.",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-D1-plain-no",
@@ -215,8 +216,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.replyIsNot"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-C-not-resolved-is-not-closed",
@@ -340,10 +342,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "note": "Added in WP3. Layer 1 reads this correctly: resolution=resolved AND diagnosticContent=true (entity_payment, symptom_generic_problem). The route ignores the second signal and closes the conversation, wiping its state. Closing rules move to Decision in WP4 (G-L5-4); that change flips this run."
+      "note": "Added in WP3. Layer 1 reads this correctly: resolution=resolved AND diagnosticContent=true (entity_payment, symptom_generic_problem). The route ignores the second signal and closes the conversation, wiping its state. Closing rules move to Decision in WP4 (G-L5-4); that change flips this run.",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F1-install-is-not-anger",
@@ -414,8 +417,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIsNot"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F2b-polite-closing-is-not-anger",
@@ -447,8 +451,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIsNot"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-B-closing-remark-does-not-cross-chats",
@@ -637,9 +642,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#5.replyIsNot", "a#5.ticketsTotal"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#5.replyIsNot", "a#5.ticketsTotal"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-G-pending-prompt-expires",
@@ -679,9 +685,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.stateHas", "a#2.replyIsNot", "a#2.stateLacks"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#1.stateHas", "a#2.replyIsNot", "a#2.stateLacks"] }
-      ]
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-H-ticket-status-from-real-data",
@@ -1120,8 +1127,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-I2-no-rule-is-dead-by-construction",
@@ -1149,8 +1157,9 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.ruleDetailExcludes"] }
-      ]
+        { "profile": "production", "status": "green" }
+      ],
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-J-multi-problem-message-keeps-its-evidence",
@@ -1222,10 +1231,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot", "a#2.stateHas"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-C5-one-of-two-problems-resolved-keeps-the-other",
@@ -1269,10 +1279,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesInclude", "a#2.replyIsNot", "a#2.stateHas"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesInclude", "a#2.replyIsNot", "a#2.stateHas"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-C6-new-problem-then-resolution-in-one-message",
@@ -1314,10 +1325,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.decisionScenarioNotPrefix", "a#2.hypothesesNonEmpty", "a#2.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-M1-two-new-problems-are-both-kept",
@@ -1397,10 +1409,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-I4-not-understood-after-answer-is-not-failure",
@@ -1436,10 +1449,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.actionNot", "a#2.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-D4-new-problem-at-ticket-question-is-diagnosed",
@@ -1485,10 +1499,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-D4b-new-problem-at-escalation-question-is-diagnosed",
@@ -1531,10 +1546,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-D5-restated-negated-problem-is-not-a-decline",
@@ -1579,10 +1595,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.hypothesesNonEmpty"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-E2-new-problem-after-decline-is-not-the-declined-ticket",
@@ -1631,10 +1648,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.ticketState", "a#4.decisionScenarioNotPrefix"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.ticketState", "a#4.decisionScenarioNotPrefix"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-E3-created-ticket-is-not-proposed-again",
@@ -1683,10 +1701,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.lastTicketCommittedAs", "a#3.ticketState", "a#4.replyIs", "a#4.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.lastTicketCommittedAs", "a#3.ticketState", "a#4.replyIs", "a#4.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-L5-1a-proposed-ticket-is-proposed",
@@ -1724,10 +1743,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.stateEquals", "a#2.ticketState"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.stateEquals", "a#2.ticketState"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-L5-1b-withheld-ticket-is-withheld",
@@ -1774,9 +1794,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketState", "a#4.replyIsNot", "a#4.ticketsTotal"] }
+        { "profile": "production", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-L5-1c-unavailable-ticket-is-unavailable",
@@ -1814,10 +1835,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketState"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.ticketState"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-L5-1d-open-account-ticket-is-existing",
@@ -1863,9 +1885,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.ticketState"] }
+        { "profile": "production", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-G2-expired-question-does-not-hijack-a-new-problem",
@@ -1904,10 +1927,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-G2b-expired-diagnostic-question-does-not-hijack-a-new-problem",
@@ -1953,10 +1977,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.decisionScenarioNotPrefix", "a#3.hypothesesNonEmpty", "a#3.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-G3-late-yes-is-a-valid-request",
@@ -2131,10 +2156,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#3.replyIsNot", "a#3.stateLacks"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#3.replyIsNot", "a#3.stateLacks"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F5-anger-with-a-problem-is-diagnosed",
@@ -2168,10 +2194,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#1.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F6-sarcasm-without-context-is-not-escalated",
@@ -2203,10 +2230,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.replyIsNot"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#1.replyIsNot"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F7a-human-request-keeps-the-problem",
@@ -2247,10 +2275,11 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#2.lastTicketHasScenario"] },
-        { "profile": "defaults", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty", "a#2.lastTicketHasScenario"] }
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F7b-threat-escalates-and-keeps-the-problem",
@@ -2283,9 +2312,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
+        { "profile": "production", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F8-repeated-anger-escalates",
@@ -2321,9 +2351,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#2.hypothesesNonEmpty", "a#2.replyIs"] }
+        { "profile": "production", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F9-kill-switch-restores-lexicon-escalation",
@@ -2358,9 +2389,10 @@
         }
       ],
       "runs": [
-        { "profile": "production", "status": "red", "failingNow": ["a#1.hypothesesNonEmpty"] }
+        { "profile": "production", "status": "green" }
       ],
-      "addedIn": "WP4"
+      "addedIn": "WP4",
+      "fixedIn": "WP4"
     },
     {
       "id": "REG-F9b-kill-switch-restores-sarcasm-escalation",
@@ -2394,6 +2426,76 @@
       ],
       "runs": [
         { "profile": "production", "status": "green" }
+      ],
+      "addedIn": "WP4"
+    },
+    {
+      "id": "REG-G6-ticket-question-does-not-cross-chats",
+      "finding": "G",
+      "p0": [
+        8,
+        17
+      ],
+      "guarantees": [
+        "G-L5-2",
+        "G-L5-3",
+        "G-BR-1"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "MS",
+        "PS"
+      ],
+      "title": "A ticket question asked in one chat does not capture a «yes» typed in another chat of the same customer; the original chat still honours its own answer",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIs": "TICKET_CONFIRM",
+                "ticketState": "proposed"
+              }
+            }
+          ]
+        },
+        {
+          "chat": "b",
+          "turns": [
+            {
+              "say": "اه",
+              "expect": {
+                "ticketsTotal": 0,
+                "replyIsNot": [
+                  "TICKET_CONFIRM",
+                  "TICKET_STILL_OPEN"
+                ],
+                "stateLacks": "sie.pendingTicketConfirmation"
+              }
+            }
+          ]
+        },
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "اه",
+              "expect": {
+                "ticketsTotal": 1,
+                "ticketState": "created"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
       ],
       "addedIn": "WP4"
     }

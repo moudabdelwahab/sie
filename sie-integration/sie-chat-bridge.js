@@ -3,47 +3,58 @@
  * ------------------------------------------------------------
  * ⚠️ Not a public surface. Mad3oom must import sie-runtime.js instead.
  * This file's entry point is runSieTurn(); the runtime wraps it as
- * getSieReply(). Anything reaching directly in here is coupling itself
- * to the orchestration order, which is free to change.
+ * getSieReply().
  *
- * The turn orchestrator: wires Language -> Diagnostics -> Ranking ->
- * Decision -> Knowledge -> Dialogue -> Action, in the exact order and
- * with the exact call contracts documented in each /sie module's README.
- * Nothing in /sie is imported for its internals — only its public
- * exports — so each module stays free to change shape behind them.
+ * The turn ORCHESTRATOR (G-BR-1). It calls the layers in order and passes
+ * each one's output to the next. It decides nothing, words nothing and
+ * composes no session state:
  *
- * SIE's own turn-by-turn memory is namespaced under botState.sie so it
- * never collides with chatbot-engine.js's own use of the same
- * chat_sessions.bot_state column when a customer's traffic moves between
- * engines (e.g. SIE access expires mid-conversation).
+ *   gates     settings, human handoff, quota
+ *   L1        Language: normalize + the signals every rule reads
+ *   L5        load the previous state (context expiry)
+ *   Trust     CP1 on every route, on the full received text
+ *   L5        planTurn: the route, and whether the turn is diagnosed
+ *   L7        the reads the route needs (facts, the customer's name)
+ *   L2–L4     catalog, diagnosis, ranking — focused by L5 on the problem
+ *             the customer is talking about now
+ *   L5        decideTurn: the engine decision
+ *   L7        Knowledge: compose the answer; an article or an open ticket
+ *             the ticket decision needs to know about
+ *   L5        finalizeTurn: the decision taken, its effects, the next state
+ *   L8        pre-commit effects (review queue, memory)
+ *   L6        Dialogue: the words
+ *   L8        the commit (one transaction), then the hand-off
+ *   L9        one trace, whatever happened
  *
- * Any failure anywhere in this pipeline returns null rather than
- * throwing, so the caller's existing fallback to the traditional engine
- * (and its own error handling) is exactly what applies. This module
- * itself never writes an error message to chat_messages.
+ * Until WP4 this file held the conversation's routing rules as early
+ * returns (audit RC1–RC10); they live in sie/decision/conversation-rules.js
+ * now, with one owner.
+ *
+ * SIE's turn-by-turn memory is namespaced under botState.sie so it never
+ * collides with chatbot-engine.js's own use of chat_sessions.bot_state.
+ *
+ * Any failure returns null rather than throwing, so the caller's fallback
+ * to the traditional engine is exactly what applies.
  */
 import { normalize } from '../sie/language/normalizer.js';
 import { analyzeSignals, signalsTrace } from '../sie/language/signals.js';
-import { shouldEscalateForEmotion } from '../sie/language/emotion-detector.js';
-import {
-    SMALL_TALK_REPLIES, MEMORY_REPLIES, acknowledgementFor, TICKET_CONFIRM_TEXT, TICKET_CONFIRM_OPTIONS
-} from '../sie/dialogue/templates/conversational.js';
-import { activationThresholdForLevel } from '../sie/ranking/ranking-engine.js';
+import { activationThresholdForLevel, rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
 import { recallCustomerName, findOpenTicket, recallPreviousSession, rememberFacts, recallFacts, forgetFacts } from './sie-customer-memory.js';
-import { queueForHumanReview, REVIEW_QUEUED_TEXT, REVIEW_QUEUE_FAILED_TEXT } from './sie-review-queue.js';
+import { queueForHumanReview } from './sie-review-queue.js';
 import { processTurn } from '../sie/diagnostics/diagnostic-engine.js';
-import { rankDiagnosticState } from '../sie/ranking/ranking-engine.js';
-import { decide } from '../sie/decision/decision-engine.js';
-import { ACTIONS, createEmptyDecisionState } from '../sie/decision/decision-types.js';
+import {
+    ROUTES, conversationPolicy, loadPreviousState, withRecalledSession, planTurn, focusFor, decideTurn, knowledgeNeeds, finalizeTurn
+} from '../sie/decision/conversation-rules.js';
 import { composeAnswerDecision } from '../sie/knowledge/answer-composer.js';
 import { staticKnowledgeProvider } from '../sie/knowledge/static-knowledge.local.js';
-import { renderDecision } from '../sie/dialogue/dialogue-renderer.js';
-import { executeDecision, logTraceEvent } from '../sie/action/action-layer.js';
+import { renderTurn, presentationPolicy } from '../sie/dialogue/turn-renderer.js';
+import { logTraceEvent } from '../sie/action/action-layer.js';
+import { runPreEffects, commitTurn, runPostEffects } from '../sie/action/turn-executor.js';
 import { createRealSupabasePort } from '../sie/action/supabase-port.supabase.js';
 import { buildTraceEvent } from '../sie/observability/trace-logger.js';
 import { tryConsumeSieMessage, getSieSettings } from './sie-entitlement.js';
 import { resolveScenarioCatalog } from '../sie/scenarios/scenario-catalog.resolver.js';
-import { openTurn, admitEvidence, admitFacts, admitAction, trustTrace, traceProjection } from '../sie/trust/trust-boundary.js';
+import { openTurn, admitEvidence, trustTrace, traceProjection } from '../sie/trust/trust-boundary.js';
 import { extractTextEvidence } from '../sie/diagnostics/evidence-extractor.js';
 import { evidenceFromQuestionAnswer } from '../sie/diagnostics/question-answer.js';
 import { toSparseState } from '../sie/diagnostics/sparse-state.js';
@@ -53,7 +64,7 @@ import { isHumanHandoffActive, requestHumanHandoff } from './sie-handoff.js';
 import { resolveCustomerEdition, resolveEditionProfile } from '../sie/editions/editions.js';
 import { editionCatalogs } from '../sie/editions/edition-catalog.local.js';
 import { providerForAssembly } from '../sie/editions/edition-catalog.js';
-import { capEvidenceTokens, scopeFor, freeFloor } from '../sie/editions/edition-turn.js';
+import { capEvidenceTokens, scopeFor } from '../sie/editions/edition-turn.js';
 
 /**
  * How the trust boundary is configured for this turn, from settings.
@@ -98,206 +109,6 @@ function enabledEmotions(settings) {
  */
 const EMPTY_KNOWLEDGE_PROVIDER = { getEntryByKey: async () => null };
 
-/**
- * «يقترح أكتر من حل»: الاحتمالات اللي بعد الأول، من المرشحين الحقيقيين بس.
- *
- * Anything below the activation threshold is noise the engine already
- * discounted; listing it as a "next most likely cause" would be inventing
- * confidence the ranking never had.
- *
- * @param {Object} ranking
- * @param {number} max
- * @param {number} activationThreshold
- * @returns {Array<{scenarioId: string, label: Object|null, confidence: number}>|null}
- */
-function collectAlternatives(ranking, max, activationThreshold) {
-    const limit = typeof max === 'number' && max > 0 ? max : 2;
-    const rest = (ranking.ranked || [])
-        .slice(1)
-        .filter((entry) => entry.hypothesis.confidence >= activationThreshold && entry.scenario)
-        .slice(0, limit);
-    if (rest.length === 0) return null;
-    return rest.map((entry) => ({
-        scenarioId: entry.hypothesis.scenarioId,
-        label: entry.scenario.label || null,
-        confidence: entry.hypothesis.confidence
-    }));
-}
-
-/**
- * جملة الترحيب الشخصية: اسم العميل، ولو رجع بعد فترة، سؤال عن مشكلته
- * اللي فاتت.
- *
- * Both halves are settings-gated and both fail soft — a name lookup that
- * errors simply produces a normal greeting, never a broken turn.
- *
- * @returns {Promise<string>} '' when there is nothing personal to say
- */
-async function buildGreetingPersonalisation({ supabase, userId, prevSie, settings, responseLanguage }) {
-    const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const parts = [];
-
-    if (settings.memory_remember_name) {
-        const name = await recallCustomerName(supabase, userId);
-        if (name) parts.push(lang === 'en' ? `Hi ${name},` : `أهلاً يا ${name}،`);
-    }
-
-    // Only after the context has actually expired. Asking "did last time's
-    // problem get sorted?" mid-conversation would be asking about the
-    // problem they are currently describing.
-    const lastIssue = prevSie?.contextExpired ? prevSie.lastScenarioLabel : null;
-    if (settings.memory_remember_last_issue && lastIssue) {
-        const label = lastIssue[lang] || lastIssue.ar || null;
-        if (label) {
-            parts.push(lang === 'en'
-                ? `last time we looked at "${label}" — did that get sorted?`
-                : `آخر مرة كنا بنشوف «${label}» — اتظبطت معاك؟`);
-        }
-    }
-
-    return parts.length ? `${parts.join(' ')}\n\n` : '';
-}
-
-/**
- * «يدوّر في المقالات قبل ما يفتح تذكرة».
- *
- * The engine reaches CREATE_TICKET when the leading scenario has no stored
- * solution. But a scenario having no solution and the knowledge base having
- * no answer are different things — the article is keyed on the scenario's
- * `knowledgeSource`, which exists independently of whether the scenario
- * itself declares a resolution.
- *
- * Returns an ANSWER decision when an article covers it, or null to let the
- * ticket proceed. Deliberately does NOT reach for the runner-up's article:
- * answering from a scenario the engine did not actually settle on is how a
- * customer gets a confident reply to a question they never asked.
- *
- * @param {Object} decision
- * @param {Object} ranking
- * @returns {Promise<Object|null>}
- */
-async function rescueWithArticle(decision, ranking) {
-    const scenario = ranking.topHypothesis?.scenario;
-    const key = scenario?.resolution?.knowledgeSource;
-    if (!key) return null;
-
-    try {
-        const entry = await staticKnowledgeProvider.getEntryByKey(key);
-        if (!entry) return null;
-        return {
-            ...decision,
-            action: ACTIONS.ANSWER,
-            ticketDraft: null,
-            resolution: { ...scenario.resolution, hasAutoResolution: true },
-            knowledgeData: { source: key, data: { text: entry.text } },
-            explanation: `${decision.explanation} Knowledge base has an entry for "${key}", so answering from it instead of creating a ticket.`
-        };
-    } catch (err) {
-        // A knowledge outage must not block the hand-off it was meant to
-        // avoid — fall through and let the ticket be created.
-        console.warn('[sie] article lookup before ticket failed:', err?.message || err);
-        return null;
-    }
-}
-
-/**
- * رد إقفال المحادثة لما العميل يقول إن المشكلة اتحلّت.
- *
- * Resets botState.sie entirely rather than marking a flag. The accumulated
- * evidence belongs to a problem that is now over; carrying it forward is
- * exactly what made the engine answer the same scenario again on the next
- * message, whatever that message said.
- */
-const CONVERSATION_CLOSED_TEXT = {
-    ar: 'تمام، مبسوط إنها اتظبطت معاك 🙌\nلو احتجت أي حاجة تانية أنا موجود في أي وقت.',
-    en: "Great — glad that sorted it. I'm here whenever you need anything else."
-};
-
-async function closeConversation({ responseLanguage, sessionId, botState, port }) {
-    const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const rendered = { text: CONVERSATION_CLOSED_TEXT[lang], options: [] };
-
-    // A clean slate: the next problem this customer raises starts from
-    // nothing, which is what "the last one is finished" means.
-    const nextBotState = { ...(botState || {}), sie: { turnCount: 0, language: lang } };
-
-    const actionResult = await executeDecision({
-        decision: { action: ACTIONS.WAIT_FOR_USER, turn: 0 },
-        rendered,
-        sessionId,
-        nextBotState,
-        port
-    });
-    if (!actionResult?.success) return null;
-
-    return { reply: rendered.text, options: [], alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
-}
-
-/**
- * الذاكرة: حفظ / استرجاع / مسح.
- *
- * Runs before diagnosis and returns a finished turn, because these are
- * instructions ABOUT the conversation rather than problems to diagnose.
- * Feeding «احفظ ده في ذاكرتك» into the pipeline is what produced an
- * unrelated WhatsApp answer.
- *
- * Returns null when there is nothing to do, so the caller falls through to
- * the normal pipeline rather than swallowing the turn.
- */
-async function handleMemoryIntent({ intent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage, trustEnvelope, rec }) {
-    const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    let replyText;
-
-    if (intent.kind === 'forget') {
-        const forgot = await forgetFacts(supabase, userId);
-        rec?.effects.push({ type: 'forget_facts', ok: forgot?.success !== false });
-        replyText = MEMORY_REPLIES.forgotten;
-    } else if (intent.kind === 'recall') {
-        const facts = await recallFacts(supabase, userId);
-        replyText = MEMORY_REPLIES.recalled(facts);
-    } else if (intent.facts.length === 0) {
-        replyText = MEMORY_REPLIES.nothingToSave;
-    } else {
-        // CP3. A fact outlives the session — it is read back on every future
-        // conversation and quoted into replies — so it gets its own
-        // authorization rather than riding on the evidence budget. When the
-        // boundary is off, or observing, `admitFacts` receives a trusted
-        // envelope and passes everything through unchanged.
-        const stored = await recallFacts(supabase, userId).catch(() => []);
-        const { facts: admitted, rejected } = admitFacts(
-            intent.facts,
-            trustEnvelope,
-            { storedFacts: Object.fromEntries((stored || []).map((f) => [f.key, f.value])) }
-        );
-        if (rejected.length > 0) {
-            console.warn('[sie] fact writes refused:', rejected.map((r) => `${r.key} (${r.reason})`).join(', '));
-        }
-        const { saved } = admitted.length > 0 ? await rememberFacts(supabase, userId, admitted) : { saved: 0 };
-        if (admitted.length > 0) rec?.effects.push({ type: 'write_facts', ok: saved > 0, count: saved });
-        // A failed write must not be reported as a success — the customer
-        // would rely on a fact the engine does not actually hold. A REFUSED
-        // write is the same promise: report only what was actually stored.
-        replyText = saved > 0 ? MEMORY_REPLIES.saved(admitted) : MEMORY_REPLIES.nothingToSave;
-    }
-
-    // Diagnostic state is carried through untouched: saving a fact is not
-    // progress on a problem, and must not reset one in flight either.
-    const nextBotState = {
-        ...(botState || {}),
-        sie: { ...(prevSie || { turnCount: 0 }), language: lang, lastCustomerText: intent.raw.slice(0, 500) }
-    };
-
-    const actionResult = await executeDecision({
-        decision: { action: ACTIONS.WAIT_FOR_USER, turn: prevSie?.turnCount || 0 },
-        rendered: { text: replyText, options: [] },
-        sessionId,
-        nextBotState,
-        port
-    });
-    if (!actionResult?.success) return null;
-
-    return { reply: replyText, options: [], alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
-}
 
 const EMOTION_SETTING_KEYS = [
     { key: 'emotion_anger', emotion: 'anger' },
@@ -308,47 +119,6 @@ const EMOTION_SETTING_KEYS = [
     { key: 'emotion_satisfaction', emotion: 'satisfaction' }
 ];
 
-/**
- * «يفتكر سياق المحادثة» و«مدة الاحتفاظ بالسياق».
- *
- * Returning null makes the very next line treat the turn as the first one
- * of a fresh session — the engine needs no separate "forget" path, because
- * "no previous state" is a case it already handles on every new chat.
- *
- * Expiry matters more than it looks: a customer who comes back tomorrow
- * with an unrelated problem would otherwise be diagnosed against
- * yesterday's evidence, and the accumulated tokens would quietly pull the
- * engine toward the wrong scenario.
- *
- * @param {Object|null} prevSie
- * @param {Object} settings
- * @param {number} [nowMs] - the turn's clock reading; defaults to real time
- * @returns {Object|null}
- */
-function recallPreviousState(prevSie, settings, nowMs = Date.now()) {
-    if (!prevSie) return null;
-    if (settings.memory_keep_context === false) return null;
-
-    const minutes = typeof settings.memory_context_minutes === 'number' ? settings.memory_context_minutes : null;
-    if (minutes && prevSie.lastTurnAt) {
-        const ageMinutes = (nowMs - new Date(prevSie.lastTurnAt).getTime()) / 60000;
-        if (Number.isFinite(ageMinutes) && ageMinutes > minutes) {
-            // «يفتكر آخر مشكلة» يفضل شغّال حتى بعد ما السياق يتنسى: دي
-            // معلومة واحدة بنسأل عنها، مش دليل تشخيصي بنبني عليه.
-            return settings.memory_remember_last_issue === false
-                ? null
-                : { lastScenarioLabel: prevSie.lastScenarioLabel || null, contextExpired: true };
-        }
-    }
-    return prevSie;
-}
-
-const TICKET_DISABLED_TEXT = {
-    ar: 'المشكلة دي محتاجة حد من فريق الدعم يشوفها، بس فتح التذاكر متوقف حاليًا من الإعدادات. '
-        + 'تقدر تتواصل مع الفريق مباشرة وهما هيتابعوا معاك [[icon:note]]',
-    en: 'This needs a member of the support team, but ticket creation is currently switched off in settings. '
-        + 'Please contact the team directly and they will follow up with you [[icon:note]]'
-};
 
 /**
  * The catalog this turn diagnoses against.
@@ -388,324 +158,75 @@ async function resolveTurnEdition(entitlement, settings) {
     }
 }
 
-const TICKET_DECLINE_TEXT = {
-    ar: 'تمام، معلش، مش هفتحلك تذكرة دلوقتي. لو احتجت أي حاجة تانية قولي [[icon:smile]]',
-    en: "No problem, I won't open a ticket right now. Let me know if you need anything else [[icon:smile]]"
-};
 
 /**
- * The customer's answer to the pending ticket question, as Layer 1 read it
- * (signals.replyPolarity, sie/language/reply-polarity.js). The bridge used
- * to classify the raw text here with its own regexes, which read «لا» and
- * «اه» as unclear and «أيوه عندي مشكلة» as a no (audit D1, D2).
+ * The Decision Engine's policy, from settings: per-deployment choices about
+ * how sure before answering, how many questions, when to hand off.
  */
-function confirmationAnswer(polarity) {
-    return polarity === 'yes' || polarity === 'no' ? polarity : 'unclear';
-}
-
-/**
- * أول مرة القرار يوصل CREATE_TICKET: بنخزن الـ Decision + الرسالة الأصلية
- * بتاعة التذكرة جوه botState.sie.pendingTicketConfirmation، ونعرض سؤال
- * التأكيد للعميل بدل ما نفتح التذكرة على طول.
- */
-/**
- * قرار CREATE_TICKET كان بينفّذ فورًا جوه محرك القرار من غير ما يسأل
- * العميل. دلوقتي أي مرة الـ Decision Engine يوصل لـ CREATE_TICKET، بدل ما
- * نفتح التذكرة على طول، بنوقف ونسأل العميل الأول ("تحب أفتحلك تذكرة؟")
- * ولحد ما يوافق صراحة، التذكرة متتفتحش. الحالة المؤقتة دي (اللي بتفضل
- * لحد رد العميل) بتتخزن جوه botState.sie.pendingTicketConfirmation.
- *
- * بنعيد استخدام executeDecision() الموجود بدل ما نضيف مسار كتابة جديد:
- * أي Decision بـ action مش من TICKET_ACTIONS بيمر على persistBotTurn
- * العادي، فبنبعتله WAIT_FOR_USER (موجود أصلاً في ACTIONS) مع رسالة
- * السؤال، وده بيخزن الرسالة وحالة الجلسة بنفس الطريقة العادية من غير ما
- * يفتح تذكرة فعليًا.
- */
-async function beginTicketConfirmation({ decisionWithKnowledge, rendered, sessionId, nextBotState, port, responseLanguage, prefix = '' }) {
-    const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const confirmRendered = { text: prefix + TICKET_CONFIRM_TEXT[lang], options: TICKET_CONFIRM_OPTIONS[lang] };
-
-    const stateWithPending = {
-        ...nextBotState,
-        sie: {
-            ...nextBotState.sie,
-            pendingTicketConfirmation: {
-                decision: decisionWithKnowledge,
-                rendered,
-                language: lang
-            }
-        }
-    };
-
-    const actionResult = await executeDecision({
-        decision: { action: ACTIONS.WAIT_FOR_USER, turn: decisionWithKnowledge.turn },
-        rendered: confirmRendered,
-        sessionId,
-        nextBotState: stateWithPending,
-        port
-    });
-
-    if (!actionResult?.success) {
-        console.error('SIE action-layer write failed (ticket confirmation prompt):', actionResult);
-        return null;
-    }
-
-    return { actionResult, reply: confirmRendered.text, options: confirmRendered.options, persistedBotState: stateWithPending };
-}
-
-/**
- * التعامل مع رد العميل لما يكون فيه سؤال تأكيد فتح تذكرة معلّق من دور
- * سابق. الرد ده بيجاوب على "تحب أفتحلك تذكرة؟" — مش دليل تشخيصي جديد —
- * فبنقصّر الطريق ومنعديش على باقي البايبلاين (Language/Diagnostics/
- * Ranking/Decision/Knowledge/Dialogue) خالص في الدور ده.
- */
-async function resolvePendingTicketConfirmation({ polarity, supabase, sessionId, botState, prevSie, port, rec }) {
-    const pending = prevSie.pendingTicketConfirmation;
-    const lang = pending.language === 'en' ? 'en' : 'ar';
-    const intent = confirmationAnswer(polarity);
-    if (rec) {
-        rec.turn = pending.decision?.turn ?? null;
-        rec.responseLanguage = lang;
-        rec.intent = intent === 'yes'
-            ? { ...pending.decision, route: 'pending_confirmation', answer: 'yes' }
-            : { action: ACTIONS.WAIT_FOR_USER, route: 'pending_confirmation', answer: intent, pendingAction: pending.decision?.action ?? null, scenarioId: pending.decision?.scenarioId ?? null };
-    }
-
-    if (intent === 'unclear') {
-        // نعيد نفس سؤال التأكيد من غير ما نغيّر أي حالة - لسه مستنيين رد واضح.
-        const rendered = { text: TICKET_CONFIRM_TEXT[lang], options: TICKET_CONFIRM_OPTIONS[lang] };
-        const nextBotState = { ...botState, sie: { ...prevSie } };
-        const actionResult = await executeDecision({
-            decision: { action: ACTIONS.WAIT_FOR_USER, turn: pending.decision.turn },
-            rendered,
-            sessionId,
-            nextBotState,
-            port
-        });
-        if (!actionResult?.success) {
-            console.error('SIE action-layer write failed (ticket confirmation re-ask):', actionResult);
-            return null;
-        }
-        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
-    }
-
-    const clearedSie = { ...prevSie };
-    delete clearedSie.pendingTicketConfirmation;
-
-    if (intent === 'no') {
-        // رفض التذكرة مش رفض المساعدة.
-        //
-        // The engine had already judged this conversation worth a human's
-        // time — that judgement does not stop being true because the
-        // customer declined the paperwork. Before, a decline left no trace
-        // at all and the case simply evaporated. Now it goes to the Review
-        // Center, and the customer is told when to expect contact.
-        const { queued } = await queueForHumanReview(supabase, {
-            sessionId,
-            turn: pending.decision.turn,
-            scenarioId: pending.decision.scenarioId ?? null,
-            note: pending.decision.explanation ?? ''
-        });
-        rec?.effects.push({ type: 'queue_review', ok: queued === true });
-
-        // Only promise the follow-up if a row actually exists to honour it.
-        const rendered = {
-            text: queued ? REVIEW_QUEUED_TEXT[lang] : REVIEW_QUEUE_FAILED_TEXT[lang],
-            options: []
-        };
-        const nextBotState = { ...botState, sie: clearedSie };
-        const actionResult = await executeDecision({
-            decision: { action: ACTIONS.WAIT_FOR_USER, turn: pending.decision.turn },
-            rendered,
-            sessionId,
-            nextBotState,
-            port
-        });
-        if (!actionResult?.success) {
-            console.error('SIE action-layer write failed (ticket confirmation decline):', actionResult);
-            return null;
-        }
-        // An escalation stays an escalation without the ticket: the reply is
-        // persisted, now the conversation goes to a human.
-        const handoff = pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN
-            ? await requestHumanHandoff(supabase, { sessionId, reason: 'escalation_ticket_declined' })
-            : { handedOff: false };
-        if (pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN) rec?.effects.push({ type: 'request_handoff', ok: handoff.handedOff === true });
-        return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState, humanHandoff: handoff.handedOff };
-    }
-
-    // intent === 'yes' -> ننفذ القرار الأصلي اللي كان معلّق (بتاع فتح التذكرة فعليًا).
-    const nextBotState = { ...botState, sie: clearedSie };
-    const actionResult = await executeDecision({
-        decision: pending.decision,
-        rendered: pending.rendered,
-        sessionId,
-        nextBotState,
-        port
-    });
-    if (!actionResult?.success) {
-        console.error('SIE action-layer write failed (ticket confirmation accept):', actionResult);
-        return null;
-    }
-    const handoff = pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN
-        ? await requestHumanHandoff(supabase, { sessionId, reason: 'escalation_ticket_opened' })
-        : { handedOff: false };
-    if (pending.decision?.action === ACTIONS.ESCALATE_TO_HUMAN) rec?.effects.push({ type: 'request_handoff', ok: handoff.handedOff === true });
+function decisionPolicyFrom(settings, activationThreshold) {
     return {
-        reply: pending.rendered.text,
-        options: pending.rendered.options || [],
-        alreadyPersisted: true,
-        ticketNumber: actionResult.ticketNumber ?? null,
-        botState: nextBotState,
-        humanHandoff: handoff.handedOff
-    };
-}
-
-const ESCALATION_REPLY_TEXT = {
-    human_request: {
-        ar: 'تمام، هوصلك بفريق الدعم البشري دلوقتي وهيتواصلوا معاك في أقرب وقت [[icon:note]]',
-        en: "Sure thing, I'll connect you with our human support team right away — they'll be in touch shortly [[icon:note]]"
-    },
-    frustration: {
-        ar: 'أعتذر لو حسّيت إن الرد مش مفيد. هوصلك بفريق الدعم البشري دلوقتي عشان يقدروا يساعدوك بشكل مباشر [[icon:note]]',
-        en: "I'm sorry this hasn't been helpful. I'll connect you with our human support team right away so they can help you directly [[icon:note]]"
-    }
-};
-
-const ESCALATION_EXPLANATION = {
-    human_request: 'Customer explicitly asked to speak with a human agent; escalating immediately without further diagnosis.',
-    frustration: 'Customer expressed frustration directly at the bot (not a technical complaint); escalating immediately instead of continuing the diagnostic loop.'
-};
-
-/**
- * العميل طلب صراحة إنه يتكلم مع حد بشري، أو بان عليه انزعاج واضح من
- * البوت نفسه (sie/language/small-talk.js's human_request/frustration).
- *
- * ------------------------------------------------------------
- * التحويل لبشري ≠ فتح تذكرة
- *
- * This used to open a ticket outright, on the reasoning that there is
- * nothing left to diagnose. True — but "I want to talk to a person" is not
- * "open a ticket in my name". Plenty of customers want a quick word and do
- * not want a case file, and a ticket they did not ask for is one more thing
- * they have to close.
- *
- * So the hand-off ASKS, exactly like every other route to CREATE_TICKET
- * does. The two answers are both honoured:
- *   - نعم  → the pending ESCALATE_TO_HUMAN decision runs and a ticket opens.
- *   - لأ   → chat_engine_conversation_reviews, and the customer is told the
- *            team will reach out within 24 hours (sie-review-queue.js).
- *
- * Either way a human sees the conversation, which is what the customer
- * actually asked for. Only the paperwork is optional.
- *
- * decisionState.ticketAlreadyCreated is set here rather than by decide(),
- * so that a session already mid-diagnosis does not circle back and open a
- * second, duplicate ticket on a later turn.
- */
-async function escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port }) {
-    const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const rendered = { text: ESCALATION_REPLY_TEXT[reason][lang], options: [] };
-
-    const prevDecisionState = prevSie?.decisionState || createEmptyDecisionState();
-    const nextDecisionState = {
-        ...prevDecisionState,
-        lastAction: ACTIONS.ESCALATE_TO_HUMAN,
-        lastScenarioId: null,
-        ticketAlreadyCreated: true,
-        history: [
-            ...prevDecisionState.history,
-            { turn, action: ACTIONS.ESCALATE_TO_HUMAN, scenarioId: null, confidence: null, explanation: ESCALATION_EXPLANATION[reason] }
-        ]
-    };
-
-    const decision = {
-        action: ACTIONS.ESCALATE_TO_HUMAN,
-        turn,
-        explanation: ESCALATION_EXPLANATION[reason],
-        ticketDraft: { scenarioId: null, category: 'other', diagnosticTrail: [] }
-    };
-
-    const nextBotState = {
-        ...(botState || {}),
-        sie: {
-            diagnosticState: prevSie?.diagnosticState || null,
-            decisionState: nextDecisionState,
-            language: lang,
-            turnCount: turn
-        }
-    };
-
-    // The escalation sentence is the PREFIX to the confirmation question, so
-    // the customer reads one coherent message — "I'll get you to the team…
-    // want me to open a ticket?" — rather than a promise now and an
-    // unexplained question a beat later.
-    const result = await beginTicketConfirmation({
-        decisionWithKnowledge: decision,
-        rendered,
-        sessionId,
-        nextBotState,
-        port,
-        responseLanguage: lang,
-        prefix: `${rendered.text}\n\n`
-    });
-
-    if (!result) {
-        console.error(`SIE action-layer write failed (${reason} escalation):`, result);
-        return null;
-    }
-
-    return {
-        reply: result.reply,
-        options: result.options,
-        alreadyPersisted: true,
-        ticketNumber: null,
-        botState: result.persistedBotState
+        activationThreshold,
+        // «يرد بالحل بنفسه» لو اتقفل، المحرك يفضل يشخّص ويجمع
+        // المعلومات زي ما هو، بس يسلّم الحل لموظف.
+        allowAutoResolution: settings.answer_directly,
+        allowScenarioAnswers: settings.knowledge_use_scenarios,
+        allowEvidenceRequests: settings.auto_request_more_info,
+        ticketOnAmbiguity: settings.ticket_on_low_confidence,
+        includeTicketSummary: settings.ticket_include_summary,
+        resolutionConfidenceThreshold: settings.answer_confidence,
+        maxClarifyingQuestions: settings.max_clarifying_questions,
+        maxTurnsBeforeEscalation: settings.ticket_after_turns,
+        allowSmartGuess: settings.allow_smart_guess,
+        requireCompleteEvidence: settings.inference_mode === 'knowledge_only'
     };
 }
 
 /**
- * رد على "مرحبا"/"انت مين؟" وأشباهها (sie/language/small-talk.js) من غير ما
- * نعدّي على Diagnostics/Ranking/Decision خالص — مش دليل تشخيصي، فمش لازم
- * "يستهلك" أي حصة من MAX_CLARIFYING_QUESTIONS ولا يتحسب turn حقيقي في
- * تعداد المحرك. botState.sie بيفضل زي ما هو تمامًا (لو كانت فيه جلسة
- * تشخيص شغّالة فعلاً، بتكمل عادي في الدور اللي بعد كده).
+ * CP2, as processTurn's evidence filter: the edition's distinct-token cap
+ * (a resource bound), then the trust boundary. `dropped.count` reports what
+ * was set aside.
  */
-async function respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port, prefix = '' }) {
-    const lang = responseLanguage === 'en' ? 'en' : 'ar';
-    const rendered = { text: prefix + SMALL_TALK_REPLIES[smallTalk.type][lang], options: [] };
-    const nextBotState = { ...(botState || {}), sie: prevSie ? { ...prevSie } : { turnCount: 0 } };
+function evidenceFilterFor(editionProfile, trustEnvelope, dropped) {
+    return (evidence) => {
+        const capped = capEvidenceTokens(evidence, editionProfile.maxEvidenceTokensPerTurn);
+        const { evidence: kept, dropped: refused } = admitEvidence(capped.evidence, trustEnvelope);
+        dropped.count = refused + capped.dropped;
+        return kept;
+    };
+}
 
-    const actionResult = await executeDecision({
-        decision: { action: ACTIONS.WAIT_FOR_USER, turn: prevSie?.turnCount || 0 },
-        rendered,
-        sessionId,
-        nextBotState,
-        port
-    });
-
-    if (!actionResult?.success) {
-        console.error('SIE action-layer write failed (small talk):', actionResult);
+/**
+ * L7 read — «يدوّر في المقالات قبل ما يفتح تذكرة»: the knowledge entry keyed
+ * on the leading scenario's `knowledgeSource`, if one exists. Deliberately
+ * not the runner-up's: answering from a scenario the engine did not settle
+ * on is how a customer gets a confident reply to a question never asked.
+ * Layer 5 decides what to do with it.
+ */
+async function findArticleFor(ranking) {
+    const scenario = ranking?.topHypothesis?.scenario;
+    const key = scenario?.resolution?.knowledgeSource;
+    if (!key) return null;
+    try {
+        const entry = await staticKnowledgeProvider.getEntryByKey(key);
+        return entry ? { key, text: entry.text, resolution: scenario.resolution } : null;
+    } catch (err) {
+        // A knowledge outage must not block the hand-off it was meant to avoid.
+        console.warn('[sie] article lookup before ticket failed:', err?.message || err);
         return null;
     }
-
-    return { reply: rendered.text, options: rendered.options, alreadyPersisted: true, ticketNumber: null, botState: nextBotState };
 }
 
 // ===================================================================
 // The turn record (WP2 — truthful observability)
 // ===================================================================
 //
-// Every paid turn writes exactly one trace, whichever route it takes, and the
-// trace separates what the engine DECIDED (intent) from what actually
-// HAPPENED (executed effects) and what the customer was actually SENT.
-// Routes fill the record as they go; one writer turns it into the trace row
-// in runSieTurn's `finally`, so no early return can skip it.
+// Every paid turn writes exactly one trace, and the trace separates what the
+// engine DECIDED (intent) from what actually HAPPENED (executed effects, as
+// the Action layer recorded them) and what the customer was actually SENT.
+// The turn fills the record as it goes; one writer turns it into the trace
+// row in runSieTurn's `finally`, so no failure can skip it.
 
 const LAYERS = Object.freeze(['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']);
-
-/** Why Dialogue (L6) did not produce a short-circuit route's text. */
-const L6_BYPASSED = 'reply text is a constant outside Dialogue on this route (moves to L6 in WP9)';
 
 function createTurnRecord() {
     return {
@@ -718,33 +239,6 @@ function createTurnRecord() {
 /** Records one layer's status on this turn. */
 function mark(rec, layer, status, reason = null) {
     rec.layers[layer] = reason ? { status, reason } : { status };
-}
-
-/**
- * The Action layer's port, observed: every turn write it makes is recorded as
- * an executed effect with its real result, whichever helper made it.
- */
-function recordingPort(port, rec) {
-    const observe = (type, fn) => async (args) => {
-        try {
-            const result = await fn(args);
-            rec.effects.push({
-                type,
-                ok: result?.success === true,
-                ...(type === 'create_ticket' ? { ticketNumber: result?.ticketNumber ?? null } : {}),
-                ...(result?.error ? { error: String(result.error) } : {})
-            });
-            return result;
-        } catch (err) {
-            rec.effects.push({ type, ok: false, error: String(err?.message || err) });
-            throw err;
-        }
-    };
-    return {
-        ...port,
-        persistBotTurn: observe('persist_reply', port.persistBotTurn),
-        createTicketWithMessageAndSessionUpdate: observe('create_ticket', port.createTicketWithMessageAndSessionUpdate)
-    };
 }
 
 /** Every layer's status; a layer the route never reached says so. */
@@ -822,13 +316,13 @@ async function writeTurnTrace({ rec, result, sessionId, port, settings, rawText,
  * @param {string} params.sessionId
  * @param {string} params.userId
  * @param {Object} params.botState - the session's full bot_state blob (may contain
- *   the traditional engine's own keys too — this function only reads/writes botState.sie)
+ *   the traditional engine's own keys too — only botState.sie is SIE's)
  * @param {import('@supabase/supabase-js').SupabaseClient} [params.writer] - writes the
  *   bot's turn (persist_bot_turn / ticket RPC); see createRealSupabasePort. Defaults to
  *   `supabase`.
  * @param {() => number} [params.clock] - epoch milliseconds for this turn's time-based
- *   decisions (context expiry, lastTurnAt, decision timestamps). Defaults to real time;
- *   injected by tests so expiry is testable without waiting.
+ *   decisions (context expiry, prompt expiry, lastTurnAt, decision timestamps). Defaults
+ *   to real time; injected by tests so expiry is testable without waiting.
  * @returns {Promise<{reply: string, options: Array, alreadyPersisted: true, ticketNumber: string|null, botState: Object} | null>}
  *   null means "not handled by SIE" — caller should fall back to the traditional engine.
  */
@@ -836,23 +330,18 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
     if (!text || !supabase || !sessionId || !userId) return null;
     const now = typeof clock === 'function' ? () => clock() : () => Date.now();
 
-    // 1. Entitlement gate — the one place a SIE turn is authorized and metered.
-    // 0. Settings. Read before anything is spent or written, so turning the
-    //    engine off is immediate and costs the customer nothing — the caller
-    //    simply falls back to the traditional engine as if SIE were absent.
+    // Gates. Settings first, so turning the engine off is immediate and costs
+    // the customer nothing.
     const settings = await getSieSettings(supabase);
     if (!settings.engine_enabled) {
         console.info('SIE turn skipped: المحرك متوقف من الإعدادات');
         return null;
     }
-
-    // A conversation a human owns gets no SIE turn — and costs the customer
-    // no quota. Advisory: the database (059) refuses the reply regardless.
+    // A conversation a human owns gets no SIE turn — and costs no quota.
     if (await isHumanHandoffActive(supabase, sessionId)) {
         console.info('SIE turn skipped: المحادثة مع فريق الدعم');
         return null;
     }
-
     const entitlement = await tryConsumeSieMessage(supabase, userId);
     if (!entitlement.allowed) {
         console.info('SIE turn skipped:', entitlement.reason);
@@ -861,38 +350,29 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
 
     // From here the turn is paid for, so it is traced whatever happens.
     const rec = createTurnRecord();
-    const port = recordingPort(createRealSupabasePort(supabase, { writer }), rec);
+    const port = createRealSupabasePort(supabase, { writer });
     const turnStartedAt = Date.now();
     let turnResult = null;
 
-    // Which edition, and therefore which catalog, vocabulary and limits.
-    // Resolved once per turn, before anything reads the text. A missing
-    // edition (a database without the edition column yet) is Free — exactly
-    // today's engine.
     const { profile: editionProfile, assembly: editionAssembly, degradedFrom: editionDegradedFrom } =
         await resolveTurnEdition(entitlement, settings);
 
     try {
-        let prevSie = recallPreviousState(botState?.sie || null, settings, now());
+        const policy = conversationPolicy(settings);
+        let prev = loadPreviousState(botState?.sie || null, policy, now());
 
-        // 1. Language (Module 1) — FIRST, on every route. Everything below
-        // that classifies the message reads Layer 1's signals, computed once
-        // from the text normalize() actually kept (G-L1-6). Nothing past the
-        // input cap is classified, and the trace says when that happened.
+        // L1 — on every route; everything below reads these signals (G-L1-6).
         const language = await normalize(text, {
-            previousLanguage: prevSie?.language || 'ar',
-            // The edition's vocabulary layers (none for Free) and its message
-            // cap (never above the hard 8,000 normalize() enforces anyway).
+            previousLanguage: prev?.language || 'ar',
             glossaryLayers: editionAssembly.glossaryLayers,
             maxInputChars: editionProfile.maxMessageChars,
-            // «يفهم الكلمات المكتوبة غلط» — off unless switched on.
             typoTolerance: settings.language_typo_tolerance === true
         });
         const { normalizedTokens, responseLanguage } = language;
         const signals = analyzeSignals({
             text: language.rawText,
             tokens: normalizedTokens,
-            previousText: prevSie?.lastCustomerText || '',
+            previousText: prev?.lastCustomerText || '',
             emotionDetection: Boolean(settings.emotion_detection),
             enabledEmotions: enabledEmotions(settings),
             truncated: language.truncated,
@@ -900,530 +380,216 @@ export async function runSieTurn({ text, supabase, sessionId, userId, botState, 
         });
         rec.normalizedTokens = normalizedTokens;
         rec.language = signalsTrace(signals);
+        rec.responseLanguage = responseLanguage;
         mark(rec, 'L1', 'ran');
 
-        // 0. رد على سؤال تأكيد فتح تذكرة معلّق من دور سابق؟ ده مش دليل تشخيصي
-        // جديد، فبنتعامل معاه لوحده من غير ما نعدّي على باقي البايبلاين.
-        if (prevSie?.pendingTicketConfirmation) {
-            rec.route = 'pending_confirmation';
-            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
-            return (turnResult = await resolvePendingTicketConfirmation({ polarity: signals.replyPolarity, supabase, sessionId, botState, prevSie, port, rec }));
-        }
-
-        // «يستفيد من المحادثات القديمة». بيتسأل مرة واحدة بس، أول رسالة في
-        // محادثة جديدة — بعد كده السياق الحالي هو الأصح.
-        if (settings.memory_use_past_conversations && !prevSie?.diagnosticState) {
-            const recalled = await recallPreviousSession(
+        // L7 — «يستفيد من المحادثات القديمة», once, on a new conversation.
+        if (settings.memory_use_past_conversations && !prev?.diagnosticState) {
+            prev = withRecalledSession(prev, await recallPreviousSession(
                 supabase, userId, sessionId, settings.memory_context_minutes || 1440, now()
-            );
-            if (recalled) {
-                prevSie = { ...(prevSie || {}), diagnosticState: recalled.diagnosticState, lastScenarioLabel: recalled.lastScenarioLabel };
-            }
+            ));
         }
 
-        const turn = (prevSie?.turnCount || 0) + 1;
-        rec.turn = turn;
-        // Prepended to whatever the pipeline decides this turn, when the
-        // customer's tone calls for acknowledging before answering.
-        let emotionPrefix = '';
-
-        rec.responseLanguage = responseLanguage;
-
-        // 2.5. كلام عادي (تحية / شكر / اعتذار / سؤال هوية أو عن المنصة / طلب
-        // موظف بشري / انزعاج من البوت)؟ (sie/language/small-talk.js) مش دليل
-        // تشخيصي — بنردّ عليه مباشرة من غير ما نستهلك حصة أسئلة التوضيح ولا
-        // نغيّر حالة التشخيص الحالية. لو الجلسة كانت شغّالة في تشخيص فعلي،
-        // هتكمل عادي في الدور اللي بعد كده لأن botState.sie ماتغيرش هنا (ما
-        // عدا human_request/frustration، اللي بيسجّلوا تصعيد حقيقي – شايف
-        // escalateImmediately فوق).
-        // Detection always runs. «يرد على التحيات» is about pleasantries, so
-        // it must not silently disable "عايز أكلم موظف" — an explicit request
-        // for a person is honoured whatever the settings say.
-        const { smallTalk, emotion } = signals;
-        const wantsHuman = Boolean(signals.humanRequest);
-
-        // 2.6. الذكاء العاطفي (sie/language/emotion-detector.js). مش زي
-        // small talk: بيشتغل على أي رسالة مهما كان طولها، وبيرافق المشكلة
-        // الحقيقية بدل ما ياخد مكانها.
-        // الغضب والسخرية بيروحوا لموظف. الإحباط القديم (اللي كان من
-        // small talk) بقى جزء من نفس القراءة دي.
-        const emotionEscalates = shouldEscalateForEmotion(emotion) && settings.ticket_on_anger;
-        const legacyFrustration = smallTalk?.type === 'frustration' && settings.ticket_on_anger;
-
-        if (wantsHuman || emotionEscalates || legacyFrustration) {
-            const reason = wantsHuman ? 'human_request' : 'frustration';
-            rec.route = 'escalation';
-            rec.intent = { action: ACTIONS.ESCALATE_TO_HUMAN, route: 'escalation', reason, scenarioId: null, turn, explanation: ESCALATION_EXPLANATION[reason] };
-            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
-            const result = await escalateImmediately({ reason, responseLanguage, turn, sessionId, botState, prevSie, port });
-            if (result) return (turnResult = result);
-            return null;
-        }
-
-        // «تم الحل» / «شكرًا» بعد ما المحرك رد فعلاً: المحادثة خلصت.
-        //
-        // بنقفلها ونصفّر حالة التشخيص، فأي مشكلة جديدة بعد كده بتبدأ من
-        // نضيف. من غير ده الأدلة القديمة بتفضل متراكمة والمحرك بيرجع يرد
-        // بنفس الحل على أي رسالة بعدها — وده بالظبط اللي كان بيحصل.
-        // 2.4. «احفظ ده في ذاكرتك» / «انت فاكر إيه عني» — تعليمات عن
-        //      المحادثة نفسها، مش مشكلة نشخّصها. لو عدّت على التشخيص،
-        //      المحرك بيرد بحل مالوش علاقة — وده اللي كان بيحصل.
-        // 2.35. CP1 — the trust boundary classifies this turn, once.
-        //
-        // Placed here and not earlier: half of what the boundary needs to know
-        // only exists after normalization. "How many distinct diagnostic signals
-        // does this message carry" is its most discriminative measurement, and
-        // it does not exist until the glossary has resolved the text. A gate in
-        // front of Language could only read raw characters.
-        //
-        // Placed here and not later: the envelope has to exist before the memory
-        // path, which can write durable state and return without ever reaching
-        // diagnosis.
-        //
-        // Extraction runs twice — once here and once inside processTurn. It is
-        // pure, it is measured in microseconds, and the alternative is handing
-        // diagnostics a trust dependency it should not have.
+        // Trust CP1 — every route, on the full received text (owner decision).
         const trustEnvelope = openTurn(
-            { rawText: text, evidence: extractTextEvidence(normalizedTokens, turn) },
+            { rawText: text, evidence: extractTextEvidence(normalizedTokens, (prev?.turnCount || 0) + 1) },
             trustConfig(settings)
         );
         rec.trustEnvelope = trustEnvelope;
 
-        // Only a message that IS about memory takes this route: an explicit
-        // «احفظ ده» / «انت فاكر ايه عني», or an introduction standing alone.
-        // «انا المدير ومش قادر اضيف موظف» introduces a problem, not a name.
-        const memoryIntent = signals.memory && (signals.memory.explicit || signals.memory.standalone) ? signals.memory : null;
-        if (memoryIntent) {
-            rec.route = 'memory';
-            rec.intent = { action: ACTIONS.WAIT_FOR_USER, route: 'memory', memory: memoryIntent.kind, scenarioId: null, turn: prevSie?.turnCount || 0 };
-            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
-            const handled = await handleMemoryIntent({
-                intent: memoryIntent, supabase, userId, sessionId, botState, prevSie, port, responseLanguage,
-                trustEnvelope, rec
-            });
-            if (handled) return (turnResult = handled);
+        // L5 — the route.
+        const plan = planTurn({ signals, prev, policy, nowMs: now() });
+        rec.route = plan.route;
+        rec.turn = plan.turn;
+
+        // L7 — what the route needs to know.
+        const data = {};
+        if (plan.reads.facts) {
+            const stored = await recallFacts(supabase, userId).catch(() => []);
+            data.storedFacts = stored || [];
+            data.recalledFacts = stored || [];
         }
+        if (plan.reads.customerName) data.customerName = await recallCustomerName(supabase, userId);
 
-        const resolutionSignal = signals.resolution;
-        const alreadyAnswered = (prevSie?.decisionState?.answeredScenarioIds || []).length > 0;
-        if (resolutionSignal === 'resolved' && alreadyAnswered) {
-            rec.route = 'resolution_close';
-            rec.intent = { action: ACTIONS.COMPLETE, route: 'resolution_close', customerSignal: resolutionSignal, scenarioId: prevSie?.decisionState?.lastScenarioId ?? null, turn: 0 };
-            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
-            const closed = await closeConversation({ responseLanguage, sessionId, botState, port });
-            if (closed) return (turnResult = closed);
-            return null;
-        }
-
-        // مش هيتصعّد، فبنعترف بحالته ونكمل تشخيص في نفس الدور. تجاهُل
-        // نبرة واضحة أسوأ من إننا نرد عليها ونكمل.
-        if (emotion && settings.emotion_reply && settings.knowledge_empathy_replies) {
-            emotionPrefix = `${acknowledgementFor(emotion.emotion, responseLanguage)}\n\n`;
-        } else if (smallTalk?.type === 'frustration' && settings.knowledge_empathy_replies) {
-            emotionPrefix = `${acknowledgementFor('frustration', responseLanguage)}\n\n`;
-        }
-
-        // الرسايل اللي كلها كلام عادي (تحية، شكر، سؤال هوية) بتترد
-        // مباشرة من غير تشخيص. لو النبرة كانت شكر أو رضا، ده نفس المعنى:
-        // مفيش مشكلة نشخّصها.
-        //
-        // Only when the pleasantry IS the message (G-L1-3): «اهلا الواتساب
-        // واقف» is a greeting and an outage, and the outage is diagnosed.
-        const isPleasantry = smallTalk && smallTalk.coversWholeMessage
-            && smallTalk.type !== 'frustration' && smallTalk.type !== 'human_request';
-        if (isPleasantry && settings.reply_to_greetings) {
-            // «يفتكر اسم العميل» و«يفتكر آخر مشكلة» — الاتنين بيظهروا في
-            // الترحيب بس، مش في كل رد، عشان مايبقاش تكرار مزعج.
-            const personal = smallTalk.type === 'greeting'
-                ? await buildGreetingPersonalisation({ supabase, userId, prevSie, settings, responseLanguage })
-                : '';
-            rec.route = 'small_talk';
-            rec.intent = { action: ACTIONS.WAIT_FOR_USER, route: 'small_talk', smallTalk: smallTalk.type, scenarioId: null, turn: prevSie?.turnCount || 0 };
-            mark(rec, 'L6', 'bypassed', L6_BYPASSED);
-            const result = await respondToSmallTalk({ smallTalk, responseLanguage, sessionId, botState, prevSie, port, prefix: personal });
-            if (result) return (turnResult = result);
-            // لو الكتابة فشلت، منكملش على البايبلاين التشخيصي بنفس normalizedTokens
-            // القديمة دي — نرجع null عادي زي أي فشل تاني، والـ caller هيقع للمحرك التقليدي.
-            return null;
-        }
-
-        // 3. Diagnostics (Module 3)
-        // Which catalog answers the customer — resolved once and used by
-        // BOTH processTurn and rankDiagnosticState below, so the two can
-        // never disagree about what the candidates are.
-        rec.route = 'diagnostic';
-        rec.intent = null;
-        const { provider: scenarioProvider, resolution: catalogResolution } =
-            await resolveTurnScenarioProvider(supabase, settings, providerForAssembly(editionAssembly));
-        mark(rec, 'L2', 'ran');
-
-        // The one catalog outcome worth a line in the logs: the operator
-        // asked for their published rows and did not get them. Silence
-        // here is what let the catalog question go unanswered for weeks.
-        if (catalogResolution.overlayStatus === 'unavailable') {
-            console.warn(
-                `[sie] published scenarios were requested but could not be applied `
-                + `(${catalogResolution.overlayError}); diagnosing against the shipped `
-                + `catalog of ${catalogResolution.baseCount}`
-            );
-        }
-
-        // CP2 travels in as a filter. processTurn applies it immediately before
-        // the accumulator — the first irreversible step of a turn — so the cap
-        // is arithmetic rather than detection: a turn the boundary constrained
-        // moves belief no further than one ordinary sentence, however phrased.
-        let evidenceDropped = 0;
-        // A tapped discriminating-question option carries the evidence its
-        // option declares (question-answer.js). Passed as additionalEvidence
-        // so the trust boundary's evidenceFilter below bounds it too.
-        const questionAnswer = await evidenceFromQuestionAnswer({
-            text,
-            decisionState: prevSie?.decisionState,
-            lookup: (id) => scenarioProvider.getScenarioById(id),
-            turn
-        });
-        const diagnosticState = await processTurn({
-            normalizedTokens,
-            turn,
-            previousState: prevSie?.diagnosticState,
-            liveEvidenceContext: { userId },
-            additionalEvidence: questionAnswer ? questionAnswer.evidence : [],
-            scenarioProvider,
-            evidenceFilter: (evidence) => {
-                // Resource bound first (the edition's distinct-token cap), then
-                // the trust boundary — the same order the pipeline applies.
-                const capped = capEvidenceTokens(evidence, editionProfile.maxEvidenceTokensPerTurn);
-                const { evidence: kept, dropped } = admitEvidence(capped.evidence, trustEnvelope);
-                evidenceDropped = dropped + capped.dropped;
-                return kept;
-            },
-            // Score only the scenarios that can score, plus the ones the
-            // conversation already tracks or names. Exact — see
-            // retrieval/scenario-index.js — and the reason 1,500 scenarios
-            // cost what 650 did. The switch exists for incident response only.
-            scope: settings.retrieval_scoped_diagnosis === false
-                ? null
-                : scopeFor({ previousDecisionState: prevSie?.decisionState, limit: editionProfile.retrievalMaxCandidates })
-        });
-        if (evidenceDropped > 0) {
-            console.warn(`[sie] trust boundary dropped ${evidenceDropped} evidence item(s) (${trustEnvelope.rationale})`);
-        }
-
-        // How much genuinely new evidence landed this turn, derived from the
-        // accumulator's own append-only log rather than re-deriving extraction.
-        const newEvidenceAddedThisTurn = (diagnosticState.accumulator?.entries || [])
-            .filter((e) => e.turn === turn).length;
-        rec.diagnosticState = diagnosticState;
-        mark(rec, 'L3', 'ran');
-
-        // 4. Ranking (Module 4)
-        // «مستوى التشخيص» بيتحوّل هنا لرقم واحد: قد إيه الاحتمال لازم
-        // يكون قوي عشان يتحسب مرشح أصلاً. نفس الرقم بيروح لمحرك القرار
-        // تحت، عشان الاتنين يتكلموا عن نفس المرشحين.
+        // L2–L4, when the turn is diagnosed.
         const activationThreshold = activationThresholdForLevel(settings.diagnosis_level);
-        const ranking = await rankDiagnosticState(
-            diagnosticState,
-            scenarioProvider,
-            { activationThreshold }
-        );
-        rec.ranking = ranking;
-        mark(rec, 'L4', 'ran');
+        let diagnosticState = null;
+        let ranking = null;
+        let scenarioProvider = null;
+        let newEvidenceAddedThisTurn = 0;
+        let focus = { excludeIds: [], closedCategories: [] };
+        const rankOptions = { activationThreshold };
+        if (plan.diagnose) {
+            const resolved = await resolveTurnScenarioProvider(supabase, settings, providerForAssembly(editionAssembly));
+            scenarioProvider = resolved.provider;
+            if (resolved.resolution.overlayStatus === 'unavailable') {
+                console.warn(
+                    `[sie] published scenarios were requested but could not be applied `
+                    + `(${resolved.resolution.overlayError}); diagnosing against the shipped `
+                    + `catalog of ${resolved.resolution.baseCount}`
+                );
+            }
+            mark(rec, 'L2', 'ran');
 
-        // 5. Decision (Module 5)
-        const decideWith = (r) => decide({
-            ranking: r,
-            turn,
-            previousDecisionState: prevSie?.decisionState,
-            newEvidenceAddedThisTurn,
-            policy: {
-                activationThreshold,
-                // «يرد بالحل بنفسه» لو اتقفل، المحرك يفضل يشخّص ويجمع
-                // المعلومات زي ما هو، بس يسلّم الحل لموظف.
-                allowAutoResolution: settings.answer_directly,
-                allowScenarioAnswers: settings.knowledge_use_scenarios,
-                allowEvidenceRequests: settings.auto_request_more_info,
-                ticketOnAmbiguity: settings.ticket_on_low_confidence,
-                includeTicketSummary: settings.ticket_include_summary,
-                resolutionConfidenceThreshold: settings.answer_confidence,
-                maxClarifyingQuestions: settings.max_clarifying_questions,
-                maxTurnsBeforeEscalation: settings.ticket_after_turns,
-                allowSmartGuess: settings.allow_smart_guess,
-                requireCompleteEvidence: settings.inference_mode === 'knowledge_only'
-            },
-            // المحرك مايقدرش يستنتج دي من الأدلة: «تم الحل» و«لسه مش شغال»
-            // الاتنين بيدّوا توكنز وبيسيبوا الثقة زي ما هي.
-            customerSignal: resolutionSignal,
-            clock: () => new Date(now()).toISOString()
-        });
-        // «أرضية Free»: تعادل عمله سيناريو من حزمة الإصدار مايتحوّلش لتذكرة
-        // لو Free كان هيسأل سؤال — see edition-turn.freeFloor. Inert on Free.
-        const { decision, decisionState, floored: editionFloor } = freeFloor({
-            ...decideWith(ranking), ranking,
-            hypotheses: diagnosticState.hypotheses,
-            scenarios: await scenarioProvider.getAllScenarios(),
-            packIds: editionAssembly?.packIds,
-            genericTokens: editionAssembly?.genericTokens,
-            rankOptions: { activationThreshold },
-            decideWith
-        });
-        if (editionFloor) {
-            console.info(`[sie] edition floor (${editionProfile.edition}): ${editionFloor.from} → ${editionFloor.to} (stand-off with ${editionFloor.scenarioId})`);
+            const previousDiagnosticState = plan.freshEpisode ? null : prev?.diagnosticState;
+            const previousDecisionState = plan.freshEpisode ? null : prev?.decisionState;
+            const tokens = plan.diagnoseTokens === 'turn' ? normalizedTokens : [];
+            // A tapped question option carries the evidence it declares; CP2 bounds it too.
+            const questionAnswer = tokens.length ? await evidenceFromQuestionAnswer({
+                text: language.rawText,
+                decisionState: previousDecisionState,
+                lookup: (id) => scenarioProvider.getScenarioById(id),
+                turn: plan.turn
+            }) : null;
+            const dropped = { count: 0 };
+            diagnosticState = await processTurn({
+                normalizedTokens: tokens,
+                turn: plan.turn,
+                previousState: previousDiagnosticState,
+                liveEvidenceContext: { userId },
+                additionalEvidence: questionAnswer ? questionAnswer.evidence : [],
+                scenarioProvider,
+                evidenceFilter: evidenceFilterFor(editionProfile, trustEnvelope, dropped),
+                scope: settings.retrieval_scoped_diagnosis === false
+                    ? null
+                    : scopeFor({ previousDecisionState, limit: editionProfile.retrievalMaxCandidates })
+            });
+            if (dropped.count > 0) {
+                console.warn(`[sie] trust boundary dropped ${dropped.count} evidence item(s) (${trustEnvelope.rationale})`);
+            }
+            newEvidenceAddedThisTurn = (diagnosticState.accumulator?.entries || []).filter((e) => e.turn === plan.turn).length;
+            rec.diagnosticState = diagnosticState;
+            mark(rec, 'L3', 'ran');
+
+            ranking = await rankDiagnosticState(diagnosticState, scenarioProvider, rankOptions);
+            // L5 says which problems the customer has moved on from; L4 ranks without them.
+            focus = focusFor({ plan, prev, ranking, turnTokens: tokens.map((t) => t.canonical), signals });
+            if (focus.excludeIds.length) {
+                rankOptions.excludeIds = focus.excludeIds;
+                ranking = await rankDiagnosticState(diagnosticState, scenarioProvider, rankOptions);
+            }
+            rec.ranking = ranking;
+            mark(rec, 'L4', 'ran');
+        } else {
+            for (const layer of ['L2', 'L3', 'L4']) mark(rec, layer, 'skipped', `route "${plan.route}" does not diagnose`);
         }
+
+        // L5 — the engine decision.
+        const decided = decideTurn({
+            plan, prev, ranking,
+            hypotheses: diagnosticState?.hypotheses || [],
+            newEvidenceAddedThisTurn,
+            decisionPolicy: decisionPolicyFrom(settings, activationThreshold),
+            signals,
+            clock: () => new Date(now()).toISOString(),
+            floor: {
+                scenarios: scenarioProvider ? await scenarioProvider.getAllScenarios() : [],
+                packIds: editionAssembly?.packIds,
+                genericTokens: editionAssembly?.genericTokens,
+                rankOptions
+            },
+            closedCategories: focus.closedCategories,
+            movedOnFrom: focus.excludeIds
+        });
+        if (decided.floored) {
+            console.info(`[sie] edition floor (${editionProfile.edition}): ${decided.floored.from} → ${decided.floored.to} (stand-off with ${decided.floored.scenarioId})`);
+        }
+
+        // L7 — Knowledge for the decision, and what a ticket decision must know.
+        let decision = decided.decision;
+        if (decision) {
+            decision = await composeAnswerDecision({
+                decision,
+                liveKnowledgeContext: settings.knowledge_use_live_data === false ? undefined : { userId },
+                turn: plan.turn,
+                ...(settings.knowledge_use_articles === false ? { staticKnowledgeProvider: EMPTY_KNOWLEDGE_PROVIDER } : {}),
+                ...(settings.knowledge_priority === 'live_first' ? { preferLiveKnowledge: true } : {})
+            });
+            const needs = knowledgeNeeds({ plan, decided, decision, settings });
+            if (needs.article) data.article = await findArticleFor(ranking);
+            if (needs.lookupOpenTicket) data.openTicket = await findOpenTicket(supabase, userId, needs.openTicketCategory);
+        }
+        const knowledgeRan = Boolean(decision) || Object.keys(data).length > 0;
+        mark(rec, 'L7', knowledgeRan ? 'ran' : 'skipped', knowledgeRan ? null : `route "${plan.route}" reads no knowledge`);
+
+        // L5 — the decision taken, its effects and the next state.
+        const { scopeStats, ...diagnosticStateToPersist } = diagnosticState || {};
+        const turnDecision = finalizeTurn({
+            plan, prev, signals, policy, decided, decision, data,
+            envelope: trustEnvelope,
+            diagnosticState: diagnosticState
+                ? (settings.sparse_diagnostic_state === true ? toSparseState(diagnosticStateToPersist) : diagnosticStateToPersist)
+                : null,
+            language: responseLanguage,
+            nowMs: now(),
+            customerText: language.rawText
+        });
+        rec.intent = turnDecision.intent;
         mark(rec, 'L5', 'ran');
 
-        // 6. Knowledge (Module 7) — additive, passes through unchanged unless
-        //    the decision is an ANSWER with a knowledgeSource.
-        const decisionWithKnowledge = await composeAnswerDecision({
-            decision,
-            // قفل «بيانات حساب العميل» معناه إننا مانبعتش السياق أصلاً،
-            // فالمصدر اللحظي مايتسألش — مش بنسأل ونرمي الإجابة.
-            liveKnowledgeContext: settings.knowledge_use_live_data === false ? undefined : { userId },
-            turn,
-            ...(settings.knowledge_use_articles === false ? { staticKnowledgeProvider: EMPTY_KNOWLEDGE_PROVIDER } : {}),
-            ...(settings.knowledge_priority === 'live_first' ? { preferLiveKnowledge: true } : {})
-        });
-
-        // 6.5. «يدوّر في المقالات قبل ما يفتح تذكرة». المحرك بيوصل لـ
-        //      CREATE_TICKET لما مايكونش عنده حل للحالة — لكن ساعات
-        //      المقالة بترد على السؤال حتى لو الحالة نفسها مالهاش حل
-        //      مخزّن. أرخص من تشغيل موظف، وأسرع للعميل.
-        const articleRescue =
-            decisionWithKnowledge.action === ACTIONS.CREATE_TICKET &&
-            settings.articles_before_ticket &&
-            settings.knowledge_use_articles !== false
-                ? await rescueWithArticle(decisionWithKnowledge, ranking)
-                : null;
-
-        // CP3b — authorize effects that leave the engine.
-        //
-        // LAST, after the article rescue and everything else that can change the
-        // action. An authorization check that runs before the action is final
-        // authorizes an action that was never taken.
-        //
-        // Speech is never gated: an untrusted turn still gets an answer, because
-        // refusing to talk to a customer is its own kind of failure. What is
-        // withheld is a TICKET — a row in someone's queue and a human's
-        // attention, manufactured by a turn that behaved like an attempt to
-        // manufacture one.
-        const { decision: authorizedDecision, downgraded: actionDowngraded } =
-            admitAction(articleRescue || decisionWithKnowledge, trustEnvelope);
-        if (actionDowngraded) {
-            console.warn(`[sie] trust boundary withheld ${authorizedDecision.trustDowngradedFrom}: ${trustEnvelope.rationale}`);
-        }
-        const finalDecision = authorizedDecision;
-        // Knowledge ran above (composeAnswerDecision + the article rescue).
-        mark(rec, 'L7', 'ran');
-        rec.intent = finalDecision;
-
-        // 7. Dialogue (Module 6) — presentation choices are attached here, not
-        //    decided in Module 5: whether to name the likely cause and whether
-        //    to list runners-up are phrasing questions, and the Decision Engine
-        //    stays about what to DO.
-        const decisionForRender = {
-            ...finalDecision,
-            explainRootCause: settings.explain_root_cause !== false,
-            alternatives: settings.suggest_multiple_solutions
-                ? collectAlternatives(ranking, settings.max_suggested_solutions, activationThreshold)
-                : null
-        };
-        // جملة الاعتراف بالنبرة بتتحط على أي رد بيوصل للعميل الدور ده، مش
-        // على رد التشخيص بس — عميل غضبان يستاهل الاعتذار حتى لو الرد
-        // النهائي طلع «تحب أفتحلك تذكرة؟».
-        const withEmotion = (t) => (emotionPrefix ? emotionPrefix + t : t);
-
-        const renderedDecision = renderDecision(decisionForRender, responseLanguage);
-        const rendered = { ...renderedDecision, text: withEmotion(renderedDecision.text) };
-        mark(rec, 'L6', 'ran');
-        // What Dialogue rendered for the decision. When the bridge sends
-        // something else (ticket question, duplicate notice, tickets off),
-        // the trace keeps both.
-        rec.intendedText = rendered.text;
-
-        // 8. Action (Module 8) — the sole writer. Persists the bot's message +
-        //    session state (+ ticket, if this turn created one) in one transaction.
-        // The session's diagnostic state, compressed if the flag is on.
-        //
-        // Measured on a real conversation against the shipped 650-scenario
-        // catalog: 203.7 KB becomes 0.34 KB on turn 1 and 207 KB becomes 9.8 KB
-        // on turn 3. The evidence ledger is the only part that cannot be
-        // recomputed — 0.1% of what was being written every turn.
-        //
-        // Compressed at the WRITE and expanded at the read (processTurn handles
-        // either shape), so turning the flag on needs no migration and turning
-        // it off leaves every session already stored still readable.
-        // ── تشغيل الظل ────────────────────────────────────────────
-        //
-        // Runs the vNext pipeline on this same turn and records what it WOULD
-        // have decided. It cannot reach the customer: `runTurn` stops at the
-        // Decision, so Dialogue and Action — everything that renders a reply,
-        // writes the session, opens a ticket or spends quota — are not in it
-        // and are not reachable from it.
-        //
-        // Placed AFTER the live decision so a shadow that misbehaves cannot
-        // delay the reply, and awaited rather than fired-and-forgotten because
-        // an edge isolate can be frozen the moment the response is returned —
-        // a floating promise there is not "background work", it is work that
-        // silently never happens. The 250 ms budget inside the harness is what
-        // keeps that await honest.
+        // L9 — the shadow pipeline, on diagnostic turns, when switched on.
         let shadowRecord = null;
         let shadowState = null;
-        if (settings.shadow_run_enabled === true) {
+        if (settings.shadow_run_enabled === true && plan.route === ROUTES.DIAGNOSTIC) {
             const shadow = await runShadowComparison({
                 text,
                 catalog: await scenarioProvider.getAllScenarios(),
-                // The shadow runs only on this route, so the live engine's
-                // reading of the turn is, truthfully, "diagnostic". Passing
-                // null made `kind` differ on every record (audit finding K2).
-                liveResult: { interpretation: { kind: TURN_KINDS.DIAGNOSTIC }, decision: finalDecision, ranking },
-                shadowPrevious: prevSie?.shadowState || null,
-                // The same settings the live decision used, so a difference
-                // is a difference in engines, not in thresholds.
+                liveResult: { interpretation: { kind: TURN_KINDS.DIAGNOSTIC }, decision: turnDecision.decision || decision, ranking },
+                shadowPrevious: prev?.shadowState || null,
                 settings
             });
             shadowRecord = shadow.record;
-            shadowState = shadow.shadowState;
+            shadowState = shadow.shadowState && JSON.stringify(shadow.shadowState).length < 64 * 1024 ? shadow.shadowState : null;
         }
 
-        const { scopeStats, ...diagnosticStateToPersist } = diagnosticState;
-        const persistedDiagnosticState = settings.sparse_diagnostic_state === true
-            ? toSparseState(diagnosticStateToPersist)
-            : diagnosticStateToPersist;
-
-        const nextBotState = {
-            ...(botState || {}),
-            sie: {
-                diagnosticState: persistedDiagnosticState,
-                decisionState,
-                language: responseLanguage,
-                turnCount: turn,
-                // بيخلّي «مدة الاحتفاظ بالسياق» تعرف السياق ده قديم قد إيه.
-                lastTurnAt: new Date(now()).toISOString(),
-                // «يفتكر آخر مشكلة» — بيفضل موجود حتى بعد ما السياق ينتهي.
-                lastScenarioLabel: decisionWithKnowledge.scenarioLabel || prevSie?.lastScenarioLabel || null,
-                // بيخلّي «احفظ ده» في الرسالة الجاية يعرف «ده» دي إيه.
-                lastCustomerText: text.slice(0, 500),
-                // The shadow's OWN state, threaded between shadow turns only.
-                // Kept apart from the live state so a divergence in it cannot
-                // reach the session that answers the customer, and dropped
-                // entirely if it grows past a sane bound — a measurement that
-                // can bloat a session record is not worth the measurement.
-                ...(shadowState && JSON.stringify(shadowState).length < 64 * 1024
-                    ? { shadowState }
-                    : {})
-            }
+        // L8 — pre-commit effects; L6 — the words; L8 — the commit, then the hand-off.
+        const effectsPort = {
+            queueReview: (args) => queueForHumanReview(supabase, { sessionId, ...args }),
+            writeFacts: (facts) => rememberFacts(supabase, userId, facts),
+            forgetFacts: () => forgetFacts(supabase, userId),
+            requestHandoff: (reason) => requestHumanHandoff(supabase, { sessionId, reason })
         };
+        const outcomes = await runPreEffects(turnDecision.effects.pre, effectsPort, rec.effects);
+        const rendered = renderTurn(turnDecision, {
+            language: responseLanguage, outcomes, presentation: presentationPolicy(settings), ranking, activationThreshold
+        });
+        rec.intendedText = rendered.intendedText;
+        mark(rec, 'L6', 'ran');
 
-        // CREATE_TICKET يتوقف هنا وينتظر تأكيد صريح من العميل بدل ما يفتح
-        // التذكرة على طول - شايف beginTicketConfirmation() فوق.
-        let actionResult;
-        let replyText = rendered.text;
-        let replyOptions = rendered.options || [];
-        // الحالة اللي اتكتبت فعلاً في قاعدة البيانات. بتختلف عن nextBotState
-        // بس في حالة تأكيد التذكرة، لأن وقتها بنكتب نسخة زيادة عليها
-        // pendingTicketConfirmation.
-        let persistedBotState = nextBotState;
-
-        // «يدوّر في تذاكر العميل القديمة قبل ما يرد»: لو فيه تذكرة مفتوحة
-        // في نفس الموضوع، نقول للعميل عليها بدل ما نفتح واحدة مكررة
-        // ونقسّم تاريخ المشكلة على تذكرتين.
-        const duplicateTicket =
-            finalDecision.action === ACTIONS.CREATE_TICKET && settings.search_past_tickets
-                ? await findOpenTicket(supabase, userId, finalDecision.ticketDraft?.category || null)
-                : null;
-
-        if (duplicateTicket) {
-            const lang = responseLanguage === 'en' ? 'en' : 'ar';
-            replyText = withEmotion(lang === 'en'
-                ? `You already have an open ticket about this (#${duplicateTicket.ticketNumber}) and the team is on it — I'll add nothing new rather than split it across two tickets. Anything you add here reaches them on that ticket.`
-                : `فيه تذكرة مفتوحة عندك في نفس الموضوع (رقم ${duplicateTicket.ticketNumber}) والفريق شغّال عليها، فمش هفتح واحدة تانية عشان الموضوع مايتقسمش. أي تفاصيل تزوّدها هنا هتوصلهم على نفس التذكرة.`);
-            replyOptions = [];
-            actionResult = await executeDecision({
-                decision: { action: ACTIONS.WAIT_FOR_USER, turn: finalDecision.turn },
-                rendered: { text: replyText, options: [] },
-                sessionId, nextBotState, port
-            });
-            if (!actionResult?.success) return null;
-        } else if (finalDecision.action === ACTIONS.CREATE_TICKET && !settings.auto_ticket_enabled) {
-            // Tickets are switched off: say so plainly rather than opening one
-            // silently or pretending the request went nowhere.
-            const lang = responseLanguage === 'en' ? 'en' : 'ar';
-            replyText = withEmotion(TICKET_DISABLED_TEXT[lang]);
-            replyOptions = [];
-            actionResult = await executeDecision({
-                decision: { action: ACTIONS.WAIT_FOR_USER, turn: finalDecision.turn },
-                rendered: { text: replyText, options: [] },
-                sessionId, nextBotState, port
-            });
-            if (!actionResult?.success) return null;
-        } else if (finalDecision.action === ACTIONS.CREATE_TICKET && settings.ask_before_ticket) {
-            const confirmOutcome = await beginTicketConfirmation({
-                decisionWithKnowledge: finalDecision,
-                rendered,
-                sessionId,
-                nextBotState,
-                port,
-                responseLanguage,
-                prefix: emotionPrefix
-            });
-            if (!confirmOutcome) return null; // caller falls back to the traditional engine
-            actionResult = confirmOutcome.actionResult;
-            replyText = confirmOutcome.reply;
-            replyOptions = confirmOutcome.options;
-            persistedBotState = confirmOutcome.persistedBotState;
-        } else {
-            actionResult = await executeDecision({
-                decision: finalDecision,
-                rendered,
-                sessionId,
-                nextBotState,
-                port
-            });
-            if (!actionResult?.success) {
-                console.error('SIE action-layer write failed:', actionResult);
-                return null; // caller falls back to the traditional engine
-            }
+        const { actionResult, botState: committedBotState } = await commitTurn({
+            turnDecision, rendered, sessionId, botState, port,
+            nowIso: new Date(now()).toISOString(), effects: rec.effects, shadowState
+        });
+        if (!actionResult?.success) {
+            console.error('SIE action-layer write failed:', actionResult);
+            return null; // caller falls back to the traditional engine
         }
+        const { handedOff } = await runPostEffects(turnDecision.effects.post, effectsPort, rec.effects);
 
-        // The engine escalated and its message is persisted: the conversation
-        // is now a human's. After the write, never before — 059 would refuse
-        // the escalation message itself otherwise.
-        let humanHandoff = false;
-        if (finalDecision.action === ACTIONS.ESCALATE_TO_HUMAN && !duplicateTicket) {
-            humanHandoff = (await requestHumanHandoff(supabase, { sessionId, reason: 'escalated_by_engine' })).handedOff;
-            rec.effects.push({ type: 'request_handoff', ok: humanHandoff === true });
-        }
-
-        // 9. Observability (Module 9a): the trace itself is written in the
-        //    `finally` below, for this route and every other one.
         rec.shadow = shadowRecord;
-        rec.engine = {
+        rec.engine = plan.diagnose ? {
             edition: editionProfile.edition,
             degradedFrom: editionDegradedFrom,
-            // Set when the Free floor replaced an ambiguity ticket (edition-turn.freeFloor).
-            floor: editionFloor,
+            floor: decided.floored,
             catalogSize: editionAssembly.scenarios.length,
             scope: scopeStats || null
-        };
+        } : null;
 
         return (turnResult = {
-            reply: replyText,
-            options: replyOptions,
+            reply: rendered.text,
+            options: rendered.options,
             alreadyPersisted: true,
             ticketNumber: actionResult.ticketNumber ?? null,
-            humanHandoff,
-            // الحالة اللي اتكتبت فعلاً — لو الدور ده وقف عند تأكيد التذكرة،
-            // دي بتبقى النسخة اللي جواها pendingTicketConfirmation، مش
-            // nextBotState الأصلية.
-            botState: persistedBotState
+            humanHandoff: handedOff,
+            botState: committedBotState
         });
     } catch (err) {
         console.error('SIE pipeline error:', err?.message || err);
         rec.error = String(err?.message || err);
         return null; // caller falls back to the traditional engine
     } finally {
-        // Every paid turn — answered, short-circuited, failed or thrown —
-        // writes one trace. A failed write is surfaced, never silent, and
-        // never costs the customer the reply.
+        // L9 — every paid turn, answered or failed, writes one trace. A failed
+        // write is surfaced, never silent, and never costs the reply.
         let written = false;
         let threw = false;
         try {

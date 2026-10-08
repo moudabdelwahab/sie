@@ -75,14 +75,19 @@ export const MAX_CANDIDATE_QUESTIONS_SCENARIOS = 3;
  *
  * @param {import('../diagnostics/evidence-types.js').Hypothesis[]} hypotheses
  * @param {import('../scenarios/scenario-types.js').Scenario[]} scenarios
- * @param {{activationThreshold?: number, catalogSize?: number}} [options] - omit for
- *   the module's own threshold, i.e. the behaviour this function has always had
+ * @param {{activationThreshold?: number, catalogSize?: number, excludeIds?: Iterable<string>}} [options] - omit for
+ *   the module's own threshold, i.e. the behaviour this function has always had.
+ *   `excludeIds` ranks as if those scenarios were not in the running: Layer 5
+ *   asks for this when the customer has moved on from a problem that was
+ *   answered, resolved, declined or superseded (WP4, G-L5-3, G-L5-14).
  * @returns {RankingResult}
  */
 export function rankHypotheses(hypotheses, scenarios, options = {}) {
     const activationThreshold =
         typeof options.activationThreshold === 'number' ? options.activationThreshold : ACTIVATION_THRESHOLD;
-    const list = Array.isArray(hypotheses) ? hypotheses : [];
+    const excluded = new Set(options.excludeIds || []);
+    const all = Array.isArray(hypotheses) ? hypotheses : [];
+    const list = excluded.size ? all.filter((h) => !excluded.has(h.scenarioId)) : all;
     const scenarioById = new Map((scenarios || []).map((s) => [s.id, s]));
 
     const sorted = [...list].sort(

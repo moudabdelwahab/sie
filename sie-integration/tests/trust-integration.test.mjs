@@ -233,22 +233,31 @@ test('sparse flag turned back OFF: a session already compressed is still readabl
 
 test('bridge: every checkpoint is wired, and CP1 precedes the memory path', async () => {
     const source = await readFile(path.join(ROOT, 'sie-integration/sie-chat-bridge.js'), 'utf8');
+    // Since WP4 the authorization checks are Layer 5 inputs: CP3 (facts) and
+    // CP3b (actions) are applied in conversation-rules.js, which decides what
+    // the turn does. CP1, CP2 and the sparse write stay with the orchestrator.
+    const rules = await readFile(path.join(ROOT, 'sie/decision/conversation-rules.js'), 'utf8');
 
-    for (const call of ['openTurn(', 'admitEvidence(', 'admitFacts(', 'admitAction(', 'trustTrace(', 'toSparseState(']) {
+    for (const call of ['openTurn(', 'admitEvidence(', 'trustTrace(', 'toSparseState(']) {
         assert.ok(source.includes(call), `the bridge no longer calls ${call}`);
     }
+    for (const call of ['admitFacts(', 'admitAction(']) {
+        assert.ok(rules.includes(call), `Layer 5 no longer calls ${call}`);
+    }
 
-    // CP1 must run before the memory path, which can write durable state and
-    // return without ever reaching diagnosis. (Since WP3 the memory intent is
-    // detected by Layer 1 with every other signal; the path that WRITES is
-    // the handleMemoryIntent call.)
-    assert.ok(source.indexOf('await handleMemoryIntent(') > 0, 'the memory path call site exists');
-    assert.ok(source.indexOf('openTurn(') < source.indexOf('await handleMemoryIntent('),
+    // CP1 must run before anything that can write durable state: the memory
+    // write is a pre-commit effect (runPreEffects), and the route is planned
+    // from a classified turn.
+    assert.ok(source.indexOf('openTurn(') > 0 && source.indexOf('await runPreEffects(') > 0);
+    assert.ok(source.indexOf('openTurn(') < source.indexOf('planTurn('), 'CP1 must classify the turn before it is routed');
+    assert.ok(source.indexOf('openTurn(') < source.indexOf('await runPreEffects('),
         'CP1 must be classified before the memory path can write anything');
 
     // CP3b must run after the article rescue, which can change the action. An
     // authorization check that runs earlier authorizes an action never taken.
-    assert.ok(source.indexOf('admitAction(') > source.indexOf('rescueWithArticle('),
+    const finalize = rules.slice(rules.indexOf('export function finalizeTurn'));
+    assert.ok(finalize.indexOf('articleAnswer(') > 0, 'the article rescue is in finalizeTurn');
+    assert.ok(rules.indexOf('admitAction(') > rules.indexOf('export function finalizeTurn') + finalize.indexOf('articleAnswer('),
         'CP3b must run after the last step that can change the action');
 });
 

@@ -220,6 +220,10 @@ test('كل إعداد بيتقرا في كود المحرك فعلاً', async (
     // لوحة ناقصة، لأن الموظف بياخد قرار على أساس إن المفتاح شغّال.
     const roots = [
         '../../../sie-integration/sie-chat-bridge.js',
+        // Since WP4 the bridge only orchestrates: the conversation rules read
+        // their settings in Layer 5, the presentation choices in Layer 6.
+        '../../decision/conversation-rules.js',
+        '../../dialogue/turn-renderer.js',
         '../../../sie-integration/sie-entitlement.js',
         '../../../sie-admin/settings.js',
         // The engine is no longer only JavaScript. The rate limit is

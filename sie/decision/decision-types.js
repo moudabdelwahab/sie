@@ -53,13 +53,20 @@
  * @property {number} consecutiveNoNewEvidenceTurns
  * @property {DecisionAction|null} lastAction
  * @property {string|null} lastScenarioId
- * @property {boolean} ticketAlreadyCreated - true once CREATE_TICKET or
- *   ESCALATE_TO_HUMAN has ever been decided in this session; used to stop
- *   R1/R5/R6 from re-deciding (and re-ticketing) forever once one of their
- *   trigger conditions becomes permanently true (turn budget and exhausted
- *   question counts never go back down on their own)
+ * @property {Object} ticket - the session's ticket lifecycle state
+ *   (ticket-lifecycle.js, G-L5-1): {state, scenarioId, category, ref, at}
+ * @property {boolean} ticketAlreadyCreated - DERIVED from `ticket`: true only
+ *   while a ticket is on file (created or existing). Never set from a
+ *   decision — a decided or proposed ticket is not a ticket (WP4, RC1). Used
+ *   to stop R1/R5/R6 from re-ticketing once their trigger conditions become
+ *   permanently true.
+ * @property {string[]} declinedScenarioIds - scenarios whose ticket the customer declined
+ * @property {string[]} resolvedScenarioIds - answered scenarios the customer said are solved
+ * @property {number} followUpsAfterAnswer - turns since the last ANSWER that neither
+ *   resolved nor reopened it (R6B, G-L5-6)
  * @property {Array<{turn: number, action: DecisionAction, scenarioId: string|null, confidence: number|null, explanation: string}>} history
  */
+import { emptyTicket } from './ticket-lifecycle.js';
 
 export const ACTIONS = Object.freeze({
     ANSWER: 'ANSWER',
@@ -138,7 +145,17 @@ export function createEmptyDecisionState() {
         // worked"). Kept in state rather than inferred each turn so the
         // engine does not re-diagnose a conversation that is finished.
         resolvedByCustomer: false,
+        // Derived from `ticket` (ticket-lifecycle.js) — never set by a decision.
         ticketAlreadyCreated: false,
+        ticket: emptyTicket(),
+        // Scenarios whose ticket the customer declined, and answered scenarios
+        // the customer said are solved. Neither is pursued again when the
+        // customer has moved on to another problem (G-L5-3, G-L5-14).
+        declinedScenarioIds: [],
+        resolvedScenarioIds: [],
+        // Turns after an ANSWER that neither resolved nor reopened it. A
+        // detail or an acknowledgement is not "the solution failed" (G-L5-6).
+        followUpsAfterAnswer: 0,
         // The discriminating question asked on the LAST turn, if the last
         // turn asked one: { scenarioId, questionId }. Explicit rather than
         // inferred from askedQuestionIds, because a generic clarification

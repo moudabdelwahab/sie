@@ -32,7 +32,7 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | G-L1-3 | L1 | `diagnosticContent` is true whenever an evidence-bearing token exists; small talk covers the whole message only when none does. | enforced | WP3 | tagged |
 | G-L1-4 | L1 | Every option value emitted by Dialogue classifies to its intended polarity. | enforced | WP3 | tagged |
 | G-L1-5 | L1 | Plain yes/no words (لا، لأ، اه، آه، أيوه، نعم، yes, no) classify correctly; content without a leading yes/no has no polarity. | enforced | WP3 | tagged |
-| G-L1-6 | L1 | No consumer classifies raw text; truncation is visible to every consumer. | pending | WP4 | Partial since WP3 (tagged tests): the bridge routes and the vNext interpretation read Layer-1 signals only, the bridge holds no text classifier, and truncation is in the signals and the trace. Not yet: Trust CP1 still reads the full received text — by owner decision (2026-10-06, WP3 deployment) it keeps doing so for now. |
+| G-L1-6 | L1 | No consumer classifies raw text; truncation is visible to every consumer. | pending | WP4 | Partial since WP3/WP4 (tagged tests): the bridge, Layer 5 and the vNext interpretation read Layer-1 signals only, the bridge holds no classifier, and truncation is in the signals and the trace. Not yet: Trust CP1 still reads the full received text — by owner decision (2026-10-06, kept in WP4 by decision D4). |
 | G-L1-7 | L1 | On the curated real-problem corpus, no message produces whole-message small talk, a human request, an escalating emotion, a positive resolution or an explicit memory capture. | enforced | WP3 | tagged |
 | G-L1-8 | L1 | Normalization is deterministic and total. | enforced | WP3 | tagged |
 | G-L1-9 | L1 | Typo tolerance (setting `language_typo_tolerance`, off by default) corrects only words nothing else resolved, only towards problem-describing canonicals, never a known conversational or glossary word; it measurably recovers misspellings, and its evidence weighs below an exact or Arabic match. | enforced | WP3 | tagged |
@@ -51,22 +51,22 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | G-L4-2 | L4 | Ambiguity requires both rivals above a data-derived confidence floor. | pending | WP5 | |
 | G-L4-3 | L4 | Alternatives list only candidates at or above activation. | pending | WP5 | |
 | G-L4-4 | L4 | Ordering is deterministic. | enforced | — | `sie/ranking/tests/ranking-engine.test.mjs` |
-| G-L5-1 | L5 | Ticket state records only committed facts: `created` only alongside a `create_ticket` effect; proposals, declines and withheld tickets are distinct states. | pending | WP4 | |
-| G-L5-2 | L5 | Every pending prompt has `expiresAt`; an expired prompt never interprets a message. | pending | WP4 | |
-| G-L5-3 | L5 | yes → exactly one ticket; no → declined + review; content → processed as evidence; unclear → at most one re-ask. | pending | WP4 | |
-| G-L5-4 | L5 | `COMPLETE` + episode close only for an un-negated "resolved" after an `ANSWER`; "unresolved" goes to the R6B path. | pending | WP4 | |
+| G-L5-1 | L5 | Ticket state records only committed facts: `created` only alongside a `create_ticket` effect; proposals, declines and withheld tickets are distinct states. | enforced | WP4 | tagged |
+| G-L5-2 | L5 | Every pending ticket question has `askedAt` and `expiresAt` (`ticket_prompt_minutes`, default 30). The lifetime bounds the QUESTION, not the answer: after expiry a clear yes is still a request and a clear no still a decline, but an expired question never captures, re-asks or redirects any other message. | enforced | WP4 | tagged |
+| G-L5-3 | L5 | yes → exactly one ticket; no → declined + review; content → processed as evidence; unclear → at most one re-ask. | enforced | WP4 | tagged |
+| G-L5-4 | L5 | `COMPLETE` + episode close only for an un-negated "resolved" after an `ANSWER`; "unresolved" goes to the R6B path. | enforced | WP4 | tagged |
 | G-L5-5 | L5 | No ticket on ambiguity before one clarifying attempt, and never below the L4 floor. | pending | WP5 | |
-| G-L5-6 | L5 | New evidence after an `ANSWER` is not by itself failure. | pending | WP4 | |
+| G-L5-6 | L5 | New evidence after an `ANSWER` is not by itself failure. | enforced | WP4 | tagged |
 | G-L5-7 | L5 | A knowledge-backed `ANSWER` requires L7 status `verified`. | pending | WP6 | |
-| G-L5-8 | L5 | Never emits an effect the trust envelope forbids; withheld state recorded. | pending | WP4 | |
+| G-L5-8 | L5 | Never emits an effect the trust envelope forbids; withheld state recorded. | enforced | WP4 | tagged |
 | G-L5-9 | L5 | An evidence request is closed by an attachment or a skip; the ticket references the attachment. | pending | WP7 | |
-| G-L5-10 | L5 | Every route is an evaluated rule. | pending | WP4 | |
-| G-L5-11 | L5 | An explicit human request escalates; anger and sarcasm escalate only with intensity and context. | pending | WP4 | |
-| G-L5-12 | L5 | No decision rule is unreachable by construction. R6C is kept only if it shows measurable value (owner decision #5); otherwise it is removed. | pending | WP4 | |
-| G-L5-13 | L5 | An escalation or a superseding answer never discards the message's problem: diagnosis runs on the turn, and the ticket draft carries the leading scenario and trail. | pending | WP4 | |
-| G-L5-14 | L5 | Multi-problem continuity: when one problem is closed and another active problem supported by this conversation's evidence remains, the conversation continues with it instead of closing; a second problem in one message is kept. | pending | WP4 | |
+| G-L5-10 | L5 | Every route is an evaluated rule. | enforced | WP4 | tagged |
+| G-L5-11 | L5 | An explicit request for a person escalates immediately; a threat (legal action, complaint, cancellation, refund) escalates; anger, sarcasm and bot-frustration escalate only with context (a negative previous turn, or an answer that did not work) — without it the problem is diagnosed and anger acknowledged. Kill switch `emotion_escalation_requires_context` restores escalation on the phrase alone. | enforced | WP4 | tagged |
+| G-L5-12 | L5 | No decision rule is unreachable by construction. R6C was measured to have no value (owner decision #5) and is removed. | enforced | WP4 | tagged |
+| G-L5-13 | L5 | An escalation or a superseding answer never discards the message's problem: diagnosis runs on the turn, and the ticket draft carries the leading scenario and trail. | enforced | WP4 | tagged |
+| G-L5-14 | L5 | Multi-problem continuity: when one problem is closed and another active problem supported by this conversation's evidence remains, the conversation continues with it instead of closing; a second problem in one message is kept. | enforced | WP4 | tagged |
 | G-L6-1 | L6 | Every customer-visible string originates in Dialogue templates. | pending | WP9 | |
-| G-L6-2 | L6 | Template claims are supported by the decision and state (`ticket_exists` ⇒ a ticket exists). | pending | WP9 | |
+| G-L6-2 | L6 | Template claims are supported by the decision and state (`ticket_exists` ⇒ a ticket exists). | pending | WP9 | The ticket claim is enforced since WP4 (tagged: INV-TICKET in `sie-integration/tests/invariants.test.mjs`, REG-E3); the rest of the guarantee is WP9. |
 | G-L6-3 | L6 | The acknowledgement never contradicts the decision. | pending | WP9 | |
 | G-L6-4 | L6 | Rendering never throws. | enforced | — | `sie/dialogue/tests/dialogue-renderer.test.mjs` |
 | G-L6-5 | L6 | Clarifying questions vary by attempt and reference what is understood. | pending | WP9 | |
@@ -77,10 +77,10 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | G-L7-5 | L7 | Every source is time-bounded; a timeout is `error`. | pending | WP6 | |
 | G-L7-6 | L7 | Ticket and subscription status answer from real rows. | pending | WP6 | |
 | G-L8-1 | L8 | One turn = one commit = one outcome record. | enforced | — | `sie/action/tests/action-layer.test.mjs`, `sie-integration/tests/sie-turn-writer.test.mjs` |
-| G-L8-2 | L8 | Every state write is stamped by the writer on every route. | pending | WP4 | |
+| G-L8-2 | L8 | Every state write is stamped by the writer on every route. | enforced | WP4 | tagged |
 | G-L8-3 | L8 | Quota is charged only for a committed reply. | pending | WP8 | |
 | G-L8-4 | L8 | No component other than Action writes `bot_state`. | pending | WP8 | |
-| G-L8-5 | L8 | The executed effect equals the decided effect. | pending | WP4 | |
+| G-L8-5 | L8 | The executed effect equals the decided effect. | enforced | WP4 | tagged |
 | G-L8-6 | L8 | A failed commit is returned and traced, never swallowed. | enforced | WP2 | tagged |
 | G-L9-1 | L9 | Every paid turn has exactly one trace, on every route. | enforced | WP2 | tagged |
 | G-L9-2 | L9 | The trace's sent text equals the reply delivered. | enforced | WP2 | tagged |
@@ -90,7 +90,7 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | G-L9-6 | L9 | The learning queue includes escalations, declines, withheld actions, re-contact after close and low-specificity tickets. | pending | WP8 | |
 | G-L9-7 | L9 | Publishing requires a passing validation run or a recorded override (DB-enforced). | pending | WP8 | |
 | G-L9-8 | L9 | Trace write failures are surfaced. | enforced | WP2 | tagged |
-| G-BR-1 | orchestrator | The bridge calls the nine layers in order, has one success return path, holds no customer text, no classifier and no state mutation. | pending | WP4 | |
+| G-BR-1 | orchestrator | The bridge calls the nine layers in order, has one success return path, holds no customer text, no classifier and no state mutation. | enforced | WP4 | tagged |
 | T-1 | tests | Settings profiles are valid, and the current production configuration (including the 2026-10-06 mitigations) is a tested profile. | enforced | WP1 | tagged |
 | T-2 | tests | The turn's clock is injectable and is what time-based decisions use; without it, real time applies. | enforced | WP1 | tagged |
 | T-3 | tests | A red regression fails today for exactly its declared reason; a fixed defect cannot stay red; a green run cannot fail. | enforced | WP1 | tagged |
@@ -100,15 +100,15 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 
 | P0 | Issue | Required categories | Status | WP | Red regression |
 |---|---|---|---|---|---|
-| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-D2 green; routing remains for WP4) | WP3, WP4 | REG-D3-restated-problem-at-prompt, REG-D4-new-problem-at-ticket-question-is-diagnosed, REG-D4b-new-problem-at-escalation-question-is-diagnosed, REG-D5-restated-negated-problem-is-not-a-decline |
+| P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | closed (WP3 detection, WP4 routing) | WP3, WP4 | REG-D2, REG-D3, REG-D4, REG-D4b, REG-D5 (all green) |
 | P0-2 | Arabic word-boundary problems | U, LI, E2E, PS, ADV | closed (WP3) | WP3 | REG-D1-plain-no, REG-D1-plain-yes, REG-F1-install-is-not-anger (all green) |
-| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | open (detection fixed in WP3: REG-C and REG-C2 green; the closing rule remains for WP4) | WP3, WP4 | REG-C3-resolved-plus-new-problem-is-diagnosed, REG-C4-resolved-then-new-problem-is-diagnosed, REG-C5-one-of-two-problems-resolved-keeps-the-other, REG-C6-new-problem-then-resolution-in-one-message |
-| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | open (word boundaries and negation fixed in WP3: REG-F1 green; the context rule remains for WP4) | WP3, WP4 | REG-F2-sincere-praise-is-not-sarcasm, REG-F2b-polite-closing-is-not-anger, REG-F5-anger-with-a-problem-is-diagnosed, REG-F6-sarcasm-without-context-is-not-escalated, REG-F7a-human-request-keeps-the-problem, REG-F7b-threat-escalates-and-keeps-the-problem, REG-F8-repeated-anger-escalates, REG-F9-kill-switch-restores-lexicon-escalation |
+| P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | closed (WP3 detection, WP4 closing rule) | WP3, WP4 | REG-C, REG-C2, REG-C3, REG-C4, REG-C5, REG-C6 (all green) |
+| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | closed (WP3 boundaries, WP4 context rule with kill switch) | WP3, WP4 | REG-F1, REG-F2, REG-F2b, REG-F5, REG-F6, REG-F7a, REG-F7b, REG-F8, REG-F9, REG-F9b (all green) |
 | P0-5 | Cross-conversation contamination | U, LI, E2E, MT, MS, PS, ADV | open (mitigated by configuration 2026-10-06) | WP5 | REG-B-closing-remark-does-not-cross-chats, REG-B2-status-question-does-not-cross-chats |
-| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | open | WP4 | REG-E-no-phantom-ticket, REG-E2-new-problem-after-decline-is-not-the-declined-ticket, REG-E3-created-ticket-is-not-proposed-again, REG-L5-1a-proposed-ticket-is-proposed, REG-L5-1b-withheld-ticket-is-withheld, REG-L5-1c-unavailable-ticket-is-unavailable, REG-L5-1d-open-account-ticket-is-existing |
-| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | open (reply classification fixed in WP3: REG-D1-plain-no, REG-D1-plain-yes and REG-D2 green) | WP4 | REG-D1-unclear-reask-is-bounded, REG-D3-restated-problem-at-prompt, REG-D4-new-problem-at-ticket-question-is-diagnosed, REG-D4b-new-problem-at-escalation-question-is-diagnosed, REG-D5-restated-negated-problem-is-not-a-decline, REG-E-no-phantom-ticket, REG-E2-new-problem-after-decline-is-not-the-declined-ticket |
-| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | open | WP4 | REG-G-pending-prompt-expires, REG-G2-expired-question-does-not-hijack-a-new-problem, REG-G2b-expired-diagnostic-question-does-not-hijack-a-new-problem, REG-G5-late-unrelated-message-is-not-captured |
-| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | open (the negated-resolution case is fixed in WP3: REG-C green) | WP4, WP5 | REG-C3-resolved-plus-new-problem-is-diagnosed, REG-C4-resolved-then-new-problem-is-diagnosed, REG-C5-one-of-two-problems-resolved-keeps-the-other, REG-C6-new-problem-then-resolution-in-one-message |
+| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | closed (WP4) | WP4 | REG-E-no-phantom-ticket, REG-E2, REG-E3, REG-L5-1a, REG-L5-1b, REG-L5-1c, REG-L5-1d (all green); INV-TICKET |
+| P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | closed (WP3 classification, WP4 state machine) | WP4 | REG-D1-unclear-reask-is-bounded, REG-D3, REG-D4, REG-D4b, REG-D5, REG-E, REG-E2 (all green) |
+| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | closed (WP4) | WP4 | REG-G-pending-prompt-expires, REG-G2, REG-G2b, REG-G3, REG-G3b, REG-G4, REG-G5 (all green); INV-STAMP |
+| P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | closed (WP4); episode lifecycle in Layer 3 (G-L3-4) remains for WP5 | WP4, WP5 | REG-C3, REG-C4, REG-C5, REG-C6 (all green) |
 | P0-10 | Knowledge not using live data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-11 | Ticket status cannot read real data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-12 | Evidence only increases | U, LI, E2E, MT, PS, ADV | open | WP5 | REG-12-denial-lowers-belief |
@@ -116,6 +116,6 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | P0-14 | Incorrect or incomplete observability | U, LI, E2E, MT, MS, PS | closed (WP2) | WP2 | REG-K3-every-paid-turn-is-traced, REG-K3b-every-paid-turn-is-traced-across-chats, REG-K1-trace-records-what-was-sent (all green) |
 | P0-15 | Shadow comparison cannot agree | U, LI, E2E, PS | closed (WP2); the shadow stays disabled in production by configuration until re-enabled | WP2 | REG-K2-shadow-can-agree (green) |
 | P0-16 | Production settings not covered by integration tests | LI, E2E, MT, MS, PS, ADV | open (foundation in WP1) | WP1–WP9 | — (T-1, T-4) |
-| P0-17 | Untested conversation controller in `sie-chat-bridge.js` | U, LI, E2E, MT, MS, PS | open (REG-F3 and REG-F4 green since WP3) | WP4 | structure.test.mjs |
+| P0-17 | Untested conversation controller in `sie-chat-bridge.js` | U, LI, E2E, MT, MS, PS | closed (WP4: the bridge is an orchestrator, G-BR-1) | WP4 | structure.test.mjs (green), REG-F3, REG-F4 (green) |
 
 Categories: U unit · LI layer integration · E2E full `runSieTurn` · MT multi-turn · MS multi-session · PS production settings · ADV adversarial. A P0 is `closed` only when every required category has passing tests. For the golden-backed categories (E2E, MT, MS, PS, ADV), the meta-test checks this mechanically.

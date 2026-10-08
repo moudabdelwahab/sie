@@ -344,7 +344,7 @@ export const SETTINGS = Object.freeze([
         min: 5, max: 1440, step: 5, dependsOn: 'memory_keep_context',
         title: 'مدة الاحتفاظ بالسياق (بالدقايق)',
         desc: 'لو العميل رجع بعد المدة دي، المحرك يبدأ معاه من أول وجديد. مفيد عشان مشكلة قديمة ماتلخبطش مشكلة جديدة.',
-        effect: 'sie-chat-bridge: context expiry check'
+        effect: 'conversation-rules: loadPreviousState (context expiry)'
     },
     {
         key: 'memory_remember_name', group: 'memory', type: 'boolean', default: true,
@@ -380,7 +380,15 @@ export const SETTINGS = Object.freeze([
         title: 'يستأذن قبل ما يفتح تذكرة',
         desc: 'يسأل «تحب أفتحلك تذكرة؟» ويستنى موافقة العميل.',
         warn: 'هيفتح التذاكر من غير ما يسأل، وده بيزوّد عدد التذاكر.',
-        effect: 'sie-chat-bridge: beginTicketConfirmation()'
+        effect: 'conversation-rules: finalizeTicket (proposed + ticket question)'
+    },
+    {
+        key: 'ticket_prompt_minutes', group: 'support', type: 'number', default: 30,
+        min: 5, max: 1440, step: 5, dependsOn: 'ask_before_ticket',
+        title: 'مدة سؤال «تحب أفتحلك تذكرة؟» (بالدقايق)',
+        desc: 'بعد المدة دي السؤال مايبقاش مستني رد: لو العميل كتب مشكلة جديدة المحرك يشخّصها. '
+            + 'لو رد بعدها بموافقة واضحة التذكرة بتتفتح، ولو رفض واضح بيتسجّل رفض.',
+        effect: 'conversation-rules: classifyPromptAnswer (prompt expiresAt, owner decision D2)'
     },
     {
         key: 'ticket_on_low_confidence', group: 'support', type: 'boolean', default: true,
@@ -395,7 +403,16 @@ export const SETTINGS = Object.freeze([
         title: 'يفتح تذكرة فورًا لو العميل غضبان',
         desc: 'أول ما يحس بغضب واضح، يوقف التشخيص ويوصّله بحد من الفريق.',
         warn: 'العميل الغضبان هيفضل مع المحرك لحد ما يطلب موظف بنفسه.',
-        effect: 'sie-chat-bridge: escalateImmediately on anger'
+        effect: 'conversation-rules: escalationFor (threat; anger with context)'
+    },
+    {
+        key: 'emotion_escalation_requires_context', group: 'support', type: 'boolean', default: true,
+        dependsOn: 'ticket_on_anger',
+        title: 'الغضب لوحده مايحوّلش لموظف',
+        desc: 'الغضب أو السخرية من غير سياق مايوقفوش التشخيص: المحرك يعتذر ويكمل يحل المشكلة. '
+            + 'بيحوّل لموظف لو العميل طلب ده، أو هدد بشكوى أو استرجاع فلوس، أو فضل متضايق في الرسالة اللي بعدها، أو قال إن الحل ماظبطش.',
+        warn: 'أي كلمة غضب أو سخرية هتحوّل العميل لموظف على طول، حتى لو كانت رسالته فيها مشكلة المحرك يقدر يحلها.',
+        effect: 'conversation-rules: policy.emotionNeedsContext (kill switch, owner decision D3)'
     },
     {
         key: 'ticket_after_turns', group: 'support', type: 'number', default: 6,
