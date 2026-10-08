@@ -114,7 +114,13 @@ import { buildTurnWriterClient } from '../_shared/supabase-client.ts';
 // test runtime (harness overhead included): Free 183-216 ms / Max 213-238 ms
 // (77210d9 on the same harness: 177-188 / 206-227 ms). Signals add ~0.1 ms per
 // message on average, ~4 ms for an 8,000-character message.
-import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@d2bff133d478117a5d71532f99ed4f9044e5f261/sie-integration/sie-runtime.js';
+//
+// cc3b9f7 (WP4: Layer 5 owns every route; the bridge is an orchestrator) measured 2026-10-08
+// beside d2bff13, fresh process per run, 5 runs each, CPU = import + first turn through the
+// test runtime (harness overhead included): Free 142-250 ms / Max 181-206 ms (d2bff13 on the
+// same harness: 150-309 / 158-200 ms). Warm turns: mean 0.56 -> 0.67 ms in-process, no new
+// database round-trips.
+import { getSieReply } from 'https://cdn.jsdelivr.net/gh/moudabdelwahab/sie@cc3b9f7802730729a66c375cb4cb119df12fe345/sie-integration/sie-runtime.js';
 
 interface ChatReplyBody {
     text?: string;
