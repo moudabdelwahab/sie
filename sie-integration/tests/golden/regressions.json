@@ -2498,6 +2498,130 @@
         { "profile": "defaults", "status": "green" }
       ],
       "addedIn": "WP4"
+    },
+    {
+      "id": "REG-F10-a-feeling-is-not-a-memory",
+      "finding": "F2",
+      "p0": [
+        4
+      ],
+      "guarantees": [
+        "G-L1-7",
+        "G-L5-11"
+      ],
+      "categories": [
+        "E2E",
+        "PS",
+        "ADV"
+      ],
+      "title": "Anger or praise said about oneself («انا متعصب جدا», «انا مبسوط جدا بصراحة») is neither escalated nor stored as the customer's name",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "انا مبسوط جدا بصراحة",
+              "expect": {
+                "replyIsNot": [
+                  "MEMORY_SAVED",
+                  "ESCALATION"
+                ],
+                "factsExclude": [
+                  {
+                    "key": "name",
+                    "value": "مبسوط جدا بصراحة"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "chat": "b",
+          "turns": [
+            {
+              "say": "انا متعصب جدا",
+              "expect": {
+                "replyIsNot": [
+                  "MEMORY_SAVED",
+                  "ESCALATION"
+                ],
+                "factsExclude": [
+                  {
+                    "key": "name",
+                    "value": "متعصب جدا"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" },
+        { "profile": "defaults", "status": "green" }
+      ],
+      "addedIn": "WP4",
+      "note": "Found in WP4's production-profile verification: once anger and praise without context stopped escalating (owner decision D3), the memory reading took these as self-introductions. Fixed in Layer 1 (memory-intent NOT_A_NAME)."
+    },
+    {
+      "id": "REG-L5-1e-existing-ticket-is-named-not-claimed",
+      "finding": "E",
+      "p0": [
+        6
+      ],
+      "guarantees": [
+        "G-L5-1",
+        "G-L6-2"
+      ],
+      "categories": [
+        "E2E",
+        "MT",
+        "PS"
+      ],
+      "world": {
+        "openTickets": [
+          {
+            "ticket_number": 77,
+            "title": "synthetic",
+            "status": "open",
+            "category": "login"
+          }
+        ]
+      },
+      "title": "With the account's own open ticket on file, restating the problem names that ticket — it does not claim «the ticket we opened»",
+      "chats": [
+        {
+          "chat": "a",
+          "turns": [
+            {
+              "say": "مش قادر ادخل على حسابي"
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "ticketState": "existing",
+                "replyIncludes": "77"
+              }
+            },
+            {
+              "say": "مش قادر ادخل على حسابي",
+              "expect": {
+                "replyIsNot": "TICKET_STILL_OPEN",
+                "replyIncludes": "77",
+                "ticketsTotal": 0,
+                "ticketState": "existing"
+              }
+            }
+          ]
+        }
+      ],
+      "runs": [
+        { "profile": "production", "status": "green" }
+      ],
+      "addedIn": "WP4",
+      "note": "Found in WP4's production-profile verification (probe P7).",
+      "fixedIn": "WP4"
     }
   ]
 }

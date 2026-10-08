@@ -237,9 +237,14 @@ await finding('K3', 'Short-circuit turns write no trace (coverage)', async () =>
 const FIXED = Object.freeze({
     K1: 'WP2', K2: 'WP2', K3: 'WP2',
     C: 'WP3', C2: 'WP3', D1: 'WP3', D2: 'WP3', F1: 'WP3', F3: 'WP3', F4: 'WP3',
-    // The decline is gone; the restated problem is still not diagnosed at
-    // the prompt (REG-D3 stays red for WP4).
-    D3: 'WP3, decline part only'
+    // WP3 removed the decline; WP4 diagnoses the restated problem.
+    D3: 'WP3 + WP4',
+    E: 'WP4', F2: 'WP4', G: 'WP4', I: 'WP4', I2: 'WP4 (R6C removed)',
+    // Only the prompt-capture link of the chain: the next problem now
+    // supersedes the ticket question instead of being consumed as a decline.
+    // The contamination itself (a closing remark from chat 1 proposed as a
+    // ticket in chats 2 and 3) remains for WP5 — REG-B and REG-B2 stay red.
+    B: 'WP4, prompt-capture part only; contamination remains for WP5'
 });
 
 const pad = (s, n) => String(s).padEnd(n);

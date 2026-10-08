@@ -143,6 +143,7 @@ test('[G-L5-12] R6C is removed: no rule evaluates it and the policy has no cap f
     const r = ranking(entry('s1', 0.95, { resolution: { hasAutoResolution: true, text: { ar: 'x', en: 'x' } } }), entry('s2', 0.95), entry('s3', 0.94));
     const { decision } = decide({ ranking: r, turn: 1, previousDecisionState: null, newEvidenceAddedThisTurn: 1, clock });
     assert.ok(!decision.evaluatedRules.some((x) => x.rule.startsWith('R6C')));
+    assert.equal(decision.action, ACTIONS.ANSWER, 'several confident candidates do not suppress the leader\'s answer');
     assert.ok(!('maxSimultaneousResolvable' in resolvePolicy({ maxSimultaneousResolvable: 2 })));
     assert.ok(ACTIVATION_THRESHOLD < 0.95);
 });

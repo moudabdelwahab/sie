@@ -709,8 +709,13 @@ function finalizeTicket({ decision, ds, envelope, policy, data, confirmed, kind,
     if (isTicketOnFile(ds.ticket) || decision.alreadyTicketed) {
         rule('T1_TICKET_ON_FILE', `ticket ${ds.ticket.state}${ds.ticket.ref ? ` #${ds.ticket.ref}` : ''}: no second ticket, no second question`);
         const reminder = { ...decision, ticketDraft: null, alreadyTicketed: true };
+        // The account's own ticket is named by its number; only a ticket this
+        // conversation created is "the ticket we opened" (G-L6-2).
+        const reply = ds.ticket.state === TICKET_STATES.EXISTING && ds.ticket.ref != null
+            ? { template: 'ticket_existing', ticketNumber: ds.ticket.ref, escalation: escalationPrefix }
+            : { template: 'decision', decision: reminder, escalation: escalationPrefix };
         return {
-            reply: { template: 'decision', decision: reminder, escalation: escalationPrefix },
+            reply,
             commitDecision: { ...reminder, action: ACTIONS.WAIT_FOR_USER },
             effects: { pre: [], commit: { type: 'persist_reply' }, post: kind === 'escalation' || engineEscalation ? handoff(confirmed ? 'escalation_ticket_opened' : 'escalated_by_engine') : [] },
             sieFields: sie(ds), extraRules, decision: reminder

@@ -1,6 +1,8 @@
 # WP4 — Decision owns every route: audit and implementation plan
 
-**Status:** PROPOSED 2026-10-07, awaiting owner approval. No implementation code has changed. Nothing deployed.
+**Status:** APPROVED 2026-10-07 with owner decisions D1–D4 (D1: empty the bridge in WP4; D2: `ticket_prompt_minutes`, default 30, bounding the question, not the answer; D3: the context rule with the kill switch `emotion_escalation_requires_context`; D4: REG-J stays red, Trust thresholds and CP1 unchanged). IMPLEMENTED 2026-10-08 (commits ecc3e77 red-first, 1c7dae3 Layer 1, 9c02673 Layer 5/6/8 + orchestrator, and the verification commit after it). NOT deployed — production still runs d2bff13.
+
+**Implementation notes (differences from the plan below):** the bridge was emptied in the same change (D1), not staged. Found during production-profile verification and fixed with goldens: feelings after «انا» were stored as the customer's name once anger and praise stopped escalating (REG-F10); an account's existing ticket was reminded as "the ticket we opened" (REG-L5-1e). Per-problem bookkeeping (evidence request, account details, verification) is reset when the customer moves on to a new problem. A legacy ticket question without `expiresAt` is treated as live (its unclear answers are still bounded to one re-ask).
 **Baseline:** commit `4369e57` (WP3 deployed as `d2bff13`), full suite 1,264 / 1,264.
 **Reproductions:** `scripts/audit-2026-10/wp4-reproductions.mjs` (31 synthetic probes, real runtime) and `scripts/audit-2026-10/r6c-value.mjs` (R6C measurement).
 **Constraints kept:** no new layer; Trust CP1 keeps reading the full received text; attachments stay metadata-only; `memory_use_past_conversations`, `shadow_run_enabled` and `language_typo_tolerance` stay `false`.

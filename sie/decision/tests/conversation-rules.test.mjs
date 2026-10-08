@@ -198,9 +198,9 @@ test('[G-L5-3][G-L5-6] the customer moving on: declined, answered or superseded 
 
 // ── finalisation: the ticket lifecycle and effects (G-L5-1, G-L5-8, G-L8-5) ──
 
-function finalizeTicketTurn({ settings = {}, envelope = TRUSTED, data = {}, ds = createEmptyDecisionState(), route = ROUTES.DIAGNOSTIC } = {}) {
+function finalizeTicketTurn({ settings = {}, envelope = TRUSTED, data = {}, ds = createEmptyDecisionState(), decidedDs = null, route = ROUTES.DIAGNOSTIC } = {}) {
     const plan = { route, rules: [], turn: 2, acknowledge: null, escalation: route === ROUTES.ESCALATION ? { reason: 'human_request' } : null };
-    const decided = { decision: ticketDecision(), decisionState: ds, priorState: ds, progress: { consecutiveNoNewEvidenceTurns: 0 }, closing: null };
+    const decided = { decision: ticketDecision(), decisionState: decidedDs || ds, priorState: ds, progress: { consecutiveNoNewEvidenceTurns: 0 }, closing: null };
     return finalizeTurn({ plan, prev: { turnCount: 1, decisionState: ds }, signals: signals(), policy: policy(settings), decided, decision: decided.decision, data, envelope, diagnosticState: null, language: 'ar', nowMs: T0, customerText: 'x' });
 }
 
@@ -233,9 +233,16 @@ test('[G-L5-1][G-L6-2] with a ticket on file, a ticket decision is a reminder: n
 
 test('[G-L5-8] a quarantined turn does not move the decision state beyond the turn counter; the withheld ticket is recorded', () => {
     const ds = { ...createEmptyDecisionState(), questionsAskedCount: 1 };
-    const td = finalizeTicketTurn({ envelope: QUARANTINED, ds: { ...ds } });
+    // What decide() would have recorded for this turn: different bookkeeping.
+    const decidedDs = { ...ds, questionsAskedCount: 5, lastAction: ACTIONS.CREATE_TICKET, history: [{ turn: 2 }] };
+    const td = finalizeTicketTurn({ envelope: QUARANTINED, ds: { ...ds }, decidedDs });
     assert.equal(td.nextSie.decisionState.ticket.state, 'withheld');
-    assert.equal(td.nextSie.decisionState.questionsAskedCount, 1);
+    assert.equal(td.nextSie.decisionState.questionsAskedCount, 1, 'the quarantined turn\'s bookkeeping is not kept');
+    assert.equal(td.nextSie.decisionState.lastAction, null);
+    assert.deepEqual(td.nextSie.decisionState.history, []);
+    // Control: the same turn, trusted, does record what was decided.
+    const trusted = finalizeTicketTurn({ envelope: TRUSTED, ds: { ...ds }, decidedDs, settings: { ask_before_ticket: true } });
+    assert.equal(trusted.nextSie.decisionState.questionsAskedCount, 5);
     assert.equal(td.nextSie.turnCount, 2);
     assert.equal(td.intent.trustDowngradedFrom, ACTIONS.CREATE_TICKET);
 });

@@ -103,11 +103,11 @@ The behavioural guarantees from `docs/REMEDIATION-PLAN-SIE-9-LAYERS.md`, with th
 | P0-1 | Negation and confirmation mistakes | U, LI, E2E, MT, PS, ADV | closed (WP3 detection, WP4 routing) | WP3, WP4 | REG-D2, REG-D3, REG-D4, REG-D4b, REG-D5 (all green) |
 | P0-2 | Arabic word-boundary problems | U, LI, E2E, PS, ADV | closed (WP3) | WP3 | REG-D1-plain-no, REG-D1-plain-yes, REG-F1-install-is-not-anger (all green) |
 | P0-3 | False resolution detection | U, LI, E2E, MT, PS, ADV | closed (WP3 detection, WP4 closing rule) | WP3, WP4 | REG-C, REG-C2, REG-C3, REG-C4, REG-C5, REG-C6 (all green) |
-| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | closed (WP3 boundaries, WP4 context rule with kill switch) | WP3, WP4 | REG-F1, REG-F2, REG-F2b, REG-F5, REG-F6, REG-F7a, REG-F7b, REG-F8, REG-F9, REG-F9b (all green) |
+| P0-4 | False emotion/escalation detection | U, LI, E2E, MT, PS, ADV | closed (WP3 boundaries, WP4 context rule with kill switch) | WP3, WP4 | REG-F1, REG-F2, REG-F2b, REG-F5, REG-F6, REG-F7a, REG-F7b, REG-F8, REG-F9, REG-F9b, REG-F10 (all green) |
 | P0-5 | Cross-conversation contamination | U, LI, E2E, MT, MS, PS, ADV | open (mitigated by configuration 2026-10-06) | WP5 | REG-B-closing-remark-does-not-cross-chats, REG-B2-status-question-does-not-cross-chats |
-| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | closed (WP4) | WP4 | REG-E-no-phantom-ticket, REG-E2, REG-E3, REG-L5-1a, REG-L5-1b, REG-L5-1c, REG-L5-1d (all green); INV-TICKET |
+| P0-6 | Phantom ticket state | U, LI, E2E, MT, PS, ADV | closed (WP4) | WP4 | REG-E-no-phantom-ticket, REG-E2, REG-E3, REG-L5-1a, REG-L5-1b, REG-L5-1c, REG-L5-1d, REG-L5-1e (all green); INV-TICKET |
 | P0-7 | Ticket confirmation/decline handling | U, LI, E2E, MT, PS, ADV | closed (WP3 classification, WP4 state machine) | WP4 | REG-D1-unclear-reask-is-bounded, REG-D3, REG-D4, REG-D4b, REG-D5, REG-E, REG-E2 (all green) |
-| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | closed (WP4) | WP4 | REG-G-pending-prompt-expires, REG-G2, REG-G2b, REG-G3, REG-G3b, REG-G4, REG-G5 (all green); INV-STAMP |
+| P0-8 | Pending prompt expiry | U, LI, E2E, MT, MS, PS | closed (WP4) | WP4 | REG-G-pending-prompt-expires, REG-G2, REG-G2b, REG-G3, REG-G3b, REG-G4, REG-G5, REG-G6 (all green); INV-STAMP |
 | P0-9 | State wiped after a false resolution | U, LI, E2E, MT, PS, ADV | closed (WP4); episode lifecycle in Layer 3 (G-L3-4) remains for WP5 | WP4, WP5 | REG-C3, REG-C4, REG-C5, REG-C6 (all green) |
 | P0-10 | Knowledge not using live data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |
 | P0-11 | Ticket status cannot read real data | U, LI, E2E, PS, ADV | open | WP6 | REG-H-ticket-status-from-real-data |

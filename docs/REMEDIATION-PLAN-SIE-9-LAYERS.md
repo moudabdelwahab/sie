@@ -1,6 +1,6 @@
 # SIE — Remediation Plan for the Existing Nine Layers
 
-**Status:** APPROVED 2026-10-06 with the recommendations below (§8). Work proceeds one work package at a time; each needs explicit approval. WP1, WP2 and WP3 done; WP4 not started.
+**Status:** APPROVED 2026-10-06 with the recommendations below (§8). Work proceeds one work package at a time; each needs explicit approval. WP1, WP2 and WP3 done (WP3 deployed); WP4 implemented 2026-10-08 with owner decisions D1–D4 (docs/WP4-PLAN.md), awaiting deployment approval; WP5 not started.
 **Basis:** `docs/AUDIT-SIE-9-LAYERS-2026-10.md` (commit `18d602b`). Finding ids (`A`, `B`, `B2`, `C`, … `K3`) refer to the 21 reproductions in `scripts/audit-2026-10/conversations.mjs`, all of which reproduce today.
 **Scope rule:** no Layer 10, no Layer 11, no new architectural layer. The goal is to make the existing nine layers correct and connected as one system. Trust and Retrieval stay as they are today: cross-cutting helpers, not new stages.
 

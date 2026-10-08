@@ -142,3 +142,13 @@ test('memory extraction is linear on hostile input', () => {
         assert.ok(performance.now() - t0 < 250, `took ${(performance.now() - t0).toFixed(0)} ms on ${hostile.length} chars`);
     }
 });
+
+test('[G-L1-7] a feeling after «انا» is not a name (WP4: anger and praise without context now reach the memory reading)', () => {
+    for (const t of ['انا مبسوط جدا بصراحة', 'انا متعصب جدا', 'انا زهقان', 'انا غضبان', 'انا متضايق جدا', 'أنا مضايقة', 'انا متشكر جدا']) {
+        const m = detectMemoryIntent(t);
+        assert.ok(!m || !m.facts.some((f) => f.key === 'name'), `${t} stored as a name: ${JSON.stringify(m?.facts)}`);
+    }
+    // Controls: real introductions are still remembered.
+    assert.deepEqual(detectMemoryIntent('انا اسمي سامي')?.facts, [{ key: 'name', value: 'سامي' }]);
+    assert.deepEqual(detectMemoryIntent('انا سعيد')?.facts, [{ key: 'name', value: 'سعيد' }], '«سعيد» is a name');
+});
